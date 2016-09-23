@@ -52,6 +52,7 @@ static NSData *rn;
 static NSData *rnhh;
 static NSData *rnrn;
 static NSData *contentType;
+static NSTimeInterval timeout=300;
 
 static BOOL _run;
 
@@ -199,55 +200,96 @@ int main(int argc, const char* argv[]) {
          ];
 
 #pragma mark -
-#pragma mark _____________dcm4chee-arc-light_____________
-#pragma mark GET wado-uri
-        NSRegularExpression *wadoregex = [NSRegularExpression regularExpressionWithPattern:@"^/.*" options:NSRegularExpressionCaseInsensitive error:NULL];
+#pragma mark _______dcm4chee-arc-light GET_______
+
+#pragma mark qido studies series instances
+        
+        NSRegularExpression *qidoregex = [NSRegularExpression regularExpressionWithPattern:@"^/studies|^/series|^/instances" options:NSRegularExpressionCaseInsensitive error:NULL];
         
         [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:wadoregex
+                       pathRegularExpression:qidoregex
                                 requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
-                                    NSURL *requestURL=request.URL;
-                                    NSString *bSlash=requestURL.baseURL.absoluteString;
-                                    NSString *b=[bSlash substringToIndex:[bSlash length]-1];
-                                    NSString *p=requestURL.path;
-                                    NSString *q=requestURL.query;
-                                    GWS_LOG_INFO(@"no handler for:(%@) %@%@?%@",request.method,b,p,q);
-                                    return [GCDWebServerDataResponse responseWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:@"http://opendicom.com"]] contentType:@"text/html"];
-                                }
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             NSString *q=request.URL.query;
+             NSString *qidoString;
+             if (q) qidoString=[NSString stringWithFormat:@"%@%@?%@",
+                                  [dicomwebDict objectForKey:@"qidoRS"],
+                                  request.URL.path,
+                                  q];
+             else    qidoString=[NSString stringWithFormat:@"%@%@",
+                                   [dicomwebDict objectForKey:@"qidoRS"],
+                                   request.URL.path];
+             GWS_LOG_INFO(@"dicomweb qido: %@",qidoString);
+             return [GCDWebServerDataResponse
+                     responseWithData:
+                     [NSData dataWithContentsOfURL:
+                      [NSURL URLWithString:qidoString]
+                      ]
+                     contentType:@"application/dicom+json"
+                     ];
+         }
          ];
-#pragma mark GET studies
-//studies
-
-        NSRegularExpression *studiesqidoregex = [NSRegularExpression regularExpressionWithPattern:@"studies" options:NSRegularExpressionCaseInsensitive error:NULL];
-
-#pragma mark GET series
-//series
-
-        NSRegularExpression *seriesqidoregex = [NSRegularExpression regularExpressionWithPattern:@"series" options:NSRegularExpressionCaseInsensitive error:NULL];
-
-#pragma mark GET instances
-//instances
         
-        NSRegularExpression *instancesqidoregex = [NSRegularExpression regularExpressionWithPattern:@"instances" options:NSRegularExpressionCaseInsensitive error:NULL];
+#pragma mark djangoPagedQidoRS studies series instances
         
-#pragma mark GET studies/
+        NSRegularExpression *djangoPagedQidoregex = [NSRegularExpression regularExpressionWithPattern:@"^djangopaged/instances|^djangopaged/series|^djangopaged/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+
+        
+//#pragma mark zipped wadoRS studies series instances
+//zipped/studies/{StudyInstanceUID}
+//zipped/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
+//zipped/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}
+
+        
+#pragma mark wadoRS studies series instances
 //studies/{StudyInstanceUID}
-
-        NSRegularExpression *studieswadoregex = [NSRegularExpression regularExpressionWithPattern:@"studies/" options:NSRegularExpressionCaseInsensitive error:NULL];
-
-
-#pragma mark GET series/
 //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
+//studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}
+//Accept: multipart/related;type="application/dicom"
+        NSRegularExpression *wadorsregex = [NSRegularExpression regularExpressionWithPattern:@"studies/" options:NSRegularExpressionCaseInsensitive error:NULL];
 
-        NSRegularExpression *serieswadoregex = [NSRegularExpression regularExpressionWithPattern:@"/series/" options:NSRegularExpressionCaseInsensitive error:NULL];
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:wadorsregex
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             NSString *wadoRSString=[[dicomwebDict objectForKey:@"wadoRS"] stringByAppendingString:request.URL.path];
+             GWS_LOG_INFO(@"dicomweb wado-rs: %@",wadoRSString);
+             
+             //request, response and error
+             NSMutableURLRequest *wadorsRequest=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:wadoRSString] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
+             //https://developer.apple.com/reference/foundation/nsurlrequestcachepolicy?language=objc
+             [wadorsRequest setHTTPMethod:@"GET"];
+             [wadorsRequest setValue:@"multipart/related;type=application/dicom" forHTTPHeaderField:@"Accept"];
+             NSHTTPURLResponse *response=nil;
+             //URL properties: expectedContentLength, MIMEType, textEncodingName
+             //HTTP properties: statusCode, allHeaderFields
+             NSError *error=nil;
+             
+             
+             NSData *data=[NSURLConnection sendSynchronousRequest:wadorsRequest
+                                                returningResponse:&response
+                                                            error:&error];
 
-#pragma mark GET cda
+             if ((response.statusCode==200) && [data length]) return [GCDWebServerDataResponse
+                     responseWithData:data
+                     contentType:@"multipart/related;type=application/dicom"
+                     ];
+
+             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@",[error description]];
+         }
+         ];
+
+/*
+#pragma mark cda
 //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/cda
         
         NSRegularExpression *cdaregex = [NSRegularExpression regularExpressionWithPattern:@"/cda$" options:NSRegularExpressionCaseInsensitive error:NULL];
-
-#pragma mark GET encapsulated
+*/
+        
+#pragma mark encapsulated
 //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/encapsulated
         
         NSRegularExpression *encapsulatedregex = [NSRegularExpression regularExpressionWithPattern:@"/encapsulated$" options:NSRegularExpressionCaseInsensitive error:NULL];
@@ -290,7 +332,7 @@ int main(int argc, const char* argv[]) {
          }
          ];
         
-#pragma mark GET metadata
+#pragma mark metadata
 //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/metadata
 
         NSRegularExpression *metadataregex = [NSRegularExpression regularExpressionWithPattern:@"/metadata$" options:NSRegularExpressionCaseInsensitive error:NULL];
@@ -312,6 +354,26 @@ int main(int argc, const char* argv[]) {
                           ]
                          ]
                        contentType:@"application/dicom+json"
+                     ];
+         }
+         ];
+#pragma mark dicom wado-uri
+        NSRegularExpression *wadouriregex = [NSRegularExpression regularExpressionWithPattern:@"^/$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:wadouriregex
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             NSString *wadoURIString=[NSString stringWithFormat:@"%@?%@",[dicomwebDict objectForKey:@"wadoURI"],request.URL.query];
+             //no se agrega ningún control para no enlentecer
+             //podría optimizarse con creación asíncrona de la data
+             //paquetes entran y salen sin esperar el fin de la entrada...
+             //GWS_LOG_INFO(@"dicomweb wado-uri: %@",wadoURIString);
+             return [GCDWebServerDataResponse
+                     responseWithData:[NSData dataWithContentsOfURL:
+                                       [NSURL URLWithString:wadoURIString]]
+                     contentType:@"application/dicom"
                      ];
          }
          ];
@@ -919,8 +981,9 @@ int main(int argc, const char* argv[]) {
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSString *p=[request.URL.path substringFromIndex:5+[dicomweb length]];
-
+             GWS_LOG_INFO(@"%@",p);
              NSString *q=request.URL.query;
+             
              if (q) return [GCDWebServerResponse
                             responseWithRedirect:[NSURL URLWithString:[NSString stringWithFormat:@"%@?%@",p,q]]
                             permanent:YES];

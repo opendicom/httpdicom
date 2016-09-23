@@ -154,7 +154,6 @@
 		2A1322EC1C87C89E00C4DB43 /* GCDWebServerErrorResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerErrorResponse.m; path = "GCDWebServer-master/GCDWebServer/Responses/GCDWebServerErrorResponse.m"; sourceTree = "<group>"; };
 		2A1322EE1C87C8A900C4DB43 /* GCDWebServerFileResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerFileResponse.m; path = "GCDWebServer-master/GCDWebServer/Responses/GCDWebServerFileResponse.m"; sourceTree = "<group>"; };
 		2A1322F01C87C8B000C4DB43 /* GCDWebServerStreamedResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerStreamedResponse.m; path = "GCDWebServer-master/GCDWebServer/Responses/GCDWebServerStreamedResponse.m"; sourceTree = "<group>"; };
-		2A1322F21C88A1A600C4DB43 /* oids.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = oids.plist; sourceTree = "<group>"; };
 		2A31F5E21C87295A00A78C7C /* httpdicom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = httpdicom; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A31F5E51C87295A00A78C7C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2A31F5F31C8729EE00A78C7C /* GCDWebServer-master */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "GCDWebServer-master"; sourceTree = "<group>"; };
@@ -512,7 +511,6 @@
 				4A5D5A961CC128990077B83F /* include */,
 				4A5D5A9C1CC128990077B83F /* lib */,
 				2A6BE9E31C91141D0011DEC0 /* httpdicom */,
-				2A1322F21C88A1A600C4DB43 /* oids.plist */,
 				2A31F6131C87322300A78C7C /* GCDWebServer modified */,
 				2A31F6121C8731FC00A78C7C /* GCDWebServer alias */,
 				2A31F5F31C8729EE00A78C7C /* GCDWebServer-master */,

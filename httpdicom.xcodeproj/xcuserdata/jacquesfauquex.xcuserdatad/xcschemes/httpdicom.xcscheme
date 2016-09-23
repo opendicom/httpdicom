@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "~/httpdicom/oids.plist"
+            argument = "~/oids.plist"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
