@@ -54,6 +54,7 @@ static NSData *rnrn;
 static NSData *contentType;
 static NSTimeInterval timeout=300;
 
+
 static BOOL _run;
 
 static void _SignalHandler(int signal) {
@@ -102,9 +103,9 @@ int main(int argc, const char* argv[]) {
      syntax: httpdicom
      
      [1] path to oids.plist
-     [2] dicomweb (OID del dcm4chee-arc-light del PCS)
-     [3] dicom1
-     [4] lan...
+     [2] devOid[0] (OID del dcm4chee-arc-light del PCS)
+     [3] devOid[1] (device, workstation, pacs conectado al PCS local
+     [4] ...
      */
     
     @autoreleasepool {
@@ -122,12 +123,14 @@ int main(int argc, const char* argv[]) {
         NSRegularExpression *UIRegex = [NSRegularExpression regularExpressionWithPattern:@"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:0 error:NULL];
         NSRegularExpression *SHRegex = [NSRegularExpression regularExpressionWithPattern:@"^(?:\\s*)([^\\r\\n\\f\\t]*[^\\r\\n\\f\\t\\s])(?:\\s*)$" options:0 error:NULL];
 
-        NSMutableArray *args=[NSMutableArray arrayWithArray:[[NSProcessInfo processInfo] arguments]];
-        //oids
-        NSDictionary *oids=[NSDictionary dictionaryWithContentsOfFile:[args[1]stringByExpandingTildeInPath]];
+        NSArray *args=[[NSProcessInfo processInfo] arguments];
+        NSDictionary *devs=[NSDictionary dictionaryWithContentsOfFile:[args[1]stringByExpandingTildeInPath]];
+        //NSLog(@"devs:\r%@",[devs description]);
+
+        
         NSMutableSet *orgis=[NSMutableSet set];
         NSMutableSet *orgts=[NSMutableSet set];
-        for (NSDictionary *d in [oids allValues])
+        for (NSDictionary *d in [devs allValues])
         {
             [orgis addObject:[d objectForKey:@"pcsi"]];
             [orgts addObject:[d objectForKey:@"pcst"]];
@@ -146,9 +149,9 @@ int main(int argc, const char* argv[]) {
             NSString *orgt=[orgtsArray objectAtIndex:[orgisArray indexOfObject:orgi]];
             NSMutableArray *orgtaets=[NSMutableArray array];
             NSMutableArray *orgiaeis=[NSMutableArray array];
-            for (NSString *k in [oids allKeys])
+            for (NSString *k in [devs allKeys])
             {
-                NSDictionary *d=[oids objectForKey:k];
+                NSDictionary *d=[devs objectForKey:k];
                 if ([[d objectForKey:@"pcsi"]isEqualToString:orgi])
                 {
                     [orgtaets addObject:[d objectForKey:@"dicomaet"]];
@@ -158,30 +161,93 @@ int main(int argc, const char* argv[]) {
             [orgtsaets setValue:orgtaets forKey:orgt];
             [orgisaeis setValue:orgiaeis forKey:orgi];
         }
-        
-        NSString *dicomweb=args[2];
-        NSDictionary *dicomwebDict=[oids objectForKey:dicomweb];
-        NSString *dicom1=args[3];
-        NSString *dicom2=args[4];
+        NSUInteger devCount=[args count]-2;
+        NSArray *devOids=[args subarrayWithRange:NSMakeRange(2,devCount)];
+        NSDictionary *dev0=[devs objectForKey:[devOids objectAtIndex:0]];
 
         //-loglevel 0=debug, 1=verbose, 2=info
-        [GCDWebServer setLogLevel:[[dicomwebDict objectForKey:@"logLevel"]intValue]];
+        [GCDWebServer setLogLevel:[[dev0 objectForKey:@"loglevel"]intValue]];
         
-        NSString *IIDURL=[dicomwebDict objectForKey:@"pcsURL"];
-        NSString *resources=[[dicomwebDict objectForKey:@"pcsResources"]stringByExpandingTildeInPath];
+        NSString *IIDURL=[dev0 objectForKey:@"pcsurl"];
+        NSString *resources=[[dev0 objectForKey:@"pcsresources"]stringByExpandingTildeInPath];
         NSString *jnlp=[[NSString stringWithContentsOfFile:[resources stringByAppendingPathComponent:@"weasis/weasis.jnlp"] encoding:NSUTF8StringEncoding error:nil]stringByReplacingOccurrencesOfString:@"{IIDURL}" withString:IIDURL];
         
         //auditPath
-        NSString *auditPath=[[dicomwebDict objectForKey:@"pcsAudit"]stringByExpandingTildeInPath];
+        NSString *auditPath=[[dev0 objectForKey:@"pcsaudit"]stringByExpandingTildeInPath];
         
         //storescu
-        NSString *storescu=[[dicomwebDict objectForKey:@"storescu"]stringByExpandingTildeInPath];
-        NSArray *storescuArgs=[dicomwebDict objectForKey:@"storescuArgs"];
+        NSString *storescu=[[dev0 objectForKey:@"storescu"]stringByExpandingTildeInPath];
+        NSArray *storescuArgs=[dev0 objectForKey:@"storescuargs"];
         
         //pcsPort
-        int pcsPort=[[dicomwebDict objectForKey:@"pcsPort"]intValue];
+        int pcsPort=[[dev0 objectForKey:@"pcsport"]intValue];
         GCDWebServer* httpdicomServer = [[GCDWebServer alloc] init];
+        
+        //dev0regex devregex and sql[]
+        
+        //objects type NSRegularExpression
+        NSRegularExpression *dev0regex=[NSRegularExpression regularExpressionWithPattern:[@"^/pcs/" stringByAppendingString:devOids[0]] options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        NSMutableString *devregexString=[NSMutableString string];
+        for (NSUInteger i=1;i<devCount-1;i++)
+        {
+            [devregexString appendFormat:@"^/pcs/%@|",devOids[i]];
+        }
+        [devregexString appendFormat:@"^/pcs/%@",devOids[devCount-1]];
+        NSRegularExpression *devregex=[NSRegularExpression regularExpressionWithPattern:devregexString options:NSRegularExpressionCaseInsensitive error:NULL];
 
+        
+        //objects type NSString
+        NSMutableArray *sqldbtmp=[NSMutableArray array];
+        NSMutableArray *sqlexetmp=[NSMutableArray array];
+        NSMutableArray *sqlusertmp=[NSMutableArray array];
+        NSMutableArray *sqlpasswordtmp=[NSMutableArray array];
+        NSMutableArray *sqldbtitletmp=[NSMutableArray array];
+        NSMutableArray *sqlpatienttabletmp=[NSMutableArray array];
+        NSMutableArray *sqlstudytabletmp=[NSMutableArray array];
+        NSMutableArray *sqlseriestabletmp=[NSMutableArray array];
+        NSMutableArray *sqlinstancetabletmp=[NSMutableArray array];
+        //objects type NSDictionary
+        NSMutableArray *sqlpatientfieldstmp=[NSMutableArray array];
+        NSMutableArray *sqlstudyfieldstmp=[NSMutableArray array];
+        NSMutableArray *sqlseriesfieldstmp=[NSMutableArray array];
+        NSMutableArray *sqlinstancefieldstmp=[NSMutableArray array];
+        
+        for (NSUInteger i=0;i<devCount;i++)
+        {
+            NSDictionary *devx=[devs objectForKey:[devOids objectAtIndex:i]];
+            [sqldbtmp addObject:[devx objectForKey:@"sqldb"]];
+            [sqlexetmp addObject:[devx objectForKey:@"sqlexe"]];
+            [sqlusertmp addObject:[devx objectForKey:@"sqluser"]];
+            [sqlpasswordtmp addObject:[devx objectForKey:@"sqlpassword"]];
+            [sqldbtitletmp addObject:[devx objectForKey:@"sqldbtitle"]];
+            [sqlpatienttabletmp addObject:[devx objectForKey:@"sqlpatienttable"]];
+            [sqlstudytabletmp addObject:[devx objectForKey:@"sqlstudytable"]];
+            [sqlseriestabletmp addObject:[devx objectForKey:@"sqlseriestable"]];
+            [sqlinstancetabletmp addObject:[devx objectForKey:@"sqlinstancetable"]];
+            [sqlpatientfieldstmp addObject:[devx objectForKey:@"sqlpatientfields"]];
+            [sqlstudyfieldstmp addObject:[devx objectForKey:@"sqlstudyfields"]];
+            [sqlseriesfieldstmp addObject:[devx objectForKey:@"sqlseriesfields"]];
+            [sqlinstancefieldstmp addObject:[devx objectForKey:@"sqlinstancefields"]];
+
+        }
+
+        //objects type NSString
+        NSArray *sqldb=[NSArray arrayWithArray:sqldbtmp];
+        NSArray *sqlexe=[NSArray arrayWithArray:sqlexetmp];
+        NSArray *sqluser=[NSArray arrayWithArray:sqlusertmp];
+        NSArray *sqlpassword=[NSArray arrayWithArray:sqlpasswordtmp];
+        NSArray *sqldbtitle=[NSArray arrayWithArray:sqldbtitletmp];
+        NSArray *sqlpatienttable=[NSArray arrayWithArray:sqlpatienttabletmp];
+        NSArray *sqlstudytable=[NSArray arrayWithArray:sqlstudytabletmp];
+        NSArray *sqlseriestable=[NSArray arrayWithArray:sqlseriestabletmp];
+        NSArray *sqlinstancetable=[NSArray arrayWithArray:sqlinstancetabletmp];
+        //objects type NSDictionary
+        NSArray *sqlpatientfields=[NSArray arrayWithArray:sqlpatientfieldstmp];
+        NSArray *sqlstudyfields=[NSArray arrayWithArray:sqlstudyfieldstmp];
+        NSArray *sqlseriesfields=[NSArray arrayWithArray:sqlseriesfieldstmp];
+        NSArray *sqlinstancefields=[NSArray arrayWithArray:sqlinstancefieldstmp];
+        
 #pragma mark -
 #pragma mark no handler
         NSRegularExpression *defaultregex = [NSRegularExpression regularExpressionWithPattern:@"^/.*" options:NSRegularExpressionCaseInsensitive error:NULL];
@@ -214,13 +280,53 @@ int main(int argc, const char* argv[]) {
              NSString *q=request.URL.query;
              NSString *qidoString;
              if (q) qidoString=[NSString stringWithFormat:@"%@%@?%@",
-                                  [dicomwebDict objectForKey:@"qidoRS"],
+                                  [dev0 objectForKey:@"qido"],
                                   request.URL.path,
                                   q];
              else    qidoString=[NSString stringWithFormat:@"%@%@",
-                                   [dicomwebDict objectForKey:@"qidoRS"],
+                                   [dev0 objectForKey:@"qido"],
                                    request.URL.path];
-             GWS_LOG_INFO(@"dicomweb qido: %@",qidoString);
+             GWS_LOG_INFO(@"dev0 qido: %@",qidoString);
+             NSData *responseData=[NSData dataWithContentsOfURL:
+                                   [NSURL URLWithString:qidoString]];
+             if (!responseData) return
+                [GCDWebServerErrorResponse
+                 responseWithClientError:kGCDWebServerHTTPStatusCode_FailedDependency
+                 message:@"dev0 qido: %@",qidoString
+                 ];
+
+             if (![responseData length]) return
+             [GCDWebServerErrorResponse
+              responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound
+              message:@"dev0 qido: %@",qidoString
+              ];
+             return [GCDWebServerDataResponse
+                     responseWithData:responseData
+                     contentType:@"application/dicom+json"
+                     ];
+         }
+         ];
+        
+#pragma mark djangoPaged qido studies series instances
+        
+        NSRegularExpression *djangoPagedQidoregex = [NSRegularExpression regularExpressionWithPattern:@"^/djangopaged/instances|^/djangopaged/series|^/djangopaged/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:djangoPagedQidoregex
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             GWS_LOG_INFO(@"%@",[sqldb description]);
+             NSString *q=request.URL.query;
+             NSString *qidoString;
+             if (q) qidoString=[NSString stringWithFormat:@"%@%@?%@",
+                                [dev0 objectForKey:@"qido"],
+                                request.URL.path,
+                                q];
+             else    qidoString=[NSString stringWithFormat:@"%@%@",
+                                 [dev0 objectForKey:@"qido"],
+                                 request.URL.path];
+             GWS_LOG_INFO(@"dev0 qido: %@",qidoString);
              return [GCDWebServerDataResponse
                      responseWithData:
                      [NSData dataWithContentsOfURL:
@@ -230,11 +336,6 @@ int main(int argc, const char* argv[]) {
                      ];
          }
          ];
-        
-#pragma mark djangoPagedQidoRS studies series instances
-        
-        NSRegularExpression *djangoPagedQidoregex = [NSRegularExpression regularExpressionWithPattern:@"^djangopaged/instances|^djangopaged/series|^djangopaged/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
 
         
 //#pragma mark zipped wadoRS studies series instances
@@ -243,7 +344,7 @@ int main(int argc, const char* argv[]) {
 //zipped/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}
 
         
-#pragma mark wadoRS studies series instances
+#pragma mark wadors studies series instances
 //studies/{StudyInstanceUID}
 //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
 //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}
@@ -255,11 +356,11 @@ int main(int argc, const char* argv[]) {
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-             NSString *wadoRSString=[[dicomwebDict objectForKey:@"wadoRS"] stringByAppendingString:request.URL.path];
-             GWS_LOG_INFO(@"dicomweb wado-rs: %@",wadoRSString);
+             NSString *wadorsString=[[dev0 objectForKey:@"wadors"] stringByAppendingString:request.URL.path];
+             GWS_LOG_INFO(@"dev0 wadors: %@",wadorsString);
              
              //request, response and error
-             NSMutableURLRequest *wadorsRequest=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:wadoRSString] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
+             NSMutableURLRequest *wadorsRequest=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:wadorsString] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
              //https://developer.apple.com/reference/foundation/nsurlrequestcachepolicy?language=objc
              [wadorsRequest setHTTPMethod:@"GET"];
              [wadorsRequest setValue:@"multipart/related;type=application/dicom" forHTTPHeaderField:@"Accept"];
@@ -298,8 +399,8 @@ int main(int argc, const char* argv[]) {
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-             NSString *wadoString=[NSString stringWithFormat:@"%@%@",[dicomwebDict objectForKey:@"wadoRS"],[request.URL.path substringToIndex:[request.URL.path length]-13]];
-             GWS_LOG_INFO(@"dicomweb encapsulated: %@",wadoString);
+             NSString *wadoString=[NSString stringWithFormat:@"%@%@",[dev0 objectForKey:@"wadors"],[request.URL.path substringToIndex:[request.URL.path length]-13]];
+             GWS_LOG_INFO(@"dev0 encapsulated: %@",wadoString);
              NSData *responseData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadoString]];
              if (responseData)
              {
@@ -328,7 +429,7 @@ int main(int argc, const char* argv[]) {
                              contentType:ctString];
                  }
              }
-             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"dicomweb: %@ notFound",request.URL.path];
+             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"dev0: %@ notFound",request.URL.path];
          }
          ];
         
@@ -342,17 +443,27 @@ int main(int argc, const char* argv[]) {
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-             GWS_LOG_INFO(@"dicomweb metadata: %@",request.URL.path);
+             GWS_LOG_INFO(@"dev0 metadata: %@",request.URL.path);
+             NSString *metadataString=[NSString stringWithFormat:
+                                       @"%@%@",
+                                       [dev0 objectForKey:@"wadors"],
+                                       request.URL.path
+                                       ];
+
+             NSData *responseData=[NSData dataWithContentsOfURL:[NSURL URLWithString:metadataString]];
+             if (!responseData) return
+             [GCDWebServerErrorResponse
+              responseWithClientError:kGCDWebServerHTTPStatusCode_FailedDependency
+              message:@"dev0 metadata: %@",metadataString
+              ];
+             
+             if (![responseData length]) return
+             [GCDWebServerErrorResponse
+              responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound
+              message:@"dev0 metadata: %@",metadataString
+              ];
              return [GCDWebServerDataResponse
-                     responseWithData:
-                        [NSData dataWithContentsOfURL:
-                          [NSURL URLWithString:
-                           [NSString stringWithFormat:@"%@%@",
-                            [dicomwebDict objectForKey:@"wadoRS"],
-                            request.URL.path
-                           ]
-                          ]
-                         ]
+                     responseWithData:responseData
                        contentType:@"application/dicom+json"
                      ];
          }
@@ -365,14 +476,25 @@ int main(int argc, const char* argv[]) {
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-             NSString *wadoURIString=[NSString stringWithFormat:@"%@?%@",[dicomwebDict objectForKey:@"wadoURI"],request.URL.query];
+             NSString *wadouriString=[NSString stringWithFormat:@"%@?%@",[dev0 objectForKey:@"wadouri"],request.URL.query];
              //no se agrega ningún control para no enlentecer
              //podría optimizarse con creación asíncrona de la data
              //paquetes entran y salen sin esperar el fin de la entrada...
-             //GWS_LOG_INFO(@"dicomweb wado-uri: %@",wadoURIString);
+             GWS_LOG_INFO(@"dev0 wadouri: %@",wadouriString);
+             NSData *responseData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadouriString]];
+             if (!responseData) return
+                 [GCDWebServerErrorResponse
+                  responseWithClientError:kGCDWebServerHTTPStatusCode_FailedDependency
+                  message:@"dev0 wadouri: %@",wadouriString
+                  ];
+             
+             if (![responseData length]) return
+                 [GCDWebServerErrorResponse
+                  responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound
+                  message:@"dev0 wadouri: %@",wadouriString
+                  ];
              return [GCDWebServerDataResponse
-                     responseWithData:[NSData dataWithContentsOfURL:
-                                       [NSURL URLWithString:wadoURIString]]
+                     responseWithData:responseData
                      contentType:@"application/dicom"
                      ];
          }
@@ -551,12 +673,12 @@ int main(int argc, const char* argv[]) {
                  && pacs
                  && ([pacs length]<65)
                  && [UIRegex numberOfMatchesInString:pacs options:0 range:NSMakeRange(0,[pacs length])]
-                 && [oids objectForKey:pacs]
+                 && [devs objectForKey:pacs]
                  )
              {
                  NSString *accessionNumberURL=[accessionNumber stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                  //find remote pcs url
-                 NSDictionary *remote=[oids objectForKey:pacs];
+                 NSDictionary *remote=[devs objectForKey:pacs];
                  NSString *remotepcs=[remote objectForKey:@"pcsURL"];
                  
                  //request http://{remotepcs}/weasisManifest?accessionNumber=123&pacs=1.2
@@ -648,7 +770,7 @@ int main(int argc, const char* argv[]) {
                      {
                          //create jnlp
                          NSString *xmlString=[[NSString alloc]initWithData:xmlData encoding:NSUTF8StringEncoding];
-                         NSString *localizedXmlString=[NSString stringWithFormat:xmlString,[dicomwebDict objectForKey:@"wadoURL"],[dicomwebDict objectForKey:@"wadoAdditionnalParameters"]];
+                         NSString *localizedXmlString=[NSString stringWithFormat:xmlString,[dev0 objectForKey:@"wadoURL"],[dev0 objectForKey:@"wadoAdditionnalParameters"]];
                          NSData *gzipped=[LFCGzipUtility gzipData:[localizedXmlString dataUsingEncoding:NSUTF8StringEncoding]];
 
                          return [GCDWebServerDataResponse responseWithData:[[NSString stringWithFormat:jnlp,[gzipped base64EncodedStringWithOptions:0]] dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-java-jnlp-file"];//application/x-gzip"];//
@@ -697,12 +819,12 @@ int main(int argc, const char* argv[]) {
                  && pcs
                  && ([pcs length]<65)
                  && [UIRegex numberOfMatchesInString:pcs options:0 range:NSMakeRange(0,[pcs length])]
-                 && [oids objectForKey:pcs]
+                 && [devs objectForKey:pcs]
                 )
              {
                  NSString *accessionNumberURL=[accessionNumber stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                  //pacs params
-                 NSDictionary *pacsDict=[oids objectForKey:pcs];
+                 NSDictionary *pacsDict=[devs objectForKey:pcs];
                  
 #pragma mark allow other select (sql, dicom Q/R)
                  
@@ -844,11 +966,11 @@ int main(int argc, const char* argv[]) {
 #pragma mark -
 #pragma mark _____________handlers adaptivos_____________
 #pragma mark -
-#pragma mark _____________redirects dicomweb, dicom (local, (pcs) remoto_____________
+#pragma mark _____________redirects dev0, dicom (local, (pcs) remoto_____________
 
 #pragma mark /pcs
         
-        NSRegularExpression *pcsregex = [NSRegularExpression regularExpressionWithPattern:@"^/pcs/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*/.*$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        NSRegularExpression *pcsregex = [NSRegularExpression regularExpressionWithPattern:@"^/pcs/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*(/.*)?$" options:NSRegularExpressionCaseInsensitive error:NULL];
 
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:pcsregex
@@ -863,7 +985,7 @@ int main(int argc, const char* argv[]) {
              NSString *q=requestURL.query;
              NSMutableArray *pComponent=[NSMutableArray arrayWithArray:[p componentsSeparatedByString:@"/"]];
              NSString *oid=[NSString stringWithString:pComponent[2]];
-             NSString *oidURLString=[[oids objectForKey:oid]objectForKey:@"pcsURL"];
+             NSString *oidURLString=[[devs objectForKey:oid]objectForKey:@"pcsurl"];
              if (oidURLString){
                  [pComponent removeObjectAtIndex:2];
                  [pComponent removeObjectAtIndex:1];
@@ -878,7 +1000,7 @@ int main(int argc, const char* argv[]) {
                  
                  //tenemos una orden a realizar por PCS remoto
                  //si es un query, conviene obtener la respuesta, y luego devolverla al cliente, cambiando el wado para que vaya a lo local
-                 //si es un fetch wado o wado rest, cargar los archivos en dicomweb
+                 //si es un fetch wado o wado rest, cargar los archivos en dev0
                  
                  
                  return [GCDWebServerResponse
@@ -893,12 +1015,11 @@ int main(int argc, const char* argv[]) {
              }
          }
          ];
-#pragma mark /pcs/dicom2
         
-        NSRegularExpression *dicom2regex = [NSRegularExpression regularExpressionWithPattern:[[@"^/pcs/" stringByAppendingString:dicom2] stringByAppendingString:@"/.*$"] options:NSRegularExpressionCaseInsensitive error:NULL];
+#pragma mark /pcs/dev[]
 
         [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:dicom2regex
+                       pathRegularExpression:devregex
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
@@ -931,7 +1052,7 @@ int main(int argc, const char* argv[]) {
              NSString *redirectString;
              if (q){redirectString=[NSString stringWithFormat:@"%@?%@&pcs=%@",[pComponents componentsJoinedByString:@"/"],q,oid];}
              else {redirectString=[NSString stringWithFormat:@"%@?pcs=%@",[pComponents componentsJoinedByString:@"/"],oid];}
-             GWS_LOG_INFO(@"dicom2: %@%@?%@ -> %@",b,p,q,redirectString);
+             GWS_LOG_INFO(@"dev1: %@%@?%@ -> %@",b,p,q,redirectString);
              
              //redirect dentro del PCS local
              return [GCDWebServerResponse
@@ -940,57 +1061,32 @@ int main(int argc, const char* argv[]) {
                      ];
          }
          ];
-#pragma mark /pcs/dicom1
-        
-        NSRegularExpression *dicom1regex = [NSRegularExpression regularExpressionWithPattern:[[@"^/pcs/" stringByAppendingString:dicom1] stringByAppendingString:@"/.*$"] options:NSRegularExpressionCaseInsensitive error:NULL];
 
+#pragma mark /pcs/dev[0]
         [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:dicom1regex
+                       pathRegularExpression:dev0regex
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-             //request parts logging
-             NSURL *requestURL=request.URL;
-             NSString *bSlash=requestURL.baseURL.absoluteString;
-             NSString *b=[bSlash substringToIndex:[bSlash length]-1];
-             NSString *p=requestURL.path;
-             NSString *q=requestURL.query;
-             NSMutableArray *pComponents=(NSMutableArray*)[p componentsSeparatedByString:@"/"];
-             NSString *oid=[NSString stringWithString:pComponents[2]];
-             [pComponents removeObjectsInRange:NSMakeRange(1,2)];
-             NSString *redirectString;
-             if (q){redirectString=[NSString stringWithFormat:@"%@?%@&pcs=%@",[pComponents componentsJoinedByString:@"/"],q,oid];}
-             else {redirectString=[NSString stringWithFormat:@"%@?pcs=%@",[pComponents componentsJoinedByString:@"/"],oid];}
-             GWS_LOG_INFO(@"dicom1: %@%@?%@ -> %@",b,p,q,redirectString);
-             
-             //redirect dentro del PCS local
-             return [GCDWebServerResponse
-                     responseWithRedirect:[NSURL URLWithString:redirectString]
-                     permanent:NO
-                     ];
-         }
-         ];
-#pragma mark /pcs/dicomweb
-//el handler principal de dicomweb es sin /pcs/{OID} y Es accesible directamente también.
-//por esta razón hacemos un redirect
-        NSRegularExpression *dicomwebregex = [NSRegularExpression regularExpressionWithPattern:[[@"^/pcs/" stringByAppendingString:dicomweb] stringByAppendingString:@"/.*$"] options:NSRegularExpressionCaseInsensitive error:NULL];
-
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:dicomwebregex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             NSString *p=[request.URL.path substringFromIndex:5+[dicomweb length]];
-             GWS_LOG_INFO(@"%@",p);
+             NSString *p=[request.URL.path substringFromIndex:5+[devOids[0] length]];
              NSString *q=request.URL.query;
-             
-             if (q) return [GCDWebServerResponse
-                            responseWithRedirect:[NSURL URLWithString:[NSString stringWithFormat:@"%@?%@",p,q]]
-                            permanent:YES];
+             NSString *redirectString;
+             if (q && [q length])
+             {
+                 if (p && [p length]) redirectString=[NSString stringWithFormat:@"%@?%@",p,q];
+                 else redirectString=[NSString stringWithFormat:@"/?%@",q];
+             }
+             else
+             {
+                 if (p && [p length]) redirectString=p;
+                 else redirectString=@"/";
+             }
 
+             GWS_LOG_INFO(@"/pcs/dev[0] -> %@",redirectString);
+             
              return [GCDWebServerResponse
-                     responseWithRedirect:[NSURL URLWithString:p]
-                     permanent:YES];
+                     responseWithRedirect:[NSURL URLWithString:redirectString]
+                     permanent:NO];
           }
          ];
 
