@@ -16,4 +16,7 @@ Reverse proxy rest which accepts a subset of DICOMWEB services (and some additio
 ## additions
  - encapsulated (returns the contents of attribute 00420010 with corresponding content-type)
  - zipped/wadors (returns the dicom instances zipped, instead of a multipart/related)
- - djangopaged/qido (returns a django-rest framework conformant JSON) 
+ - djangors/qido (returns a django-rest framework conformant JSON)
+ - wado-rs content-type multipart/related; type="application/dicom" /export
+ - wado-uri /export
+

@@ -52,6 +52,8 @@ static NSData *rn;
 static NSData *rnhh;
 static NSData *rnrn;
 static NSData *contentType;
+static NSData *CDAOpeningTag;
+static NSData *CDAClosingTag;
 static NSTimeInterval timeout=300;
 
 
@@ -118,6 +120,26 @@ int main(int argc, const char* argv[]) {
         rnrn = [@"\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
         rnhh = [@"\r\n--" dataUsingEncoding:NSASCIIStringEncoding];
         contentType=[@"Content-Type: " dataUsingEncoding:NSASCIIStringEncoding];
+        CDAOpeningTag=[@"<ClinicalDocument" dataUsingEncoding:NSASCIIStringEncoding];
+        CDAClosingTag=[@"</ClinicalDocument>" dataUsingEncoding:NSASCIIStringEncoding];
+        
+        //
+        //
+        NSArray *DATMDT=
+        @[
+           @"PatientBirthDate",@"00100030",
+           @"StudyDate",@"00080020",
+           @"StudyTime",@"00080030",
+           @"PerformedProcedureStepStartDate",@"00400244",
+           @"PerformedProcedureStepStartTime",@"00400245",
+           @"SeriesDate",@"00080021",
+           @"SeriesTime",@"00080031",
+           @"ContentDate",@"00080023",
+           @"ContentTime",@"00080033",
+           @"AcquisitionDate",@"00080022",
+           @"AcquisitionTime",@"00080032",
+           @"AcquisitionDateTime",@"0008002A"
+           ];
         
         //regex for url validation
         NSRegularExpression *UIRegex = [NSRegularExpression regularExpressionWithPattern:@"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:0 error:NULL];
@@ -183,20 +205,6 @@ int main(int argc, const char* argv[]) {
         int pcsPort=[[dev0 objectForKey:@"pcsport"]intValue];
         GCDWebServer* httpdicomServer = [[GCDWebServer alloc] init];
         
-        //dev0regex devregex and sql[]
-        
-        //objects type NSRegularExpression
-        NSRegularExpression *dev0regex=[NSRegularExpression regularExpressionWithPattern:[@"^/pcs/" stringByAppendingString:devOids[0]] options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        NSMutableString *devregexString=[NSMutableString string];
-        for (NSUInteger i=1;i<devCount-1;i++)
-        {
-            [devregexString appendFormat:@"^/pcs/%@|",devOids[i]];
-        }
-        [devregexString appendFormat:@"^/pcs/%@",devOids[devCount-1]];
-        NSRegularExpression *devregex=[NSRegularExpression regularExpressionWithPattern:devregexString options:NSRegularExpressionCaseInsensitive error:NULL];
-
-        
         //objects type NSString
         NSMutableArray *sqldbtmp=[NSMutableArray array];
         NSMutableArray *sqlexetmp=[NSMutableArray array];
@@ -225,7 +233,6 @@ int main(int argc, const char* argv[]) {
             [sqlstudytabletmp addObject:[devx objectForKey:@"sqlstudytable"]];
             [sqlseriestabletmp addObject:[devx objectForKey:@"sqlseriestable"]];
             [sqlinstancetabletmp addObject:[devx objectForKey:@"sqlinstancetable"]];
-            [sqlpatientfieldstmp addObject:[devx objectForKey:@"sqlpatientfields"]];
             [sqlstudyfieldstmp addObject:[devx objectForKey:@"sqlstudyfields"]];
             [sqlseriesfieldstmp addObject:[devx objectForKey:@"sqlseriesfields"]];
             [sqlinstancefieldstmp addObject:[devx objectForKey:@"sqlinstancefields"]];
@@ -266,11 +273,11 @@ int main(int argc, const char* argv[]) {
          ];
 
 #pragma mark -
-#pragma mark _______dcm4chee-arc-light GET_______
+#pragma mark _______dcm4chee-arc-light_______
 
 #pragma mark qido studies series instances
         
-        NSRegularExpression *qidoregex = [NSRegularExpression regularExpressionWithPattern:@"^/studies|^/series|^/instances" options:NSRegularExpressionCaseInsensitive error:NULL];
+        NSRegularExpression *qidoregex = [NSRegularExpression regularExpressionWithPattern:@"^/studies$|^/series$|^/instances$" options:NSRegularExpressionCaseInsensitive error:NULL];
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:qidoregex
@@ -306,18 +313,127 @@ int main(int argc, const char* argv[]) {
                      ];
          }
          ];
-        
-#pragma mark djangoPaged qido studies series instances
-        
-        NSRegularExpression *djangoPagedQidoregex = [NSRegularExpression regularExpressionWithPattern:@"^/djangopaged/instances|^/djangopaged/series|^/djangopaged/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
+
+#pragma mark qido series
+        //only search by studyUID and seriesUID
+        NSRegularExpression *djangorsQidoSeriesregex = [NSRegularExpression regularExpressionWithPattern:@"^/djangors/series$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        NSRegularExpression *djangorsQidoInstancesregex = [NSRegularExpression regularExpressionWithPattern:@"^/djangors/instances$" options:NSRegularExpressionCaseInsensitive error:NULL];
         
         [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:djangoPagedQidoregex
+                       pathRegularExpression:djangorsQidoSeriesregex
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-             GWS_LOG_INFO(@"%@",[sqldb description]);
+             return [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"dev0 djangors series not programed yet"];
+         }
+         ];
+
+         
+         [httpdicomServer addHandlerForMethod:@"GET"
+                        pathRegularExpression:djangorsQidoInstancesregex
+                                 requestClass:[GCDWebServerRequest class]
+                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+          {
+              return [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"dev0 djangors instances not programed yet"];
+          }
+          ];
+
+#pragma mark datatables/studies
+        /*
+         //limit and offset are managed by wadors and mysql
+         //we add count to the next and previous links, so that the query is not counted again and again while explored
+         
+         HTTP 200 OK
+         {
+         "id": uuid
+         "count": 1023,
+         "qido": [],
+         "date": 2017-09-26 10:00:00,
+         
+         "next": "https://api.example.org/accounts/?limit=100&offset=500&count=1023&orderby=columna",
+         "previous": "https://api.example.org/accounts/?limit=100&offset=300&count=1023&orderby=columna",
+         "results": [
+         …
+         ]
+         }
+         */
+        
+        
+        NSRegularExpression *djangorsQidoStudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^/djangors/studies$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:djangorsQidoStudiesregex
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             //GDCWebServer request.query can't be used because doesn´t
+             //support same attribute twice.
              NSString *q=request.URL.query;
+             NSMutableDictionary *sqlDict=[NSMutableDictionary dictionary];
+             BOOL counted=false;
+             for (NSString *param in [request.URL.query componentsSeparatedByString:@"&"])
+             {
+                 if ([param hasPrefix:@"includedfield"])continue;
+                 if ([param hasPrefix:@"TimezoneOffsetFromUTC"])continue;
+                 if ([param hasPrefix:@"fuzzymatching"])continue;
+                 if ([param hasPrefix:@"limit"])continue;
+                 if ([param hasPrefix:@"offset"])continue;
+                 if ([param hasPrefix:@"count"]) counted=true;
+                 
+                 NSMutableArray *nv=[NSMutableArray arrayWithArray:[param componentsSeparatedByString:@"="]];
+                 NSString *n=[NSString stringWithString:nv[0]];
+
+                 
+                 NSUInteger index=[sqlstudyfields indexOfObject:n];
+                 
+                 if (index) //filter registered
+                 {
+                     if ([nv count]>1) //has value
+                     {
+                         [nv removeObjectAtIndex:0];
+                         NSString *v=[nv componentsJoinedByString:@"="];
+                         if ([v length]) //not empty
+                         {
+                             if ([v containsString:@"*"])
+                             {
+                                 //WildCardMatching
+                             }
+                             else if (
+                                [v containsString:@"-"]
+                             && [DATMDT indexOfObject:v]
+                             )
+                             {
+                                 // RangeMatching
+                             }
+                             //else if
+                             //(
+                             //SingleValueMatching
+                             
+                             
+                             
+                             //ListofUIDMatching
+                             //UniversalMatching
+                             
+                             
+                             // SequenceMatching
+                             
+                             //"*","?","-", "=" and "\"
+
+                         }
+                     }
+                 }
+                 
+                 //series
+                 
+             }
+             
+
+             
+             //query:
+             //- {attributeID}={value}
+
+             
+             
              NSString *qidoString;
              if (q) qidoString=[NSString stringWithFormat:@"%@%@?%@",
                                 [dev0 objectForKey:@"qido"],
@@ -383,53 +499,151 @@ int main(int argc, const char* argv[]) {
          }
          ];
 
-/*
-#pragma mark cda
-//studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/cda
         
-        NSRegularExpression *cdaregex = [NSRegularExpression regularExpressionWithPattern:@"/cda$" options:NSRegularExpressionCaseInsensitive error:NULL];
-*/
+#pragma mark applicable
+///applicable/DOC/EncapsulatedDocument/CDA?AccessionNumber={AccessionNumber}
+///applicable/DOC/EncapsulatedDocument?AccessionNumber={AccessionNumber}
+///applicable/DOC?AccessionNumber={AccessionNumber}
+///applicable/OT/EncapsulatedDocument?AccessionNumber={AccessionNumber}
+///applicable/OT?AccessionNumber={AccessionNumber}
         
-#pragma mark encapsulated
-//studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/encapsulated
-        
-        NSRegularExpression *encapsulatedregex = [NSRegularExpression regularExpressionWithPattern:@"/encapsulated$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        NSRegularExpression *encapsulatedregex = [NSRegularExpression regularExpressionWithPattern:@"^/applicable" options:NSRegularExpressionCaseInsensitive error:NULL];
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:encapsulatedregex
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-             NSString *wadoString=[NSString stringWithFormat:@"%@%@",[dev0 objectForKey:@"wadors"],[request.URL.path substringToIndex:[request.URL.path length]-13]];
-             GWS_LOG_INFO(@"dev0 encapsulated: %@",wadoString);
-             NSData *responseData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadoString]];
-             if (responseData)
-             {
-                 NSUInteger responseDataLength=[responseData length];
-                 if (responseDataLength)
-                 {
-                     NSUInteger valueLocation;
-                     //between "Content-Type: " and "\r\n"
-                     NSRange ctRange  = [responseData rangeOfData:contentType options:0 range:NSMakeRange(0, responseDataLength)];
-                     valueLocation=ctRange.location+ctRange.length;
-                     NSRange rnRange  = [responseData rangeOfData:rn options:0 range:NSMakeRange(valueLocation, responseDataLength-valueLocation)];
-                     NSData *contentTypeData=[responseData subdataWithRange:NSMakeRange(valueLocation,rnRange.location-valueLocation)];
-                     NSString *ctString=[[NSString alloc]initWithData:contentTypeData encoding:NSUTF8StringEncoding];
-                     GWS_LOG_INFO(@"%@",ctString);
+             //AccessionNumber
+             NSString *q=request.URL.query;
+             if (q.length>32 || ![q hasPrefix:@"AccessionNumber="]) [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"dev0 /applicable without parameter AccessionNumber"
+              ];
+             NSString *accessionNumber=[q substringWithRange:NSMakeRange(16,q.length-16)];
+             
+             //Modality
+             NSString *p=request.URL.path;
+             NSString *modalityPrefix=[p substringWithRange:NSMakeRange(12,2)];
+             if (!([modalityPrefix isEqualToString:@"DO"] || [modalityPrefix isEqualToString:@"OT"])) [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"dev0 /applicable only for modalities DO[C] or OT"];
+             NSString *modality;
+             if ([modalityPrefix isEqualToString:@"DO"]) modality=@"DOC";
+             else modality=modalityPrefix;
+            
+             
+             //instances?AccessionNumber={AccessionNumber}&Modality=DOC
+             NSString *qidoString=[NSString stringWithFormat:@"%@/instances?AccessionNumber=%@&Modality=%@",
+                                [dev0 objectForKey:@"qido"],
+                                accessionNumber,
+                                modality];
+             GWS_LOG_INFO(@"dev0 applicable qido %@",qidoString);
+             NSData *instanceQidoData=[NSData dataWithContentsOfURL:
+                                   [NSURL URLWithString:qidoString]];
 
-                     
-                     //between "\r\n\r\n" and "\r\n--"
-                     NSRange rnrnRange=[responseData rangeOfData:rnrn options:0 range:NSMakeRange(0, responseDataLength)];
-                     valueLocation=rnrnRange.location+rnrnRange.length;
-                     NSRange rnhhRange=[responseData rangeOfData:rnhh options:0 range:NSMakeRange(valueLocation, responseDataLength-valueLocation)];
-                     
-                     NSData *encapsulatedData=[responseData subdataWithRange:NSMakeRange(valueLocation,rnhhRange.location-valueLocation - 1 - ([[responseData subdataWithRange:NSMakeRange(rnhhRange.location-2,2)] isEqualToData:rn] * 2))];
-                     
-                     return [GCDWebServerDataResponse
-                             responseWithData:encapsulatedData
-                             contentType:ctString];
+             
+             //applicable, latest doc
+             //6.7.1.2.3.2 JSON Results
+             //If there are no matching results,the JSON message is empty.
+             if (!instanceQidoData || ![instanceQidoData length]) [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"dev0 /applicable not found"];
+             
+             NSArray *instanceArray=[NSJSONSerialization JSONObjectWithData:instanceQidoData options:0 error:nil];
+             NSUInteger instanceArrayCount=[instanceArray count];
+             if (instanceArrayCount==0) [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"dev0 /applicable not found"];
+             
+             NSDictionary *instance;
+             NSInteger i=0;
+             NSInteger index=0;
+             NSInteger date=0;
+             NSInteger time=0;
+             if (instanceArrayCount==1) instance=instanceArray[0];
+             else
+             {
+                 for (i=0;  i<instanceArrayCount; i++)
+                 {
+                     NSInteger PPSSD=[(((instanceArray[i])[@"00400244"])[@"Value"])[0] longValue];
+                     NSInteger PPSST=[(((instanceArray[i])[@"00400245"])[@"Value"])[0] longValue];
+                     if ((PPSSD > date) || ((PPSSD==date)&&(PPSST>time)))
+                     {
+                         date=PPSSD;
+                         time=PPSST;
+                         index=i;
+                     }
                  }
+                 instance=instanceArray[index];
              }
-             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"dev0: %@ notFound",request.URL.path];
+
+             if ([p containsString:@"EncapsulatedDocument"])
+             {
+                 //wadors returns bytstream with 00420010
+                 NSString *wadoRsString=(((instanceArray[index])[@"00081190"])[@"Value"])[0];
+                 GWS_LOG_INFO(@"dev0 applicable wadors %@",wadoRsString);
+                 
+                 NSData *applicableData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadoRsString]];
+                 if (!applicableData || ![applicableData length]) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"dev0 applicable %@ notFound",request.URL.path];
+
+                 NSUInteger applicableDataLength=[applicableData length];
+
+                 NSUInteger valueLocation;
+                 //between "Content-Type: " and "\r\n"
+                 NSRange ctRange  = [applicableData rangeOfData:contentType options:0 range:NSMakeRange(0, applicableDataLength)];
+                 valueLocation=ctRange.location+ctRange.length;
+                 NSRange rnRange  = [applicableData rangeOfData:rn options:0 range:NSMakeRange(valueLocation, applicableDataLength-valueLocation)];
+                 NSData *contentTypeData=[applicableData subdataWithRange:NSMakeRange(valueLocation,rnRange.location-valueLocation)];
+                 NSString *ctString=[[NSString alloc]initWithData:contentTypeData encoding:NSUTF8StringEncoding];
+                 GWS_LOG_INFO(@"%@",ctString);
+
+                 
+                 //between "\r\n\r\n" and "\r\n--"
+                 NSRange rnrnRange=[applicableData rangeOfData:rnrn options:0 range:NSMakeRange(0, applicableDataLength)];
+                 valueLocation=rnrnRange.location+rnrnRange.length;
+                 NSRange rnhhRange=[applicableData rangeOfData:rnhh options:0 range:NSMakeRange(valueLocation, applicableDataLength-valueLocation)];
+                 
+                 //encapsulatedData
+                 NSData *encapsulatedData=[applicableData subdataWithRange:NSMakeRange(valueLocation,rnhhRange.location-valueLocation - 1 - ([[applicableData subdataWithRange:NSMakeRange(rnhhRange.location-2,2)] isEqualToData:rn] * 2))];
+                     
+                 if ([p containsString:@"CDA"])
+                 {
+                     GWS_LOG_INFO(@"CDA");
+                     NSRange CDAOpeningTagRange=[encapsulatedData rangeOfData:CDAOpeningTag options:0 range:NSMakeRange(0, encapsulatedData.length)];
+                     if (CDAOpeningTagRange.location != NSNotFound)
+                     {
+                         NSRange CDAClosingTagRange=[encapsulatedData rangeOfData:CDAClosingTag options:0 range:NSMakeRange(0, encapsulatedData.length)];
+                         NSData *cdaData=[encapsulatedData subdataWithRange:NSMakeRange(CDAOpeningTagRange.location, CDAClosingTagRange.location+CDAClosingTagRange.length-CDAOpeningTagRange.location)];
+                         return [GCDWebServerDataResponse
+                                 responseWithData:cdaData
+                                 contentType:ctString];
+                     }
+                 }
+                 
+                 return [GCDWebServerDataResponse
+                        responseWithData:encapsulatedData
+                        contentType:ctString];
+             }
+             else
+             {
+                 NSString *wadouriString=[NSString stringWithFormat:
+                  @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application%%2Fdicom",
+                      [dev0 objectForKey:@"wadouri"],
+                      (((instanceArray[index])[@"0020000D"])[@"Value"])[0],
+                      (((instanceArray[index])[@"0020000E"])[@"Value"])[0],
+                      (((instanceArray[index])[@"00080018"])[@"Value"])[0]];
+
+                 //wado-uri return application/dicom
+                 NSData *responseData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadouriString]];
+                 if (!responseData) return
+                 [GCDWebServerErrorResponse
+                  responseWithClientError:kGCDWebServerHTTPStatusCode_FailedDependency
+                  message:@"dev0 wadouri: %@",wadouriString
+                  ];
+                 
+                 if (![responseData length]) return
+                 [GCDWebServerErrorResponse
+                  responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound
+                  message:@"dev0 wadouri: %@",wadouriString
+                  ];
+                 return [GCDWebServerDataResponse
+                         responseWithData:responseData
+                         contentType:@"application/dicom"
+                         ];
+                 
+             }
          }
          ];
         
@@ -1017,6 +1231,15 @@ int main(int argc, const char* argv[]) {
          ];
         
 #pragma mark /pcs/dev[]
+        
+        NSMutableString *devregexString=[NSMutableString string];
+        for (NSUInteger i=1;i<devCount-1;i++)
+        {
+            [devregexString appendFormat:@"^/pcs/%@|",devOids[i]];
+        }
+        [devregexString appendFormat:@"^/pcs/%@",devOids[devCount-1]];
+        NSRegularExpression *devregex=[NSRegularExpression regularExpressionWithPattern:devregexString options:NSRegularExpressionCaseInsensitive error:NULL];
+
 
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:devregex
@@ -1063,6 +1286,9 @@ int main(int argc, const char* argv[]) {
          ];
 
 #pragma mark /pcs/dev[0]
+        
+        NSRegularExpression *dev0regex=[NSRegularExpression regularExpressionWithPattern:[@"^/pcs/" stringByAppendingString:devOids[0]] options:NSRegularExpressionCaseInsensitive error:NULL];
+
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:dev0regex
                                 requestClass:[GCDWebServerRequest class]
