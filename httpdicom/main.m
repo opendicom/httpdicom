@@ -394,12 +394,12 @@ int main(int argc, const char* argv[]) {
                          NSString *v=[nv componentsJoinedByString:@"="];
                          if ([v length]) //not empty
                          {
-                             if ([v containsString:@"*"])
+                             if ([v rangeOfString:@"*"].location != NSNotFound)
                              {
                                  //WildCardMatching
                              }
                              else if (
-                                [v containsString:@"-"]
+                                ([v rangeOfString:@"-"].location != NSNotFound)
                              && [DATMDT indexOfObject:v]
                              )
                              {
@@ -569,7 +569,7 @@ int main(int argc, const char* argv[]) {
                  instance=instanceArray[index];
              }
 
-             if ([p containsString:@"EncapsulatedDocument"])
+             if ([p rangeOfString:@"EncapsulatedDocument"].location!=NSNotFound)
              {
                  //wadors returns bytstream with 00420010
                  NSString *wadoRsString=(((instanceArray[index])[@"00081190"])[@"Value"])[0];
@@ -598,7 +598,7 @@ int main(int argc, const char* argv[]) {
                  //encapsulatedData
                  NSData *encapsulatedData=[applicableData subdataWithRange:NSMakeRange(valueLocation,rnhhRange.location-valueLocation - 1 - ([[applicableData subdataWithRange:NSMakeRange(rnhhRange.location-2,2)] isEqualToData:rn] * 2))];
                      
-                 if ([p containsString:@"CDA"])
+                 if ([p rangeOfString:@"CDA"].location != NSNotFound)
                  {
                      GWS_LOG_INFO(@"CDA");
                      NSRange CDAOpeningTagRange=[encapsulatedData rangeOfData:CDAOpeningTag options:0 range:NSMakeRange(0, encapsulatedData.length)];
