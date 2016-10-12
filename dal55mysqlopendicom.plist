@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>countProlog</key>
+	<string>export MYSQL_PWD=A.sugus;mysql --raw --skip-column-names -uroot -h localhost -b pacsdb -e &quot;SELECT COUNT(*) FROM study LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_fk LEFT JOIN issuer ioan ON study.accno_issuer_fk=ioan.pk LEFT JOIN person_name rp ON study.ref_phys_name_fk=rp.pk LEFT JOIN patient ON study.patient_fk=patient.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer iopid ON patient.patient_id_fk=iopid.pk LEFT JOIN person_name p ON patient.pat_name_fk=p.pk</string>
+	<key>countEpilog</key>
+	<string>;&quot; | awk -F\\t &apos;{print $1}&apos;</string>
+	<key>studiesProlog</key>
+	<string>export MYSQL_PWD=A.sugus;mysql --raw --skip-column-names -uroot -h localhost -b pacsdb -e &quot;SELECT study.accession_no,ioan.entity_uid, study.study_iuid, study.study_custom3,patient_id.pat_id,iopid.entity_uid,p.family_name,p.given_name,p.middle_name,p.name_prefix,p.name_suffix,study.study_date,study_query_attrs.mods_in_study,study.study_desc,rp.family_name,rp.given_name,rp.middle_name,rp.name_prefix,rp.name_suffix,study.study_custom2,iopid.entity_uid,patient.pat_birthdate,patient.pat_sex,study.accession_no,ioan.entity_uid,study.study_id,study.study_iuid,study.study_time,study.study_custom1 FROM study LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_fk LEFT JOIN issuer ioan ON study.accno_issuer_fk=ioan.pk LEFT JOIN person_name rp ON study.ref_phys_name_fk=rp.pk LEFT JOIN patient ON study.patient_fk=patient.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer iopid ON patient.patient_id_fk=iopid.pk LEFT JOIN person_name p ON patient.pat_name_fk=p.pk</string>
+	<key>studiesWhere</key>
+	<string>WHERE study.rejection_state != 2</string>
+	<key>studiesEpilog</key>
+	<string>;&quot; |  awk -F\\t &apos;BEGIN{OFS=&quot;&quot;;ORS=&quot;&quot;;print &quot;[&quot;;ORS=&quot;,&quot;}{print &quot;[\&quot;datatables/series?AccessionNumber=&quot; $1 &quot;&amp;IssuerOfAccessionNumber.UniversalEntityID=&quot; $2 &quot;&amp;StudyIUID=&quot; $3 &quot;\&quot;,\&quot;&quot; $4 &quot;\&quot;,\&quot;datatables/patients?PatientID=&quot; $5 &quot;&amp;IssuerOfPatientID.UniversalEntityID=&quot; $6 &quot;\&quot;,\&quot;&quot; $7 &quot;^&quot; $8 &quot;^&quot; $9 &quot;^&quot; $10 &quot;^&quot; $11 &quot;\&quot;,\&quot;&quot; $12 &quot;\&quot;,\&quot;&quot; $13 &quot;\&quot;,\&quot;&quot; $14 &quot;\&quot;,\&quot;&quot; $15 &quot;^&quot; $16 &quot;^&quot; $17 &quot;^&quot; $18 &quot;^&quot; $19 &quot;\&quot;,\&quot;&quot; $20 &quot;\&quot;,\&quot;&quot; $21 &quot;\&quot;,\&quot;&quot; $22 &quot;\&quot;,\&quot;&quot; $23 &quot;\&quot;,\&quot;&quot; $24 &quot;\&quot;,\&quot;&quot; $25 &quot;\&quot;,\&quot;&quot; $26 &quot;\&quot;,\&quot;&quot; $27 &quot;\&quot;,\&quot;&quot; $28 &quot;\&quot;]&quot;}&apos;  | sed -e &apos;s/.$/]/&apos; -e &apos;s/\\/\\\\/g&apos; -e &apos;s/\^NULL//g&apos;</string>
+	<key>patientProlog</key>
+	<string></string>
+	<key>patientWhere</key>
+	<string>WHERE 1=1</string>
+	<key>patientEpilog</key>
+	<string></string>
+	<key>seriesProlog</key>
+	<string></string>
+	<key>seriesWhere</key>
+	<string>WHERE series.rejection_state != 2</string>
+	<key>seriesEpilog</key>
+	<string></string>
+	<key>AccessionNumber</key>
+	<string>study.accession_no</string>
+	<key>IssuerOfAccessionNumber</key>
+	<string>ioan.entity_uid</string>
+	<key>StudyInstanceUID</key>
+	<string>study.study_uid</string>
+	<key>NameOfPhysiciansReadingStudy</key>
+	<string>study.study_custom3</string>
+	<key>PatientID</key>
+	<string>patient_id.pat_id</string>
+	<key>IssuerOfPatientID</key>
+	<string>iopid.entity_uid</string>
+	<key>PatientName</key>
+	<array>
+		<string>p.family_name</string>
+		<string>p.given_name</string>
+		<string>p.middle_name</string>
+		<string>p.name_prefix</string>
+		<string>p.name_suffix</string>
+	</array>
+	<key>StudyDate</key>
+	<string>study.study_date</string>
+	<key>ModalitiesInStudy</key>
+	<string>study_query_attrs.mods_in_study</string>
+	<key>StudyDescription</key>
+	<string>study.study_desc</string>
+	<key>ReferingPhysicianName</key>
+	<array>
+		<string>rp.family_name</string>
+		<string>rp.given_name</string>
+		<string>rp.middle_name</string>
+		<string>rp.name_prefix</string>
+		<string>rp.name_suffix</string>
+	</array>
+	<key>PatientInsurancePlanCodeSequence</key>
+	<string>study.study_custom2</string>
+	<key>PatientBirthDate</key>
+	<string>patient.pat_birthdate</string>
+	<key>PatientSex</key>
+	<string>patient.pat_sex</string>
+	<key>StudyID</key>
+	<string>study.study_id</string>
+	<key>StudyTime</key>
+	<string>study.study_time</string>
+	<key>InstitutionName</key>
+	<string>study.study_custom1</string>
+</dict>
+</plist>

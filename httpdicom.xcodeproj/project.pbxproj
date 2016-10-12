@@ -37,6 +37,8 @@
 		2A31F60F1C87315E00A78C7C /* GCDWebServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A31F60E1C87315E00A78C7C /* GCDWebServerConnection.m */; };
 		2A31F6111C87317800A78C7C /* GCDWebServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A31F6101C87317800A78C7C /* GCDWebServer.m */; };
 		2A6C518A1C8DCF7C00424729 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6C51891C8DCF7C00424729 /* libz.tbd */; };
+		4A09D59C1DAD142800D18CDE /* NSString+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A09D59A1DAD142700D18CDE /* NSString+PCS.h */; };
+		4A09D59D1DAD142800D18CDE /* NSString+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A09D59B1DAD142800D18CDE /* NSString+PCS.m */; };
 		4A492E421CC65F7700A5A52D /* clibwrapper_jiio-1.2-pre-dr-b04.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DE81CC65F7700A5A52D /* clibwrapper_jiio-1.2-pre-dr-b04.jar */; };
 		4A492E431CC65F7700A5A52D /* commons-cli-1.2.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DE91CC65F7700A5A52D /* commons-cli-1.2.jar */; };
 		4A492E441CC65F7700A5A52D /* dcm4che-audit-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DEA1CC65F7700A5A52D /* dcm4che-audit-3.3.7.jar */; };
@@ -170,6 +172,9 @@
 		2A31F60E1C87315E00A78C7C /* GCDWebServerConnection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerConnection.m; path = "GCDWebServer-master/GCDWebServer/Core/GCDWebServerConnection.m"; sourceTree = "<group>"; };
 		2A31F6101C87317800A78C7C /* GCDWebServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GCDWebServer.m; path = "GCDWebServer-master/GCDWebServer/Core/GCDWebServer.m"; sourceTree = "<group>"; };
 		2A6C51891C8DCF7C00424729 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		4A09D5991DA58DFD00D18CDE /* dal55mysqlopendicom.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = dal55mysqlopendicom.plist; sourceTree = SOURCE_ROOT; };
+		4A09D59A1DAD142700D18CDE /* NSString+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+PCS.h"; sourceTree = SOURCE_ROOT; };
+		4A09D59B1DAD142800D18CDE /* NSString+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+PCS.m"; sourceTree = SOURCE_ROOT; };
 		4A492D2A1CC65F7700A5A52D /* dcm2dcm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = dcm2dcm; sourceTree = "<group>"; };
 		4A492D2B1CC65F7700A5A52D /* dcm2jpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = dcm2jpg; sourceTree = "<group>"; };
 		4A492D2C1CC65F7700A5A52D /* dcm2json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = dcm2json; sourceTree = "<group>"; };
@@ -592,6 +597,9 @@
 				4AAB26721D8A42A400401FD5 /* zlib.h */,
 				4AAB26731D8A42A400401FD5 /* LFCGzipUtility.h */,
 				4AAB26741D8A42A400401FD5 /* BIRproxy.1 */,
+				4A09D5991DA58DFD00D18CDE /* dal55mysqlopendicom.plist */,
+				4A09D59A1DAD142700D18CDE /* NSString+PCS.h */,
+				4A09D59B1DAD142800D18CDE /* NSString+PCS.m */,
 			);
 			name = httpdicom;
 			path = IIDproxy;
@@ -1268,6 +1276,7 @@
 				2A1322D21C87C77A00C4DB43 /* GCDWebServerFileRequest.h in Headers */,
 				2A1322D41C87C78500C4DB43 /* GCDWebServerMultiPartFormRequest.h in Headers */,
 				4AAB26791D8A42A400401FD5 /* LFCGzipUtility.h in Headers */,
+				4A09D59C1DAD142800D18CDE /* NSString+PCS.h in Headers */,
 				2A1322D61C87C79700C4DB43 /* GCDWebServerURLEncodedFormRequest.h in Headers */,
 				4A5D5AA01CC128990077B83F /* ZZChannel.h in Headers */,
 				4A5D5AA11CC128990077B83F /* ZZConstants.h in Headers */,
@@ -1335,6 +1344,7 @@
 			files = (
 				2A31F6111C87317800A78C7C /* GCDWebServer.m in Sources */,
 				2A31F60F1C87315E00A78C7C /* GCDWebServerConnection.m in Sources */,
+				4A09D59D1DAD142800D18CDE /* NSString+PCS.m in Sources */,
 				2A1322E11C87C86300C4DB43 /* GCDWebServerFunctions.m in Sources */,
 				2A31F60B1C8730E900A78C7C /* GCDWebServerRequest.m in Sources */,
 				2A31F60D1C8730F300A78C7C /* GCDWebServerResponse.m in Sources */,

@@ -48,6 +48,8 @@
 #import "ZZChannel.h"
 #import "ZZError.h"
 
+#import "NSString+PCS.h"
+
 static NSData *rn;
 static NSData *rnhh;
 static NSData *rnrn;
@@ -55,8 +57,16 @@ static NSData *contentType;
 static NSData *CDAOpeningTag;
 static NSData *CDAClosingTag;
 static NSTimeInterval timeout=300;
-
-
+static NSMutableDictionary *datataReq;
+static NSMutableDictionary *datataTotal;
+static NSMutableDictionary *datataFiltered;
+static NSMutableDictionary *datataDate;
+static NSMutableDictionary *sPatientID;
+static NSMutableDictionary *sPatientName;
+static NSMutableDictionary *sStudyDate;
+static NSMutableDictionary *sModalitiesInStudy;
+static NSMutableDictionary *sStudyDescription;
+static NSArray *emptyArrayOfArrays;
 static BOOL _run;
 
 static void _SignalHandler(int signal) {
@@ -112,7 +122,16 @@ int main(int argc, const char* argv[]) {
     
     @autoreleasepool {
         NSFileManager *fileManager=[NSFileManager defaultManager];
-
+        datataReq=[NSMutableDictionary dictionary];
+        datataTotal=[NSMutableDictionary dictionary];
+        datataFiltered=[NSMutableDictionary dictionary];
+        datataDate=[NSMutableDictionary dictionary];
+        sPatientID=[NSMutableDictionary dictionary];
+        sPatientName=[NSMutableDictionary dictionary];
+        sStudyDate=[NSMutableDictionary dictionary];
+        sModalitiesInStudy=[NSMutableDictionary dictionary];
+        sStudyDescription=[NSMutableDictionary dictionary];
+        
         NSDateFormatter *dicomDTFormatter = [[NSDateFormatter alloc] init];
         [dicomDTFormatter setDateFormat:@"yyyyMMddHHmmss"];
 
@@ -122,7 +141,7 @@ int main(int argc, const char* argv[]) {
         contentType=[@"Content-Type: " dataUsingEncoding:NSASCIIStringEncoding];
         CDAOpeningTag=[@"<ClinicalDocument" dataUsingEncoding:NSASCIIStringEncoding];
         CDAClosingTag=[@"</ClinicalDocument>" dataUsingEncoding:NSASCIIStringEncoding];
-        
+        emptyArrayOfArrays=@[@[],@[],@[],@[],@[],@[],@[],@[],@[],@[],@[],@[],@[],@[],@[],@[],@[],@[],@[]];
         //
         //
         NSArray *DATMDT=
@@ -152,10 +171,14 @@ int main(int argc, const char* argv[]) {
         
         NSMutableSet *orgis=[NSMutableSet set];
         NSMutableSet *orgts=[NSMutableSet set];
+        NSMutableSet *sqlset=[NSMutableSet set];
+        
         for (NSDictionary *d in [devs allValues])
         {
             [orgis addObject:[d objectForKey:@"pcsi"]];
             [orgts addObject:[d objectForKey:@"pcst"]];
+            NSString *s=[d objectForKey:@"sql"];
+            if (s) [sqlset addObject:s];
         }
         NSArray *orgisArray=[orgis allObjects];
         NSData *orgisData = [NSJSONSerialization dataWithJSONObject:orgisArray options:0 error:nil];
@@ -185,76 +208,33 @@ int main(int argc, const char* argv[]) {
         }
         NSUInteger devCount=[args count]-2;
         NSArray *devOids=[args subarrayWithRange:NSMakeRange(2,devCount)];
-        NSDictionary *dev0=[devs objectForKey:[devOids objectAtIndex:0]];
+        NSDictionary *dev0=devs[devOids[0]];
 
         //-loglevel 0=debug, 1=verbose, 2=info
         [GCDWebServer setLogLevel:[[dev0 objectForKey:@"loglevel"]intValue]];
         
-        NSString *IIDURL=[dev0 objectForKey:@"pcsurl"];
-        NSString *resources=[[dev0 objectForKey:@"pcsresources"]stringByExpandingTildeInPath];
+        NSString *IIDURL=dev0[@"pcsurl"];
+        NSString *resources=[dev0[@"pcsresources"]stringByExpandingTildeInPath];
         NSString *jnlp=[[NSString stringWithContentsOfFile:[resources stringByAppendingPathComponent:@"weasis/weasis.jnlp"] encoding:NSUTF8StringEncoding error:nil]stringByReplacingOccurrencesOfString:@"{IIDURL}" withString:IIDURL];
         
         //auditPath
-        NSString *auditPath=[[dev0 objectForKey:@"pcsaudit"]stringByExpandingTildeInPath];
+        NSString *auditPath=[dev0[@"pcsaudit"]stringByExpandingTildeInPath];
         
         //storescu
-        NSString *storescu=[[dev0 objectForKey:@"storescu"]stringByExpandingTildeInPath];
-        NSArray *storescuArgs=[dev0 objectForKey:@"storescuargs"];
+        NSString *storescu=[dev0[@"storescu"]stringByExpandingTildeInPath];
+        NSArray *storescuArgs=dev0[@"storescuargs"];
         
         //pcsPort
         int pcsPort=[[dev0 objectForKey:@"pcsport"]intValue];
         GCDWebServer* httpdicomServer = [[GCDWebServer alloc] init];
         
-        //objects type NSString
-        NSMutableArray *sqldbtmp=[NSMutableArray array];
-        NSMutableArray *sqlexetmp=[NSMutableArray array];
-        NSMutableArray *sqlusertmp=[NSMutableArray array];
-        NSMutableArray *sqlpasswordtmp=[NSMutableArray array];
-        NSMutableArray *sqldbtitletmp=[NSMutableArray array];
-        NSMutableArray *sqlpatienttabletmp=[NSMutableArray array];
-        NSMutableArray *sqlstudytabletmp=[NSMutableArray array];
-        NSMutableArray *sqlseriestabletmp=[NSMutableArray array];
-        NSMutableArray *sqlinstancetabletmp=[NSMutableArray array];
-        //objects type NSDictionary
-        NSMutableArray *sqlpatientfieldstmp=[NSMutableArray array];
-        NSMutableArray *sqlstudyfieldstmp=[NSMutableArray array];
-        NSMutableArray *sqlseriesfieldstmp=[NSMutableArray array];
-        NSMutableArray *sqlinstancefieldstmp=[NSMutableArray array];
-        
-        for (NSUInteger i=0;i<devCount;i++)
+        //sql configurations
+        NSMutableDictionary *sql=[NSMutableDictionary dictionary];
+        for (NSString *s in sqlset)
         {
-            NSDictionary *devx=[devs objectForKey:[devOids objectAtIndex:i]];
-            [sqldbtmp addObject:[devx objectForKey:@"sqldb"]];
-            [sqlexetmp addObject:[devx objectForKey:@"sqlexe"]];
-            [sqlusertmp addObject:[devx objectForKey:@"sqluser"]];
-            [sqlpasswordtmp addObject:[devx objectForKey:@"sqlpassword"]];
-            [sqldbtitletmp addObject:[devx objectForKey:@"sqldbtitle"]];
-            [sqlpatienttabletmp addObject:[devx objectForKey:@"sqlpatienttable"]];
-            [sqlstudytabletmp addObject:[devx objectForKey:@"sqlstudytable"]];
-            [sqlseriestabletmp addObject:[devx objectForKey:@"sqlseriestable"]];
-            [sqlinstancetabletmp addObject:[devx objectForKey:@"sqlinstancetable"]];
-            [sqlstudyfieldstmp addObject:[devx objectForKey:@"sqlstudyfields"]];
-            [sqlseriesfieldstmp addObject:[devx objectForKey:@"sqlseriesfields"]];
-            [sqlinstancefieldstmp addObject:[devx objectForKey:@"sqlinstancefields"]];
-
+            [sql setObject:[NSDictionary dictionaryWithContentsOfFile:[s stringByExpandingTildeInPath]] forKey:s];
         }
 
-        //objects type NSString
-        NSArray *sqldb=[NSArray arrayWithArray:sqldbtmp];
-        NSArray *sqlexe=[NSArray arrayWithArray:sqlexetmp];
-        NSArray *sqluser=[NSArray arrayWithArray:sqlusertmp];
-        NSArray *sqlpassword=[NSArray arrayWithArray:sqlpasswordtmp];
-        NSArray *sqldbtitle=[NSArray arrayWithArray:sqldbtitletmp];
-        NSArray *sqlpatienttable=[NSArray arrayWithArray:sqlpatienttabletmp];
-        NSArray *sqlstudytable=[NSArray arrayWithArray:sqlstudytabletmp];
-        NSArray *sqlseriestable=[NSArray arrayWithArray:sqlseriestabletmp];
-        NSArray *sqlinstancetable=[NSArray arrayWithArray:sqlinstancetabletmp];
-        //objects type NSDictionary
-        NSArray *sqlpatientfields=[NSArray arrayWithArray:sqlpatientfieldstmp];
-        NSArray *sqlstudyfields=[NSArray arrayWithArray:sqlstudyfieldstmp];
-        NSArray *sqlseriesfields=[NSArray arrayWithArray:sqlseriesfieldstmp];
-        NSArray *sqlinstancefields=[NSArray arrayWithArray:sqlinstancefieldstmp];
-        
 #pragma mark -
 #pragma mark no handler
         NSRegularExpression *defaultregex = [NSRegularExpression regularExpressionWithPattern:@"^/.*" options:NSRegularExpressionCaseInsensitive error:NULL];
@@ -273,7 +253,7 @@ int main(int argc, const char* argv[]) {
          ];
 
 #pragma mark -
-#pragma mark _______dcm4chee-arc-light_______
+#pragma mark _______localhost dicomweb_______
 
 #pragma mark qido studies series instances
         
@@ -286,13 +266,8 @@ int main(int argc, const char* argv[]) {
          {
              NSString *q=request.URL.query;
              NSString *qidoString;
-             if (q) qidoString=[NSString stringWithFormat:@"%@%@?%@",
-                                  [dev0 objectForKey:@"qido"],
-                                  request.URL.path,
-                                  q];
-             else    qidoString=[NSString stringWithFormat:@"%@%@",
-                                   [dev0 objectForKey:@"qido"],
-                                   request.URL.path];
+             if (q) qidoString=[[dev0 objectForKey:request.URL.path]stringByAppendingString:q];
+             else    qidoString=[dev0 objectForKey:request.URL.path];
              GWS_LOG_INFO(@"dev0 qido: %@",qidoString);
              NSData *responseData=[NSData dataWithContentsOfURL:
                                    [NSURL URLWithString:qidoString]];
@@ -314,140 +289,471 @@ int main(int argc, const char* argv[]) {
          }
          ];
 
-#pragma mark qido series
-        //only search by studyUID and seriesUID
-        NSRegularExpression *djangorsQidoSeriesregex = [NSRegularExpression regularExpressionWithPattern:@"^/djangors/series$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        NSRegularExpression *djangorsQidoInstancesregex = [NSRegularExpression regularExpressionWithPattern:@"^/djangors/instances$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:djangorsQidoSeriesregex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             return [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"dev0 djangors series not programed yet"];
-         }
-         ];
-
-         
-         [httpdicomServer addHandlerForMethod:@"GET"
-                        pathRegularExpression:djangorsQidoInstancesregex
-                                 requestClass:[GCDWebServerRequest class]
-                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-          {
-              return [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"dev0 djangors instances not programed yet"];
-          }
-          ];
-
 #pragma mark datatables/studies
         /*
-         //limit and offset are managed by wadors and mysql
-         //we add count to the next and previous links, so that the query is not counted again and again while explored
-         
-         HTTP 200 OK
-         {
-         "id": uuid
-         "count": 1023,
-         "qido": [],
-         "date": 2017-09-26 10:00:00,
-         
-         "next": "https://api.example.org/accounts/?limit=100&offset=500&count=1023&orderby=columna",
-         "previous": "https://api.example.org/accounts/?limit=100&offset=300&count=1023&orderby=columna",
-         "results": [
-         …
-         ]
-         }
+         query ajax with params:
+         agregate 00080090 in other accesible PCS...
          */
-        
-        
-        NSRegularExpression *djangorsQidoStudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^/djangors/studies$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:djangorsQidoStudiesregex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             //GDCWebServer request.query can't be used because doesn´t
-             //support same attribute twice.
-             NSString *q=request.URL.query;
-             NSMutableDictionary *sqlDict=[NSMutableDictionary dictionary];
-             BOOL counted=false;
-             for (NSString *param in [request.URL.query componentsSeparatedByString:@"&"])
+         [httpdicomServer addHandlerForMethod:@"GET"
+                                         path:@"/datatables/studies"
+                                 requestClass:[GCDWebServerRequest class]
+                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+        {
+            NSDictionary *q=request.query;
+            NSLog(@"%@",[q description]);
+            
+            NSDictionary *r=datataReq[q[@"session"]];
+            int recordsTotal;
+            
+            NSString *qPatientID=q[@"columns[3][search][value]"];
+            NSString *qPatientName=q[@"columns[4][search][value]"];
+            NSString *qStudyDate=q[@"columns[5][search][value]"];
+            NSString *qModalitiesInStudy=q[@"columns[6][search][value]"];
+            NSString *qStudyDescription=q[@"columns[7][search][value]"];
+
+            NSString *rPatientID=r[@"columns[3][search][value]"];
+            NSString *rPatientName=r[@"columns[4][search][value]"];
+            NSString *rStudyDate=r[@"columns[5][search][value]"];
+            NSString *rModalitiesInStudy=r[@"columns[6][search][value]"];
+            NSString *rStduyDescription=r[@"columns[7][search][value]"];
+            
+            
+//same or different context?
+            if (
+                  !r
+                || [q[@"new"]isEqualToString:@"true"]
+                || (q[@"username"]    && ![q[@"username"]isEqualToString:r[@"username"]])
+                || (q[@"useroid"]     && ![q[@"useroid"]isEqualToString:r[@"useroid"]])
+                || (q[@"session"]     && ![q[@"session"]isEqualToString:r[@"session"]])
+                || (q[@"org"]         && ![q[@"org"]isEqualToString:r[@"org"]])
+                || (q[@"institution"] && ![q[@"institution"]isEqualToString:r[@"institution"]])
+                || (q[@"role"]        && ![q[@"role"]isEqualToString:r[@"role"]])
+                
+                || (q[@"search[value]"] && ![q[@"search[value]"]isEqualToString:r[@"search[value]"]])
+
+                ||(    qPatientID
+                   &&![qPatientID isEqualToString:rPatientID]
+                   &&![rPatientID isEqualToString:@""]
+                   )
+                ||(    qPatientName
+                   &&![qPatientName isEqualToString:rPatientName]
+                   &&![rPatientName isEqualToString:@""]
+                   )
+                ||(    qStudyDate
+                   &&![qStudyDate isEqualToString:rStudyDate]
+                   &&![rStudyDate isEqualToString:@""]
+                   )
+                ||(    qModalitiesInStudy
+                   &&![qModalitiesInStudy isEqualToString:rModalitiesInStudy]
+                   &&![rModalitiesInStudy isEqualToString:@""]
+                   )
+                ||(    qStudyDescription
+                   &&![qStudyDescription isEqualToString:rStduyDescription]
+                   &&![rStduyDescription isEqualToString:@""]
+                   )
+                )
              {
-                 if ([param hasPrefix:@"includedfield"])continue;
-                 if ([param hasPrefix:@"TimezoneOffsetFromUTC"])continue;
-                 if ([param hasPrefix:@"fuzzymatching"])continue;
-                 if ([param hasPrefix:@"limit"])continue;
-                 if ([param hasPrefix:@"offset"])continue;
-                 if ([param hasPrefix:@"count"]) counted=true;
+                 /* in case the params are NOT ALWAYS present (with datatables they are ALWAYS present)
+                  || (qPatientID && !rPatientID)
+                  || (qPatientName && !rPatientName)
+                  || (qStudyDate && !rStudyDate)
+                  || (qModalitiesInStudy && !rModalitiesInStudy)
+                  || (qStudyDescription && !rStduyDescription)
+                  */
+                  
+#pragma mark --different context
                  
-                 NSMutableArray *nv=[NSMutableArray arrayWithArray:[param componentsSeparatedByString:@"="]];
-                 NSString *n=[NSString stringWithString:nv[0]];
+                 NSLog(@"different context with db:%@",dev0[@"sql"]);
+                 NSDictionary *thisSql=sql[dev0[@"sql"]];
 
+                 if (r){
+                     //not first request of the session. Remove and, at the end, replace
+                     [datataReq removeObjectForKey:q[@"session"]];
+                     [datataTotal removeObjectForKey:q[@"session"]];
+                     [datataFiltered removeObjectForKey:q[@"session"]];
+                     [datataDate removeObjectForKey:q[@"session"]];
+                     if(sPatientID[@"session"])[sPatientID removeObjectForKey:q[@"session"]];
+                     if(sPatientName[@"session"])[sPatientName removeObjectForKey:q[@"session"]];
+                     if(sStudyDate[@"session"])[sStudyDate removeObjectForKey:q[@"session"]];
+                     if(sModalitiesInStudy[@"session"])[sModalitiesInStudy removeObjectForKey:q[@"session"]];
+                     if(sStudyDescription[@"session"])[sStudyDescription removeObjectForKey:q[@"session"]];
+
+                 }
+                 [datataReq setObject:q forKey:q[@"session"]];
+                 [datataDate setObject:[NSDate date] forKey:q[@"session"]];
+                 if(qPatientID)[sPatientID setObject:qPatientID forKey:q[@"session"]];
+                 if(qPatientName)[sPatientName setObject:qPatientName forKey:q[@"session"]];
+                 if(qStudyDate)[sStudyDate setObject:qStudyDate forKey:q[@"session"]];
+                 if(qModalitiesInStudy)[sModalitiesInStudy setObject:qModalitiesInStudy forKey:q[@"session"]];
+                 if(qStudyDescription)[sStudyDescription setObject:qStudyDescription forKey:q[@"session"]];
                  
-                 NSUInteger index=[sqlstudyfields indexOfObject:n];
+//create the queries
+//TODO: add PEP
                  
-                 if (index) //filter registered
+//WHERE study.rejection_state!=2    (or  1=1)
+//following filters use formats like " AND a like 'b'"
+                 NSMutableString *where=[NSMutableString stringWithString:thisSql[@"studiesWhere"]];
+
+                 if (q[@"search[value]"] && ![q[@"search[value]"] isEqualToString:@""])
                  {
-                     if ([nv count]>1) //has value
+                     //AccessionNumber q[@"search[value]"]
+                     [where appendString:
+                      [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
+                                       fieldString:thisSql[@"AccessionNumber"]
+                                       valueString:q[@"search[value]"]
+                       ]
+                      ];
+                 }
+                 else
+                 {
+                     if(qPatientID && [qPatientID length])
                      {
-                         [nv removeObjectAtIndex:0];
-                         NSString *v=[nv componentsJoinedByString:@"="];
-                         if ([v length]) //not empty
-                         {
-                             if ([v rangeOfString:@"*"].location != NSNotFound)
-                             {
-                                 //WildCardMatching
-                             }
-                             else if (
-                                ([v rangeOfString:@"-"].location != NSNotFound)
-                             && [DATMDT indexOfObject:v]
-                             )
-                             {
-                                 // RangeMatching
-                             }
-                             //else if
-                             //(
-                             //SingleValueMatching
-                             
-                             
-                             
-                             //ListofUIDMatching
-                             //UniversalMatching
-                             
-                             
-                             // SequenceMatching
-                             
-                             //"*","?","-", "=" and "\"
+                         [where appendString:
+                          [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
+                                           fieldString:thisSql[@"PatientID"]
+                                           valueString:qPatientID
+                           ]
+                          ];
+                     }
 
+                     if(qPatientName && [qPatientName length])
+                     {
+                         //PatientName _00100010 Nombre
+                         NSArray *patientNameComponents=[qPatientName componentsSeparatedByString:@"^"];
+                         NSUInteger patientNameCount=[patientNameComponents count];
+                         
+                         [where appendString:
+                          [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
+                                           fieldString:(thisSql[@"PatientName"])[0]
+                                           valueString:patientNameComponents[0]
+                           ]
+                          ];
+                         
+                         if (patientNameCount > 1)
+                         {
+                             [where appendString:
+                              [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
+                                               fieldString:(thisSql[@"PatientName"])[1]
+                                               valueString:patientNameComponents[1]
+                               ]
+                              ];
+
+                             if (patientNameCount > 2)
+                             {
+                                 [where appendString:
+                                  [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
+                                                   fieldString:(thisSql[@"PatientName"])[2]
+                                                   valueString:patientNameComponents[2]
+                                   ]
+                                  ];
+
+                                 if (patientNameCount > 3)
+                                 {
+                                     [where appendString:
+                                      [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
+                                                       fieldString:(thisSql[@"PatientName"])[3]
+                                                       valueString:patientNameComponents[3]
+                                       ]
+                                      ];
+
+                                     if (patientNameCount > 4)
+                                     {
+                                         [where appendString:
+                                          [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
+                                                           fieldString:(thisSql[@"PatientName"])[4]
+                                                           valueString:patientNameComponents[4]
+                                           ]
+                                          ];
+                                     }
+                                 }
+                             }
                          }
                      }
+
+                     if(qStudyDate && [qStudyDate length])
+                     {
+                         [where appendFormat:@" AND %@ != '%@'", thisSql[@"StudyDate"], @"*"];
+                         //StudyDate _00080020 aaaammdd,-aaaammdd,aaaammdd-,aaaammdd-aaaammdd
+                         NSUInteger length=[qStudyDate length];
+                         NSRange hyphen=[qStudyDate rangeOfString:@"-"];
+                         if (hyphen.length==0)
+                         {
+                             //no hyphen
+                             [where appendFormat:@" AND %@ = '%@'", thisSql[@"StudyDate"], qStudyDate];
+                         }
+                         else if (hyphen.location==0)
+                         {
+                             //until
+                             [where appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], [qStudyDate substringFromIndex:1]];
+                         }
+                         else if (hyphen.location==length-1)
+                         {
+                             //since
+                             [where appendFormat:@" AND %@ >= '%@'", thisSql[@"StudyDate"], [qStudyDate substringToIndex:length-1]];
+                         }
+                         else
+                         {
+                             //inbetween
+                             [where appendFormat:@" AND %@ >= '%@'", thisSql[@"StudyDate"], [qStudyDate substringToIndex:length-hyphen.location-1]];
+                             [where appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], [qStudyDate substringFromIndex:hyphen.location+hyphen.length]];
+                         }
+                     }
+
+                     if(qModalitiesInStudy && [qModalitiesInStudy length] && ![qModalitiesInStudy isEqualToString:@"*"])
+                     {
+                         //ModalitiesInStudy _00080061 Modalidades (coma separated)
+                         [where appendFormat:@" AND %@ like '%%%@%%'", thisSql[@"ModalitiesInStudy"], qModalitiesInStudy];
+                     }
+
+                     if(qStudyDescription && [qStudyDescription length])
+                     {
+                         //StudyDescription _00081030 Descripción
+                         [where appendString:
+                          [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
+                                           fieldString:thisSql[@"StudyDescription"]
+                                           valueString:qStudyDescription
+                           ]
+                          ];
+                      }
                  }
                  
-                 //series
+
+                 NSLog(@"SQL WHERE [%@]",where);
                  
-             }
-             
+//2 execute count
+                 NSMutableData *countData=[NSMutableData data];
+                 int countResult=task(@"/bin/bash",
+                                 @[@"-s"],
+                                      [[[thisSql[@"countProlog"]
+                                        stringByAppendingString:where]
+                                        stringByAppendingString:thisSql[@"countEpilog"]]
+                                        dataUsingEncoding:NSUTF8StringEncoding],
+                                 countData
+                                 );
+                 if (!countResult) [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"%@",@"can not access the db"];
 
-             
-             //query:
-             //- {attributeID}={value}
+                 NSString *countString=[[NSString alloc]initWithData:countData encoding:NSUTF8StringEncoding];
+                 
+                 // max (max records filtered para evitar que filtros insuficientes devuelvan casi todos los registros... lo que devolvería un resultado inútil.
+                 recordsTotal=[countString intValue];
+                 int maxCount=[q[@"max"]intValue];
+                 NSLog(@"total:%d, max:%d",recordsTotal,maxCount);
+                 if (recordsTotal > maxCount) return [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"you need a narrower filter. The browser table accepts up to %d matches. %d matches were found",maxCount, recordsTotal];
 
-             
-             
-             NSString *qidoString;
-             if (q) qidoString=[NSString stringWithFormat:@"%@%@?%@",
-                                [dev0 objectForKey:@"qido"],
-                                request.URL.path,
-                                q];
-             else    qidoString=[NSString stringWithFormat:@"%@%@",
-                                 [dev0 objectForKey:@"qido"],
-                                 request.URL.path];
-             GWS_LOG_INFO(@"dev0 qido: %@",qidoString);
+                 
+                 
+                 if (!recordsTotal)
+                 {
+                     [datataTotal setObject:emptyArrayOfArrays forKey:q[@"session"]];
+                     [datataFiltered setObject:emptyArrayOfArrays forKey:q[@"session"]];
+                 }
+                 else
+                 {
+                     //order is performed later, from mutableDictionary
+//3 select
+                     NSMutableData *studiesData=[NSMutableData data];
+                     int studiesResult=task(@"/bin/bash",
+                                          @[@"-s"],
+                                          [[[thisSql[@"studiesProlog"]
+                                            stringByAppendingString:where]
+                                            stringByAppendingString:thisSql[@"studiesEpilog"]]
+                                            dataUsingEncoding:NSUTF8StringEncoding],
+                                          studiesData
+                                          );
+                     NSMutableArray *studiesArray=[NSJSONSerialization JSONObjectWithData:studiesData options:NSJSONReadingMutableContainers error:nil];
+
+                     [datataTotal setObject:studiesArray forKey:q[@"session"]];
+                     [datataFiltered setObject:[studiesArray mutableCopy] forKey:q[@"session"]];
+                 }
+             }//end diferent context
+            else
+            {
+
+#pragma mark --same context
+                
+                recordsTotal=[datataTotal[q[@"session"]]count];
+                NSLog(@"same context recordsTotal: %d ",recordsTotal);
+
+//subfilter?
+// in case there is subfilter, derive datataFiltered from datataTotal
+//https://developer.apple.com/reference/foundation/nsmutablearray/1412085-filterusingpredicate?language=objc
+
+                if (recordsTotal > 0)
+                {
+                    BOOL toBeFiltered=false;
+                    
+                    NSRegularExpression *PatientIDRegex=nil;
+                    if(qPatientID && ![qPatientID isEqualToString:sPatientID[q[@"session"]]])
+                    {
+                        toBeFiltered=true;
+                        PatientIDRegex=[NSRegularExpression regularExpressionWithPattern:[NSString regexDicomString:qPatientID withFormat:@"datatables\\/patients\\?PatientID=%@.*"] options:0 error:NULL];
+                        [sPatientID removeObjectForKey:q[@"session"]];
+                        [sPatientID setObject:qPatientID forKey:q[@"session"]];
+                    }
+                    
+                    NSRegularExpression *PatientNameRegex=nil;
+                    if(qPatientName && ![qPatientName isEqualToString:sPatientName[q[@"session"]]])
+                    {
+                        toBeFiltered=true;
+                        PatientNameRegex=[NSRegularExpression regularExpressionWithPattern:[NSString regexDicomString:qPatientName withFormat:@"%@.*"] options:NSRegularExpressionCaseInsensitive error:NULL];
+                        [sPatientName removeObjectForKey:q[@"session"]];
+                        [sPatientName setObject:qPatientName forKey:q[@"session"]];
+                    }
+                    
+                    NSString *StudyDate;
+                    NSString *until;
+                    NSString *since;
+                    if(qStudyDate && ![qStudyDate isEqualToString:sStudyDate[q[@"session"]]])
+                    {
+                        toBeFiltered=true;
+
+                        //StudyDate _00080020 aaaammdd,-aaaammdd,aaaammdd-,aaaammdd-aaaammdd
+                        NSUInteger length=[qStudyDate length];
+                        NSRange hyphen=[qStudyDate rangeOfString:@"-"];
+                        if (hyphen.length==0)
+                        {
+                            //no hyphen
+                            StudyDate=qStudyDate;
+                        }
+                        else if (hyphen.location==0)
+                        {
+                            //until
+                            until=[qStudyDate substringFromIndex:1];
+                        }
+                        else if (hyphen.location==length-1)
+                        {
+                            //since
+                            since=[qStudyDate substringToIndex:length-2];
+                        }
+                        else
+                        {
+                            //inbetween
+                            //until
+                            until=[qStudyDate substringFromIndex:hyphen.location+hyphen.length];
+                            //since
+                            since=[qStudyDate substringToIndex:length-hyphen.location-1];
+                        }
+                        [sStudyDate removeObjectForKey:q[@"session"]];
+                        [sStudyDate setObject:qStudyDate forKey:q[@"session"]];
+
+                    }
+                    
+                    NSString *newModalitiesInStudy=nil;
+                    if(qModalitiesInStudy && ![qModalitiesInStudy isEqualToString:sModalitiesInStudy[q[@"session"]]])
+                    {
+                        toBeFiltered=true;
+                        newModalitiesInStudy=qModalitiesInStudy;
+                        [sModalitiesInStudy removeObjectForKey:q[@"session"]];
+                        [sModalitiesInStudy setObject:qModalitiesInStudy forKey:q[@"session"]];
+                    }
+
+                    
+                    NSRegularExpression *StudyDescriptionRegex=nil;
+                    if(qStudyDescription  && ![qStudyDescription isEqualToString:sStudyDescription[q[@"session"]]])
+                    {
+                        toBeFiltered=true;
+                        StudyDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:[NSString regexDicomString:qStudyDescription withFormat:@"%@.*"] options:NSRegularExpressionCaseInsensitive error:NULL];
+                        [sStudyDescription removeObjectForKey:q[@"session"]];
+                        [sStudyDescription setObject:qStudyDescription forKey:q[@"session"]];
+                    }
+
+                    if(toBeFiltered)
+                    {
+                        //filter from datataTotal copy
+                        [datataFiltered removeObjectForKey:q[@"session"]];
+                        [datataFiltered setObject:[datataTotal[q[@"session"]] mutableCopy] forKey:q[@"session"]];
+                        
+                        //create compound predicate
+                        NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *datatablesRow, NSDictionary *bindings) {
+                            if (PatientIDRegex)
+                            {
+                                if (![PatientIDRegex numberOfMatchesInString:datatablesRow[3] options:0 range:NSMakeRange(0,[datatablesRow[3] length])]) return false;
+                            }
+                            if (PatientNameRegex)
+                            {
+                                if (![PatientNameRegex numberOfMatchesInString:datatablesRow[4] options:0 range:NSMakeRange(0,[datatablesRow[4] length])]) return false;
+                            }
+                            if (StudyDate)
+                            {
+                                if (![StudyDate isEqualToString:datatablesRow[5]]) return false;
+                            }
+                            if (until)
+                            {
+                                if ([until compare:datatablesRow[5]]==NSOrderedDescending) return false;
+                            }
+                            if (since)
+                            {
+                                if ([since compare:datatablesRow[5]]==NSOrderedAscending) return false;
+                            }
+                            if (newModalitiesInStudy)
+                            {
+                                if (![datatablesRow[6] containsString:newModalitiesInStudy]) return false;
+                            }
+                            if (StudyDescriptionRegex)
+                            {
+                                if (![StudyDescriptionRegex numberOfMatchesInString:datatablesRow[7] options:0 range:NSMakeRange(0,[datatablesRow[7] length])]) return false;
+                            }
+                            return true;
+                        }];
+                        
+                        [datataFiltered[q[@"session"]] filterUsingPredicate:compoundPredicate];
+                    }
+                }
+            }
+                
+#pragma mark --order
+            if (q[@"order[0][column]"] && q[@"order[0][dir]"])
+            {
+                NSLog(@"ordering with %@, %@",q[@"order[0][column]"],q[@"order[0][dir]"]);
+                
+                int column=[q[@"order[0][column]"]intValue];
+                if ([q[@"order[0][dir]"]isEqualToString:@"desc"])
+                {
+                    [datataFiltered[q[@"session"]] sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
+                        return [obj2[column] caseInsensitiveCompare:obj1[column]];
+                    }];
+                }
+                else
+                {
+                    [datataFiltered[q[@"session"]] sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
+                        return [obj1[column] caseInsensitiveCompare:obj2[column]];
+                    }];
+                }
+            }
+            
+#pragma mark --response
+
+            NSMutableDictionary *resp = [NSMutableDictionary dictionary];
+            NSUInteger recordsFiltered=[datataFiltered[q[@"session"]]count];
+            [resp setObject:q[@"draw"] forKey:@"draw"];
+            [resp setObject:[NSNumber numberWithInt:recordsTotal] forKey:@"recordsTotal"];
+            [resp setObject:[NSNumber numberWithInt:recordsFiltered] forKey:@"recordsFiltered"];
+            if (!recordsFiltered)
+            {
+                [resp setObject:@[] forKey:@"data"];
+            }
+            else
+            {
+                //start y length
+                long ps=[q[@"start"]intValue];
+                long pl=[q[@"length"]intValue];
+                NSLog(@"paging desired (start=[%ld],filas=[%ld],last=[%d])",ps,pl,recordsFiltered-1);
+                if (ps < 0) ps=0;
+                if (ps > recordsFiltered-1) ps=0;
+                if (ps+pl+1 > recordsFiltered) pl=recordsFiltered-ps;
+                NSLog(@"paging applied (start=[%ld],filas=[%ld],last=[%d])",ps,pl,recordsFiltered-1);
+                NSArray *page=[datataFiltered[q[@"session"]] subarrayWithRange:NSMakeRange(ps,pl)];
+                if (!page)page=@[];
+                [resp setObject:page forKey:@"data"];
+            }
+            NSMutableData *jsonp=[NSMutableData data];
+            [jsonp appendData:[q[@"callback"] dataUsingEncoding:NSUTF8StringEncoding]];
+            [jsonp appendData:[@"(" dataUsingEncoding:NSUTF8StringEncoding]];
+            [jsonp appendData:[NSJSONSerialization dataWithJSONObject:resp options:0 error:nil]];
+            [jsonp appendData:[@");" dataUsingEncoding:NSUTF8StringEncoding]];
+            
              return [GCDWebServerDataResponse
-                     responseWithData:
-                     [NSData dataWithContentsOfURL:
-                      [NSURL URLWithString:qidoString]
-                      ]
+                     responseWithData:jsonp                     
                      contentType:@"application/dicom+json"
                      ];
          }
@@ -460,7 +766,7 @@ int main(int argc, const char* argv[]) {
 //zipped/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}
 
         
-#pragma mark wadors studies series instances
+#pragma mark wadors
 //studies/{StudyInstanceUID}
 //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
 //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}
@@ -716,8 +1022,8 @@ int main(int argc, const char* argv[]) {
         
 
 #pragma mark -
-#pragma mark _____________dicom local_____________
-#pragma mark wado-uri
+#pragma mark _____________LAN dicom_____________
+//#pragma mark wado-uri
         /*
         NSRegularExpression *dicomwadoregex = [NSRegularExpression regularExpressionWithPattern:@"^/.*" options:NSRegularExpressionCaseInsensitive error:NULL];
         
@@ -735,7 +1041,7 @@ int main(int argc, const char* argv[]) {
                                 }
          ];
          */
-        
+/*
 #pragma mark studies
         //studies
         
@@ -776,9 +1082,10 @@ int main(int argc, const char* argv[]) {
         //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/metadata
         
         NSRegularExpression *diocmmetadataregex = [NSRegularExpression regularExpressionWithPattern:@"/metadata$" options:NSRegularExpressionCaseInsensitive error:NULL];
+ */
 #pragma mark -
-#pragma mark _____________remoto_____________
-#pragma mark wado-uri
+#pragma mark _____________WAN dicomweb_____________
+//#pragma mark wado-uri
         
         /*
         NSRegularExpression *remotowadoregex = [NSRegularExpression regularExpressionWithPattern:@"^/.*" options:NSRegularExpressionCaseInsensitive error:NULL];
@@ -797,7 +1104,7 @@ int main(int argc, const char* argv[]) {
                                 }
          ];
          */
-        
+/*
 #pragma mark studies
         //studies
         
@@ -838,7 +1145,7 @@ int main(int argc, const char* argv[]) {
         //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/metadata
         
         NSRegularExpression *remotometadataregex = [NSRegularExpression regularExpressionWithPattern:@"/metadata$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
+*/
 
 #pragma mark -
 #pragma mark _____________IID_____________
