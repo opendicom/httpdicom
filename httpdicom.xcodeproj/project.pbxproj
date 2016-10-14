@@ -39,6 +39,8 @@
 		2A6C518A1C8DCF7C00424729 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6C51891C8DCF7C00424729 /* libz.tbd */; };
 		4A09D59C1DAD142800D18CDE /* NSString+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A09D59A1DAD142700D18CDE /* NSString+PCS.h */; };
 		4A09D59D1DAD142800D18CDE /* NSString+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A09D59B1DAD142800D18CDE /* NSString+PCS.m */; };
+		4A09D5A01DAEE59000D18CDE /* NSData+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A09D59E1DAEE59000D18CDE /* NSData+PCS.h */; };
+		4A09D5A11DAEE59000D18CDE /* NSData+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A09D59F1DAEE59000D18CDE /* NSData+PCS.m */; };
 		4A492E421CC65F7700A5A52D /* clibwrapper_jiio-1.2-pre-dr-b04.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DE81CC65F7700A5A52D /* clibwrapper_jiio-1.2-pre-dr-b04.jar */; };
 		4A492E431CC65F7700A5A52D /* commons-cli-1.2.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DE91CC65F7700A5A52D /* commons-cli-1.2.jar */; };
 		4A492E441CC65F7700A5A52D /* dcm4che-audit-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DEA1CC65F7700A5A52D /* dcm4che-audit-3.3.7.jar */; };
@@ -175,6 +177,8 @@
 		4A09D5991DA58DFD00D18CDE /* dal55mysqlopendicom.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = dal55mysqlopendicom.plist; sourceTree = SOURCE_ROOT; };
 		4A09D59A1DAD142700D18CDE /* NSString+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+PCS.h"; sourceTree = SOURCE_ROOT; };
 		4A09D59B1DAD142800D18CDE /* NSString+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+PCS.m"; sourceTree = SOURCE_ROOT; };
+		4A09D59E1DAEE59000D18CDE /* NSData+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+PCS.h"; sourceTree = SOURCE_ROOT; };
+		4A09D59F1DAEE59000D18CDE /* NSData+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+PCS.m"; sourceTree = SOURCE_ROOT; };
 		4A492D2A1CC65F7700A5A52D /* dcm2dcm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = dcm2dcm; sourceTree = "<group>"; };
 		4A492D2B1CC65F7700A5A52D /* dcm2jpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = dcm2jpg; sourceTree = "<group>"; };
 		4A492D2C1CC65F7700A5A52D /* dcm2json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = dcm2json; sourceTree = "<group>"; };
@@ -600,6 +604,8 @@
 				4A09D5991DA58DFD00D18CDE /* dal55mysqlopendicom.plist */,
 				4A09D59A1DAD142700D18CDE /* NSString+PCS.h */,
 				4A09D59B1DAD142800D18CDE /* NSString+PCS.m */,
+				4A09D59E1DAEE59000D18CDE /* NSData+PCS.h */,
+				4A09D59F1DAEE59000D18CDE /* NSData+PCS.m */,
 			);
 			name = httpdicom;
 			path = IIDproxy;
@@ -1286,6 +1292,7 @@
 				4A5D5A9F1CC128990077B83F /* ZZArchiveEntry.h in Headers */,
 				4AAB26771D8A42A400401FD5 /* zconf.h in Headers */,
 				2A1322DF1C87C7D600C4DB43 /* GCDWebServerStreamedResponse.h in Headers */,
+				4A09D5A01DAEE59000D18CDE /* NSData+PCS.h in Headers */,
 				4A5D5AA21CC128990077B83F /* ZZError.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1360,6 +1367,7 @@
 				2A1322EF1C87C8A900C4DB43 /* GCDWebServerFileResponse.m in Sources */,
 				4AAB26761D8A42A400401FD5 /* LFCGzipUtility.m in Sources */,
 				2A1322F11C87C8B000C4DB43 /* GCDWebServerStreamedResponse.m in Sources */,
+				4A09D5A11DAEE59000D18CDE /* NSData+PCS.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
