@@ -372,12 +372,12 @@ int main(int argc, const char* argv[]) {
                  
 //WHERE study.rejection_state!=2    (or  1=1)
 //following filters use formats like " AND a like 'b'"
-                 NSMutableString *where=[NSMutableString stringWithString:thisSql[@"studiesWhere"]];
+                 NSMutableString *studiesWhere=[NSMutableString stringWithString:thisSql[@"studiesWhere"]];
 
                  if (q[@"search[value]"] && ![q[@"search[value]"] isEqualToString:@""])
                  {
                      //AccessionNumber q[@"search[value]"]
-                     [where appendString:
+                     [studiesWhere appendString:
                       [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
                                        fieldString:thisSql[@"AccessionNumber"]
                                        valueString:q[@"search[value]"]
@@ -388,7 +388,7 @@ int main(int argc, const char* argv[]) {
                  {
                      if(qPatientID && [qPatientID length])
                      {
-                         [where appendString:
+                         [studiesWhere appendString:
                           [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
                                            fieldString:thisSql[@"PatientID"]
                                            valueString:qPatientID
@@ -402,7 +402,7 @@ int main(int argc, const char* argv[]) {
                          NSArray *patientNameComponents=[qPatientName componentsSeparatedByString:@"^"];
                          NSUInteger patientNameCount=[patientNameComponents count];
                          
-                         [where appendString:
+                         [studiesWhere appendString:
                           [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
                                            fieldString:(thisSql[@"PatientName"])[0]
                                            valueString:patientNameComponents[0]
@@ -411,7 +411,7 @@ int main(int argc, const char* argv[]) {
                          
                          if (patientNameCount > 1)
                          {
-                             [where appendString:
+                             [studiesWhere appendString:
                               [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
                                                fieldString:(thisSql[@"PatientName"])[1]
                                                valueString:patientNameComponents[1]
@@ -420,7 +420,7 @@ int main(int argc, const char* argv[]) {
 
                              if (patientNameCount > 2)
                              {
-                                 [where appendString:
+                                 [studiesWhere appendString:
                                   [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
                                                    fieldString:(thisSql[@"PatientName"])[2]
                                                    valueString:patientNameComponents[2]
@@ -429,7 +429,7 @@ int main(int argc, const char* argv[]) {
 
                                  if (patientNameCount > 3)
                                  {
-                                     [where appendString:
+                                     [studiesWhere appendString:
                                       [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
                                                        fieldString:(thisSql[@"PatientName"])[3]
                                                        valueString:patientNameComponents[3]
@@ -438,7 +438,7 @@ int main(int argc, const char* argv[]) {
 
                                      if (patientNameCount > 4)
                                      {
-                                         [where appendString:
+                                         [studiesWhere appendString:
                                           [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
                                                            fieldString:(thisSql[@"PatientName"])[4]
                                                            valueString:patientNameComponents[4]
@@ -452,43 +452,43 @@ int main(int argc, const char* argv[]) {
 
                      if(qStudyDate && [qStudyDate length])
                      {
-                         [where appendFormat:@" AND %@ != '%@'", thisSql[@"StudyDate"], @"*"];
+                         [studiesWhere appendFormat:@" AND %@ != '%@'", thisSql[@"StudyDate"], @"*"];
                          //StudyDate _00080020 aaaammdd,-aaaammdd,aaaammdd-,aaaammdd-aaaammdd
                          NSUInteger length=[qStudyDate length];
                          NSRange hyphen=[qStudyDate rangeOfString:@"-"];
                          if (hyphen.length==0)
                          {
                              //no hyphen
-                             [where appendFormat:@" AND %@ = '%@'", thisSql[@"StudyDate"], qStudyDate];
+                             [studiesWhere appendFormat:@" AND %@ = '%@'", thisSql[@"StudyDate"], qStudyDate];
                          }
                          else if (hyphen.location==0)
                          {
                              //until
-                             [where appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], [qStudyDate substringFromIndex:1]];
+                             [studiesWhere appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], [qStudyDate substringFromIndex:1]];
                          }
                          else if (hyphen.location==length-1)
                          {
                              //since
-                             [where appendFormat:@" AND %@ >= '%@'", thisSql[@"StudyDate"], [qStudyDate substringToIndex:length-1]];
+                             [studiesWhere appendFormat:@" AND %@ >= '%@'", thisSql[@"StudyDate"], [qStudyDate substringToIndex:length-1]];
                          }
                          else
                          {
                              //inbetween
-                             [where appendFormat:@" AND %@ >= '%@'", thisSql[@"StudyDate"], [qStudyDate substringToIndex:length-hyphen.location-1]];
-                             [where appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], [qStudyDate substringFromIndex:hyphen.location+hyphen.length]];
+                             [studiesWhere appendFormat:@" AND %@ >= '%@'", thisSql[@"StudyDate"], [qStudyDate substringToIndex:length-hyphen.location-1]];
+                             [studiesWhere appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], [qStudyDate substringFromIndex:hyphen.location+hyphen.length]];
                          }
                      }
 
                      if(qModalitiesInStudy && [qModalitiesInStudy length] && ![qModalitiesInStudy isEqualToString:@"*"])
                      {
                          //ModalitiesInStudy _00080061 Modalidades (coma separated)
-                         [where appendFormat:@" AND %@ like '%%%@%%'", thisSql[@"ModalitiesInStudy"], qModalitiesInStudy];
+                         [studiesWhere appendFormat:@" AND %@ like '%%%@%%'", thisSql[@"ModalitiesInStudy"], qModalitiesInStudy];
                      }
 
                      if(qStudyDescription && [qStudyDescription length])
                      {
                          //StudyDescription _00081030 Descripción
-                         [where appendString:
+                         [studiesWhere appendString:
                           [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
                                            fieldString:thisSql[@"StudyDescription"]
                                            valueString:qStudyDescription
@@ -498,15 +498,15 @@ int main(int argc, const char* argv[]) {
                  }
                  
 
-                 NSLog(@"SQL: %@",where);
+                 NSLog(@"SQL: %@",studiesWhere);
                  
 //2 execute count
                  NSMutableData *countData=[NSMutableData data];
                  int countResult=task(@"/bin/bash",
                                  @[@"-s"],
-                                      [[[thisSql[@"countProlog"]
-                                        stringByAppendingString:where]
-                                        stringByAppendingString:thisSql[@"countEpilog"]]
+                                      [[[thisSql[@"studiesCountProlog"]
+                                        stringByAppendingString:studiesWhere]
+                                        stringByAppendingString:thisSql[@"studiesCountEpilog"]]
                                         dataUsingEncoding:NSUTF8StringEncoding],
                                  countData
                                  );
@@ -529,9 +529,9 @@ int main(int argc, const char* argv[]) {
                      NSMutableData *studiesData=[NSMutableData data];
                      int studiesResult=task(@"/bin/bash",
                                           @[@"-s"],
-                                          [[[thisSql[@"studiesProlog"]
-                                            stringByAppendingString:where]
-                                            stringByAppendingFormat:thisSql[@"studiesEpilog"],session,session]
+                                          [[[thisSql[@"datatablesStudiesProlog"]
+                                            stringByAppendingString:studiesWhere]
+                                            stringByAppendingFormat:thisSql[@"datatablesStudiesEpilog"],session,session]
                                             dataUsingEncoding:NSUTF8StringEncoding],
                                           studiesData
                                           );
@@ -747,21 +747,21 @@ int main(int argc, const char* argv[]) {
              //WHERE study.rejection_state!=2    (or  1=1)
              //following filters use formats like " AND a like 'b'"
              NSDictionary *thisSql=sql[dev0[@"sql"]];
-             NSMutableString *where=[NSMutableString stringWithString:thisSql[@"studiesWhere"]];
-             [where appendString:
+             NSMutableString *studiesWhere=[NSMutableString stringWithString:thisSql[@"studiesWhere"]];
+             [studiesWhere appendString:
               [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
                                fieldString:thisSql[@"PatientID"]
                                valueString:q[@"PatientID"]
                ]
               ];
-             NSLog(@"SQL: %@",where);
+             NSLog(@"SQL: %@",studiesWhere);
              
              NSMutableData *studiesData=[NSMutableData data];
              int studiesResult=task(@"/bin/bash",
                                     @[@"-s"],
-                                    [[[thisSql[@"studiesProlog"]
-                                       stringByAppendingString:where]
-                                      stringByAppendingFormat:thisSql[@"studiesEpilog"],session,session]
+                                    [[[thisSql[@"datatablesStudiesProlog"]
+                                       stringByAppendingString:studiesWhere]
+                                      stringByAppendingFormat:thisSql[@"datatablesStudiesEpilog"],session,session]
                                      dataUsingEncoding:NSUTF8StringEncoding],
                                     studiesData
                                     );
@@ -1239,7 +1239,7 @@ int main(int argc, const char* argv[]) {
         
 #pragma mark IHEInvokeImageDisplay
 //-----------------------------------------------------------------------------------------------------------------------------
-// IHEInvokeImageDisplay?requestType=STUDY&accessionNumber=123&viewerType=IHE_BIR&diagnosticQuality=true&keyImagesOnly&pcs=1.2
+// IHEInvokeImageDisplay?requestType=STUDY&accessionNumber=1&viewerType=IHE_BIR&diagnosticQuality=true&keyImagesOnly=false&custodianUID=1.2
 //-----------------------------------------------------------------------------------------------------------------------------
         
         [httpdicomServer addHandlerForMethod:@"GET"
@@ -1247,46 +1247,165 @@ int main(int argc, const char* argv[]) {
                                requestClass:[GCDWebServerRequest class]
                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-             //request parts logging
+             NSDictionary *q=request.query;
+
+             //(1) b= html5dicomURL
              NSURL *requestURL=request.URL;
              NSString *bSlash=requestURL.baseURL.absoluteString;
              NSString *b=[bSlash substringToIndex:[bSlash length]-1];
              NSString *p=requestURL.path;
-             NSString *q=requestURL.query;
-             GWS_LOG_INFO(@"%@%@?%@",b,p,q);
-
-             //request validation
-             NSString *requestType=[request.query objectForKey:@"requestType"];
-             NSString *accessionNumber=[request.query objectForKey:@"accessionNumber"];
-             NSString *pacs=[request.query objectForKey:@"pacs"];
-             if (   ([request.query count]>2)
-                 && requestType
-                 && [requestType isEqualToString:@"STUDY"]
-                 && accessionNumber
-                 && ([accessionNumber length]<17)
-                 && [SHRegex numberOfMatchesInString:accessionNumber options:0 range:NSMakeRange(0,[accessionNumber length])]
-                 && pacs
-                 && ([pacs length]<65)
-                 && [UIRegex numberOfMatchesInString:pacs options:0 range:NSMakeRange(0,[pacs length])]
-                 && [devs objectForKey:pacs]
+             GWS_LOG_INFO(@"%@%@?%@",b,p,requestURL.query);
+             
+             
+             //(2) accept requestType STUDY / SERIES only
+             NSString *requestType=q[@"requestType"];
+             if (
+                   !requestType
+                 ||!
+                    (  [requestType isEqualToString:@"STUDY"]
+                     ||[requestType isEqualToString:@"SERIES"]
+                     )
+                 ) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing requestType param in %@%@?%@",b,p,requestURL.query]];
+             
+             //find URI of custodianUID
+             NSString *custodianURI;
+             if (q[@"custodianUID"]) custodianURI=(devs[q[@"custodianUID"]])[@"pcsurl"];
+             else custodianURI=@"";
+             
+             //redirect to specific manifest
+             NSMutableString *manifest=[NSMutableString string];
+             
+             NSString *viewerType=q[@"viewerType"];
+             if (  !viewerType
+                 || [viewerType isEqualToString:@"IHE_BIR"]
+                 || [viewerType isEqualToString:@"weasis"]
                  )
              {
-                 NSString *accessionNumberURL=[accessionNumber stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                 //find remote pcs url
-                 NSDictionary *remote=[devs objectForKey:pacs];
-                 NSString *remotepcs=[remote objectForKey:@"pcsURL"];
-                 
-                 //request http://{remotepcs}/weasisManifest?accessionNumber=123&pacs=1.2
-                 NSString *weasisManifestURL=[NSString stringWithFormat:@"%@/weasisManifest?accessionNumber=%@&pacs=%@",remotepcs,accessionNumberURL,pacs];
-                 GWS_LOG_INFO(@"-> %@",weasisManifestURL);
-                 NSData *xmlData=[NSData dataWithContentsOfURL:[NSURL URLWithString:weasisManifestURL] options:NSDataReadingUncached error:nil];
+//weasis
+                 [manifest appendString:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r"];
+                 [manifest appendFormat:@"<wado_query wadoURL=\"%@\" requireOnlySOPInstanceUID=\"false\" additionnalParameters=\"%@\">\r",
+                  b,
+                  (devs[q[@"custodianUID"]])[@"wadoadditionalparameters"]
+                  ];
+
+                 if ([requestType isEqualToString:@"STUDY"])
+                 {
+                     NSString *manifestWeasisStudiesURI;
+                     if (q[@"accessionNumber"]) manifestWeasisStudiesURI=[NSString stringWithFormat:@"%@/bir/manifest/weasis/studies?AccessionNumber=%@",custodianURI,q[@"accessionNumber"]];
+                     else if (q[@"studyUID"]) manifestWeasisStudiesURI=[NSString stringWithFormat:@"%@/bir/manifest/weasis/studies?StudyInstanceUID=%@",custodianURI,q[@"studyUID"]];
+                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
+
+                      [manifest appendFormat:@"%@\r</wado_query>\r",[NSString stringWithContentsOfURL:[NSURL URLWithString:manifestWeasisStudiesURI] encoding:NSUTF8StringEncoding error:nil]];
+                      //GWS_LOG_INFO(@"%@",manifest);
+                 }
+                 else
+                 {
+                     //SERIES
+                 }
+                 GCDWebServerDataResponse *response=[GCDWebServerDataResponse responseWithData:[[[LFCGzipUtility gzipData:[manifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
+                 [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
+                 return response;
+             }
+             else if ([viewerType isEqualToString:@"OsiriX"])
+             {
+//OsiriX
+                 if ([requestType isEqualToString:@"STUDY"])
+                 {
+                     NSString *accessionNumber=q[@"accessionNumber"];
+                     NSString *studyUID=q[@"studyUID"];
+                     if (accessionNumber)
+                     {
+                         
+                     }
+                     else if (studyUID)
+                     {
+                         
+                     }
+                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
+                     
+                 }
+                 else
+                 {
+                     //SERIES
+                 }
+             }
+             else if ([viewerType isEqualToString:@"cornerstone"])
+             {
+//cornerstone
+                 if ([requestType isEqualToString:@"STUDY"])
+                 {
+                     NSString *accessionNumber=q[@"accessionNumber"];
+                     NSString *studyUID=q[@"studyUID"];
+                     if (accessionNumber)
+                     {
+                         
+                     }
+                     else if (studyUID)
+                     {
+                         
+                     }
+                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
+                     
+                 }
+                 else
+                 {
+                     //SERIES
+                 }
+             }
+             else if ([viewerType isEqualToString:@"MHD-I"])
+             {
+//MHD-I
+                 if ([requestType isEqualToString:@"STUDY"])
+                 {
+                     NSString *accessionNumber=q[@"accessionNumber"];
+                     NSString *studyUID=q[@"studyUID"];
+                     if (accessionNumber)
+                     {
+                         
+                     }
+                     else if (studyUID)
+                     {
+                         
+                     }
+                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
+                     
+                 }
+                 else
+                 {
+                     //SERIES
+                 }
+             }
+             else if ([viewerType isEqualToString:@"download"])
+             {
+                 if ([requestType isEqualToString:@"STUDY"])
+                 {
+                     NSString *accessionNumber=q[@"accessionNumber"];
+                     NSString *studyUID=q[@"studyUID"];
+                     if (accessionNumber)
+                     {
+                         
+                     }
+                     else if (studyUID)
+                     {
+                         
+                     }
+                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
+                     
+                 }
+                 else
+                 {
+                     //SERIES
+                 }
+             }
+             else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"unknown viewerType in %@%@?%@",b,p,requestURL.query]];
+             
+             {
                  /*
                  if (error)
                  {
                      GWS_LOG_WARNING(@"%@",[error description]);
                      return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"%@",[error description]]];
                  }
-                  */
                  if ([xmlData length]>0)
                  {
                      BOOL seriesFetched=false;
@@ -1360,7 +1479,7 @@ int main(int argc, const char* argv[]) {
                              }
                          }
                      }
-                     
+                  
                      if (seriesFetched)
                      {
                          //create jnlp
@@ -1378,17 +1497,169 @@ int main(int argc, const char* argv[]) {
                      GWS_LOG_WARNING(@"no series");
                      return [GCDWebServerDataResponse responseWithText:@"no series"];
                  }
-             }
+                  */
+            }
              GWS_LOG_WARNING(@"incorrect syntax for request /bir/study");
              return [GCDWebServerDataResponse responseWithText:@"incorrect syntax for request /IHEInvokeImageDisplay"];
          }
          ];
         
         
+#pragma mark /bir/manifest/weasis/studies?
+        //------------------------------------------------
+        // http://{remotepcs}/bir/manifest/weasis/studies?
+        //------------------------------------------------
+        
+        NSRegularExpression *mwstudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^/bir/manifest/weasis/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:mwstudiesregex
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             //request parts logging
+             NSURL *requestURL=request.URL;
+             NSString *bSlash=requestURL.baseURL.absoluteString;
+             NSString *b=[bSlash substringToIndex:[bSlash length]-1];
+             NSString *p=requestURL.path;
+             NSString *q=requestURL.query;
+             
+             NSDictionary *thisSql=sql[dev0[@"sql"]];
+             NSString *sqlString;
+             NSString *AccessionNumber=request.query[@"AccessionNumber"];
+             if (AccessionNumber)sqlString=[NSString stringWithFormat:thisSql[@"manifestWeasisStudyAccessionNumber"],AccessionNumber];
+             else
+             {
+                 NSString *StudyInstanceUID=request.query[@"StudyInstanceUID"];
+                 if (StudyInstanceUID)sqlString=[NSString stringWithFormat:thisSql[@"manifestWeasisStudyStudyInstanceUID"],StudyInstanceUID];
+                 else return [GCDWebServerErrorResponse responseWithClientError:404 message:
+                              @"parameter AccessionNumber or StudyInstanceUID required in %@%@?%@",b,p,q];
+             }
+             
+             //SQL for studies
+             NSMutableData *studiesData=[NSMutableData data];
+             int studiesResult=task(@"/bin/bash",
+                                    @[@"-s"],
+                                    [sqlString dataUsingEncoding:NSUTF8StringEncoding],
+                                    studiesData
+                                    );
+             NSMutableArray *studyArray=[NSJSONSerialization JSONObjectWithData:studiesData options:0 error:nil];
+            /*
+                [0]  p.family_name,p.given_name,p.middle_name,p.name_prefix,p.name_suffix,
+                [1] patient_id.pat_id,
+                [2] iopid.entity_uid,
+                [3] patient.pat_birthdate,
+                [4] patient.pat_sex,
+             
+                [5] study.study_iuid,
+                [6] study.accession_no,
+                [7] ioan.entity_uid,
+                [8] study_query_attrs.retrieve_aets,
+                [9] study.study_id,
+                [10] study.study_desc,
+                [11] study.study_date,
+                [12] study.study_time
+             */
+             //the accessionNumber may join more than one study of one or more patient !!!
+             //look for patient roots first
+             NSMutableArray *uniquePatients=[NSMutableArray array];
+             for (NSArray *studyInstance in studyArray)
+             {
+                 [uniquePatients addObject:[studyInstance[1]stringByAppendingPathComponent:studyInstance[2]]];
+             }
+             
+             NSMutableString *weasisManifest=[NSMutableString string];
+             //each patient
+                 for (NSString *patient in [NSSet setWithArray:uniquePatients])
+                 {
+                     NSUInteger studyIndex=[uniquePatients indexOfObject:patient];
+                     NSArray *patientAttrs=studyArray[studyIndex];
+                     [weasisManifest appendFormat:
+                      @"<Patient PatientName=\"%@\" PatientID=\"%@\" IssuerOfPatientID=\"%@\" PatientBirthDate=\"%@\" PatientSex=\"%@\">\r",
+                      patientAttrs[0],
+                      patientAttrs[1],
+                      patientAttrs[2],
+                      patientAttrs[3],
+                      patientAttrs[4]
+                      ];
+                     //NSLog(@"<Patient PatientName=\"%@\" PatientID=\"%@\" IssuerOfPatientID=\"%@\" PatientBirthDate=\"%@\" PatientSex=\"%@\">\r",patientAttrs[0],patientAttrs[1],patientAttrs[2],patientAttrs[3],patientAttrs[4]);
+                     
+                     for (NSArray *studyInstance in studyArray)
+                     {
+                         if (  [studyInstance[1]isEqualToString:patientAttrs[1]]
+                             &&[studyInstance[2]isEqualToString:patientAttrs[2]]
+                            )
+                         {
+                            //each study of this patient
+                             [weasisManifest appendFormat:
+                              @"<Study SpecificCharacterSet=\"UTF-8\" StudyInstanceUID=\"%@\" AccessionNumber=\"%@\" IssuerOfAccessionNumber=\"%@\" RetrieveAETitle=\"%@\" StudyID=\"%@\" StudyDescription=\"%@\" StudyDate=\"%@\" StudyTime=\"%@\" WadorsURI=\"/studies/%@\">\r",
+                              studyInstance[5],
+                              studyInstance[6],
+                              studyInstance[7],
+                              studyInstance[8],
+                              studyInstance[9],
+                              studyInstance[10],
+                              studyInstance[11],
+                              studyInstance[12],
+                              studyInstance[5]
+                              ];
+                             
+                             //series
+                             NSMutableData *seriesData=[NSMutableData data];
+                             int seriesResult=task(@"/bin/bash",
+                                                    @[@"-s"],
+                                                    [[NSString stringWithFormat:thisSql[@"manifestWeasisSeriesStudyInstanceUID"],studyInstance[5]]
+                                                     dataUsingEncoding:NSUTF8StringEncoding],
+                                                    seriesData
+                                                    );
+                             NSMutableArray *seriesArray=[NSJSONSerialization JSONObjectWithData:seriesData options:0 error:nil];
+                             for (NSArray *seriesInstance in seriesArray)
+                             {
+                                 [weasisManifest appendFormat:
+                                  @"<Series SeriesInstanceUID=\"%@\" SeriesDescription=\"%@\" SeriesNumber=\"%@\" Modality=\"%@\"  WadorsURI=\"/studies/%@/series/%@\">\r",
+                                  seriesInstance[0],
+                                  seriesInstance[1],
+                                  seriesInstance[2],
+                                  seriesInstance[3],
+                                  studyInstance[5],
+                                  seriesInstance[0]
+                                  ];
+                                 
+                                 //instances
+                                 NSMutableData *instanceData=[NSMutableData data];
+                                 int instanceResult=task(@"/bin/bash",
+                                                       @[@"-s"],
+                                                       [[NSString stringWithFormat:thisSql[@"manifestWeasisInstanceSeriesInstanceUID"],seriesInstance[0]]
+                                                        dataUsingEncoding:NSUTF8StringEncoding],
+                                                       instanceData
+                                                       );
+                                 NSMutableArray *instanceArray=[NSJSONSerialization JSONObjectWithData:instanceData options:0 error:nil];
+                                 for (NSArray *instance in instanceArray)
+                                 {
+                                     [weasisManifest appendFormat:
+                                      @"<Instance SOPInstanceUID=\"%@\" InstanceNumber=\"%@\" SOPClassUID=\"%@\"/>\r",
+                                      instance[0],
+                                      instance[1],
+                                      instance[2]
+                                      ];
+                                 }
+                                 [weasisManifest appendString:@"</Series>\r"];
+                             }
+                             [weasisManifest appendString:@"</Study>\r"];
+                         }
+                     }
+                     [weasisManifest appendString:@"</Patient>\r"];
+                 }
+                 return [GCDWebServerDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
+         }
+         ];
+        
+
+
+
 #pragma mark /bir/weasisManifest
-//-------------------------------------------------------------------
-// http://{remotepcs}/bir/weasisManifest?accessionNumber=123&pacs=1.2
-//-------------------------------------------------------------------
+//---------------------------------------------------------------------------
+// http://{remotepcs}/bir/weasisManifest?accessionNumber=123&custodianUID=1.2
+//----------------------------------------------------------------------------
 
         [httpdicomServer addHandlerForMethod:@"GET"
                                        path:@"/bir/weasisManifest"
@@ -1419,12 +1690,12 @@ int main(int argc, const char* argv[]) {
              {
                  NSString *accessionNumberURL=[accessionNumber stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                  //pacs params
-                 NSDictionary *pacsDict=[devs objectForKey:pcs];
+                 NSDictionary *pacsDict=devs[@"pcs"];
                  
 #pragma mark allow other select (sql, dicom Q/R)
                  
-                 NSString *qidoRS=[pacsDict objectForKey:@"qidoRS"];
-                 NSString *aet=[pacsDict objectForKey:@"aet"];
+                 NSString *qidoRS=pacsDict[@"qidoRS"];
+                 NSString *aet=pacsDict[@"aet"];
                  
                  //weasisManifest
                  NSMutableString *weasisManifest=[NSMutableString stringWithCapacity:10000];
@@ -1558,8 +1829,6 @@ int main(int argc, const char* argv[]) {
              return [GCDWebServerDataResponse responseWithText:@"incorrect syntax for request /weasisManifest"];
          }
          ];
-#pragma mark -
-#pragma mark _____________handlers adaptivos_____________
 #pragma mark -
 #pragma mark _____________redirects dev0, dicom (local, (pcs) remoto_____________
 
