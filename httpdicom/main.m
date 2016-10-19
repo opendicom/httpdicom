@@ -241,6 +241,59 @@ int main(int argc, const char* argv[]) {
 #pragma mark -
 #pragma mark _______localhost dicomweb_______
 
+#pragma mark NumberOfStudyRelatedInstances
+        
+        NSRegularExpression *NumberOfStudyRelatedInstancesregex = [NSRegularExpression regularExpressionWithPattern:@"^/NumberOfStudyRelatedInstances/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:NumberOfStudyRelatedInstancesregex
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             NSString *uid=[[request.URL.path componentsSeparatedByString:@"/"]lastObject];
+             NSDictionary *thisSql=sql[dev0[@"sql"]];
+             NSMutableData *countData=[NSMutableData data];
+             int countResult=task(@"/bin/bash",
+                                  @[@"-s"],
+                                  [
+                                   [NSString stringWithFormat:
+                                    thisSql[@"NumberOfStudyRelatedInstances"],
+                                    uid]
+                                   dataUsingEncoding:NSUTF8StringEncoding
+                                   ],
+                                  countData
+                                  );
+             return [GCDWebServerDataResponse responseWithData:countData contentType:@"text/plain"];
+         }
+         ];
+
+        
+#pragma mark NumberOfSeriesRelatedInstances
+        
+        NSRegularExpression *NumberOfSeriesRelatedInstancesregex = [NSRegularExpression regularExpressionWithPattern:@"^/NumberOfSeriesRelatedInstances/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:NumberOfSeriesRelatedInstancesregex
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             NSString *uid=[[request.URL.path componentsSeparatedByString:@"/"]lastObject];
+             NSDictionary *thisSql=sql[dev0[@"sql"]];
+             NSMutableData *countData=[NSMutableData data];
+             int countResult=task(@"/bin/bash",
+                                  @[@"-s"],
+                                  [
+                                   [NSString stringWithFormat:
+                                    thisSql[@"NumberOfSeriesRelatedInstances"],
+                                    uid]
+                                   dataUsingEncoding:NSUTF8StringEncoding
+                                   ],
+                                  countData
+                                  );
+             return [GCDWebServerDataResponse responseWithData:countData contentType:@"text/plain"];
+         }
+         ];
+
 #pragma mark qido studies series instances
         
         NSRegularExpression *qidoregex = [NSRegularExpression regularExpressionWithPattern:@"^/studies$|^/series$|^/instances$" options:NSRegularExpressionCaseInsensitive error:NULL];
@@ -452,7 +505,7 @@ int main(int argc, const char* argv[]) {
 
                      if(qStudyDate && [qStudyDate length])
                      {
-                         [studiesWhere appendFormat:@" AND %@ != '%@'", thisSql[@"StudyDate"], @"*"];
+                         [studiesWhere appendFormat:@" AND %@ != '%@'", thisSql[@"SeriesDate"], @"*"];
                          //StudyDate _00080020 aaaammdd,-aaaammdd,aaaammdd-,aaaammdd-aaaammdd
                          NSUInteger length=[qStudyDate length];
                          NSRange hyphen=[qStudyDate rangeOfString:@"-"];
@@ -798,20 +851,30 @@ int main(int argc, const char* argv[]) {
              NSString *session=q[@"session"];
              if (!session || [session isEqualToString:@""]) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
              
+             NSString *where;
              NSDictionary *thisSql=sql[dev0[@"sql"]];
-             NSString *where=[NSString stringWithFormat:@"%@ AND %@='%@'",
-                              thisSql[@"seriesWhere"],
-                              thisSql[@"StudyInstanceUID"],
-                              q[@"StudyIUID"]
-                              ];
+             NSString *seriesWhere=thisSql[@"seriesWhere"];
+             NSString *AccessionNumber=q[@"AccessionNumber"];
+             NSString *StudyInstanceUID=q[@"StudyInstanceUID"];
+             if (AccessionNumber && ![AccessionNumber isEqualToString:@"NULL"])
+             {
+                 NSString *IssuerOfAccessionNumber=q[@"IssuerOfAccessionNumber.UniversalEntityID"];
+                 if (IssuerOfAccessionNumber && ![IssuerOfAccessionNumber isEqualToString:@"NULL"]) where=[NSString stringWithFormat:@"%@ AND %@='%@' AND %@='%@'", thisSql[@"seriesWhere"],thisSql[@"AccessionNumber"],AccessionNumber,thisSql[@"IssuerOfAccessionNumber"],IssuerOfAccessionNumber];
+                 else where=[NSString stringWithFormat:@"%@ AND %@='%@'",thisSql[@"seriesWhere"],thisSql[@"AccessionNumber"],AccessionNumber];
+                     
+             }
+             else if (StudyInstanceUID && ![StudyInstanceUID isEqualToString:@"NULL"]) where=[NSString stringWithFormat:@"%@ AND %@='%@'",thisSql[@"seriesWhere"],thisSql[@"StudyInstanceUID"],@"StudyInstanceUID"];
+             else return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'AccessionNumber' or 'StudyInstanceUID' parameter"] contentType:@"application/dicom+json"];
+             
+             
              NSLog(@"SQL: %@",where);
 
              NSMutableData *seriesData=[NSMutableData data];
              int seriesResult=task(@"/bin/bash",
                                     @[@"-s"],
-                                    [[[thisSql[@"seriesProlog"]
+                                    [[[thisSql[@"datatablesSeriesProlog"]
                                        stringByAppendingString:where]
-                                      stringByAppendingFormat:thisSql[@"seriesEpilog"],session,session]
+                                      stringByAppendingFormat:thisSql[@"datatablesSeriesEpilog"],session,session]
                                      dataUsingEncoding:NSUTF8StringEncoding],
                                     seriesData
                                     );
@@ -1239,7 +1302,7 @@ int main(int argc, const char* argv[]) {
         
 #pragma mark IHEInvokeImageDisplay
 //-----------------------------------------------------------------------------------------------------------------------------
-// IHEInvokeImageDisplay?requestType=STUDY&accessionNumber=1&viewerType=IHE_BIR&diagnosticQuality=true&keyImagesOnly=false&custodianUID=1.2
+// IHEInvokeImageDisplay?requestType=STUDY&accessionNumber=1&viewerType=IHE_BIR&diagnosticQuality=true&keyImagesOnly=false&custodianUID=1.2&proxyURI=xxx
 //-----------------------------------------------------------------------------------------------------------------------------
         
         [httpdicomServer addHandlerForMethod:@"GET"
@@ -1266,6 +1329,22 @@ int main(int argc, const char* argv[]) {
                      ||[requestType isEqualToString:@"SERIES"]
                      )
                  ) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing requestType param in %@%@?%@",b,p,requestURL.query]];
+ 
+             //session
+             NSString *devAdditionalParameters=(devs[q[@"custodianUID"]])[@"wadoadditionalparameters"];
+             NSString *additionalParameters;
+             if(q[@"session"])
+             {
+                 if (devAdditionalParameters) additionalParameters=[NSString stringWithFormat:@"&amp;session=%@%@",q[@"session"],devAdditionalParameters];
+                 else additionalParameters=[NSString stringWithFormat:@"&amp;session=%@",q[@"session"]];
+             }
+             else if (devAdditionalParameters) additionalParameters=devAdditionalParameters;
+             else additionalParameters=@"";
+             
+             //proxyURI
+             NSString *proxyURI=q[@"proxyURI"];
+             if (!proxyURI) proxyURI=b;
+             
              
              //find URI of custodianUID
              NSString *custodianURI;
@@ -1281,53 +1360,50 @@ int main(int argc, const char* argv[]) {
                  || [viewerType isEqualToString:@"weasis"]
                  )
              {
-//weasis
                  [manifest appendString:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r"];
-                 [manifest appendFormat:@"<wado_query wadoURL=\"%@\" requireOnlySOPInstanceUID=\"false\" additionnalParameters=\"%@\">\r",
-                  b,
-                  (devs[q[@"custodianUID"]])[@"wadoadditionalparameters"]
+                 [manifest appendFormat:@"<wado_query xmlns=\"http://www.weasis.org/xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" wadoURL=\"%@\" requireOnlySOPInstanceUID=\"false\" additionnalParameters=\"%@\" overrideDicomTagsList=\"\">",
+                     proxyURI,
+                     additionalParameters
                   ];
 
+                 NSString *manifestWeasisURI;
                  if ([requestType isEqualToString:@"STUDY"])
                  {
-                     NSString *manifestWeasisStudiesURI;
-                     if (q[@"accessionNumber"]) manifestWeasisStudiesURI=[NSString stringWithFormat:@"%@/bir/manifest/weasis/studies?AccessionNumber=%@",custodianURI,q[@"accessionNumber"]];
-                     else if (q[@"studyUID"]) manifestWeasisStudiesURI=[NSString stringWithFormat:@"%@/bir/manifest/weasis/studies?StudyInstanceUID=%@",custodianURI,q[@"studyUID"]];
+                     if (q[@"accessionNumber"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/weasis/studies?AccessionNumber=%@",custodianURI,q[@"accessionNumber"]];
+                     else if (q[@"studyUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/weasis/studies?StudyInstanceUID=%@",custodianURI,q[@"studyUID"]];
                      else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
-
-                      [manifest appendFormat:@"%@\r</wado_query>\r",[NSString stringWithContentsOfURL:[NSURL URLWithString:manifestWeasisStudiesURI] encoding:NSUTF8StringEncoding error:nil]];
-                      //GWS_LOG_INFO(@"%@",manifest);
                  }
                  else
                  {
                      //SERIES
+                     if (q[@"studyUID"] && q[@"seriesUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/weasis/studies/%@/series?SeriesInstanceUID=%@",custodianURI,q[@"studyUID"],q[@"seriesUID"]];
+                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
+                 }
+                 NSLog(@"%@",manifestWeasisURI);
+                 [manifest appendFormat:@"%@\r</wado_query>\r",[NSString stringWithContentsOfURL:[NSURL URLWithString:manifestWeasisURI] encoding:NSUTF8StringEncoding error:nil]];
+                 GWS_LOG_INFO(@"%@",manifest);
+                 
+                 if ([manifest length]<350) [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"zero objects for %@%@?%@",b,p,requestURL.query]];
+                 
+
+                 if (![custodianURI isEqualToString:@""])
+                 {
+                     //get series not available in dev0
+                     
+                     NSXMLDocument *xmlDocument=[[NSXMLDocument alloc]initWithXMLString:manifest options:0 error:nil];
+                     NSArray *seriesWadorsArray = [xmlDocument nodesForXPath:@"wado_query/Patient/Study/Series" error:nil];
+                     for (NSXMLNode *node in seriesWadorsArray)
+                     {
+                         NSString *seriesWadors=[node stringValue];// /studies/{studies}/series/{series}
+                         
+                         //cantidad de instancias en la serie en dev0? 
+                         
+                     }
                  }
                  GCDWebServerDataResponse *response=[GCDWebServerDataResponse responseWithData:[[[LFCGzipUtility gzipData:[manifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
                  [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
+                 
                  return response;
-             }
-             else if ([viewerType isEqualToString:@"OsiriX"])
-             {
-//OsiriX
-                 if ([requestType isEqualToString:@"STUDY"])
-                 {
-                     NSString *accessionNumber=q[@"accessionNumber"];
-                     NSString *studyUID=q[@"studyUID"];
-                     if (accessionNumber)
-                     {
-                         
-                     }
-                     else if (studyUID)
-                     {
-                         
-                     }
-                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
-                     
-                 }
-                 else
-                 {
-                     //SERIES
-                 }
              }
              else if ([viewerType isEqualToString:@"cornerstone"])
              {
@@ -1375,142 +1451,17 @@ int main(int argc, const char* argv[]) {
                      //SERIES
                  }
              }
-             else if ([viewerType isEqualToString:@"download"])
-             {
-                 if ([requestType isEqualToString:@"STUDY"])
-                 {
-                     NSString *accessionNumber=q[@"accessionNumber"];
-                     NSString *studyUID=q[@"studyUID"];
-                     if (accessionNumber)
-                     {
-                         
-                     }
-                     else if (studyUID)
-                     {
-                         
-                     }
-                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
-                     
-                 }
-                 else
-                 {
-                     //SERIES
-                 }
-             }
-             else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"unknown viewerType in %@%@?%@",b,p,requestURL.query]];
-             
-             {
-                 /*
-                 if (error)
-                 {
-                     GWS_LOG_WARNING(@"%@",[error description]);
-                     return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"%@",[error description]]];
-                 }
-                 if ([xmlData length]>0)
-                 {
-                     BOOL seriesFetched=false;
-                     //get study and series UID
-                     NSXMLDocument *xmlDocument=[[NSXMLDocument alloc]initWithData:xmlData options:0 error:nil];
-                     NSArray *studyArray = [xmlDocument nodesForXPath:@"wado_query/Patient/Study" error:NULL];
-                     for (id studyNode in studyArray)
-                     {
-                         NSArray *studyInstanceUIDarray = [studyNode nodesForXPath:@"@StudyInstanceUID" error:NULL];
-                         NSString *studyInstanceUID = [[studyInstanceUIDarray objectAtIndex:0]stringValue];
-                         
-                         NSArray *seriesArray = [studyNode nodesForXPath:@"Series" error:NULL];
-#pragma mark download series and forward them to dcm4chee
-                         //dispach download of series from OsiriX
-                         for (id seriesNode in seriesArray)
-                         {
-                             seriesFetched=true;
-                             NSArray *seriesInstanceUIDarray = [seriesNode nodesForXPath:@"@SeriesInstanceUID" error:NULL];
-                             NSString *seriesInstanceUID = [[seriesInstanceUIDarray objectAtIndex:0]stringValue];
-                             
-                             NSString *retrieveSeries=[NSString stringWithFormat:@"%@/%@/studies/%@/series/%@",
-                                                       [remote objectForKey:@"wadoRS"],
-                                                       [remote objectForKey:@"aet"],
-                                                       studyInstanceUID,
-                                                       seriesInstanceUID
-                                                       ];
-                             NSString *seriesPath=[[auditPath stringByAppendingPathComponent:seriesInstanceUID] stringByAppendingPathComponent:[dicomDTFormatter stringFromDate:[NSDate date]]];
-                             if(![fileManager fileExistsAtPath:seriesPath])
-                             {
-                                 NSLog(@"wado-rs series: %@",seriesPath);
-                                 //first processing of solicitud
-                                 if(![fileManager createDirectoryAtPath:seriesPath withIntermediateDirectories:YES attributes:nil error:nil])
-                                     NSLog(@"ERROR could not create folder");
-                                 else
-                                 {
-                                     NSData *downloaded=[NSData dataWithContentsOfURL:[NSURL URLWithString:retrieveSeries]];
-                                     if (downloaded && [downloaded length]>0)
-                                     {
-                                         //[downloaded writeToFile:[seriesPath stringByAppendingPathComponent:@"downloaded.zip"] atomically:NO];
-                                         
-                                         //unzip
-                                         NSError *error=nil;
-                                         ZZArchive *archive = [ZZArchive archiveWithData:downloaded];
-                                         NSUInteger entriesCount=archive.entries.count;
-                                         NSLog(@"unzipped objects %lu",(unsigned long)entriesCount);
-                                         
-                                         unsigned long counter=0;
-                                         BOOL oneOrMoreUnzipped=false;
-                                         for (ZZArchiveEntry *entry in archive.entries)
-                                         {
-                                             NSData *unzipped= [entry newDataWithError:&error];
-                                             if (error!=nil) NSLog(@"ERROR could NOT unzip\r%@",[error description]);
-                                             else oneOrMoreUnzipped|=[unzipped writeToFile:[NSString stringWithFormat:@"%@/%lu.dcm",seriesPath,counter++] atomically:NO];
-                                         }
-                                         if (oneOrMoreUnzipped)
-                                         {
-                                             NSMutableArray *argsSeries=[NSMutableArray arrayWithArray:storescuArgs];
-                                             [argsSeries addObject:seriesPath];
-
-                                             NSMutableData *stdoutData = [NSMutableData data];
-                                             task(
-                                                  storescu,
-                                                  argsSeries,
-                                                  [NSData data],
-                                                  stdoutData
-                                                  );
-                                             [stdoutData writeToFile:[seriesPath stringByAppendingPathComponent:@"stdout+stderr.log"] atomically:NO];
-                                         }
-                                     }
-                                 }
-                             }
-                         }
-                     }
-                  
-                     if (seriesFetched)
-                     {
-                         //create jnlp
-                         NSString *xmlString=[[NSString alloc]initWithData:xmlData encoding:NSUTF8StringEncoding];
-                         NSString *localizedXmlString=[NSString stringWithFormat:xmlString,[dev0 objectForKey:@"wadoURL"],[dev0 objectForKey:@"wadoAdditionnalParameters"]];
-                         NSData *gzipped=[LFCGzipUtility gzipData:[localizedXmlString dataUsingEncoding:NSUTF8StringEncoding]];
-
-                         return [GCDWebServerDataResponse responseWithData:[[NSString stringWithFormat:jnlp,[gzipped base64EncodedStringWithOptions:0]] dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-java-jnlp-file"];//application/x-gzip"];//
-                     }
-                     GWS_LOG_WARNING(@"no series");
-                     return [GCDWebServerDataResponse responseWithText:@"no series"];
-                 }
-                 else
-                 {
-                     GWS_LOG_WARNING(@"no series");
-                     return [GCDWebServerDataResponse responseWithText:@"no series"];
-                 }
-                  */
-            }
-             GWS_LOG_WARNING(@"incorrect syntax for request /bir/study");
-             return [GCDWebServerDataResponse responseWithText:@"incorrect syntax for request /IHEInvokeImageDisplay"];
+             return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"unknown viewerType in %@%@?%@",b,p,requestURL.query]];
          }
          ];
         
         
-#pragma mark /bir/manifest/weasis/studies?
+#pragma mark /weasis/studies?
         //------------------------------------------------
-        // http://{remotepcs}/bir/manifest/weasis/studies?
+        // http://{remotepcs}/weasis/studies?
         //------------------------------------------------
         
-        NSRegularExpression *mwstudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^/bir/manifest/weasis/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
+        NSRegularExpression *mwstudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^/weasis/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:mwstudiesregex
                                 requestClass:[GCDWebServerRequest class]
@@ -1534,7 +1485,6 @@ int main(int argc, const char* argv[]) {
                  else return [GCDWebServerErrorResponse responseWithClientError:404 message:
                               @"parameter AccessionNumber or StudyInstanceUID required in %@%@?%@",b,p,q];
              }
-             
              //SQL for studies
              NSMutableData *studiesData=[NSMutableData data];
              int studiesResult=task(@"/bin/bash",
@@ -1558,6 +1508,7 @@ int main(int argc, const char* argv[]) {
                 [10] study.study_desc,
                 [11] study.study_date,
                 [12] study.study_time
+                [13] NumberOfStudyRelatedInstances
              */
              //the accessionNumber may join more than one study of one or more patient !!!
              //look for patient roots first
@@ -1581,7 +1532,6 @@ int main(int argc, const char* argv[]) {
                       patientAttrs[3],
                       patientAttrs[4]
                       ];
-                     //NSLog(@"<Patient PatientName=\"%@\" PatientID=\"%@\" IssuerOfPatientID=\"%@\" PatientBirthDate=\"%@\" PatientSex=\"%@\">\r",patientAttrs[0],patientAttrs[1],patientAttrs[2],patientAttrs[3],patientAttrs[4]);
                      
                      for (NSArray *studyInstance in studyArray)
                      {
@@ -1591,7 +1541,7 @@ int main(int argc, const char* argv[]) {
                          {
                             //each study of this patient
                              [weasisManifest appendFormat:
-                              @"<Study SpecificCharacterSet=\"UTF-8\" StudyInstanceUID=\"%@\" AccessionNumber=\"%@\" IssuerOfAccessionNumber=\"%@\" RetrieveAETitle=\"%@\" StudyID=\"%@\" StudyDescription=\"%@\" StudyDate=\"%@\" StudyTime=\"%@\" WadorsURI=\"/studies/%@\">\r",
+                              @"<Study SpecificCharacterSet=\"UTF-8\" StudyInstanceUID=\"%@\" AccessionNumber=\"%@\" IssuerOfAccessionNumber=\"%@\" RetrieveAETitle=\"%@\" StudyID=\"%@\" StudyDescription=\"%@\" StudyDate=\"%@\" StudyTime=\"%@\" WadorsURI=\"/studies/%@\" NumberOfStudyRelatedInstances=\"%@\">\r",
                               studyInstance[5],
                               studyInstance[6],
                               studyInstance[7],
@@ -1600,10 +1550,12 @@ int main(int argc, const char* argv[]) {
                               studyInstance[10],
                               studyInstance[11],
                               studyInstance[12],
-                              studyInstance[5]
+                              studyInstance[5],
+                              studyInstance[13]
                               ];
                              
                              //series
+
                              NSMutableData *seriesData=[NSMutableData data];
                              int seriesResult=task(@"/bin/bash",
                                                     @[@"-s"],
@@ -1615,15 +1567,15 @@ int main(int argc, const char* argv[]) {
                              for (NSArray *seriesInstance in seriesArray)
                              {
                                  [weasisManifest appendFormat:
-                                  @"<Series SeriesInstanceUID=\"%@\" SeriesDescription=\"%@\" SeriesNumber=\"%@\" Modality=\"%@\"  WadorsURI=\"/studies/%@/series/%@\">\r",
+                                  @"<Series SeriesInstanceUID=\"%@\" SeriesDescription=\"%@\" SeriesNumber=\"%@\" Modality=\"%@\"  WadorsURI=\"/studies/%@/series/%@\" NumberOfSeriesRelatedInstances=\"%@\">\r",
                                   seriesInstance[0],
                                   seriesInstance[1],
                                   seriesInstance[2],
                                   seriesInstance[3],
                                   studyInstance[5],
-                                  seriesInstance[0]
+                                  seriesInstance[0],
+                                  seriesInstance[4]
                                   ];
-                                 
                                  //instances
                                  NSMutableData *instanceData=[NSMutableData data];
                                  int instanceResult=task(@"/bin/bash",
@@ -1653,18 +1605,17 @@ int main(int argc, const char* argv[]) {
          }
          ];
         
-
-
-
-#pragma mark /bir/weasisManifest
-//---------------------------------------------------------------------------
-// http://{remotepcs}/bir/weasisManifest?accessionNumber=123&custodianUID=1.2
-//----------------------------------------------------------------------------
-
+        
+#pragma mark /weasis/studies/{StudyInstanceUID}/series?
+        //---------------------------------------------------------------
+        // /weasis/studies/{StudyInstanceUID}/series?SeriesInstanceUID=""
+        //---------------------------------------------------------------
+        
+        NSRegularExpression *mwseriesregex = [NSRegularExpression regularExpressionWithPattern:@"^/weasis/studies/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*/series" options:NSRegularExpressionCaseInsensitive error:NULL];
         [httpdicomServer addHandlerForMethod:@"GET"
-                                       path:@"/bir/weasisManifest"
-                               requestClass:[GCDWebServerRequest class]
-                               processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+                       pathRegularExpression:mwseriesregex
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              //request parts logging
              NSURL *requestURL=request.URL;
@@ -1672,163 +1623,144 @@ int main(int argc, const char* argv[]) {
              NSString *b=[bSlash substringToIndex:[bSlash length]-1];
              NSString *p=requestURL.path;
              NSString *q=requestURL.query;
-             GWS_LOG_INFO(@"%@%@?%@",b,p,q);
-
- 
-             //request validation
-             NSString *accessionNumber=[request.query objectForKey:@"accessionNumber"];
-             NSString *pcs=[request.query objectForKey:@"pcs"];
-             if (   ([request.query count]==2)
-                 && accessionNumber
-                 && ([accessionNumber length]<17)
-                 && [SHRegex numberOfMatchesInString:accessionNumber options:0 range:NSMakeRange(0,[accessionNumber length])]
-                 && pcs
-                 && ([pcs length]<65)
-                 && [UIRegex numberOfMatchesInString:pcs options:0 range:NSMakeRange(0,[pcs length])]
-                 && [devs objectForKey:pcs]
-                )
-             {
-                 NSString *accessionNumberURL=[accessionNumber stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                 //pacs params
-                 NSDictionary *pacsDict=devs[@"pcs"];
-                 
-#pragma mark allow other select (sql, dicom Q/R)
-                 
-                 NSString *qidoRS=pacsDict[@"qidoRS"];
-                 NSString *aet=pacsDict[@"aet"];
-                 
-                 //weasisManifest
-                 NSMutableString *weasisManifest=[NSMutableString stringWithCapacity:10000];
-                 [weasisManifest appendString:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r"];
-                 [weasisManifest appendString:@"<wado_query wadoURL=\"%@\" requireOnlySOPInstanceUID=\"false\" additionnalParameters=\"%@\">\r"];
-
-                 //study list
-                 NSString *studyURL=nil;
-                 if ([[pacsDict objectForKey:@"accessionNumberIssuer"]boolValue]==true)
-                     studyURL=[NSString stringWithFormat:@"%@/%@/studies?AccessionNumber=%@&00080051.00400032=%@&00080051.00400033=ISO",qidoRS,aet,accessionNumberURL,pcs];
-                 else studyURL=[NSString stringWithFormat:@"%@/%@/studies?AccessionNumber=%@",qidoRS,aet,accessionNumberURL];
-                 GWS_LOG_INFO(@"-> %@",studyURL);
-                 NSData *studyJson=[NSData dataWithContentsOfURL:[NSURL URLWithString:studyURL]];
-                 NSArray *studyArray=[NSJSONSerialization JSONObjectWithData:studyJson options:0 error:nil];
-                 NSUInteger studyArrayCount=[studyArray count];
-                 //GWS_LOG_INFO(@"%@",[studyArray description]);
-
-                 //the accessionNumber may join more than one study of one or more patient !!!
-                 //look for patient roots first
-                 NSMutableArray *p=[NSMutableArray array];
-                 for (NSDictionary *studyInstance in studyArray)
-                 {
-                     NSString *ii=[[studyInstance objectForKey:@"00100021"]objectForKey:@"Value"];
-                     if (!ii) ii=@"";
-                     [p addObject:[[[[studyInstance objectForKey:@"00100020"]objectForKey:@"Value"]objectAtIndex:0]stringByAppendingPathComponent:ii]];
-                 }
              
-                 //each patient
-                 NSMutableDictionary *patientStudy=[NSMutableDictionary dictionaryWithCapacity:32];
-                 for (NSString *patient in [NSSet setWithArray:p])
-                 {
-                     NSUInteger studyIndex=[p indexOfObject:patient];
-                     [patientStudy setDictionary:[studyArray objectAtIndex:studyIndex]];
-                     
-                     NSString *PatientName=[[[[patientStudy objectForKey:@"00100010"]objectForKey:@"Value"]objectAtIndex:0]valueForKey:@"Alphabetic"];
-                     if (!PatientName) PatientName=@"";
-                     NSString *PatientID=[[[patientStudy objectForKey:@"00100020"]objectForKey:@"Value"]objectAtIndex:0];
-                     if (!PatientID) PatientID=@"";
-                     NSString *IssuerOfPatientID=[[[patientStudy objectForKey:@"00100021"]objectForKey:@"Value"]objectAtIndex:0];
-                     if (!IssuerOfPatientID) IssuerOfPatientID=@"";
-                     NSString *PatientBirthDate=[[[patientStudy objectForKey:@"00100030"]objectForKey:@"Value"]objectAtIndex:0];
-                     if (!PatientBirthDate) PatientBirthDate=@"";
-                     NSString *PatientSex=[[[patientStudy objectForKey:@"00100040"]objectForKey:@"Value"]objectAtIndex:0];
-                     if (!PatientSex) PatientSex=@"";
-                     
-                     [weasisManifest appendFormat:@"<Patient PatientName=\"%@\" PatientID=\"%@\" IssuerOfPatientID=\"%@\" PatientBirthDate=\"%@\" PatientSex=\"%@\">\r",PatientName,PatientID,IssuerOfPatientID,PatientBirthDate,PatientSex];
-                     
-                     //each study of this patient
-                     while ([patientStudy count]>0)
-                     {
-                         NSString *SpecificCharacterSet=[[[patientStudy objectForKey:@"00080005"]objectForKey:@"Value"]objectAtIndex:0];
-                         if (!SpecificCharacterSet) SpecificCharacterSet=@"";
-                         NSString *StudyInstanceUID=[[[patientStudy objectForKey:@"0020000D"]objectForKey:@"Value"]objectAtIndex:0];
-                         if (!StudyInstanceUID) StudyInstanceUID=@"";
-                         NSString *AccessionNumber=[[[patientStudy objectForKey:@"00080050"]objectForKey:@"Value"]objectAtIndex:0];
-                         if (!AccessionNumber) AccessionNumber=@"";
-                         NSString *RetrieveAETitle=[[[patientStudy objectForKey:@"00080054"]objectForKey:@"Value"]objectAtIndex:0];
-                         if (!RetrieveAETitle) RetrieveAETitle=@"";
-                         NSString *StudyID=[[[patientStudy objectForKey:@"00200010"]objectForKey:@"Value"]objectAtIndex:0];
-                         if (!StudyID) StudyID=@"";
-                         NSString *StudyDescription=[[[patientStudy objectForKey:@"00081030"]objectForKey:@"Value"]objectAtIndex:0];
-                         if (!StudyDescription) StudyDescription=@"";
-                         NSString *StudyDate=[[[patientStudy objectForKey:@"00080020"]objectForKey:@"Value"]objectAtIndex:0];
-                         if (!StudyDate) StudyDate=@"";
-                         NSString *StudyTime=[[[patientStudy objectForKey:@"00080030"]objectForKey:@"Value"]objectAtIndex:0];
-                         if (!StudyTime) StudyTime=@"";
-                         
-                         [weasisManifest appendFormat:@"<Study SpecificCharacterSet=\"%@\" StudyInstanceUID=\"%@\" AccessionNumber=\"%@\" RetrieveAETitle=\"%@\" StudyID=\"%@\" StudyDescription=\"%@\" StudyDate=\"%@\" StudyTime=\"%@\">\r",SpecificCharacterSet, StudyInstanceUID,AccessionNumber,RetrieveAETitle,StudyID,StudyDescription,StudyDate,StudyTime];
-                         
-                         //patient study series list
-                         NSString *seriesURL=[NSString stringWithFormat:@"%@/%@/studies/%@/series",qidoRS,aet,StudyInstanceUID];
-                         GWS_LOG_INFO(@"-> %@",seriesURL);
-                         NSData *seriesJson=[NSData dataWithContentsOfURL:[NSURL URLWithString:seriesURL]];
-                         NSArray *seriesArray=[NSJSONSerialization JSONObjectWithData:seriesJson options:0 error:nil];
+             NSDictionary *thisSql=sql[dev0[@"sql"]];
+             NSString *sqlString;
+ 
+             NSString *StudyInstanceUID=[p componentsSeparatedByString:@"/"][3];
+             NSString *SeriesInstanceUID=request.query[@"SeriesInstanceUID"];
+                 if (StudyInstanceUID && SeriesInstanceUID)sqlString=[NSString stringWithFormat:thisSql[@"manifestWeasisSeriesStudyInstanceUIDSeriesInstanceUID"],StudyInstanceUID,SeriesInstanceUID];
+                 else return [GCDWebServerErrorResponse responseWithClientError:404 message:
+                              @"parameters StudyInstanceUID and SeriesInstanceUID required in %@%@?%@",b,p,q];
+             
+             //SQL for series
+             NSMutableData *seriesData=[NSMutableData data];
+             int seriesResult=task(@"/bin/bash",
+                                    @[@"-s"],
+                                    [sqlString dataUsingEncoding:NSUTF8StringEncoding],
+                                    seriesData
+                                    );
+             NSMutableArray *seriesArray=[NSJSONSerialization JSONObjectWithData:seriesData options:0 error:nil];
+             if (![seriesArray count]) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"0 record for %@%@?%@",b,p,q];
+             /*
+              [0] SeriesInstanceUID,
+              [1] SeriesDescription,
+              [2] SeriesNumber,
+              [3] Modality,
+              */
+             
+             //get corresponding patient and study
+             //SQL for studies
 
-                         for (NSDictionary *series in seriesArray)
+             NSMutableData *studiesData=[NSMutableData data];
+             int studiesResult=task(@"/bin/bash",
+                                    @[@"-s"],
+                                    [[NSString stringWithFormat:thisSql[@"manifestWeasisStudyStudyInstanceUID"],StudyInstanceUID] dataUsingEncoding:NSUTF8StringEncoding],
+                                    studiesData
+                                    );
+             NSMutableArray *studyArray=[NSJSONSerialization JSONObjectWithData:studiesData options:0 error:nil];
+             /*
+              [0]  p.family_name,p.given_name,p.middle_name,p.name_prefix,p.name_suffix,
+              [1] patient_id.pat_id,
+              [2] iopid.entity_uid,
+              [3] patient.pat_birthdate,
+              [4] patient.pat_sex,
+              
+              [5] study.study_iuid,
+              [6] study.accession_no,
+              [7] ioan.entity_uid,
+              [8] study_query_attrs.retrieve_aets,
+              [9] study.study_id,
+              [10] study.study_desc,
+              [11] study.study_date,
+              [12] study.study_time
+              */
+             //the accessionNumber may join more than one study of one or more patient !!!
+             //look for patient roots first
+             NSMutableArray *uniquePatients=[NSMutableArray array];
+             for (NSArray *studyInstance in studyArray)
+             {
+                 [uniquePatients addObject:[studyInstance[1]stringByAppendingPathComponent:studyInstance[2]]];
+             }
+             
+             NSMutableString *weasisManifest=[NSMutableString string];
+             //each patient
+             for (NSString *patient in [NSSet setWithArray:uniquePatients])
+             {
+                 NSUInteger studyIndex=[uniquePatients indexOfObject:patient];
+                 NSArray *patientAttrs=studyArray[studyIndex];
+                 [weasisManifest appendFormat:
+                  @"<Patient PatientName=\"%@\" PatientID=\"%@\" IssuerOfPatientID=\"%@\" PatientBirthDate=\"%@\" PatientSex=\"%@\">\r",
+                  patientAttrs[0],
+                  patientAttrs[1],
+                  patientAttrs[2],
+                  patientAttrs[3],
+                  patientAttrs[4]
+                  ];
+                 
+                 for (NSArray *studyInstance in studyArray)
+                 {
+                     if (  [studyInstance[1]isEqualToString:patientAttrs[1]]
+                         &&[studyInstance[2]isEqualToString:patientAttrs[2]]
+                         )
+                     {
+                         //each study of this patient
+                         [weasisManifest appendFormat:
+                          @"<Study SpecificCharacterSet=\"UTF-8\" StudyInstanceUID=\"%@\" AccessionNumber=\"%@\" IssuerOfAccessionNumber=\"%@\" RetrieveAETitle=\"%@\" StudyID=\"%@\" StudyDescription=\"%@\" StudyDate=\"%@\" StudyTime=\"%@\" WadorsURI=\"/studies/%@\" NumberOfStudyRelatedInstances=\"%@\">\r",
+                          studyInstance[5],
+                          studyInstance[6],
+                          studyInstance[7],
+                          studyInstance[8],
+                          studyInstance[9],
+                          studyInstance[10],
+                          studyInstance[11],
+                          studyInstance[12],
+                          studyInstance[5],
+                          studyInstance[13]
+                          ];
+                         for (NSArray *seriesInstance in seriesArray)
                          {
-                             NSString *SeriesInstanceUID=[[[series objectForKey:@"0020000E"]objectForKey:@"Value"]objectAtIndex:0];
-                             if (!SeriesInstanceUID) SeriesInstanceUID=@"";
-                             NSString *SeriesDescription=[[[series objectForKey:@"0008103E"]objectForKey:@"Value"]objectAtIndex:0];
-                             if (!SeriesDescription) SeriesDescription=@"";
-                             NSString *SeriesNumber=[[[series objectForKey:@"00200011"]objectForKey:@"Value"]objectAtIndex:0];
-                             if (!SeriesNumber) SeriesNumber=@"";
-                             NSString *Modality=[[[series objectForKey:@"00080060"]objectForKey:@"Value"]objectAtIndex:0];
-                             if (!Modality) Modality=@"";
+                             [weasisManifest appendFormat:
+                              @"<Series SeriesInstanceUID=\"%@\" SeriesDescription=\"%@\" SeriesNumber=\"%@\" Modality=\"%@\"  WadorsURI=\"/studies/%@/series/%@\" NumberOfSeriesRelatedInstances=\"%@\">\r",
+                              seriesInstance[0],
+                              seriesInstance[1],
+                              seriesInstance[2],
+                              seriesInstance[3],
+                              studyInstance[5],
+                              seriesInstance[0],
+                              seriesInstance[4]
+                              ];
                              
-                             [weasisManifest appendFormat:@"<Series SeriesInstanceUID=\"%@\" SeriesDescription=\"%@\" SeriesNumber=\"%@\" Modality=\"%@\">\r",SeriesInstanceUID,SeriesDescription,SeriesNumber,Modality];
-                             
-                             //patient study series instances list
-                             NSString *instanceURL=[NSString stringWithFormat:@"%@/%@/studies/%@/series/%@/instances",qidoRS,aet,StudyInstanceUID,SeriesInstanceUID];
-                             GWS_LOG_INFO(@"-> %@",instanceURL);
-                             NSData *instanceJson=[NSData dataWithContentsOfURL:[NSURL URLWithString:instanceURL]];
-                             NSArray *instanceArray=[NSJSONSerialization JSONObjectWithData:instanceJson options:0 error:nil];
-                             
-                             for (NSDictionary *instance in instanceArray)
+                             //instances
+                             NSMutableData *instanceData=[NSMutableData data];
+                             int instanceResult=task(@"/bin/bash",
+                                                     @[@"-s"],
+                                                     [[NSString stringWithFormat:thisSql[@"manifestWeasisInstanceSeriesInstanceUID"],seriesInstance[0]]
+                                                      dataUsingEncoding:NSUTF8StringEncoding],
+                                                     instanceData
+                                                     );
+                             NSMutableArray *instanceArray=[NSJSONSerialization JSONObjectWithData:instanceData options:0 error:nil];
+                             for (NSArray *instance in instanceArray)
                              {
-                                 NSString *SOPInstanceUID=[[[instance objectForKey:@"00080018"]objectForKey:@"Value"]objectAtIndex:0];
-                                 if (!SeriesInstanceUID) SeriesInstanceUID=@"";
-                                 NSString *InstanceNumber=[[[instance objectForKey:@"00200013"]objectForKey:@"Value"]objectAtIndex:0];
-                                 if (!InstanceNumber) InstanceNumber=@"";
-                                 NSString *SOPClassUID=[[[instance objectForKey:@"00080016"]objectForKey:@"Value"]objectAtIndex:0];
-                                 if (!SOPClassUID) SOPClassUID=@"";
-                                 
-                                 [weasisManifest appendFormat:@"<Instance SOPInstanceUID=\"%@\" InstanceNumber=\"%@\" SOPClassUID=\"%@\"/>\r",SOPInstanceUID,InstanceNumber,SOPClassUID];
+                                 [weasisManifest appendFormat:
+                                  @"<Instance SOPInstanceUID=\"%@\" InstanceNumber=\"%@\" SOPClassUID=\"%@\"/>\r",
+                                  instance[0],
+                                  instance[1],
+                                  instance[2]
+                                  ];
                              }
-                             
                              [weasisManifest appendString:@"</Series>\r"];
                          }
-                         
                          [weasisManifest appendString:@"</Study>\r"];
-                         
-                         //next study of this patient
-                         if (studyIndex<studyArrayCount)
-                         {
-                             studyIndex++;
-                             studyIndex=[p indexOfObject:patient inRange:NSMakeRange(studyIndex,studyArrayCount-studyIndex)];
-                             if (studyIndex==NSNotFound)[patientStudy removeAllObjects];
-                             else [patientStudy setDictionary:[studyArray objectAtIndex:studyIndex]];
-                         }
-                         else [patientStudy removeAllObjects];
                      }
-                     [weasisManifest appendString:@"</Patient>\r"];
                  }
-                 
-                 [weasisManifest appendString:@"</wado_query>\r"];
-                 //GWS_LOG_INFO(@"%@",weasisManifest);
-                 
-                 return [GCDWebServerDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/xml"];
+                 [weasisManifest appendString:@"</Patient>\r"];
              }
-             GWS_LOG_WARNING(@"incorrect syntax for request /weasisManifest");
-             return [GCDWebServerDataResponse responseWithText:@"incorrect syntax for request /weasisManifest"];
+             return [GCDWebServerDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
          }
          ];
+        
+
 #pragma mark -
 #pragma mark _____________redirects dev0, dicom (local, (pcs) remoto_____________
 
