@@ -57,6 +57,8 @@ static NSData *rnrn;
 static NSData *contentType;
 static NSData *CDAOpeningTag;
 static NSData *CDAClosingTag;
+static NSData *ctad;
+static NSData *boundary;
 static NSTimeInterval timeout=300;
 
 // A=Datatables Patient Studies
@@ -145,7 +147,8 @@ int main(int argc, const char* argv[]) {
         contentType=[@"Content-Type: " dataUsingEncoding:NSASCIIStringEncoding];
         CDAOpeningTag=[@"<ClinicalDocument" dataUsingEncoding:NSASCIIStringEncoding];
         CDAClosingTag=[@"</ClinicalDocument>" dataUsingEncoding:NSASCIIStringEncoding];
-        
+        ctad=[@"Content-Type: application/dicom" dataUsingEncoding:NSASCIIStringEncoding];
+        boundary=[@";boundary=" dataUsingEncoding:NSASCIIStringEncoding];
         //regex for url validation
         NSRegularExpression *UIRegex = [NSRegularExpression regularExpressionWithPattern:@"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:0 error:NULL];
         NSRegularExpression *SHRegex = [NSRegularExpression regularExpressionWithPattern:@"^(?:\\s*)([^\\r\\n\\f\\t]*[^\\r\\n\\f\\t\\s])(?:\\s*)$" options:0 error:NULL];
@@ -305,8 +308,14 @@ int main(int argc, const char* argv[]) {
          {
              NSString *q=request.URL.query;
              NSString *qidoString;
-             if (q) qidoString=[[dev0 objectForKey:request.URL.path]stringByAppendingString:q];
-             else    qidoString=[dev0 objectForKey:request.URL.path];
+             if (q) qidoString=[NSString stringWithFormat:@"%@%@?%@",
+                                [dev0 objectForKey:@"qido"],
+                                request.URL.path,
+                                q];
+             else    qidoString=[NSString stringWithFormat:@"%@%@",
+                                 [dev0 objectForKey:@"qido"],
+                                 request.URL.path];
+
              GWS_LOG_INFO(@"dev0 qido: %@",qidoString);
              NSData *responseData=[NSData dataWithContentsOfURL:
                                    [NSURL URLWithString:qidoString]];
@@ -1408,25 +1417,80 @@ int main(int argc, const char* argv[]) {
              else if ([viewerType isEqualToString:@"cornerstone"])
              {
 //cornerstone
+                 NSMutableDictionary *cornerstone=[NSMutableDictionary dictionary];
+
+                 //qido uri
+                 NSString *qidoSeriesString;
                  if ([requestType isEqualToString:@"STUDY"])
                  {
-                     NSString *accessionNumber=q[@"accessionNumber"];
-                     NSString *studyUID=q[@"studyUID"];
-                     if (accessionNumber)
-                     {
-                         
-                     }
-                     else if (studyUID)
-                     {
-                         
-                     }
+                     if (q[@"accessionNumber"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?AccessionNumber=%@",custodianURI,q[@"accessionNumber"]];
+                     else if (q[@"studyUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@",custodianURI,q[@"studyUID"]];
                      else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
-                     
                  }
                  else
                  {
                      //SERIES
+                     if (q[@"studyUID"] && q[@"seriesUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@&SeriesInstanceUID=%@",custodianURI,q[@"studyUID"],q[@"seriesUID"]];
+                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
                  }
+                 NSLog(@"%@",qidoSeriesString);
+
+                 NSMutableArray *seriesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoSeriesString]] options:NSJSONReadingMutableContainers error:nil];
+
+                 [cornerstone setObject:((((seriesArray[0])[@"00100010"])[@"Value"])[0])[@"Alphabetic"] forKey:@"patientName"];
+                 [cornerstone setObject:(((seriesArray[0])[@"00100020"])[@"Value"])[0] forKey:@"patientId"];
+                 NSString *s=(((seriesArray[0])[@"00080020"])[@"Value"])[0];
+                 NSString *StudyDate=[NSString stringWithFormat:@"%@-%@-%@",
+                 [s substringWithRange:NSMakeRange(0,4)],
+                 [s substringWithRange:NSMakeRange(4,2)],
+                 [s substringWithRange:NSMakeRange(6,2)]];
+                 [cornerstone setObject:StudyDate forKey:@"studyDate"];
+                 [cornerstone setObject:(((seriesArray[0])[@"00080061"])[@"Value"])[0] forKey:@"modality"];
+                 NSString *studyDescription=(((seriesArray[0])[@"00081030"])[@"Value"])[0];
+                 if (!studyDescription) studyDescription=@"";
+                 [cornerstone setObject:studyDescription forKey:@"studyDescription"];//
+                 [cornerstone setObject:@999 forKey:@"numImages"];
+                 [cornerstone setObject:(((seriesArray[0])[@"00200010"])[@"Value"])[0] forKey:@"studyId"];
+                 NSMutableArray *seriesList=[NSMutableArray array];
+                 [cornerstone setObject:seriesList forKey:@"seriesList"];
+                 for (NSDictionary *seriesQido in seriesArray)
+                 {
+                     if (
+                           !([((seriesQido[@"0020000E"])[@"Value"])[0] isEqualToString:@"OT"])
+                         &&!([((seriesQido[@"0020000E"])[@"Value"])[0] isEqualToString:@"DOC"]))
+                     {
+                         //cornerstone no muestra los documentos encapsulados
+                         NSMutableDictionary *seriesCornerstone=[NSMutableDictionary dictionary];
+                         [seriesList addObject:seriesCornerstone];
+                         [seriesCornerstone setObject:((seriesQido[@"0008103E"])[@"Value"])[0] forKey:@"seriesDescription"];
+                         [seriesCornerstone setObject:((seriesQido[@"00200011"])[@"Value"])[0] forKey:@"seriesNumber"];
+                         NSMutableArray *instanceList=[NSMutableArray array];
+                         [seriesCornerstone setObject:instanceList forKey:@"instanceList"];
+                         //get instances for the series
+                         
+                         NSString *qidoInstancesString=
+                         [NSString stringWithFormat:@"%@/instances?StudyInstanceUID=%@&SeriesInstanceUID=%@",
+                          custodianURI,
+                          q[@"studyUID"],
+                          ((seriesQido[@"0020000E"])[@"Value"])[0]
+                          ];
+                         NSLog(@"%@",qidoInstancesString);
+                        NSMutableArray *instancesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoInstancesString]] options:NSJSONReadingMutableContainers error:nil];
+                         for (NSDictionary *instance in instancesArray)
+                         {
+                             NSString *wadouriInstance=[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@",proxyURI,
+                                                        q[@"studyUID"],
+                                                        ((seriesQido[@"0020000E"])[@"Value"])[0],
+                                                        ((instance[@"00080018"])[@"Value"])[0],
+                                                        q[@"session"]
+                                                        ];
+                             [instanceList addObject:@{
+                                                       @"imageId":wadouriInstance
+                                                       }];
+                         }
+                     }
+                 }
+                 return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:cornerstone options:0 error:nil] contentType:@"application/json"];
              }
              else if ([viewerType isEqualToString:@"MHD-I"])
              {
@@ -1601,7 +1665,7 @@ int main(int argc, const char* argv[]) {
                      }
                      [weasisManifest appendString:@"</Patient>\r"];
                  }
-                 return [GCDWebServerDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
+                 return [GCDWebServerDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/xml"];
          }
          ];
         
@@ -1760,7 +1824,204 @@ int main(int argc, const char* argv[]) {
          }
          ];
         
+#pragma mark /osirix
+/*
+ /osirix/studies?AccessionNumber=""
+ /osirixmd/studies?AccessionNumber=""
+ 
+ /osirix/studies?StudyInstanceUID=""
+ /osirixmd/studies?StudyInstanceUID=""
+ 
+ /osirix/series?SeriesInstanceUID=""
+ /osirixmd/series?SeriesInstanceUID=""
+ 
+ ¿agregar &session=""&custodianUID=""?
+ */
+        
+        NSRegularExpression *osirixregex = [NSRegularExpression regularExpressionWithPattern:@"^/osirix/(studies|series)$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:osirixregex
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             //buscar wadors URIs
+             NSString *q=request.URL.query;
+             NSString *qidoLevel=[[request.URL.path componentsSeparatedByString:@"/"]lastObject];
+             NSString *qidoString;
+             if (q) qidoString=[NSString stringWithFormat:@"%@/%@?%@",
+                                [dev0 objectForKey:@"qido"],
+                                qidoLevel,
+                                q];
+             else    qidoString=[NSString stringWithFormat:@"%@/%@",
+                                 [dev0 objectForKey:@"qido"],
+                                 qidoLevel];
+             GWS_LOG_INFO(@"dev0 qido: %@",qidoString);
+             
+             NSMutableArray *array=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoString]] options:NSJSONReadingMutableContainers error:nil];
+             //NSLog(@"%@",[array description]);
+             NSMutableData *responseData=[NSMutableData data];
+             NSError *error=nil;
+             for (NSDictionary *dictionary in array)
+             {
+                 //00081190 UR RetrieveURL
+                 NSString *wadors=((dictionary[@"00081190"])[@"Value"])[0];
+                 //request, response and error
+                 NSMutableURLRequest *wadorsRequest=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:wadors] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
+                 //https://developer.apple.com/reference/foundation/nsurlrequestcachepolicy?language=objc
+                 [wadorsRequest setHTTPMethod:@"GET"];
+                 [wadorsRequest setValue:@"multipart/related;type=application/dicom" forHTTPHeaderField:@"Accept"];
+                 NSHTTPURLResponse *response=nil;
+                 //URL properties: expectedContentLength, MIMEType, textEncodingName
+                 //HTTP properties: statusCode, allHeaderFields
+                 
+                 NSData *data=[NSURLConnection sendSynchronousRequest:wadorsRequest
+                                                    returningResponse:&response
+                                                                error:&error];
+                 if ((response.statusCode==200) && [data length])
+                 {
+                     NSRange firstReturnRange=[data rangeOfData:rn options:0 range:NSMakeRange(0,68)];
+                     NSData *boundaryData=[data subdataWithRange:NSMakeRange(2,firstReturnRange.location-2)];
+                     NSString *boundaryString=[[NSString alloc]initWithData:boundaryData encoding:NSUTF8StringEncoding];
+                     NSRange ctadRange=[data rangeOfData:ctad options:0 range:NSMakeRange(0,[data length])];
+                     NSMutableData *resultData=[NSMutableData data];
+                     NSUInteger insertPoint=ctadRange.location+ctadRange.length;
+                     [resultData appendData:[data subdataWithRange:NSMakeRange(0,insertPoint)]];
+                     [resultData appendData:boundary];
+                     [resultData appendData:boundaryData];
+                     [resultData appendData:[data subdataWithRange:NSMakeRange(insertPoint,[data length]-insertPoint)]];
+                     
+                     
+                     return [GCDWebServerDataResponse responseWithData:resultData
+                                                                                          contentType:[NSString stringWithFormat:@"multipart/related;type=application/dicom; boundary=%@",boundaryString]];
+                 }
+             }
+             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@",[error description]];
+         }
+         ];
 
+#pragma mark /zip
+        /*
+         /osirix/studies?AccessionNumber=""
+         /osirixmd/studies?AccessionNumber=""
+         
+         /osirix/studies?StudyInstanceUID=""
+         /osirixmd/studies?StudyInstanceUID=""
+         
+         /osirix/series?SeriesInstanceUID=""
+         /osirixmd/series?SeriesInstanceUID=""
+         
+         ¿agregar &session=""&custodianUID=""?
+        
+        NSRegularExpression *zipregex = [NSRegularExpression regularExpressionWithPattern:@"^/zip/(studies|series)$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:zipregex
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             /*
+             //buscar wadors URIs
+             NSString *q=request.URL.query;
+             NSString *qidoLevel=[[request.URL.path componentsSeparatedByString:@"/"]lastObject];
+             NSString *qidoString;
+             if (q) qidoString=[NSString stringWithFormat:@"%@/%@?%@",
+                                [dev0 objectForKey:@"qido"],
+                                qidoLevel,
+                                q];
+             else    qidoString=[NSString stringWithFormat:@"%@/%@",
+                                 [dev0 objectForKey:@"qido"],
+                                 qidoLevel];
+             GWS_LOG_INFO(@"dev0 qido: %@",qidoString);
+             
+             NSMutableArray *array=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoString]] options:NSJSONReadingMutableContainers error:nil];
+             //NSLog(@"%@",[array description]);
+             NSMutableData *responseData=[NSMutableData data];
+             NSError *error=nil;
+             for (NSDictionary *dictionary in array)
+             {
+                 //00081190 UR RetrieveURL
+                 NSString *wadors=((dictionary[@"00081190"])[@"Value"])[0];
+                 //request, response and error
+                 NSMutableURLRequest *wadorsRequest=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:wadors] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
+                 //https://developer.apple.com/reference/foundation/nsurlrequestcachepolicy?language=objc
+                 [wadorsRequest setHTTPMethod:@"GET"];
+                 [wadorsRequest setValue:@"multipart/related;type=application/dicom" forHTTPHeaderField:@"Accept"];
+                 NSHTTPURLResponse *response=nil;
+                 //URL properties: expectedContentLength, MIMEType, textEncodingName
+                 //HTTP properties: statusCode, allHeaderFields
+                 
+                 NSData *data=[NSURLConnection sendSynchronousRequest:wadorsRequest
+                                                    returningResponse:&response
+                                                                error:&error];
+                 if ((response.statusCode==200) && [data length])
+                 {
+                     unsigned short dashDash = 0x2D2D;
+                     NSData *dashDashData =[NSData dataWithBytes:&dashDash length:2];
+                     
+                     unsigned short crlf = 0x0A0D;
+                     NSData *crlfData =[NSData dataWithBytes:&crlf length:2];
+
+                     //cdbc:     \r\n--%@\r\n
+                     NSString *boundaryString=[[NSUUID UUID]UUIDString];
+                     NSData *boundaryData=[boundaryString dataUsingEncoding:NSASCIIStringEncoding];
+                     NSMutableData *mutableCdbc=[NSMutableData dataWithData:crlfData];
+                     [mutableCdbc appendData:dashDashData];
+                     [mutableCdbc appendData:boundaryData];
+                     [mutableCdbc appendData:crlfData];
+                     
+                     //cdbdc:    \r\n--%@--\r\n
+                     NSData *cdbcData=[NSData dataWithData:mutableCdbc];
+                     NSMutableData *mutableCdbdc=[NSMutableData dataWithData:crlfData];
+                     [mutableCdbdc appendData:dashDashData];
+                     [mutableCdbdc appendData:boundaryData];
+                     [mutableCdbdc appendData:dashDashData];
+                     [mutableCdbdc appendData:crlfData];
+                     NSData *cdbdcData=[NSData dataWithData:mutableCdbdc];
+                     
+                     //ctad: Content-Type:application/dicom
+                     NSData *ctadData=[@"Content-Type:application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
+                     
+                     NSRange boundaryRange;
+                     NSMutableData *body = [NSMutableData data];
+                     [body appendData:cdbcData];
+                     [body appendData:ctadData];
+                     [body appendData:SOPInstanceData];
+                     
+                     
+                     return [GCDWebServerDataResponse responseWithData:data contentType:@"multipart/related;type=application/dicom"];
+                 }
+             }
+             
+             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"hola"];
+         }
+         ];
+         */
+        NSRegularExpression *zipregex = [NSRegularExpression regularExpressionWithPattern:@"^/zip/(studies|series)$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:zipregex
+                                 requestClass:[GCDWebServerRequest class]
+                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
+                                     
+                                     NSMutableArray* contents = [NSMutableArray arrayWithObjects:@"<html><body><p>\n", @"Hello World!\n", @"</p></body></html>\n", nil];  // Fake data source we are reading from
+                                     GCDWebServerStreamedResponse* response = [GCDWebServerStreamedResponse responseWithContentType:@"text/html" asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock) {
+                                         
+                                         // Simulate a delay reading from the fake data source
+                                         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                                             NSString* string = contents.firstObject;
+                                             if (string) {
+                                                 [contents removeObjectAtIndex:0];
+                                                 completionBlock([string dataUsingEncoding:NSUTF8StringEncoding], nil);  // Generate the 2nd part of the stream data
+                                             } else {
+                                                 completionBlock([NSData data], nil);  // Must pass an empty NSData to signal the end of the stream
+                                             }
+                                         });
+                                         
+                                     }];
+                                     return response;
+                                     
+                                 }];
 #pragma mark -
 #pragma mark _____________redirects dev0, dicom (local, (pcs) remoto_____________
 
