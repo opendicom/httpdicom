@@ -59,6 +59,10 @@ static NSData *CDAOpeningTag;
 static NSData *CDAClosingTag;
 static NSData *ctad;
 static NSData *boundary;
+static NSData *extraParam;
+
+
+
 static NSTimeInterval timeout=300;
 
 // A=Datatables Patient Studies
@@ -70,15 +74,47 @@ static NSMutableDictionary *Total;
 static NSMutableDictionary *Filtered;
 static NSMutableDictionary *sPatientID;
 static NSMutableDictionary *sPatientName;
-static NSMutableDictionary *sStudyDate;
+//static NSMutableDictionary *sStudyDate;
+static NSMutableDictionary *sDate_start;
+static NSMutableDictionary *sDate_end;
 static NSMutableDictionary *sModalitiesInStudy;
 static NSMutableDictionary *sStudyDescription;
-static BOOL _run;
 
-static void _SignalHandler(int signal) {
-    _run = NO;
-    printf("\n");
-}
+//zip
+uint32 zipLocalFileHeader=0x04034B50;
+uint16 zipVersion=0x0A;
+uint32 zipTimeDate=0x0;
+uint32 zipCrc32=0x0;
+//uint32 zipCompressedSize
+//uint32 zipUncompressedSize
+uint32 zipNameLength=0x28;
+//68753A44-4D6F-1226-9C60-0050E4C00067.dcm
+//55540900 03669010 5890BF10 5875780B 000104F6 01000004 14000000
+
+uint32 zipFileHeader=0x02014B50;
+//uint16 zipVersion=0x0;
+//uint16 zipVersion=0x0;
+//uint32 zipTimeDate=0x0;
+//uint32 zipCrc32=0x0;
+//uint32 zipCompressedSize
+//uint32 zipUncompressedSize
+//uint32 zipNameLength=0x28;
+uint16 zipFileCommLength=0x0;
+uint16 zipDiskStart=0x0;
+uint16 zipInternalAttr=0x0;
+uint32 zipExternalAttr=0x0;
+uint32 offsetOfLocalHeader=0x0;
+//68753A44-4D6F-1226-9C60-0050E4C00067.dcm
+
+uint32 zipEndOfCentralDirectory=0x06054B50;
+uint32 zipDiskNumber=0x0;
+uint16 zipEntries=0x0;
+//uint16 entries
+uint32 zipCentralDirectorySize=0x0;
+uint32 zipOffsetOfCDWrtStartingDisk=0x0;
+uint16 zipCommentLength=0x0;
+
+
 
 int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
 {
@@ -134,21 +170,26 @@ int main(int argc, const char* argv[]) {
         Date=[NSMutableDictionary dictionary];
         sPatientID=[NSMutableDictionary dictionary];
         sPatientName=[NSMutableDictionary dictionary];
-        sStudyDate=[NSMutableDictionary dictionary];
+        //sStudyDate=[NSMutableDictionary dictionary];
+        sDate_start=[NSMutableDictionary dictionary];
+        sDate_end=[NSMutableDictionary dictionary];
         sModalitiesInStudy=[NSMutableDictionary dictionary];
         sStudyDescription=[NSMutableDictionary dictionary];
         
         NSDateFormatter *dicomDTFormatter = [[NSDateFormatter alloc] init];
         [dicomDTFormatter setDateFormat:@"yyyyMMddHHmmss"];
 
-        rn = [@"\r\n" dataUsingEncoding:NSASCIIStringEncoding];
-        rnrn = [@"\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
-        rnhh = [@"\r\n--" dataUsingEncoding:NSASCIIStringEncoding];
+        rn=[@"\r\n" dataUsingEncoding:NSASCIIStringEncoding];
+        rnrn=[@"\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
+        rnhh=[@"\r\n--" dataUsingEncoding:NSASCIIStringEncoding];
         contentType=[@"Content-Type: " dataUsingEncoding:NSASCIIStringEncoding];
         CDAOpeningTag=[@"<ClinicalDocument" dataUsingEncoding:NSASCIIStringEncoding];
         CDAClosingTag=[@"</ClinicalDocument>" dataUsingEncoding:NSASCIIStringEncoding];
-        ctad=[@"Content-Type: application/dicom" dataUsingEncoding:NSASCIIStringEncoding];
+        ctad=[@"Content-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
         boundary=[@";boundary=" dataUsingEncoding:NSASCIIStringEncoding];
+        //55540900 03669010 5890BF10 5875780B 000104F6 01000004 14000000
+        unsigned char ep[]={0x55,0x54,0x09,0x00,0x03,0x66,0x90,0x10,0x58,0x90,0xBF,0x10,0x58,0x75,0x78,0x0B,0x00,0x01,0x04,0xF6,0x01,0x00,0x00,0x04,0x14,0x00,0x00,0x00};
+        extraParam=[NSData dataWithBytes:&ep length:28];
         //regex for url validation
         NSRegularExpression *UIRegex = [NSRegularExpression regularExpressionWithPattern:@"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:0 error:NULL];
         NSRegularExpression *SHRegex = [NSRegularExpression regularExpressionWithPattern:@"^(?:\\s*)([^\\r\\n\\f\\t]*[^\\r\\n\\f\\t\\s])(?:\\s*)$" options:0 error:NULL];
@@ -297,7 +338,7 @@ int main(int argc, const char* argv[]) {
          }
          ];
 
-#pragma mark qido studies series instances
+#pragma mark qido ( studies | series | instances )
         
         NSRegularExpression *qidoregex = [NSRegularExpression regularExpressionWithPattern:@"^/studies$|^/series$|^/instances$" options:NSRegularExpressionCaseInsensitive error:NULL];
         
@@ -348,7 +389,7 @@ int main(int argc, const char* argv[]) {
                                  processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         {
             NSDictionary *q=request.query;
-            NSLog(@"%@",[q description]);
+            //NSLog(@"%@",[q description]);
             NSString *session=q[@"session"];
             if (!session || [session isEqualToString:@""]) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
             
@@ -357,13 +398,17 @@ int main(int argc, const char* argv[]) {
             
             NSString *qPatientID=q[@"columns[3][search][value]"];
             NSString *qPatientName=q[@"columns[4][search][value]"];
-            NSString *qStudyDate=q[@"columns[5][search][value]"];
+            //NSString *qStudyDate=q[@"columns[5][search][value]"];
+            NSString *qDate_start=q[@"date_start"];
+            NSString *qDate_end=q[@"date_end"];
             NSString *qModalitiesInStudy=q[@"columns[6][search][value]"];
             NSString *qStudyDescription=q[@"columns[7][search][value]"];
 
             NSString *rPatientID=r[@"columns[3][search][value]"];
             NSString *rPatientName=r[@"columns[4][search][value]"];
-            NSString *rStudyDate=r[@"columns[5][search][value]"];
+            //NSString *rStudyDate=r[@"columns[5][search][value]"];
+            NSString *rDate_start=r[@"date_start"];
+            NSString *rDate_end=r[@"date_end"];
             NSString *rModalitiesInStudy=r[@"columns[6][search][value]"];
             NSString *rStduyDescription=r[@"columns[7][search][value]"];
             
@@ -389,9 +434,13 @@ int main(int argc, const char* argv[]) {
                    &&![qPatientName isEqualToString:rPatientName]
                    &&![rPatientName isEqualToString:@""]
                    )
-                ||(    qStudyDate
-                   &&![qStudyDate isEqualToString:rStudyDate]
-                   &&![rStudyDate isEqualToString:@""]
+                ||(    qDate_start
+                   &&![qDate_start isEqualToString:rDate_start]
+                   &&![rDate_start isEqualToString:@""]
+                   )
+                ||(    qDate_end
+                   &&![qDate_end isEqualToString:rDate_end]
+                   &&![rDate_end isEqualToString:@""]
                    )
                 ||(    qModalitiesInStudy
                    &&![qModalitiesInStudy isEqualToString:rModalitiesInStudy]
@@ -416,7 +465,9 @@ int main(int argc, const char* argv[]) {
                      [Date removeObjectForKey:session];
                      if(sPatientID[@"session"])[sPatientID removeObjectForKey:session];
                      if(sPatientName[@"session"])[sPatientName removeObjectForKey:session];
-                     if(sStudyDate[@"session"])[sStudyDate removeObjectForKey:session];
+                     //if(sStudyDate[@"session"])[sStudyDate removeObjectForKey:session];
+                     if(sDate_start[@"session"])[sDate_start removeObjectForKey:session];
+                     if(sDate_end[@"session"])[sDate_end removeObjectForKey:session];
                      if(sModalitiesInStudy[@"session"])[sModalitiesInStudy removeObjectForKey:session];
                      if(sStudyDescription[@"session"])[sStudyDescription removeObjectForKey:session];
 
@@ -425,7 +476,9 @@ int main(int argc, const char* argv[]) {
                  [Date setObject:[NSDate date] forKey:session];
                  if(qPatientID)[sPatientID setObject:qPatientID forKey:session];
                  if(qPatientName)[sPatientName setObject:qPatientName forKey:session];
-                 if(qStudyDate)[sStudyDate setObject:qStudyDate forKey:session];
+                 //if(qStudyDate)[sStudyDate setObject:qStudyDate forKey:session];
+                 if(qDate_start)[sDate_start setObject:qDate_start forKey:session];
+                 if(qDate_end)[sDate_end setObject:qDate_end forKey:session];
                  if(qModalitiesInStudy)[sModalitiesInStudy setObject:qModalitiesInStudy forKey:session];
                  if(qStudyDescription)[sStudyDescription setObject:qStudyDescription forKey:session];
                  
@@ -512,32 +565,33 @@ int main(int argc, const char* argv[]) {
                          }
                      }
 
-                     if(qStudyDate && [qStudyDate length])
+                     if(
+                          (qDate_start && [qDate_start length])
+                        ||(qDate_end && [qDate_end length])
+                        )
                      {
-                         [studiesWhere appendFormat:@" AND %@ != '%@'", thisSql[@"SeriesDate"], @"*"];
                          //StudyDate _00080020 aaaammdd,-aaaammdd,aaaammdd-,aaaammdd-aaaammdd
-                         NSUInteger length=[qStudyDate length];
-                         NSRange hyphen=[qStudyDate rangeOfString:@"-"];
-                         if (hyphen.length==0)
+                         
+                         if ([qDate_start isEqualToString:qDate_end])
                          {
                              //no hyphen
-                             [studiesWhere appendFormat:@" AND %@ = '%@'", thisSql[@"StudyDate"], qStudyDate];
+                             [studiesWhere appendFormat:@" AND %@ = '%@'", thisSql[@"StudyDate"], qDate_start];
                          }
-                         else if (hyphen.location==0)
+                         else if (!qDate_start || [qDate_start isEqualToString:@""])
                          {
                              //until
-                             [studiesWhere appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], [qStudyDate substringFromIndex:1]];
+                             [studiesWhere appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], qDate_end];
                          }
-                         else if (hyphen.location==length-1)
+                         else if (!qDate_end || [qDate_end isEqualToString:@""])
                          {
                              //since
-                             [studiesWhere appendFormat:@" AND %@ >= '%@'", thisSql[@"StudyDate"], [qStudyDate substringToIndex:length-1]];
+                             [studiesWhere appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], qDate_start];
                          }
                          else
                          {
                              //inbetween
-                             [studiesWhere appendFormat:@" AND %@ >= '%@'", thisSql[@"StudyDate"], [qStudyDate substringToIndex:length-hyphen.location-1]];
-                             [studiesWhere appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], [qStudyDate substringFromIndex:hyphen.location+hyphen.length]];
+                             [studiesWhere appendFormat:@" AND %@ >= '%@'", thisSql[@"StudyDate"], qDate_start];
+                             [studiesWhere appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], qDate_end];
                          }
                      }
 
@@ -623,9 +677,7 @@ int main(int argc, const char* argv[]) {
                     if(qPatientID && ![qPatientID isEqualToString:sPatientID[session]])
                     {
                         toBeFiltered=true;
-                        PatientIDRegex=[NSRegularExpression regularExpressionWithPattern:[NSString regexDicomString:qPatientID withFormat:@"datatables\\/patients\\?PatientID=%@.*"] options:0 error:NULL];
-                        [sPatientID removeObjectForKey:session];
-                        [sPatientID setObject:qPatientID forKey:session];
+                        PatientIDRegex=[NSRegularExpression regularExpressionWithPattern:[NSString regexDicomString:qPatientID withFormat:@"datatables\\/patient\\?PatientID=%@.*"] options:0 error:NULL];
                     }
                     
                     NSRegularExpression *PatientNameRegex=nil;
@@ -633,46 +685,28 @@ int main(int argc, const char* argv[]) {
                     {
                         toBeFiltered=true;
                         PatientNameRegex=[NSRegularExpression regularExpressionWithPattern:[NSString regexDicomString:qPatientName withFormat:@"%@.*"] options:NSRegularExpressionCaseInsensitive error:NULL];
-                        [sPatientName removeObjectForKey:session];
-                        [sPatientName setObject:qPatientName forKey:session];
                     }
                     
-                    NSString *StudyDate;
                     NSString *until;
+                    if(   qDate_end
+                       && (  !sDate_end[session]
+                           || ([qDate_end compare:sDate_end[session]]==NSOrderedAscending)
+                           )
+                       )
+                     {
+                        toBeFiltered=true;
+                        until=qDate_end;
+                    }
+                    
                     NSString *since;
-                    if(qStudyDate && ![qStudyDate isEqualToString:sStudyDate[session]])
+                    if(   qDate_start
+                       && (  !sDate_start[session]
+                           || ([qDate_start compare:sDate_start[session]]==NSOrderedDescending)
+                           )
+                       )
                     {
                         toBeFiltered=true;
-
-                        //StudyDate _00080020 aaaammdd,-aaaammdd,aaaammdd-,aaaammdd-aaaammdd
-                        NSUInteger length=[qStudyDate length];
-                        NSRange hyphen=[qStudyDate rangeOfString:@"-"];
-                        if (hyphen.length==0)
-                        {
-                            //no hyphen
-                            StudyDate=qStudyDate;
-                        }
-                        else if (hyphen.location==0)
-                        {
-                            //until
-                            until=[qStudyDate substringFromIndex:1];
-                        }
-                        else if (hyphen.location==length-1)
-                        {
-                            //since
-                            since=[qStudyDate substringToIndex:length-2];
-                        }
-                        else
-                        {
-                            //inbetween
-                            //until
-                            until=[qStudyDate substringFromIndex:hyphen.location+hyphen.length];
-                            //since
-                            since=[qStudyDate substringToIndex:length-hyphen.location-1];
-                        }
-                        [sStudyDate removeObjectForKey:session];
-                        [sStudyDate setObject:qStudyDate forKey:session];
-
+                        since=qDate_start;
                     }
                     
                     NSString *newModalitiesInStudy=nil;
@@ -680,8 +714,6 @@ int main(int argc, const char* argv[]) {
                     {
                         toBeFiltered=true;
                         newModalitiesInStudy=qModalitiesInStudy;
-                        [sModalitiesInStudy removeObjectForKey:session];
-                        [sModalitiesInStudy setObject:qModalitiesInStudy forKey:session];
                     }
 
                     
@@ -690,8 +722,6 @@ int main(int argc, const char* argv[]) {
                     {
                         toBeFiltered=true;
                         StudyDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:[NSString regexDicomString:qStudyDescription withFormat:@"%@.*"] options:NSRegularExpressionCaseInsensitive error:NULL];
-                        [sStudyDescription removeObjectForKey:session];
-                        [sStudyDescription setObject:qStudyDescription forKey:session];
                     }
 
                     if(toBeFiltered)
@@ -704,30 +734,32 @@ int main(int argc, const char* argv[]) {
                         NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *BRow, NSDictionary *bindings) {
                             if (PatientIDRegex)
                             {
+                                //NSLog(@"patientID filter");
                                 if (![PatientIDRegex numberOfMatchesInString:BRow[3] options:0 range:NSMakeRange(0,[BRow[3] length])]) return false;
                             }
                             if (PatientNameRegex)
                             {
+                                //NSLog(@"patientName filter");
                                 if (![PatientNameRegex numberOfMatchesInString:BRow[4] options:0 range:NSMakeRange(0,[BRow[4] length])]) return false;
-                            }
-                            if (StudyDate)
-                            {
-                                if (![StudyDate isEqualToString:BRow[5]]) return false;
                             }
                             if (until)
                             {
+                                //NSLog(@"until filter");
                                 if ([until compare:BRow[5]]==NSOrderedDescending) return false;
                             }
                             if (since)
                             {
+                                //NSLog(@"since filter");
                                 if ([since compare:BRow[5]]==NSOrderedAscending) return false;
                             }
                             if (newModalitiesInStudy)
                             {
+                                //NSLog(@"modalities filter");
                                 if (![BRow[6] containsString:newModalitiesInStudy]) return false;
                             }
                             if (StudyDescriptionRegex)
                             {
+                                //NSLog(@"description filter");
                                 if (![StudyDescriptionRegex numberOfMatchesInString:BRow[7] options:0 range:NSMakeRange(0,[BRow[7] length])]) return false;
                             }
                             return true;
@@ -737,7 +769,7 @@ int main(int argc, const char* argv[]) {
                     }
                 }
             }
-                
+            
 #pragma mark --order
             if (q[@"order[0][column]"] && q[@"order[0][dir]"])
             {
@@ -910,7 +942,7 @@ int main(int argc, const char* argv[]) {
 //zipped/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}
 
         
-#pragma mark wadors
+#pragma mark wadorsProxy
 //studies/{StudyInstanceUID}
 //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
 //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}
@@ -1309,7 +1341,7 @@ int main(int argc, const char* argv[]) {
         [httpdicomServer addGETHandlerForBasePath:@"/bir/weasis/bundle/" directoryPath:[resources stringByAppendingPathComponent:@"weasis/bundle/"] indexFilename:nil cacheAge:3600 allowRangeRequests:YES];
 
         
-#pragma mark IHEInvokeImageDisplay
+#pragma mark IHEInvokeImageDisplay -> manifest
 //-----------------------------------------------------------------------------------------------------------------------------
 // IHEInvokeImageDisplay?requestType=STUDY&accessionNumber=1&viewerType=IHE_BIR&diagnosticQuality=true&keyImagesOnly=false&custodianUID=1.2&proxyURI=xxx
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -1456,8 +1488,8 @@ int main(int argc, const char* argv[]) {
                  for (NSDictionary *seriesQido in seriesArray)
                  {
                      if (
-                           !([((seriesQido[@"0020000E"])[@"Value"])[0] isEqualToString:@"OT"])
-                         &&!([((seriesQido[@"0020000E"])[@"Value"])[0] isEqualToString:@"DOC"]))
+                           !([((seriesQido[@"00080060"])[@"Value"])[0] isEqualToString:@"OT"])
+                         &&!([((seriesQido[@"00080060"])[@"Value"])[0] isEqualToString:@"DOC"]))
                      {
                          //cornerstone no muestra los documentos encapsulados
                          NSMutableDictionary *seriesCornerstone=[NSMutableDictionary dictionary];
@@ -1476,6 +1508,17 @@ int main(int argc, const char* argv[]) {
                           ];
                          NSLog(@"%@",qidoInstancesString);
                         NSMutableArray *instancesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoInstancesString]] options:NSJSONReadingMutableContainers error:nil];
+                         
+                         //classify instancesArray by instanceNumber
+
+                          [instancesArray sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
+                          if ([((obj1[@"00200013"])[@"Value"])[0]intValue]<[((obj2[@"00200013"])[@"Value"])[0]intValue])
+                          return NSOrderedAscending;
+                          return NSOrderedDescending;
+                          }];
+ 
+                         
+                         
                          for (NSDictionary *instance in instancesArray)
                          {
                              NSString *wadouriInstance=[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@",proxyURI,
@@ -1520,7 +1563,7 @@ int main(int argc, const char* argv[]) {
          ];
         
         
-#pragma mark /weasis/studies?
+#pragma mark /weasis/studies? -> manifest contents
         //------------------------------------------------
         // http://{remotepcs}/weasis/studies?
         //------------------------------------------------
@@ -1670,7 +1713,7 @@ int main(int argc, const char* argv[]) {
          ];
         
         
-#pragma mark /weasis/studies/{StudyInstanceUID}/series?
+#pragma mark /weasis/studies/{StudyInstanceUID}/series?  -> manifest contents
         //---------------------------------------------------------------
         // /weasis/studies/{StudyInstanceUID}/series?SeriesInstanceUID=""
         //---------------------------------------------------------------
@@ -1825,19 +1868,7 @@ int main(int argc, const char* argv[]) {
          ];
         
 #pragma mark /osirix
-/*
- /osirix/studies?AccessionNumber=""
- /osirixmd/studies?AccessionNumber=""
- 
- /osirix/studies?StudyInstanceUID=""
- /osirixmd/studies?StudyInstanceUID=""
- 
- /osirix/series?SeriesInstanceUID=""
- /osirixmd/series?SeriesInstanceUID=""
- 
- ¿agregar &session=""&custodianUID=""?
- */
-        
+//OsiriX 5.9 reads these multipart-related without any plugin
         NSRegularExpression *osirixregex = [NSRegularExpression regularExpressionWithPattern:@"^/osirix/(studies|series)$" options:NSRegularExpressionCaseInsensitive error:NULL];
         
         [httpdicomServer addHandlerForMethod:@"GET"
@@ -1900,128 +1931,161 @@ int main(int argc, const char* argv[]) {
          }
          ];
 
-#pragma mark /zip
-        /*
-         /osirix/studies?AccessionNumber=""
-         /osirixmd/studies?AccessionNumber=""
-         
-         /osirix/studies?StudyInstanceUID=""
-         /osirixmd/studies?StudyInstanceUID=""
-         
-         /osirix/series?SeriesInstanceUID=""
-         /osirixmd/series?SeriesInstanceUID=""
-         
-         ¿agregar &session=""&custodianUID=""?
-        
-        NSRegularExpression *zipregex = [NSRegularExpression regularExpressionWithPattern:@"^/zip/(studies|series)$" options:NSRegularExpressionCaseInsensitive error:NULL];
+#pragma mark /dcm.zip
+        //required starting With OsiriX version 6
+        //¿agregar &session=""&custodianUID=""?
+
+        NSRegularExpression *zipregex = [NSRegularExpression regularExpressionWithPattern:@"^/dcm.zip$" options:NSRegularExpressionCaseInsensitive error:NULL];
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:zipregex
                                 requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             /*
-             //buscar wadors URIs
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
+
+         //buscar SERIES wadors URIs
              NSString *q=request.URL.query;
-             NSString *qidoLevel=[[request.URL.path componentsSeparatedByString:@"/"]lastObject];
              NSString *qidoString;
-             if (q) qidoString=[NSString stringWithFormat:@"%@/%@?%@",
-                                [dev0 objectForKey:@"qido"],
-                                qidoLevel,
-                                q];
-             else    qidoString=[NSString stringWithFormat:@"%@/%@",
-                                 [dev0 objectForKey:@"qido"],
-                                 qidoLevel];
+             qidoString=[NSString stringWithFormat:@"%@/%@?%@",[dev0 objectForKey:@"qido"],@"series",q];
              GWS_LOG_INFO(@"dev0 qido: %@",qidoString);
-             
-             NSMutableArray *array=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoString]] options:NSJSONReadingMutableContainers error:nil];
+             NSArray *array=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoString]] options:0 error:nil];
              //NSLog(@"%@",[array description]);
-             NSMutableData *responseData=[NSMutableData data];
-             NSError *error=nil;
+                                    
+             __block NSMutableArray *wados=[NSMutableArray array];
+             __block NSMutableData *wadors=[NSMutableData data];
+             __block NSMutableData *boundary=[NSMutableData data];
+             __block NSMutableData *directory=[NSMutableData data];
+             __block NSMutableData *entry=[NSMutableData data];
+             __block NSRange wadorsRange=NSMakeRange(0,0);
+             __block uint32 entryPointer=0;
+             __block uint16 entriesCount=0;
+             __block NSRange ctadRange=NSMakeRange(0,0);
+             __block NSRange boundaryRange=NSMakeRange(0,0);
+                                    
              for (NSDictionary *dictionary in array)
              {
-                 //00081190 UR RetrieveURL
-                 NSString *wadors=((dictionary[@"00081190"])[@"Value"])[0];
-                 //request, response and error
-                 NSMutableURLRequest *wadorsRequest=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:wadors] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
-                 //https://developer.apple.com/reference/foundation/nsurlrequestcachepolicy?language=objc
-                 [wadorsRequest setHTTPMethod:@"GET"];
-                 [wadorsRequest setValue:@"multipart/related;type=application/dicom" forHTTPHeaderField:@"Accept"];
-                 NSHTTPURLResponse *response=nil;
-                 //URL properties: expectedContentLength, MIMEType, textEncodingName
-                 //HTTP properties: statusCode, allHeaderFields
-                 
-                 NSData *data=[NSURLConnection sendSynchronousRequest:wadorsRequest
-                                                    returningResponse:&response
-                                                                error:&error];
-                 if ((response.statusCode==200) && [data length])
-                 {
-                     unsigned short dashDash = 0x2D2D;
-                     NSData *dashDashData =[NSData dataWithBytes:&dashDash length:2];
-                     
-                     unsigned short crlf = 0x0A0D;
-                     NSData *crlfData =[NSData dataWithBytes:&crlf length:2];
-
-                     //cdbc:     \r\n--%@\r\n
-                     NSString *boundaryString=[[NSUUID UUID]UUIDString];
-                     NSData *boundaryData=[boundaryString dataUsingEncoding:NSASCIIStringEncoding];
-                     NSMutableData *mutableCdbc=[NSMutableData dataWithData:crlfData];
-                     [mutableCdbc appendData:dashDashData];
-                     [mutableCdbc appendData:boundaryData];
-                     [mutableCdbc appendData:crlfData];
-                     
-                     //cdbdc:    \r\n--%@--\r\n
-                     NSData *cdbcData=[NSData dataWithData:mutableCdbc];
-                     NSMutableData *mutableCdbdc=[NSMutableData dataWithData:crlfData];
-                     [mutableCdbdc appendData:dashDashData];
-                     [mutableCdbdc appendData:boundaryData];
-                     [mutableCdbdc appendData:dashDashData];
-                     [mutableCdbdc appendData:crlfData];
-                     NSData *cdbdcData=[NSData dataWithData:mutableCdbdc];
-                     
-                     //ctad: Content-Type:application/dicom
-                     NSData *ctadData=[@"Content-Type:application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
-                     
-                     NSRange boundaryRange;
-                     NSMutableData *body = [NSMutableData data];
-                     [body appendData:cdbcData];
-                     [body appendData:ctadData];
-                     [body appendData:SOPInstanceData];
-                     
-                     
-                     return [GCDWebServerDataResponse responseWithData:data contentType:@"multipart/related;type=application/dicom"];
-                 }
+                //download series
+                //00081190 UR RetrieveURL
+                [wados addObject:((dictionary[@"00081190"])[@"Value"])[0]];
+                //NSLog(@"wadors: %@",((dictionary[@"00081190"])[@"Value"])[0]);
              }
-             
-             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"hola"];
-         }
-         ];
-         */
-        NSRegularExpression *zipregex = [NSRegularExpression regularExpressionWithPattern:@"^/zip/(studies|series)$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:zipregex
-                                 requestClass:[GCDWebServerRequest class]
-                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
-                                     
-                                     NSMutableArray* contents = [NSMutableArray arrayWithObjects:@"<html><body><p>\n", @"Hello World!\n", @"</p></body></html>\n", nil];  // Fake data source we are reading from
-                                     GCDWebServerStreamedResponse* response = [GCDWebServerStreamedResponse responseWithContentType:@"text/html" asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock) {
-                                         
-                                         // Simulate a delay reading from the fake data source
-                                         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                                             NSString* string = contents.firstObject;
-                                             if (string) {
-                                                 [contents removeObjectAtIndex:0];
-                                                 completionBlock([string dataUsingEncoding:NSUTF8StringEncoding], nil);  // Generate the 2nd part of the stream data
-                                             } else {
-                                                 completionBlock([NSData data], nil);  // Must pass an empty NSData to signal the end of the stream
-                                             }
-                                         });
-                                         
-                                     }];
-                                     return response;
-                                     
-                                 }];
+/**
+ *  The GCDWebServerAsyncStreamBlock works like the GCDWebServerStreamBlock
+ *  except the streamed data can be returned at a later time allowing for
+ *  truly asynchronous generation of the data.
+ *
+ *  The block must call "completionBlock" passing the new chunk of data when ready,
+ *  an empty NSData when done, or nil on error and pass a NSError.
+ *
+ *  The block cannot call "completionBlock" more than once per invocation.
+ */
+                                    
+             GCDWebServerStreamedResponse* response = [GCDWebServerStreamedResponse responseWithContentType:@"application/octet-stream" asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock)
+             {
+                 if (wadorsRange.length<1000)
+                 {
+                     NSLog(@"need data. Remaining wadors:%lu",(unsigned long)wados.count);
+                     if (wados.count>0)
+                     {
+                         //request, response and error
+                         NSMutableURLRequest *wadorsRequest=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:wados[0]] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:timeout];
+                         //https://developer.apple.com/reference/foundation/nsurlrequestcachepolicy?language=objc
+                         //NSURLRequestReloadIgnoringCacheData
+                         [wadorsRequest setHTTPMethod:@"GET"];
+                         [wadorsRequest setValue:@"multipart/related;type=application/dicom" forHTTPHeaderField:@"Accept"];
+                         NSHTTPURLResponse *response=nil;
+                         //URL properties: expectedContentLength, MIMEType, textEncodingName
+                         //HTTP properties: statusCode, allHeaderFields
+                         
+                         NSError *error=nil;
+                         [wadors setData:[NSURLConnection sendSynchronousRequest:wadorsRequest returningResponse:&response error:&error]];
+                         if (response.statusCode==200)
+                         {
+                             wadorsRange.location=0;
+                             wadorsRange.length=[wadors length];
+                             NSString *ctString=response.allHeaderFields[@"Content-Type"];
+                             NSString *boundaryString=[@"\r\n--" stringByAppendingString:[ctString substringFromIndex:ctString.length-36]];
+                             [boundary setData:[boundaryString dataUsingEncoding:NSUTF8StringEncoding]];
+                             NSLog(@"%@\r\n(%lu,%lu) boundary:%@",wados[0],(unsigned long)wadorsRange.location,(unsigned long)wadorsRange.length,boundaryString);
+                         }
+                         [wados removeObjectAtIndex:0];
+                     }
+                 }
+                 ctadRange=[wadors rangeOfData:ctad options:0 range:wadorsRange];
+                 boundaryRange=[wadors rangeOfData:boundary options:0 range:wadorsRange];
+                 if ((ctadRange.length>0) && (boundaryRange.length>0)) //chunk with new entry
+                 {
+                     //dcm
+                     unsigned long dcmLocation=ctadRange.location+ctadRange.length;
+                     unsigned long dcmLength=boundaryRange.location-dcmLocation;
+                     wadorsRange.location=boundaryRange.location+boundaryRange.length;
+                     wadorsRange.length=wadors.length-wadorsRange.location;
+                     
+                     NSString *dcmUUID=[[[NSUUID UUID]UUIDString]stringByAppendingPathExtension:@"dcm"];
+                     NSData *dcmName=[dcmUUID dataUsingEncoding:NSUTF8StringEncoding];
+                     NSLog(@"dcm (%lu bytes):%@",dcmLength,dcmUUID);
+                     
+                     __block NSMutableData *entry=[NSMutableData data];
+                     [entry appendBytes:&zipLocalFileHeader length:4];//0x04034B50
+                     [entry appendBytes:&zipVersion length:2];//0x000A
+                     [entry increaseLengthBy:8];//uint32 flagCompression,zipTimeDate
+
+                     NSData *dcmData=[wadors subdataWithRange:NSMakeRange(dcmLocation,dcmLength)];
+                     zipCrc32=[dcmData crc32];
+ 
+                     [entry appendBytes:&zipCrc32 length:4];
+                     [entry appendBytes:&dcmLength length:4];//zipCompressedSize
+                     [entry appendBytes:&dcmLength length:4];//zipUncompressedSize
+                     [entry appendBytes:&zipNameLength length:4];//0x28
+                     [entry appendData:dcmName];
+                     //[entry appendData:extraParam];
+                     [entry appendData:dcmData];
+
+                     completionBlock(entry, nil);
+                     
+                     //directory
+                     [directory appendBytes:&zipFileHeader length:4];//0x02014B50
+                     [directory appendBytes:&zipVersion length:2];//0x000A
+                     [directory appendBytes:&zipVersion length:2];//0x000A
+                     [directory increaseLengthBy:8];//uint32 flagCompression,zipTimeDate
+                     [directory appendBytes:&zipCrc32 length:4];
+                     [directory appendBytes:&dcmLength length:4];//zipCompressedSize
+                     [directory appendBytes:&dcmLength length:4];//zipUncompressedSize
+                     [directory appendBytes:&zipNameLength length:4];//0x28
+                     /*
+                      uint16 zipFileCommLength=0x0;
+                      uint16 zipDiskStart=0x0;
+                      uint16 zipInternalAttr=0x0;
+                      uint32 zipExternalAttr=0x0;
+                      */
+                     [directory increaseLengthBy:10];
+                     
+                     [directory appendBytes:&entryPointer length:4];//offsetOfLocalHeader
+                     entryPointer+=dcmLength+70;
+                     entriesCount++;
+                     [directory appendData:dcmName];
+                     //[directory appendData:extraParam];
+                 }
+                 else if (directory.length) //chunk with directory
+                 {
+                     //ZIP "end of central directory record"
+                     
+                     //uint32 zipEndOfCentralDirectory=0x06054B50;
+                     [directory appendBytes:&zipEndOfCentralDirectory length:4];
+                     [directory increaseLengthBy:4];//zipDiskNumber
+                     [directory appendBytes:&entriesCount length:2];//disk zipEntries
+                     [directory appendBytes:&entriesCount length:2];//total zipEntries
+                     uint32 directorySize=86 * entriesCount;
+                     [directory appendBytes:&directorySize length:4];
+                     [directory appendBytes:&entryPointer length:4];
+                     [directory increaseLengthBy:2];//zipCommentLength
+                     completionBlock(directory, nil);
+                     [directory setData:[NSData data]];
+                 }
+                 else completionBlock([NSData data], nil);//last chunck
+                 
+             }];
+            return response;
+        }];
 #pragma mark -
 #pragma mark _____________redirects dev0, dicom (local, (pcs) remoto_____________
 
@@ -2314,21 +2378,10 @@ int main(int argc, const char* argv[]) {
 
 #pragma mark run
         [httpdicomServer runWithPort:pcsPort bonjourName:nil];
-        
-        // runloop
-        _run = YES;
-        void* handler = signal(SIGINT, _SignalHandler);
-        if (handler != SIG_ERR) {
-            while (_run) {
-                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, true);
-            }
-            
-            if (httpdicomServer) {
-                [httpdicomServer stop];
-            }
-            
-            signal(SIGINT, handler);
+        while (true) {
+            CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, true);
         }
+        [httpdicomServer stop];
         
     }//end autorelease pool
     return success ? 0 : -1;
