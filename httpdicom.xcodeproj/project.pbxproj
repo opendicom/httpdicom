@@ -110,12 +110,6 @@
 		4A492E841CC65F7700A5A52D /* slf4j-api-1.7.5.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E2E1CC65F7700A5A52D /* slf4j-api-1.7.5.jar */; };
 		4A492E851CC65F7700A5A52D /* slf4j-log4j12-1.7.5.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E2F1CC65F7700A5A52D /* slf4j-log4j12-1.7.5.jar */; };
 		4A492E861CC65F7700A5A52D /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 4A492E411CC65F7700A5A52D /* README.md */; };
-		4A5D5A9E1CC128990077B83F /* ZZArchive.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A5D5A971CC128990077B83F /* ZZArchive.h */; };
-		4A5D5A9F1CC128990077B83F /* ZZArchiveEntry.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A5D5A981CC128990077B83F /* ZZArchiveEntry.h */; };
-		4A5D5AA01CC128990077B83F /* ZZChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A5D5A991CC128990077B83F /* ZZChannel.h */; };
-		4A5D5AA11CC128990077B83F /* ZZConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A5D5A9A1CC128990077B83F /* ZZConstants.h */; };
-		4A5D5AA21CC128990077B83F /* ZZError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A5D5A9B1CC128990077B83F /* ZZError.h */; };
-		4A5D5AA31CC128990077B83F /* libzipzap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A5D5A9D1CC128990077B83F /* libzipzap.a */; };
 		4AA28D2E1D94569400B223CA /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 4AA28D2D1D94569400B223CA /* README.md */; };
 		4AAB26751D8A42A400401FD5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AAB266F1D8A42A400401FD5 /* main.m */; };
 		4AAB26761D8A42A400401FD5 /* LFCGzipUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AAB26701D8A42A400401FD5 /* LFCGzipUtility.m */; };
@@ -411,12 +405,6 @@
 		4A492E3F1CC65F7700A5A52D /* clib_jiio_util.dll */ = {isa = PBXFileReference; lastKnownFileType = file; path = clib_jiio_util.dll; sourceTree = "<group>"; };
 		4A492E401CC65F7700A5A52D /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		4A492E411CC65F7700A5A52D /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4A5D5A971CC128990077B83F /* ZZArchive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZZArchive.h; sourceTree = "<group>"; };
-		4A5D5A981CC128990077B83F /* ZZArchiveEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZZArchiveEntry.h; sourceTree = "<group>"; };
-		4A5D5A991CC128990077B83F /* ZZChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZZChannel.h; sourceTree = "<group>"; };
-		4A5D5A9A1CC128990077B83F /* ZZConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZZConstants.h; sourceTree = "<group>"; };
-		4A5D5A9B1CC128990077B83F /* ZZError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZZError.h; sourceTree = "<group>"; };
-		4A5D5A9D1CC128990077B83F /* libzipzap.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libzipzap.a; sourceTree = "<group>"; };
 		4AA28D2B1D94532300B223CA /* httpdicom_mini.postman_collection.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = httpdicom_mini.postman_collection.json; sourceTree = "<group>"; };
 		4AA28D2C1D94569400B223CA /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		4AA28D2D1D94569400B223CA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -445,7 +433,6 @@
 				4A492E6A1CC65F7700A5A52D /* dcm4che-tool-ihe-modality-3.3.7.jar in Frameworks */,
 				4A492E5D1CC65F7700A5A52D /* dcm4che-tool-dcmdump-3.3.7.jar in Frameworks */,
 				4A492E611CC65F7700A5A52D /* dcm4che-tool-emf2sf-3.3.7.jar in Frameworks */,
-				4A5D5AA31CC128990077B83F /* libzipzap.a in Frameworks */,
 				4A492E5A1CC65F7700A5A52D /* dcm4che-tool-dcm2xml-3.3.7.jar in Frameworks */,
 				4A492E521CC65F7700A5A52D /* dcm4che-net-3.3.7.jar in Frameworks */,
 				4A492E7F1CC65F7700A5A52D /* dcm4che-ws-rs-3.3.7.jar in Frameworks */,
@@ -517,8 +504,6 @@
 				4AA28D2D1D94569400B223CA /* README.md */,
 				4AA28D2B1D94532300B223CA /* httpdicom_mini.postman_collection.json */,
 				4A492D281CC65F7700A5A52D /* dcm4che-3.3.7 */,
-				4A5D5A961CC128990077B83F /* include */,
-				4A5D5A9C1CC128990077B83F /* lib */,
 				2A6BE9E31C91141D0011DEC0 /* httpdicom */,
 				2A31F6131C87322300A78C7C /* GCDWebServer modified */,
 				2A31F6121C8731FC00A78C7C /* GCDWebServer alias */,
@@ -1242,26 +1227,6 @@
 			path = "win-i686";
 			sourceTree = "<group>";
 		};
-		4A5D5A961CC128990077B83F /* include */ = {
-			isa = PBXGroup;
-			children = (
-				4A5D5A971CC128990077B83F /* ZZArchive.h */,
-				4A5D5A981CC128990077B83F /* ZZArchiveEntry.h */,
-				4A5D5A991CC128990077B83F /* ZZChannel.h */,
-				4A5D5A9A1CC128990077B83F /* ZZConstants.h */,
-				4A5D5A9B1CC128990077B83F /* ZZError.h */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		4A5D5A9C1CC128990077B83F /* lib */ = {
-			isa = PBXGroup;
-			children = (
-				4A5D5A9D1CC128990077B83F /* libzipzap.a */,
-			);
-			path = lib;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1277,23 +1242,18 @@
 				2A31F5FF1C87304C00A78C7C /* GCDWebServerPrivate.h in Headers */,
 				2A31F6011C87306000A78C7C /* GCDWebServerRequest.h in Headers */,
 				2A31F6031C87307D00A78C7C /* GCDWebServerResponse.h in Headers */,
-				4A5D5A9E1CC128990077B83F /* ZZArchive.h in Headers */,
 				2A1322D01C87C75900C4DB43 /* GCDWebServerDataRequest.h in Headers */,
 				2A1322D21C87C77A00C4DB43 /* GCDWebServerFileRequest.h in Headers */,
 				2A1322D41C87C78500C4DB43 /* GCDWebServerMultiPartFormRequest.h in Headers */,
 				4AAB26791D8A42A400401FD5 /* LFCGzipUtility.h in Headers */,
 				4A09D59C1DAD142800D18CDE /* NSString+PCS.h in Headers */,
 				2A1322D61C87C79700C4DB43 /* GCDWebServerURLEncodedFormRequest.h in Headers */,
-				4A5D5AA01CC128990077B83F /* ZZChannel.h in Headers */,
-				4A5D5AA11CC128990077B83F /* ZZConstants.h in Headers */,
 				2A1322D81C87C7AC00C4DB43 /* GCDWebServerDataResponse.h in Headers */,
 				2A1322DA1C87C7B300C4DB43 /* GCDWebServerErrorResponse.h in Headers */,
 				2A1322DC1C87C7BC00C4DB43 /* GCDWebServerFileResponse.h in Headers */,
-				4A5D5A9F1CC128990077B83F /* ZZArchiveEntry.h in Headers */,
 				4AAB26771D8A42A400401FD5 /* zconf.h in Headers */,
 				2A1322DF1C87C7D600C4DB43 /* GCDWebServerStreamedResponse.h in Headers */,
 				4A09D5A01DAEE59000D18CDE /* NSData+PCS.h in Headers */,
-				4A5D5AA21CC128990077B83F /* ZZError.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

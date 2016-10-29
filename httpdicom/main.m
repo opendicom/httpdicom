@@ -42,78 +42,38 @@
 #import "GCDWebServerDataResponse.h"
 #import "GCDWebServerPrivate.h"
 #import "LFCGzipUtility.h"
-#import "ZZArchiveEntry.h"
-#import "ZZArchive.h"
-#import "ZZConstants.h"
-#import "ZZChannel.h"
-#import "ZZError.h"
 
 #import "NSString+PCS.h"
 #import "NSData+PCS.h"
 
+//static immutable write
+static uint32 zipLocalFileHeader=0x04034B50;
+static uint16 zipVersion=0x0A;
+static uint32 zipNameLength=0x28;
+static uint32 zipFileHeader=0x02014B50;
+static uint32 zipEndOfCentralDirectory=0x06054B50;
+static NSTimeInterval timeout=300;
+
+//static immutable find within NSData
 static NSData *rn;
-static NSData *rnhh;
 static NSData *rnrn;
+static NSData *rnhh;
 static NSData *contentType;
 static NSData *CDAOpeningTag;
 static NSData *CDAClosingTag;
 static NSData *ctad;
-static NSData *boundary;
-static NSData *extraParam;
 
-
-
-static NSTimeInterval timeout=300;
-
-// A=Datatables Patient Studies
-// B=Datatables Studies
-// C=Datatables Series contenidas
+//datatables caché [session]
 static NSMutableDictionary *Date;
 static NSMutableDictionary *Req;
 static NSMutableDictionary *Total;
 static NSMutableDictionary *Filtered;
 static NSMutableDictionary *sPatientID;
 static NSMutableDictionary *sPatientName;
-//static NSMutableDictionary *sStudyDate;
 static NSMutableDictionary *sDate_start;
 static NSMutableDictionary *sDate_end;
 static NSMutableDictionary *sModalitiesInStudy;
 static NSMutableDictionary *sStudyDescription;
-
-//zip
-uint32 zipLocalFileHeader=0x04034B50;
-uint16 zipVersion=0x0A;
-uint32 zipTimeDate=0x0;
-uint32 zipCrc32=0x0;
-//uint32 zipCompressedSize
-//uint32 zipUncompressedSize
-uint32 zipNameLength=0x28;
-//68753A44-4D6F-1226-9C60-0050E4C00067.dcm
-//55540900 03669010 5890BF10 5875780B 000104F6 01000004 14000000
-
-uint32 zipFileHeader=0x02014B50;
-//uint16 zipVersion=0x0;
-//uint16 zipVersion=0x0;
-//uint32 zipTimeDate=0x0;
-//uint32 zipCrc32=0x0;
-//uint32 zipCompressedSize
-//uint32 zipUncompressedSize
-//uint32 zipNameLength=0x28;
-uint16 zipFileCommLength=0x0;
-uint16 zipDiskStart=0x0;
-uint16 zipInternalAttr=0x0;
-uint32 zipExternalAttr=0x0;
-uint32 offsetOfLocalHeader=0x0;
-//68753A44-4D6F-1226-9C60-0050E4C00067.dcm
-
-uint32 zipEndOfCentralDirectory=0x06054B50;
-uint32 zipDiskNumber=0x0;
-uint16 zipEntries=0x0;
-//uint16 entries
-uint32 zipCentralDirectorySize=0x0;
-uint32 zipOffsetOfCDWrtStartingDisk=0x0;
-uint16 zipCommentLength=0x0;
-
 
 
 int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
@@ -163,42 +123,48 @@ int main(int argc, const char* argv[]) {
      */
     
     @autoreleasepool {
-        NSFileManager *fileManager=[NSFileManager defaultManager];
+
+        NSArray *args=[[NSProcessInfo processInfo] arguments];
+        NSDictionary *devs=[NSDictionary dictionaryWithContentsOfFile:[args[1]stringByExpandingTildeInPath]];
+        
+        /*
+         *  DEBUG = 0
+         *  VERBOSE = 1
+         *  INFO = 2
+         *  WARNING = 3
+         *  ERROR = 4
+         *  EXCEPTION = 5
+         */
+        [GCDWebServer setLogLevel:2];
+        
+        NSDateFormatter *dicomDTFormatter = [[NSDateFormatter alloc] init];
+        [dicomDTFormatter setDateFormat:@"yyyyMMddHHmmss"];
+        NSRegularExpression *UIRegex = [NSRegularExpression regularExpressionWithPattern:@"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:0 error:NULL];
+        NSRegularExpression *SHRegex = [NSRegularExpression regularExpressionWithPattern:@"^(?:\\s*)([^\\r\\n\\f\\t]*[^\\r\\n\\f\\t\\s])(?:\\s*)$" options:0 error:NULL];
+        
+        //static immutable
+        rn=[@"/r/n" dataUsingEncoding:NSASCIIStringEncoding];//0x0A0D;
+        rnrn=[@"/r/n/r/n" dataUsingEncoding:NSASCIIStringEncoding];//0x0A0D0A0D;
+        rnhh=[@"/r/n--" dataUsingEncoding:NSASCIIStringEncoding];//0x2D2D0A0D;
+        contentType=[@"Content-Type: " dataUsingEncoding:NSASCIIStringEncoding];
+        CDAOpeningTag=[@"<ClinicalDocument" dataUsingEncoding:NSASCIIStringEncoding];
+        CDAClosingTag=[@"</ClinicalDocument>" dataUsingEncoding:NSASCIIStringEncoding];
+        ctad=[@"Content-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
+        
+        //datatables caché [session]
         Req=[NSMutableDictionary dictionary];
         Total=[NSMutableDictionary dictionary];
         Filtered=[NSMutableDictionary dictionary];
         Date=[NSMutableDictionary dictionary];
         sPatientID=[NSMutableDictionary dictionary];
         sPatientName=[NSMutableDictionary dictionary];
-        //sStudyDate=[NSMutableDictionary dictionary];
         sDate_start=[NSMutableDictionary dictionary];
         sDate_end=[NSMutableDictionary dictionary];
         sModalitiesInStudy=[NSMutableDictionary dictionary];
         sStudyDescription=[NSMutableDictionary dictionary];
         
-        NSDateFormatter *dicomDTFormatter = [[NSDateFormatter alloc] init];
-        [dicomDTFormatter setDateFormat:@"yyyyMMddHHmmss"];
 
-        rn=[@"\r\n" dataUsingEncoding:NSASCIIStringEncoding];
-        rnrn=[@"\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
-        rnhh=[@"\r\n--" dataUsingEncoding:NSASCIIStringEncoding];
-        contentType=[@"Content-Type: " dataUsingEncoding:NSASCIIStringEncoding];
-        CDAOpeningTag=[@"<ClinicalDocument" dataUsingEncoding:NSASCIIStringEncoding];
-        CDAClosingTag=[@"</ClinicalDocument>" dataUsingEncoding:NSASCIIStringEncoding];
-        ctad=[@"Content-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
-        boundary=[@";boundary=" dataUsingEncoding:NSASCIIStringEncoding];
-        //55540900 03669010 5890BF10 5875780B 000104F6 01000004 14000000
-        unsigned char ep[]={0x55,0x54,0x09,0x00,0x03,0x66,0x90,0x10,0x58,0x90,0xBF,0x10,0x58,0x75,0x78,0x0B,0x00,0x01,0x04,0xF6,0x01,0x00,0x00,0x04,0x14,0x00,0x00,0x00};
-        extraParam=[NSData dataWithBytes:&ep length:28];
-        //regex for url validation
-        NSRegularExpression *UIRegex = [NSRegularExpression regularExpressionWithPattern:@"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:0 error:NULL];
-        NSRegularExpression *SHRegex = [NSRegularExpression regularExpressionWithPattern:@"^(?:\\s*)([^\\r\\n\\f\\t]*[^\\r\\n\\f\\t\\s])(?:\\s*)$" options:0 error:NULL];
-
-        NSArray *args=[[NSProcessInfo processInfo] arguments];
-        NSDictionary *devs=[NSDictionary dictionaryWithContentsOfFile:[args[1]stringByExpandingTildeInPath]];
-        //NSLog(@"devs:\r%@",[devs description]);
-
-        
+        //orgs y aets
         NSMutableSet *orgis=[NSMutableSet set];
         NSMutableSet *orgts=[NSMutableSet set];
         NSMutableSet *sqlset=[NSMutableSet set];
@@ -240,12 +206,9 @@ int main(int argc, const char* argv[]) {
         NSArray *devOids=[args subarrayWithRange:NSMakeRange(2,devCount)];
         NSDictionary *dev0=devs[devOids[0]];
 
-        //-loglevel 0=debug, 1=verbose, 2=info
-        [GCDWebServer setLogLevel:[[dev0 objectForKey:@"loglevel"]intValue]];
         
-        NSString *IIDURL=dev0[@"pcsurl"];
         NSString *resources=[dev0[@"pcsresources"]stringByExpandingTildeInPath];
-        NSString *jnlp=[[NSString stringWithContentsOfFile:[resources stringByAppendingPathComponent:@"weasis/weasis.jnlp"] encoding:NSUTF8StringEncoding error:nil]stringByReplacingOccurrencesOfString:@"{IIDURL}" withString:IIDURL];
+        NSString *jnlp=[[NSString stringWithContentsOfFile:[resources stringByAppendingPathComponent:@"weasis/weasis.jnlp"] encoding:NSUTF8StringEncoding error:nil]stringByReplacingOccurrencesOfString:@"{IIDURL}" withString:dev0[@"pcsurl"]];
         
         //auditPath
         NSString *auditPath=[dev0[@"pcsaudit"]stringByExpandingTildeInPath];
@@ -266,77 +229,17 @@ int main(int argc, const char* argv[]) {
         }
 
 #pragma mark -
-#pragma mark no handler
-        NSRegularExpression *defaultregex = [NSRegularExpression regularExpressionWithPattern:@"^/.*" options:NSRegularExpressionCaseInsensitive error:NULL];
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:defaultregex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
-                                    NSURL *requestURL=request.URL;
-                                    NSString *bSlash=requestURL.baseURL.absoluteString;
-                                    NSString *b=[bSlash substringToIndex:[bSlash length]-1];
-                                    NSString *p=requestURL.path;
-                                    NSString *q=requestURL.query;
-                                    GWS_LOG_INFO(@"no handler for:(%@) %@%@?%@",request.method,b,p,q);
-                                    return [GCDWebServerDataResponse responseWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:@"http://opendicom.com"]] contentType:@"text/html"];
-                                }
-         ];
-
-#pragma mark -
-#pragma mark _______localhost dicomweb_______
-
-#pragma mark NumberOfStudyRelatedInstances
-        
-        NSRegularExpression *NumberOfStudyRelatedInstancesregex = [NSRegularExpression regularExpressionWithPattern:@"^/NumberOfStudyRelatedInstances/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:NumberOfStudyRelatedInstancesregex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+#pragma mark no handler for GET
+        [httpdicomServer addDefaultHandlerForMethod:@"GET"
+         requestClass:[GCDWebServerRequest class]
+         processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-             NSString *uid=[[request.URL.path componentsSeparatedByString:@"/"]lastObject];
-             NSDictionary *thisSql=sql[dev0[@"sql"]];
-             NSMutableData *countData=[NSMutableData data];
-             int countResult=task(@"/bin/bash",
-                                  @[@"-s"],
-                                  [
-                                   [NSString stringWithFormat:
-                                    thisSql[@"NumberOfStudyRelatedInstances"],
-                                    uid]
-                                   dataUsingEncoding:NSUTF8StringEncoding
-                                   ],
-                                  countData
-                                  );
-             return [GCDWebServerDataResponse responseWithData:countData contentType:@"text/plain"];
-         }
-         ];
+             GWS_LOG_WARNING(@"%@ (no handler)",request.path);
+             return [GCDWebServerErrorResponse
+                     responseWithClientError:kGCDWebServerHTTPStatusCode_BadRequest
+                     message:@"%@ (no handler)",request.path];
+         }];
 
-        
-#pragma mark NumberOfSeriesRelatedInstances
-        
-        NSRegularExpression *NumberOfSeriesRelatedInstancesregex = [NSRegularExpression regularExpressionWithPattern:@"^/NumberOfSeriesRelatedInstances/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:NumberOfSeriesRelatedInstancesregex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             NSString *uid=[[request.URL.path componentsSeparatedByString:@"/"]lastObject];
-             NSDictionary *thisSql=sql[dev0[@"sql"]];
-             NSMutableData *countData=[NSMutableData data];
-             int countResult=task(@"/bin/bash",
-                                  @[@"-s"],
-                                  [
-                                   [NSString stringWithFormat:
-                                    thisSql[@"NumberOfSeriesRelatedInstances"],
-                                    uid]
-                                   dataUsingEncoding:NSUTF8StringEncoding
-                                   ],
-                                  countData
-                                  );
-             return [GCDWebServerDataResponse responseWithData:countData contentType:@"text/plain"];
-         }
-         ];
 
 #pragma mark qido ( studies | series | instances )
         
@@ -1866,73 +1769,8 @@ int main(int argc, const char* argv[]) {
              return [GCDWebServerDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
          }
          ];
-        
-#pragma mark /osirix
-//OsiriX 5.9 reads these multipart-related without any plugin
-        NSRegularExpression *osirixregex = [NSRegularExpression regularExpressionWithPattern:@"^/osirix/(studies|series)$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:osirixregex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             //buscar wadors URIs
-             NSString *q=request.URL.query;
-             NSString *qidoLevel=[[request.URL.path componentsSeparatedByString:@"/"]lastObject];
-             NSString *qidoString;
-             if (q) qidoString=[NSString stringWithFormat:@"%@/%@?%@",
-                                [dev0 objectForKey:@"qido"],
-                                qidoLevel,
-                                q];
-             else    qidoString=[NSString stringWithFormat:@"%@/%@",
-                                 [dev0 objectForKey:@"qido"],
-                                 qidoLevel];
-             GWS_LOG_INFO(@"dev0 qido: %@",qidoString);
-             
-             NSMutableArray *array=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoString]] options:NSJSONReadingMutableContainers error:nil];
-             //NSLog(@"%@",[array description]);
-             NSMutableData *responseData=[NSMutableData data];
-             NSError *error=nil;
-             for (NSDictionary *dictionary in array)
-             {
-                 //00081190 UR RetrieveURL
-                 NSString *wadors=((dictionary[@"00081190"])[@"Value"])[0];
-                 //request, response and error
-                 NSMutableURLRequest *wadorsRequest=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:wadors] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
-                 //https://developer.apple.com/reference/foundation/nsurlrequestcachepolicy?language=objc
-                 [wadorsRequest setHTTPMethod:@"GET"];
-                 [wadorsRequest setValue:@"multipart/related;type=application/dicom" forHTTPHeaderField:@"Accept"];
-                 NSHTTPURLResponse *response=nil;
-                 //URL properties: expectedContentLength, MIMEType, textEncodingName
-                 //HTTP properties: statusCode, allHeaderFields
-                 
-                 NSData *data=[NSURLConnection sendSynchronousRequest:wadorsRequest
-                                                    returningResponse:&response
-                                                                error:&error];
-                 if ((response.statusCode==200) && [data length])
-                 {
-                     NSRange firstReturnRange=[data rangeOfData:rn options:0 range:NSMakeRange(0,68)];
-                     NSData *boundaryData=[data subdataWithRange:NSMakeRange(2,firstReturnRange.location-2)];
-                     NSString *boundaryString=[[NSString alloc]initWithData:boundaryData encoding:NSUTF8StringEncoding];
-                     NSRange ctadRange=[data rangeOfData:ctad options:0 range:NSMakeRange(0,[data length])];
-                     NSMutableData *resultData=[NSMutableData data];
-                     NSUInteger insertPoint=ctadRange.location+ctadRange.length;
-                     [resultData appendData:[data subdataWithRange:NSMakeRange(0,insertPoint)]];
-                     [resultData appendData:boundary];
-                     [resultData appendData:boundaryData];
-                     [resultData appendData:[data subdataWithRange:NSMakeRange(insertPoint,[data length]-insertPoint)]];
-                     
-                     
-                     return [GCDWebServerDataResponse responseWithData:resultData
-                                                                                          contentType:[NSString stringWithFormat:@"multipart/related;type=application/dicom; boundary=%@",boundaryString]];
-                 }
-             }
-             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@",[error description]];
-         }
-         ];
 
 #pragma mark /dcm.zip
-        //required starting With OsiriX version 6
         //¿agregar &session=""&custodianUID=""?
 
         NSRegularExpression *zipregex = [NSRegularExpression regularExpressionWithPattern:@"^/dcm.zip$" options:NSRegularExpressionCaseInsensitive error:NULL];
@@ -2030,14 +1868,14 @@ int main(int argc, const char* argv[]) {
                      [entry increaseLengthBy:8];//uint32 flagCompression,zipTimeDate
 
                      NSData *dcmData=[wadors subdataWithRange:NSMakeRange(dcmLocation,dcmLength)];
-                     zipCrc32=[dcmData crc32];
+                     uint32 zipCrc32=[dcmData crc32];
  
                      [entry appendBytes:&zipCrc32 length:4];
                      [entry appendBytes:&dcmLength length:4];//zipCompressedSize
                      [entry appendBytes:&dcmLength length:4];//zipUncompressedSize
                      [entry appendBytes:&zipNameLength length:4];//0x28
                      [entry appendData:dcmName];
-                     //[entry appendData:extraParam];
+                     //extra param
                      [entry appendData:dcmData];
 
                      completionBlock(entry, nil);
@@ -2063,7 +1901,7 @@ int main(int argc, const char* argv[]) {
                      entryPointer+=dcmLength+70;
                      entriesCount++;
                      [directory appendData:dcmName];
-                     //[directory appendData:extraParam];
+                     //extra param
                  }
                  else if (directory.length) //chunk with directory
                  {
