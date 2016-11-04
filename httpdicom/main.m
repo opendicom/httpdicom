@@ -76,8 +76,6 @@ static NSMutableDictionary *sDate_end;
 static NSMutableDictionary *sModalitiesInStudy;
 static NSMutableDictionary *sStudyDescription;
 
-static NSRunLoop *runLoop;
-
 int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
 {
     NSTask *task=[[NSTask alloc]init];
@@ -114,29 +112,39 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 
 id urlProxy(NSString *urlString,NSString *contentType)
 {
+    NSRunLoop * const runLoop = [NSRunLoop currentRunLoop];
     //ephemeral data task session (response in memory, location temporary)
-    __block bool           __shouldExit = false;
-    __block NSData        *__location;
+    
+    __block bool __shouldExit = false;
+    __block NSData *__data;
     __block NSURLResponse *__response;
-    __block NSError       *__error;
+    __block NSError *__error;
+    
     NSURLSessionConfiguration *URLsessionConfiguration=[NSURLSessionConfiguration ephemeralSessionConfiguration];
-    if (contentType) URLsessionConfiguration.HTTPAdditionalHeaders=@{@"Accept": contentType};
+    
     NSURLSession * const session = [NSURLSession sessionWithConfiguration:URLsessionConfiguration delegate:nil delegateQueue:[NSOperationQueue mainQueue]];
-    NSURLSessionDownloadTask * const task = [session downloadTaskWithURL:[NSURL URLWithString:urlString] completionHandler:^(NSURL *location,NSURLResponse *response, NSError *error){
-            __location=[NSData dataWithContentsOfURL:location];
-            __response=response;
-            __error=error;
-            __shouldExit = true;
-        }
-    ];
-    [task resume];
+    
+    NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    [request setValue:contentType forHTTPHeaderField:@"Accept"];//application/dicom+json not accepted !!!!!
+    
+    
+    NSURLSessionDataTask * const dataTask = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+                                             {
+                                                 __data=data;
+                                                 __response=response;
+                                                 __error=error;
+                                                 __shouldExit = true;
+                                                 NSLog(@"inside: %@",[__response description]);
+                                                 NSLog(@"inside: %@",[__data description]);
+                                             }];
+    [dataTask resume];
     while (!__shouldExit && [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
-    NSLog(@"__response: %@",[__response description]);
-    NSLog(@"__location: %@",[__location description]);
+    if (__shouldExit) NSLog(@"shouldExit==true");
+
     if (__error) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [%@]",urlString,[__error description]];
-    if (!__location.length) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [empty answer %@]",urlString,[__response description]];
+    if ([__data length]==0) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [empty answer %@]",urlString,[__response description]];
     return [GCDWebServerDataResponse
-            responseWithData:__location
+            responseWithData:__data
             contentType:contentType
             ];
 }
@@ -168,7 +176,6 @@ int main(int argc, const char* argv[]) {
      */
     
     @autoreleasepool {
-        runLoop = [NSRunLoop currentRunLoop];
 
         NSArray *args=[[NSProcessInfo processInfo] arguments];
         if ([args count]!=3)
@@ -277,7 +284,7 @@ int main(int argc, const char* argv[]) {
             for (NSString *k in [pacsArray allKeys])
             {
                 NSDictionary *d=[pacsArray objectForKey:k];
-                if ([[d objectForKey:@"pcsi"]isEqualToString:custodianOID])
+                if ([[d objectForKey:@"custodianOID"]isEqualToString:custodianOID])
                 {
                     [custodianTitleaets addObject:[d objectForKey:@"dicomaet"]];
                     [custodianOIDaeis addObject:k];
@@ -460,7 +467,7 @@ int main(int argc, const char* argv[]) {
                  if (q) urlString=[NSString stringWithFormat:@"%@/%@?%@",qidoBaseString,pComponents.lastObject,q];
                  else urlString=[NSString stringWithFormat:@"%@/%@?",qidoBaseString,pComponents.lastObject];
                  GWS_LOG_INFO(@"[QIDO] %@",urlString);
-                 return urlProxy(urlString,@"application/dicom+json");
+                 return urlProxy(urlString,@"application/json");//application/dicom+json not accepted
              }
              
              NSString *sql=destPacs[@"sql"];
