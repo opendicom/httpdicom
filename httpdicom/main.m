@@ -163,17 +163,33 @@ int main(int argc, const char* argv[]) {
     /*
      syntax: httpdicom
      
-     [1] path to oids.plist
-     [2] devOid[0] (OID del dcm4chee-arc-light del PCS)
-     [3] devOid[1] (device, workstation, pacs conectado al PCS local
-     [4] ...
+     [1] puerto
+     [2] path to pacs.plist
      */
     
     @autoreleasepool {
         runLoop = [NSRunLoop currentRunLoop];
 
         NSArray *args=[[NSProcessInfo processInfo] arguments];
-        NSDictionary *pacsArray=[NSDictionary dictionaryWithContentsOfFile:[args[1]stringByExpandingTildeInPath]];
+        if ([args count]!=3)
+        {
+            NSLog(@"syntax: httpdicom port path2pacs.plist");
+            return 1;
+        }
+        long long port=[args[1]longLongValue];
+        
+        if (port <1 || port>65535)
+        {
+            NSLog(@"port should be between 0 and 65535");
+            return 1;
+        }
+        
+        NSDictionary *pacsArray=[NSDictionary dictionaryWithContentsOfFile:[args[2]stringByExpandingTildeInPath]];
+        if (!pacsArray)
+        {
+            NSLog(@"could not get contents of pacs.plist");
+            return 1;
+        }
 
         NSDictionary *pacsCache;
         for (NSString *pacs in pacsArray)
