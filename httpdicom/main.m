@@ -2174,7 +2174,7 @@ int main(int argc, const char* argv[]) {
 */
 
 #pragma mark run
-        [httpdicomServer runWithPort:11111 bonjourName:nil];
+        [httpdicomServer runWithPort:port bonjourName:nil];
         while (true) {
             CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, true);
         }
