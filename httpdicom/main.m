@@ -34,8 +34,7 @@
  You.
  */
 
-#import <Cocoa/Cocoa.h>
-
+#import <Foundation/Foundation.h>
 
 #import "GCDWebServerResponse.h"
 #import "GCDWebServer.h"
@@ -45,6 +44,8 @@
 
 #import "NSString+PCS.h"
 #import "NSData+PCS.h"
+
+#import "URLSessionDataTask.h"
 
 //static immutable write
 static uint32 zipLocalFileHeader=0x04034B50;
@@ -75,6 +76,7 @@ static NSMutableDictionary *sDate_end;
 static NSMutableDictionary *sModalitiesInStudy;
 static NSMutableDictionary *sStudyDescription;
 
+static NSRunLoop *runLoop;
 
 int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
 {
@@ -110,9 +112,54 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
     return terminationStatus;
 }
 
+id urlProxy(NSString *urlString,NSString *contentType)
+{
+    //ephemeral data task session (response in memory, location temporary)
+    __block bool           __shouldExit = false;
+    __block NSData        *__location;
+    __block NSURLResponse *__response;
+    __block NSError       *__error;
+    NSURLSessionConfiguration *URLsessionConfiguration=[NSURLSessionConfiguration ephemeralSessionConfiguration];
+    if (contentType) URLsessionConfiguration.HTTPAdditionalHeaders=@{@"Accept": contentType};
+    NSURLSession * const session = [NSURLSession sessionWithConfiguration:URLsessionConfiguration delegate:nil delegateQueue:[NSOperationQueue mainQueue]];
+    NSURLSessionDownloadTask * const task = [session downloadTaskWithURL:[NSURL URLWithString:urlString] completionHandler:^(NSURL *location,NSURLResponse *response, NSError *error){
+            __location=[NSData dataWithContentsOfURL:location];
+            __response=response;
+            __error=error;
+            __shouldExit = true;
+        }
+    ];
+    [task resume];
+    while (!__shouldExit && [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
+    NSLog(@"__response: %@",[__response description]);
+    NSLog(@"__location: %@",[__location description]);
+    if (__error) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [%@]",urlString,[__error description]];
+    if (!__location.length) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [empty answer %@]",urlString,[__response description]];
+    return [GCDWebServerDataResponse
+            responseWithData:__location
+            contentType:contentType
+            ];
+}
+
+
+id urlStreamedProxy(NSString *urlString,NSString *contentType)
+{
+    //ephemeral data task session (response in memory, location temporary)
+    NSURLSessionConfiguration *URLsessionConfiguration=[NSURLSessionConfiguration ephemeralSessionConfiguration];
+    if (contentType) URLsessionConfiguration.HTTPAdditionalHeaders=@{@"Accept": contentType};
+    
+    URLSessionDataTask *delegate=[[URLSessionDataTask alloc]init];
+    
+    return [delegate proxySession:[NSURLSession sessionWithConfiguration:URLsessionConfiguration
+                                                                delegate:delegate
+                                                           delegateQueue:[NSOperationQueue mainQueue]]
+                              URI:urlString
+                      contentType:contentType
+            ];
+}
+
 int main(int argc, const char* argv[]) {
     BOOL success = NO;
-
     /*
      syntax: httpdicom
      
@@ -123,10 +170,30 @@ int main(int argc, const char* argv[]) {
      */
     
     @autoreleasepool {
+        runLoop = [NSRunLoop currentRunLoop];
 
         NSArray *args=[[NSProcessInfo processInfo] arguments];
-        NSDictionary *devs=[NSDictionary dictionaryWithContentsOfFile:[args[1]stringByExpandingTildeInPath]];
-        
+        NSDictionary *pacsArray=[NSDictionary dictionaryWithContentsOfFile:[args[1]stringByExpandingTildeInPath]];
+
+        NSDictionary *pacsCache;
+        for (NSString *pacs in pacsArray)
+        {
+            if ((pacsArray[pacs])[@"isPacsCache"])
+            {
+                if (pacsCache)
+                {
+                    NSLog(@"more than one pacsCache");
+                    return 1;
+                }
+                pacsCache=pacsArray[pacs];
+            }
+        }
+        if (!pacsCache)
+        {
+            NSLog(@"no pacsCache");
+            return 1;
+        }
+
         /*
          *  DEBUG = 0
          *  VERBOSE = 1
@@ -164,47 +231,48 @@ int main(int argc, const char* argv[]) {
         sStudyDescription=[NSMutableDictionary dictionary];
         
 
-        //orgs y aets
-        NSMutableSet *orgis=[NSMutableSet set];
-        NSMutableSet *orgts=[NSMutableSet set];
+        //custodians y aets
+        NSMutableSet *custodianOIDs=[NSMutableSet set];
+        NSMutableSet *custodianTitles=[NSMutableSet set];
         NSMutableSet *sqlset=[NSMutableSet set];
         
-        for (NSDictionary *d in [devs allValues])
+        for (NSDictionary *dictionary in [pacsArray allValues])
         {
-            [orgis addObject:[d objectForKey:@"pcsi"]];
-            [orgts addObject:[d objectForKey:@"pcst"]];
-            NSString *s=[d objectForKey:@"sql"];
+            [custodianOIDs addObject:[dictionary objectForKey:@"custodianOID"]];
+            [custodianTitles addObject:[dictionary objectForKey:@"custodianTitle"]];
+            NSString *s=[dictionary objectForKey:@"sql"];
             if (s) [sqlset addObject:s];
         }
-        NSArray *orgisArray=[orgis allObjects];
-        NSData *orgisData = [NSJSONSerialization dataWithJSONObject:orgisArray options:0 error:nil];
-        NSArray *orgtsArray=[orgts allObjects];
-        NSData *orgtsData = [NSJSONSerialization dataWithJSONObject:orgtsArray options:0 error:nil];
+        NSArray *custodianOIDsArray=[custodianOIDs allObjects];
+        NSData *custodianOIDsData = [NSJSONSerialization dataWithJSONObject:custodianOIDsArray options:0 error:nil];
+        NSArray *custodianTitlesArray=[custodianTitles allObjects];
+        NSData *custodianTitlesData = [NSJSONSerialization dataWithJSONObject:custodianTitlesArray options:0 error:nil];
 
-        //crear un dictionario con índice orgi y orgt y objeto el json corresondiente de lista de aet o de lista de aei
-        NSMutableDictionary *orgtsaets=[NSMutableDictionary dictionary];
-        NSMutableDictionary *orgisaeis=[NSMutableDictionary dictionary];
-        for (NSString *orgi in orgisArray)
+        //crear un dictionario con índice custodianOID y custodianTitle y objeto el json corresondiente de lista de aet o de lista de aei
+        NSMutableDictionary *custodianTitlesaets=[NSMutableDictionary dictionary];
+        NSMutableDictionary *custodianOIDsaeis=[NSMutableDictionary dictionary];
+        for (NSString *custodianOID in custodianOIDsArray)
         {
-            //para cada org
-            NSString *orgt=[orgtsArray objectAtIndex:[orgisArray indexOfObject:orgi]];
-            NSMutableArray *orgtaets=[NSMutableArray array];
-            NSMutableArray *orgiaeis=[NSMutableArray array];
-            for (NSString *k in [devs allKeys])
+            
+            //para cada custodian
+            NSString *custodianTitle=[custodianTitlesArray objectAtIndex:[custodianOIDsArray indexOfObject:custodianOID]];
+            NSMutableArray *custodianTitleaets=[NSMutableArray array];
+            NSMutableArray *custodianOIDaeis=[NSMutableArray array];
+            for (NSString *k in [pacsArray allKeys])
             {
-                NSDictionary *d=[devs objectForKey:k];
-                if ([[d objectForKey:@"pcsi"]isEqualToString:orgi])
+                NSDictionary *d=[pacsArray objectForKey:k];
+                if ([[d objectForKey:@"pcsi"]isEqualToString:custodianOID])
                 {
-                    [orgtaets addObject:[d objectForKey:@"dicomaet"]];
-                    [orgiaeis addObject:k];
+                    [custodianTitleaets addObject:[d objectForKey:@"dicomaet"]];
+                    [custodianOIDaeis addObject:k];
                 }
             }
-            [orgtsaets setValue:orgtaets forKey:orgt];
-            [orgisaeis setValue:orgiaeis forKey:orgi];
+            [custodianTitlesaets setValue:custodianTitleaets forKey:custodianTitle];
+            [custodianOIDsaeis setValue:custodianOIDaeis forKey:custodianOID];
         }
         NSUInteger devCount=[args count]-2;
         NSArray *devOids=[args subarrayWithRange:NSMakeRange(2,devCount)];
-        NSDictionary *dev0=devs[devOids[0]];
+        NSDictionary *dev0=pacsArray[devOids[0]];
 
         
         NSString *resources=[dev0[@"pcsresources"]stringByExpandingTildeInPath];
@@ -217,8 +285,6 @@ int main(int argc, const char* argv[]) {
         NSString *storescu=[dev0[@"storescu"]stringByExpandingTildeInPath];
         NSArray *storescuArgs=dev0[@"storescuargs"];
         
-        //pcsPort
-        int pcsPort=[[dev0 objectForKey:@"pcsport"]intValue];
         GCDWebServer* httpdicomServer = [[GCDWebServer alloc] init];
         
         //sql configurations
@@ -228,69 +294,312 @@ int main(int argc, const char* argv[]) {
             [sql setObject:[NSDictionary dictionaryWithContentsOfFile:[s stringByExpandingTildeInPath]] forKey:s];
         }
 
-#pragma mark -
+#pragma mark _____________no proxy_____________
+
 #pragma mark no handler for GET
         [httpdicomServer addDefaultHandlerForMethod:@"GET"
          requestClass:[GCDWebServerRequest class]
          processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-             GWS_LOG_WARNING(@"%@ (no handler)",request.path);
+             GWS_LOG_WARNING(@"%@ [no handler]",request.path);
              return [GCDWebServerErrorResponse
-                     responseWithClientError:kGCDWebServerHTTPStatusCode_BadRequest
-                     message:@"%@ (no handler)",request.path];
+                     responseWithClientError:400
+                     message:@"%@ [no handler]",request.path];
          }];
 
-
-#pragma mark qido ( studies | series | instances )
+#pragma mark custodians
         
-        NSRegularExpression *qidoregex = [NSRegularExpression regularExpressionWithPattern:@"^/studies$|^/series$|^/instances$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        [httpdicomServer
+         addHandlerForMethod:@"GET"
+         pathRegularExpression:[NSRegularExpression regularExpressionWithPattern:@"^/custodians/.*$" options:0 error:NULL]
+         requestClass:[GCDWebServerRequest class]
+         processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
+             NSUInteger pCount=[pComponents count];
+             
+             if (pCount<3) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
+             
+             if ([pComponents[2]isEqualToString:@"titles"])
+             {
+                 //custodian/titles
+                 if (pCount==3) return [GCDWebServerDataResponse responseWithData:custodianTitlesData contentType:@"application/json"];
+                 
+                 NSUInteger p3Length = [pComponents[3] length];
+                 if (  (p3Length>16)
+                     ||![SHRegex numberOfMatchesInString:pComponents[3] options:0 range:NSMakeRange(0,p3Length)])
+                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{title} datatype should be DICOM SH]",request.path];
+                 
+                 NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:pComponents[3]];
+                 if (custodianTitleIndex==NSNotFound)
+                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{title} not found]",request.path];
+                 
+                 //custodian/titles/{TITLE}
+                 if (pCount==4) return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[NSArray arrayWithObject:[custodianOIDsArray objectAtIndex:custodianTitleIndex]] options:0 error:nil] contentType:@"application/json"];
+                 
+                 if (![pComponents[4]isEqualToString:@"aets"])
+                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{title} unique resource is 'aets']",request.path];
+                 
+                 //custodian/titles/{title}/aets
+                 if (pCount==5)
+                     return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[custodianTitlesaets objectForKey:pComponents[3]] options:0 error:nil] contentType:@"application/json"];
+
+                 NSUInteger p5Length = [pComponents[5]length];
+                 if (  (p5Length>16)
+                     ||![SHRegex numberOfMatchesInString:pComponents[5] options:0 range:NSMakeRange(0,p5Length)])
+                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{aet}datatype should be DICOM SH]",request.path];
+                 
+                 NSUInteger aetIndex=[[custodianTitlesaets objectForKey:pComponents[3]] indexOfObject:pComponents[5]];
+                 if (aetIndex==NSNotFound)
+                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{aet} not found]",request.path];
+
+                 if (pCount>6) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
+
+                 //custodian/titles/{title}/aets/{aet}
+                     return [GCDWebServerDataResponse responseWithData:
+                             [NSJSONSerialization dataWithJSONObject:
+                              [NSArray arrayWithObject:(custodianOIDsaeis[custodianOIDsArray[custodianTitleIndex]])[aetIndex]]
+                              options:0
+                              error:nil
+                             ]
+                             contentType:@"application/json"
+                            ];
+             }
+             
+             
+             if ([pComponents[2]isEqualToString:@"oids"])
+             {
+                 //custodian/oids
+                 if (pCount==3) return [GCDWebServerDataResponse responseWithData:custodianOIDsData contentType:@"application/json"];
+                 
+                 NSUInteger p3Length = [pComponents[3] length];
+                 if (  (p3Length>64)
+                     ||![UIRegex numberOfMatchesInString:pComponents[3] options:0 range:NSMakeRange(0,p3Length)]
+                     )
+                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{OID} datatype should be DICOM UI]",request.path];
+                 
+                 NSUInteger custodianOIDIndex=[custodianOIDsArray indexOfObject:pComponents[3]];
+                 if (custodianOIDIndex==NSNotFound)
+                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{OID} not found]",request.path];
+                 
+                 //custodian/oids/{OID}
+                 if (pCount==4) return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[NSArray arrayWithObject:[custodianTitlesArray objectAtIndex:custodianOIDIndex]] options:0 error:nil] contentType:@"application/json"];
+                 
+                 if (![pComponents[4]isEqualToString:@"aeis"])
+                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{OID} unique resource is 'aeis']",request.path];
+                 
+                 //custodian/oids/{OID}/aeis
+                 if (pCount==5)
+                     return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[custodianOIDsaeis objectForKey:pComponents[3]] options:0 error:nil] contentType:@"application/json"];
+                 
+                 NSUInteger p5Length = [pComponents[5]length];
+                 if (  (p5Length>64)
+                     ||![UIRegex numberOfMatchesInString:pComponents[5] options:0 range:NSMakeRange(0,p5Length)]
+                     )
+                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{aei}datatype should be DICOM UI]",request.path];
+                 
+                 NSUInteger aeiIndex=[[custodianOIDsaeis objectForKey:pComponents[3]] indexOfObject:pComponents[5]];
+                 if (aeiIndex==NSNotFound)
+                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{aei} not found]",request.path];
+                 
+                 if (pCount>6) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
+                 
+                 //custodian/oids/{OID}/aeis/{aei}
+                 return [GCDWebServerDataResponse responseWithData:
+                         [NSJSONSerialization dataWithJSONObject:
+                          [NSArray arrayWithObject:(custodianTitlesaets[custodianTitlesArray[custodianOIDIndex]])[aeiIndex]]
+                                                         options:0
+                                                           error:nil
+                          ]
+                                                       contentType:@"application/json"
+                         ];
+             }
+             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [no handler]",request.path];
+         }
+         ];
+        
+
+#pragma mark -
+        
+#pragma mark QIDO
+        // /pacs/{oid}/rs/( studies | series | instances )?
+        NSRegularExpression *qidoregex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/rs\\/(studies|series|instances)$" options:NSRegularExpressionCaseInsensitive error:NULL];
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:qidoregex
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-             NSString *q=request.URL.query;
-             NSString *qidoString;
-             if (q) qidoString=[NSString stringWithFormat:@"%@%@?%@",
-                                [dev0 objectForKey:@"qido"],
-                                request.URL.path,
-                                q];
-             else    qidoString=[NSString stringWithFormat:@"%@%@",
-                                 [dev0 objectForKey:@"qido"],
-                                 request.URL.path];
+             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
+             NSDictionary *destPacs=pacsArray[pComponents[2]];
+             if (!destPacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
 
-             GWS_LOG_INFO(@"dev0 qido: %@",qidoString);
-             NSData *responseData=[NSData dataWithContentsOfURL:
-                                   [NSURL URLWithString:qidoString]];
-             if (!responseData) return
-                [GCDWebServerErrorResponse
-                 responseWithClientError:kGCDWebServerHTTPStatusCode_FailedDependency
-                 message:@"dev0 qido: %@",qidoString
-                 ];
+             NSString *q=request.URL.query;//a same param may repeat
+             
+             NSString *qidoBaseString=destPacs[@"qido"];
+             if (![qidoBaseString isEqualToString:@""])
+             {
+                 //local: sesrvicio web qido
+                 NSString *urlString;
+                 if (q) urlString=[NSString stringWithFormat:@"%@/%@?%@",qidoBaseString,pComponents.lastObject,q];
+                 else urlString=[NSString stringWithFormat:@"%@/%@?",qidoBaseString,pComponents.lastObject];
+                 GWS_LOG_INFO(@"[QIDO] %@",urlString);
+                 return urlProxy(urlString,@"application/dicom+json");
+             }
+             
+             NSString *sql=destPacs[@"sql"];
+             if (sql)
+             {
+                 //local ... simulation qido through database access
+#pragma mark TODO QIDO SQL
+             }
+             
+             NSString *pcsurl=destPacs[@"pcsuri"];
+             if (pcsurl)
+             {
+                 //remote... access through another PCS
+                 NSString *urlString;
+                 if (q) urlString=[NSString stringWithFormat:@"%@/%@?%@",
+                                    pcsurl,
+                                    request.path,
+                                    q];
+                 else    urlString=[NSString stringWithFormat:@"%@/%@?",
+                                     pcsurl,
+                                     request.path];
+                 GWS_LOG_INFO(@"[QIDO] %@",urlString);
+                 return urlProxy(urlString,@"application/dicom+json");
+             }
+             
+             
+             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [QIDO not available]",request.path];
+         }];
+        
+        
+#pragma mark WADO-URI
+        NSRegularExpression *wadouriregex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/wado$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:wadouriregex
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
+             NSDictionary *pacs=pacsArray[pComponents[2]];
+             if (!pacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
+             
+             NSString *q=request.URL.query;//a same param may repeat
 
-             if (![responseData length]) return
-             [GCDWebServerErrorResponse
-              responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound
-              message:@"dev0 qido: %@",qidoString
-              ];
-             return [GCDWebServerDataResponse
-                     responseWithData:responseData
-                     contentType:@"application/dicom+json"
-                     ];
-         }
-         ];
+             NSString *wadouriBaseString=pacs[@"wadouri"];
+             if (![wadouriBaseString isEqualToString:@""])
+             {
+                 //local ... there exists an URL
+                 NSString *wadouriString;
+                 if (q) wadouriString=[NSString stringWithFormat:@"%@?%@",
+                                    wadouriBaseString,
+                                    q];
 
+                 GWS_LOG_INFO(@"[WADO-URI] %@",wadouriString);
+                 //no se agrega ningún control para no enlentecer
+                 //podría optimizarse con creación asíncrona de la data
+                 //paquetes entran y salen sin esperar el fin de la entrada...
+                 NSData *responseData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadouriString]];
+                 if (!responseData) return
+                     [GCDWebServerErrorResponse
+                      responseWithClientError:kGCDWebServerHTTPStatusCode_FailedDependency
+                      message:@"no reply"];
+                 
+                 if (![responseData length]) return
+                     [GCDWebServerErrorResponse
+                      responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound
+                      message:@"empty reply"];
+                 return [GCDWebServerDataResponse
+                         responseWithData:responseData
+                         contentType:@"application/dicom"
+                         ];
+             }
+             
+             NSString *pcsurl=pacs[@"pcsuri"];
+             if (pcsurl)
+             {
+                 //remote... access through another PCS
+                 NSString *urlString;
+                 if (q) urlString=[NSString stringWithFormat:@"%@/%@",
+                                   pcsurl,
+                                   request.path];
+                 else    urlString=[NSString stringWithFormat:@"%@/%@",
+                                    pcsurl,
+                                    request.path];
+                 GWS_LOG_INFO(@"[QIDO] %@",urlString);
+                 return urlProxy(urlString,@"application/dicom+json");
+             }
+
+             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [WADO-URI not available]",request.path];
+         }];
+        
+        
+#pragma mark WADO-RS
+        // /pacs/{OID}/studies/{StudyInstanceUID}
+        // /pacs/{OID}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
+        // /pacs/{OID}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}
+        //Accept: multipart/related;type="application/dicom"
+        NSRegularExpression *wadorsregex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/rs\\/studies\\/" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:wadorsregex
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
+             NSDictionary *destPacs=pacsArray[pComponents[2]];
+             if (!destPacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
+
+             NSString *wadorsBaseString=destPacs[@"wadors"];
+             if (![wadorsBaseString isEqualToString:@""])
+             {
+                 //local ... there exists an URI that uses the PACS implementation
+                 NSString *urlString;
+                 if (pComponents.count==6) urlString=[NSString stringWithFormat:@"%@/studies/%@",wadorsBaseString,pComponents[5]];
+                 else if (pComponents.count==8) urlString=[NSString stringWithFormat:@"%@/studies/%@/series/%@", wadorsBaseString,pComponents[5],pComponents[7]];
+                 else if (pComponents.count==10) urlString=[NSString stringWithFormat:@"%@/studies/%@/series/%@/instances/%@", wadorsBaseString,pComponents[5],pComponents[7],pComponents[9]];
+                 else return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [WADO-RS studies and studies/series only]",request.path];
+                 GWS_LOG_INFO(@"[WADO-RS] %@",urlString);
+                 return urlProxy(urlString,@"multipart/related;type=application/dicom");
+             }
+             
+             NSString *sql=destPacs[@"sql"];
+             if (sql)
+             {
+                 //local ... the PCS simulates wadors thanks to a combination of
+                 //database access and wado-url
+#pragma mark TODO WADO-RS SQL
+             }
+             
+             NSString *pcsurl=destPacs[@"pcsuri"];
+             if (pcsurl)
+             {
+                 //when there is neither direct access to pacs implementation nor sql access in order to simulate the function, then we use the proxying services of another PCS accessed through pcsurl
+                 NSString *urlString=[NSString stringWithFormat:@"%@/%@",pcsurl,request.path];
+                 GWS_LOG_INFO(@"[WADO-RS] %@",urlString);
+                 return urlProxy(urlString,@"multipart/related;type=application/dicom");
+             }
+             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [WADO-RS not available]",request.path];
+         }];
+
+#pragma mark -
 #pragma mark datatables/studies
         /*
          query ajax with params:
          agregate 00080090 in other accesible PCS...
          */
-         [httpdicomServer addHandlerForMethod:@"GET"
-                                         path:@"/datatables/studies"
+        NSRegularExpression *datatablesstudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/rs\\/datatables\\/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        [httpdicomServer addHandlerForMethod:@"GET"
+                       pathRegularExpression:datatablesstudiesregex
                                  requestClass:[GCDWebServerRequest class]
                                  processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         {
+            NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
+            
             NSDictionary *q=request.query;
             //NSLog(@"%@",[q description]);
             NSString *session=q[@"session"];
@@ -323,8 +632,8 @@ int main(int argc, const char* argv[]) {
                 || (q[@"username"]    && ![q[@"username"]isEqualToString:r[@"username"]])
                 || (q[@"useroid"]     && ![q[@"useroid"]isEqualToString:r[@"useroid"]])
                 || (session           && ![session isEqualToString:r[@"session"]])
-                || (q[@"org"]         && ![q[@"org"]isEqualToString:r[@"org"]])
-                || (q[@"institution"] && ![q[@"institution"]isEqualToString:r[@"institution"]])
+                || (q[@"custodian"]         && ![q[@"custodian"]isEqualToString:r[@"custodian"]])
+                || (q[@"aet"] && ![q[@"aet"]isEqualToString:r[@"aet"]])
                 || (q[@"role"]        && ![q[@"role"]isEqualToString:r[@"role"]])
                 
                 || (q[@"search[value]"] && ![q[@"search[value]"]isEqualToString:r[@"search[value]"]])
@@ -356,208 +665,218 @@ int main(int argc, const char* argv[]) {
                 )
              {
 #pragma mark --different context
+                 //find dest
+                 NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodian"]];
+                 NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodian"]] indexOfObject:q[@"aet"]];
+                 NSDictionary *pacsDest=pacsArray[(custodianOIDsaeis[custodianOIDsArray[custodianTitleIndex]])[aetIndex]];
                  
-                 NSLog(@"different context with db:%@",dev0[@"sql"]);
-                 NSDictionary *thisSql=sql[dev0[@"sql"]];
-
-                 if (r){
-                     //replace previous request of the session.
-                     [Req removeObjectForKey:session];
-                     [Total removeObjectForKey:session];
-                     [Filtered removeObjectForKey:session];
-                     [Date removeObjectForKey:session];
-                     if(sPatientID[@"session"])[sPatientID removeObjectForKey:session];
-                     if(sPatientName[@"session"])[sPatientName removeObjectForKey:session];
-                     //if(sStudyDate[@"session"])[sStudyDate removeObjectForKey:session];
-                     if(sDate_start[@"session"])[sDate_start removeObjectForKey:session];
-                     if(sDate_end[@"session"])[sDate_end removeObjectForKey:session];
-                     if(sModalitiesInStudy[@"session"])[sModalitiesInStudy removeObjectForKey:session];
-                     if(sStudyDescription[@"session"])[sStudyDescription removeObjectForKey:session];
-
-                 }
-                 [Req setObject:q forKey:session];
-                 [Date setObject:[NSDate date] forKey:session];
-                 if(qPatientID)[sPatientID setObject:qPatientID forKey:session];
-                 if(qPatientName)[sPatientName setObject:qPatientName forKey:session];
-                 //if(qStudyDate)[sStudyDate setObject:qStudyDate forKey:session];
-                 if(qDate_start)[sDate_start setObject:qDate_start forKey:session];
-                 if(qDate_end)[sDate_end setObject:qDate_end forKey:session];
-                 if(qModalitiesInStudy)[sModalitiesInStudy setObject:qModalitiesInStudy forKey:session];
-                 if(qStudyDescription)[sStudyDescription setObject:qStudyDescription forKey:session];
-                 
-//create the queries
-//TODO: add PEP
-                 
-//WHERE study.rejection_state!=2    (or  1=1)
-//following filters use formats like " AND a like 'b'"
-                 NSMutableString *studiesWhere=[NSMutableString stringWithString:thisSql[@"studiesWhere"]];
-
-                 if (q[@"search[value]"] && ![q[@"search[value]"] isEqualToString:@""])
-                 {
-                     //AccessionNumber q[@"search[value]"]
-                     [studiesWhere appendString:
-                      [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
-                                       fieldString:thisSql[@"AccessionNumber"]
-                                       valueString:q[@"search[value]"]
-                       ]
-                      ];
-                 }
+                 NSDictionary *destSql=sql[pacsDest[@"sql"]];
+                 if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
                  else
                  {
-                     if(qPatientID && [qPatientID length])
+                     //local ... simulation qido through database access
+
+                     NSLog(@"different context with db: %@",destPacs[@"sql"]);
+
+                     if (r){
+                         //replace previous request of the session.
+                         [Req removeObjectForKey:session];
+                         [Total removeObjectForKey:session];
+                         [Filtered removeObjectForKey:session];
+                         [Date removeObjectForKey:session];
+                         if(sPatientID[@"session"])[sPatientID removeObjectForKey:session];
+                         if(sPatientName[@"session"])[sPatientName removeObjectForKey:session];
+                         //if(sStudyDate[@"session"])[sStudyDate removeObjectForKey:session];
+                         if(sDate_start[@"session"])[sDate_start removeObjectForKey:session];
+                         if(sDate_end[@"session"])[sDate_end removeObjectForKey:session];
+                         if(sModalitiesInStudy[@"session"])[sModalitiesInStudy removeObjectForKey:session];
+                         if(sStudyDescription[@"session"])[sStudyDescription removeObjectForKey:session];
+
+                     }
+                     [Req setObject:q forKey:session];
+                     [Date setObject:[NSDate date] forKey:session];
+                     if(qPatientID)[sPatientID setObject:qPatientID forKey:session];
+                     if(qPatientName)[sPatientName setObject:qPatientName forKey:session];
+                     //if(qStudyDate)[sStudyDate setObject:qStudyDate forKey:session];
+                     if(qDate_start)[sDate_start setObject:qDate_start forKey:session];
+                     if(qDate_end)[sDate_end setObject:qDate_end forKey:session];
+                     if(qModalitiesInStudy)[sModalitiesInStudy setObject:qModalitiesInStudy forKey:session];
+                     if(qStudyDescription)[sStudyDescription setObject:qStudyDescription forKey:session];
+                     
+    //create the queries
+    //TODO: add PEP
+                     
+    //WHERE study.rejection_state!=2    (or  1=1)
+    //following filters use formats like " AND a like 'b'"
+                     NSMutableString *studiesWhere=[NSMutableString stringWithString:destSql[@"studiesWhere"]];
+
+                     if (q[@"search[value]"] && ![q[@"search[value]"] isEqualToString:@""])
                      {
+                         //AccessionNumber q[@"search[value]"]
                          [studiesWhere appendString:
-                          [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                           fieldString:thisSql[@"PatientID"]
-                                           valueString:qPatientID
+                          [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
+                                           fieldString:destSql[@"AccessionNumber"]
+                                           valueString:q[@"search[value]"]
                            ]
                           ];
                      }
-
-                     if(qPatientName && [qPatientName length])
+                     else
                      {
-                         //PatientName _00100010 Nombre
-                         NSArray *patientNameComponents=[qPatientName componentsSeparatedByString:@"^"];
-                         NSUInteger patientNameCount=[patientNameComponents count];
-                         
-                         [studiesWhere appendString:
-                          [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                           fieldString:(thisSql[@"PatientName"])[0]
-                                           valueString:patientNameComponents[0]
-                           ]
-                          ];
-                         
-                         if (patientNameCount > 1)
+                         if(qPatientID && [qPatientID length])
                          {
                              [studiesWhere appendString:
                               [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                               fieldString:(thisSql[@"PatientName"])[1]
-                                               valueString:patientNameComponents[1]
+                                               fieldString:destSql[@"PatientID"]
+                                               valueString:qPatientID
                                ]
                               ];
+                         }
 
-                             if (patientNameCount > 2)
+                         if(qPatientName && [qPatientName length])
+                         {
+                             //PatientName _00100010 Nombre
+                             NSArray *patientNameComponents=[qPatientName componentsSeparatedByString:@"^"];
+                             NSUInteger patientNameCount=[patientNameComponents count];
+                             
+                             [studiesWhere appendString:
+                              [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
+                                               fieldString:(destSql[@"PatientName"])[0]
+                                               valueString:patientNameComponents[0]
+                               ]
+                              ];
+                             
+                             if (patientNameCount > 1)
                              {
                                  [studiesWhere appendString:
                                   [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                                   fieldString:(thisSql[@"PatientName"])[2]
-                                                   valueString:patientNameComponents[2]
+                                                   fieldString:(destSql[@"PatientName"])[1]
+                                                   valueString:patientNameComponents[1]
                                    ]
                                   ];
 
-                                 if (patientNameCount > 3)
+                                 if (patientNameCount > 2)
                                  {
                                      [studiesWhere appendString:
                                       [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                                       fieldString:(thisSql[@"PatientName"])[3]
-                                                       valueString:patientNameComponents[3]
+                                                       fieldString:(destSql[@"PatientName"])[2]
+                                                       valueString:patientNameComponents[2]
                                        ]
                                       ];
 
-                                     if (patientNameCount > 4)
+                                     if (patientNameCount > 3)
                                      {
                                          [studiesWhere appendString:
                                           [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                                           fieldString:(thisSql[@"PatientName"])[4]
-                                                           valueString:patientNameComponents[4]
+                                                           fieldString:(destSql[@"PatientName"])[3]
+                                                           valueString:patientNameComponents[3]
                                            ]
                                           ];
+
+                                         if (patientNameCount > 4)
+                                         {
+                                             [studiesWhere appendString:
+                                              [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
+                                                               fieldString:(destSql[@"PatientName"])[4]
+                                                               valueString:patientNameComponents[4]
+                                               ]
+                                              ];
+                                         }
                                      }
                                  }
                              }
                          }
+
+                         if(
+                              (qDate_start && [qDate_start length])
+                            ||(qDate_end && [qDate_end length])
+                            )
+                         {
+                             //StudyDate _00080020 aaaammdd,-aaaammdd,aaaammdd-,aaaammdd-aaaammdd
+                             
+                             if ([qDate_start isEqualToString:qDate_end])
+                             {
+                                 //no hyphen
+                                 [studiesWhere appendFormat:@" AND %@ = '%@'", destSql[@"StudyDate"], qDate_start];
+                             }
+                             else if (!qDate_start || [qDate_start isEqualToString:@""])
+                             {
+                                 //until
+                                 [studiesWhere appendFormat:@" AND %@ <= '%@'", destSql[@"StudyDate"], qDate_end];
+                             }
+                             else if (!qDate_end || [qDate_end isEqualToString:@""])
+                             {
+                                 //since
+                                 [studiesWhere appendFormat:@" AND %@ <= '%@'", destSql[@"StudyDate"], qDate_start];
+                             }
+                             else
+                             {
+                                 //inbetween
+                                 [studiesWhere appendFormat:@" AND %@ >= '%@'", destSql[@"StudyDate"], qDate_start];
+                                 [studiesWhere appendFormat:@" AND %@ <= '%@'", destSql[@"StudyDate"], qDate_end];
+                             }
+                         }
+
+                         if(qModalitiesInStudy && [qModalitiesInStudy length] && ![qModalitiesInStudy isEqualToString:@"*"])
+                         {
+                             //ModalitiesInStudy _00080061 Modalidades (coma separated)
+                             [studiesWhere appendFormat:@" AND %@ like '%%%@%%'", destSql[@"ModalitiesInStudy"], qModalitiesInStudy];
+                         }
+
+                         if(qStudyDescription && [qStudyDescription length])
+                         {
+                             //StudyDescription _00081030 Descripción
+                             [studiesWhere appendString:
+                              [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
+                                               fieldString:destSql[@"StudyDescription"]
+                                               valueString:qStudyDescription
+                               ]
+                              ];
+                          }
                      }
+                     
 
-                     if(
-                          (qDate_start && [qDate_start length])
-                        ||(qDate_end && [qDate_end length])
-                        )
-                     {
-                         //StudyDate _00080020 aaaammdd,-aaaammdd,aaaammdd-,aaaammdd-aaaammdd
-                         
-                         if ([qDate_start isEqualToString:qDate_end])
-                         {
-                             //no hyphen
-                             [studiesWhere appendFormat:@" AND %@ = '%@'", thisSql[@"StudyDate"], qDate_start];
-                         }
-                         else if (!qDate_start || [qDate_start isEqualToString:@""])
-                         {
-                             //until
-                             [studiesWhere appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], qDate_end];
-                         }
-                         else if (!qDate_end || [qDate_end isEqualToString:@""])
-                         {
-                             //since
-                             [studiesWhere appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], qDate_start];
-                         }
-                         else
-                         {
-                             //inbetween
-                             [studiesWhere appendFormat:@" AND %@ >= '%@'", thisSql[@"StudyDate"], qDate_start];
-                             [studiesWhere appendFormat:@" AND %@ <= '%@'", thisSql[@"StudyDate"], qDate_end];
-                         }
-                     }
-
-                     if(qModalitiesInStudy && [qModalitiesInStudy length] && ![qModalitiesInStudy isEqualToString:@"*"])
-                     {
-                         //ModalitiesInStudy _00080061 Modalidades (coma separated)
-                         [studiesWhere appendFormat:@" AND %@ like '%%%@%%'", thisSql[@"ModalitiesInStudy"], qModalitiesInStudy];
-                     }
-
-                     if(qStudyDescription && [qStudyDescription length])
-                     {
-                         //StudyDescription _00081030 Descripción
-                         [studiesWhere appendString:
-                          [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                           fieldString:thisSql[@"StudyDescription"]
-                                           valueString:qStudyDescription
-                           ]
-                          ];
-                      }
-                 }
-                 
-
-                 NSLog(@"SQL: %@",studiesWhere);
-                 
-//2 execute count
-                 NSMutableData *countData=[NSMutableData data];
-                 int countResult=task(@"/bin/bash",
-                                 @[@"-s"],
-                                      [[[thisSql[@"studiesCountProlog"]
-                                        stringByAppendingString:studiesWhere]
-                                        stringByAppendingString:thisSql[@"studiesCountEpilog"]]
-                                        dataUsingEncoding:NSUTF8StringEncoding],
-                                 countData
-                                 );
-                 if (!countResult) [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"%@",@"can not access the db"];
-
-                 NSString *countString=[[NSString alloc]initWithData:countData encoding:NSUTF8StringEncoding];
-                 
-                 // max (max records filtered para evitar que filtros insuficientes devuelvan casi todos los registros... lo que devolvería un resultado inútil.
-                 recordsTotal=[countString intValue];
-                 int maxCount=[q[@"max"]intValue];
-                 NSLog(@"total:%d, max:%d",recordsTotal,maxCount);
-                 if (recordsTotal > maxCount) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %d matches. %d matches were found",maxCount, recordsTotal]] contentType:@"application/dicom+json"];
-                 
-                 
-                 if (!recordsTotal) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"your filer returned zero match"] contentType:@"application/dicom+json"];
-                 else
-                 {
-                     //order is performed later, from mutableDictionary
-//3 select
-                     NSMutableData *studiesData=[NSMutableData data];
-                     int studiesResult=task(@"/bin/bash",
-                                          @[@"-s"],
-                                          [[[thisSql[@"datatablesStudiesProlog"]
+                     NSLog(@"SQL: %@",studiesWhere);
+                     
+    //2 execute count
+                     NSMutableData *countData=[NSMutableData data];
+                     int countResult=task(@"/bin/bash",
+                                     @[@"-s"],
+                                          [[[destSql[@"studiesCountProlog"]
                                             stringByAppendingString:studiesWhere]
-                                            stringByAppendingFormat:thisSql[@"datatablesStudiesEpilog"],session,session]
+                                            stringByAppendingString:destSql[@"studiesCountEpilog"]]
                                             dataUsingEncoding:NSUTF8StringEncoding],
-                                          studiesData
-                                          );
-                     NSMutableArray *studiesArray=[NSJSONSerialization JSONObjectWithData:studiesData options:NSJSONReadingMutableContainers error:nil];
+                                     countData
+                                     );
+                     if (!countResult) [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"%@",@"can not access the db"];
 
-                     [Total setObject:studiesArray forKey:session];
-                     [Filtered setObject:[studiesArray mutableCopy] forKey:session];
+                     NSString *countString=[[NSString alloc]initWithData:countData encoding:NSUTF8StringEncoding];
+                     
+                     // max (max records filtered para evitar que filtros insuficientes devuelvan casi todos los registros... lo que devolvería un resultado inútil.
+                     recordsTotal=[countString intValue];
+                     int maxCount=[q[@"max"]intValue];
+                     NSLog(@"total:%d, max:%d",recordsTotal,maxCount);
+                     if (recordsTotal > maxCount) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %d matches. %d matches were found",maxCount, recordsTotal]] contentType:@"application/dicom+json"];
+                     
+                     
+                     if (!recordsTotal) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"your filer returned zero match"] contentType:@"application/dicom+json"];
+                     else
+                     {
+                         //order is performed later, from mutableDictionary
+    //3 select
+                         NSMutableData *studiesData=[NSMutableData data];
+                         int studiesResult=task(@"/bin/bash",
+                                              @[@"-s"],
+                                              [[[destSql[@"datatablesStudiesProlog"]
+                                                stringByAppendingString:studiesWhere]
+                                                stringByAppendingFormat:destSql[@"datatablesStudiesEpilog"],session,session]
+                                                dataUsingEncoding:NSUTF8StringEncoding],
+                                              studiesData
+                                              );
+                         NSMutableArray *studiesArray=[NSJSONSerialization JSONObjectWithData:studiesData options:NSJSONReadingMutableContainers error:nil];
+
+                         [Total setObject:studiesArray forKey:session];
+                         [Filtered setObject:[studiesArray mutableCopy] forKey:session];
+                     }
                  }
              }//end diferent context
             else
@@ -672,7 +991,6 @@ int main(int argc, const char* argv[]) {
                     }
                 }
             }
-            
 #pragma mark --order
             if (q[@"order[0][column]"] && q[@"order[0][dir]"])
             {
@@ -720,8 +1038,7 @@ int main(int argc, const char* argv[]) {
                      responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:resp]
                      contentType:@"application/dicom+json"
                      ];
-         }
-         ];
+         }];
 
 #pragma mark datatables/patient
         /*
@@ -743,11 +1060,12 @@ int main(int argc, const char* argv[]) {
              
              //WHERE study.rejection_state!=2    (or  1=1)
              //following filters use formats like " AND a like 'b'"
-             NSDictionary *thisSql=sql[dev0[@"sql"]];
-             NSMutableString *studiesWhere=[NSMutableString stringWithString:thisSql[@"studiesWhere"]];
+             
+             NSDictionary *destSql=sql[destPacs[@"sql"]];
+             NSMutableString *studiesWhere=[NSMutableString stringWithString:destSql[@"studiesWhere"]];
              [studiesWhere appendString:
               [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
-                               fieldString:thisSql[@"PatientID"]
+                               fieldString:destSql[@"PatientID"]
                                valueString:q[@"PatientID"]
                ]
               ];
@@ -756,9 +1074,9 @@ int main(int argc, const char* argv[]) {
              NSMutableData *studiesData=[NSMutableData data];
              int studiesResult=task(@"/bin/bash",
                                     @[@"-s"],
-                                    [[[thisSql[@"datatablesStudiesProlog"]
+                                    [[[destSql[@"datatablesStudiesProlog"]
                                        stringByAppendingString:studiesWhere]
-                                      stringByAppendingFormat:thisSql[@"datatablesStudiesEpilog"],session,session]
+                                      stringByAppendingFormat:destSql[@"datatablesStudiesEpilog"],session,session]
                                      dataUsingEncoding:NSUTF8StringEncoding],
                                     studiesData
                                     );
@@ -796,18 +1114,18 @@ int main(int argc, const char* argv[]) {
              if (!session || [session isEqualToString:@""]) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
              
              NSString *where;
-             NSDictionary *thisSql=sql[dev0[@"sql"]];
-             NSString *seriesWhere=thisSql[@"seriesWhere"];
+             NSDictionary *destSql=sql[destPacs[@"sql"]];
+             NSString *seriesWhere=destSql[@"seriesWhere"];
              NSString *AccessionNumber=q[@"AccessionNumber"];
              NSString *StudyInstanceUID=q[@"StudyInstanceUID"];
              if (AccessionNumber && ![AccessionNumber isEqualToString:@"NULL"])
              {
                  NSString *IssuerOfAccessionNumber=q[@"IssuerOfAccessionNumber.UniversalEntityID"];
-                 if (IssuerOfAccessionNumber && ![IssuerOfAccessionNumber isEqualToString:@"NULL"]) where=[NSString stringWithFormat:@"%@ AND %@='%@' AND %@='%@'", thisSql[@"seriesWhere"],thisSql[@"AccessionNumber"],AccessionNumber,thisSql[@"IssuerOfAccessionNumber"],IssuerOfAccessionNumber];
-                 else where=[NSString stringWithFormat:@"%@ AND %@='%@'",thisSql[@"seriesWhere"],thisSql[@"AccessionNumber"],AccessionNumber];
+                 if (IssuerOfAccessionNumber && ![IssuerOfAccessionNumber isEqualToString:@"NULL"]) where=[NSString stringWithFormat:@"%@ AND %@='%@' AND %@='%@'", destSql[@"seriesWhere"],destSql[@"AccessionNumber"],AccessionNumber,destSql[@"IssuerOfAccessionNumber"],IssuerOfAccessionNumber];
+                 else where=[NSString stringWithFormat:@"%@ AND %@='%@'",destSql[@"seriesWhere"],destSql[@"AccessionNumber"],AccessionNumber];
                      
              }
-             else if (StudyInstanceUID && ![StudyInstanceUID isEqualToString:@"NULL"]) where=[NSString stringWithFormat:@"%@ AND %@='%@'",thisSql[@"seriesWhere"],thisSql[@"StudyInstanceUID"],@"StudyInstanceUID"];
+             else if (StudyInstanceUID && ![StudyInstanceUID isEqualToString:@"NULL"]) where=[NSString stringWithFormat:@"%@ AND %@='%@'",destSql[@"seriesWhere"],destSql[@"StudyInstanceUID"],@"StudyInstanceUID"];
              else return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'AccessionNumber' or 'StudyInstanceUID' parameter"] contentType:@"application/dicom+json"];
              
              
@@ -816,9 +1134,9 @@ int main(int argc, const char* argv[]) {
              NSMutableData *seriesData=[NSMutableData data];
              int seriesResult=task(@"/bin/bash",
                                     @[@"-s"],
-                                    [[[thisSql[@"datatablesSeriesProlog"]
+                                    [[[destSql[@"datatablesSeriesProlog"]
                                        stringByAppendingString:where]
-                                      stringByAppendingFormat:thisSql[@"datatablesSeriesEpilog"],session,session]
+                                      stringByAppendingFormat:destSql[@"datatablesSeriesEpilog"],session,session]
                                      dataUsingEncoding:NSUTF8StringEncoding],
                                     seriesData
                                     );
@@ -837,52 +1155,7 @@ int main(int argc, const char* argv[]) {
                      ];
          }
          ];
-
         
-//#pragma mark zipped wadoRS studies series instances
-//zipped/studies/{StudyInstanceUID}
-//zipped/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
-//zipped/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}
-
-        
-#pragma mark wadorsProxy
-//studies/{StudyInstanceUID}
-//studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
-//studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}
-//Accept: multipart/related;type="application/dicom"
-        NSRegularExpression *wadorsregex = [NSRegularExpression regularExpressionWithPattern:@"studies/" options:NSRegularExpressionCaseInsensitive error:NULL];
-
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:wadorsregex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             NSString *wadorsString=[[dev0 objectForKey:@"wadors"] stringByAppendingString:request.URL.path];
-             GWS_LOG_INFO(@"dev0 wadors: %@",wadorsString);
-             
-             //request, response and error
-             NSMutableURLRequest *wadorsRequest=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:wadorsString] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
-             //https://developer.apple.com/reference/foundation/nsurlrequestcachepolicy?language=objc
-             [wadorsRequest setHTTPMethod:@"GET"];
-             [wadorsRequest setValue:@"multipart/related;type=application/dicom" forHTTPHeaderField:@"Accept"];
-             NSHTTPURLResponse *response=nil;
-             //URL properties: expectedContentLength, MIMEType, textEncodingName
-             //HTTP properties: statusCode, allHeaderFields
-             NSError *error=nil;
-             
-             
-             NSData *data=[NSURLConnection sendSynchronousRequest:wadorsRequest
-                                                returningResponse:&response
-                                                            error:&error];
-
-             if ((response.statusCode==200) && [data length]) return [GCDWebServerDataResponse
-                     responseWithData:data
-                     contentType:@"multipart/related;type=application/dicom"
-                     ];
-
-             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@",[error description]];
-         }
-         ];
 
         
 #pragma mark applicable
@@ -1032,203 +1305,6 @@ int main(int argc, const char* argv[]) {
          }
          ];
 
-        
-
-#pragma mark metadata
-//studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/metadata
-
-        NSRegularExpression *metadataregex = [NSRegularExpression regularExpressionWithPattern:@"/metadata$" options:NSRegularExpressionCaseInsensitive error:NULL];
-
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:metadataregex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             GWS_LOG_INFO(@"dev0 metadata: %@",request.URL.path);
-             NSString *metadataString=[NSString stringWithFormat:
-                                       @"%@%@",
-                                       [dev0 objectForKey:@"wadors"],
-                                       request.URL.path
-                                       ];
-
-             NSData *responseData=[NSData dataWithContentsOfURL:[NSURL URLWithString:metadataString]];
-             if (!responseData) return
-             [GCDWebServerErrorResponse
-              responseWithClientError:kGCDWebServerHTTPStatusCode_FailedDependency
-              message:@"dev0 metadata: %@",metadataString
-              ];
-             
-             if (![responseData length]) return
-             [GCDWebServerErrorResponse
-              responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound
-              message:@"dev0 metadata: %@",metadataString
-              ];
-             return [GCDWebServerDataResponse
-                     responseWithData:responseData
-                       contentType:@"application/dicom+json"
-                     ];
-         }
-         ];
-#pragma mark dicom wado-uri
-        NSRegularExpression *wadouriregex = [NSRegularExpression regularExpressionWithPattern:@"^/$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:wadouriregex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             NSString *wadouriString=[NSString stringWithFormat:@"%@?%@",[dev0 objectForKey:@"wadouri"],request.URL.query];
-             //no se agrega ningún control para no enlentecer
-             //podría optimizarse con creación asíncrona de la data
-             //paquetes entran y salen sin esperar el fin de la entrada...
-             GWS_LOG_INFO(@"dev0 wadouri: %@",wadouriString);
-             NSData *responseData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadouriString]];
-             if (!responseData) return
-                 [GCDWebServerErrorResponse
-                  responseWithClientError:kGCDWebServerHTTPStatusCode_FailedDependency
-                  message:@"dev0 wadouri: %@",wadouriString
-                  ];
-             
-             if (![responseData length]) return
-                 [GCDWebServerErrorResponse
-                  responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound
-                  message:@"dev0 wadouri: %@",wadouriString
-                  ];
-             return [GCDWebServerDataResponse
-                     responseWithData:responseData
-                     contentType:@"application/dicom"
-                     ];
-         }
-         ];
-        
-
-#pragma mark -
-#pragma mark _____________LAN dicom_____________
-//#pragma mark wado-uri
-        /*
-        NSRegularExpression *dicomwadoregex = [NSRegularExpression regularExpressionWithPattern:@"^/.*" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:dicomwadoregex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
-                                    NSURL *requestURL=request.URL;
-                                    NSString *bSlash=requestURL.baseURL.absoluteString;
-                                    NSString *b=[bSlash substringToIndex:[bSlash length]-1];
-                                    NSString *p=requestURL.path;
-                                    NSString *q=requestURL.query;
-                                    GWS_LOG_INFO(@"no handler for:(%@) %@%@?%@",request.method,b,p,q);
-                                    return [GCDWebServerDataResponse responseWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:@"http://opendicom.com"]] contentType:@"text/html"];
-                                }
-         ];
-         */
-/*
-#pragma mark studies
-        //studies
-        
-        NSRegularExpression *dicomstudiesqidoregex = [NSRegularExpression regularExpressionWithPattern:@"studies" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-#pragma mark series
-        //series
-        
-        NSRegularExpression *dicomseriesqidoregex = [NSRegularExpression regularExpressionWithPattern:@"series" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-#pragma mark instances
-        //instances
-        
-        NSRegularExpression *dicominstancesqidoregex = [NSRegularExpression regularExpressionWithPattern:@"instances" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-#pragma mark studies/
-        //studies/{StudyInstanceUID}
-        
-        NSRegularExpression *dicomstudieswadoregex = [NSRegularExpression regularExpressionWithPattern:@"studies/" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        
-#pragma mark series/
-        //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
-        
-        NSRegularExpression *dicomserieswadoregex = [NSRegularExpression regularExpressionWithPattern:@"/series/" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-#pragma mark cda
-        //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/cda
-        
-        NSRegularExpression *dicomcdaregex = [NSRegularExpression regularExpressionWithPattern:@"/cda$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-#pragma mark encapsulated
-        //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/encapsulated
-        
-        NSRegularExpression *dicomencapsulatedregex = [NSRegularExpression regularExpressionWithPattern:@"/encapsulated$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-#pragma mark metadata
-        //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/metadata
-        
-        NSRegularExpression *diocmmetadataregex = [NSRegularExpression regularExpressionWithPattern:@"/metadata$" options:NSRegularExpressionCaseInsensitive error:NULL];
- */
-#pragma mark -
-#pragma mark _____________WAN dicomweb_____________
-//#pragma mark wado-uri
-        
-        /*
-        NSRegularExpression *remotowadoregex = [NSRegularExpression regularExpressionWithPattern:@"^/.*" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:remotowadoregex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
-                                    NSURL *requestURL=request.URL;
-                                    NSString *bSlash=requestURL.baseURL.absoluteString;
-                                    NSString *b=[bSlash substringToIndex:[bSlash length]-1];
-                                    NSString *p=requestURL.path;
-                                    NSString *q=requestURL.query;
-                                    GWS_LOG_INFO(@"no handler for:(%@) %@%@?%@",request.method,b,p,q);
-                                    return [GCDWebServerDataResponse responseWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:@"http://opendicom.com"]] contentType:@"text/html"];
-                                }
-         ];
-         */
-/*
-#pragma mark studies
-        //studies
-        
-        NSRegularExpression *remotostudiesqidoregex = [NSRegularExpression regularExpressionWithPattern:@"studies" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-#pragma mark series
-        //series
-        
-        NSRegularExpression *remotoseriesqidoregex = [NSRegularExpression regularExpressionWithPattern:@"series" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-#pragma mark instances
-        //instances
-        
-        NSRegularExpression *remotoinstancesqidoregex = [NSRegularExpression regularExpressionWithPattern:@"instances" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-#pragma mark studies/
-        //studies/{StudyInstanceUID}
-        
-        NSRegularExpression *remotostudieswadoregex = [NSRegularExpression regularExpressionWithPattern:@"studies/" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        
-#pragma mark series/
-        //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
-        
-        NSRegularExpression *remotoserieswadoregex = [NSRegularExpression regularExpressionWithPattern:@"/series/" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-#pragma mark cda
-        //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/cda
-        
-        NSRegularExpression *remotocdaregex = [NSRegularExpression regularExpressionWithPattern:@"/cda$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-#pragma mark encapsulated
-        //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/encapsulated
-        
-        NSRegularExpression *remotoencapsulatedregex = [NSRegularExpression regularExpressionWithPattern:@"/encapsulated$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-#pragma mark metadata
-        //studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/metadata
-        
-        NSRegularExpression *remotometadataregex = [NSRegularExpression regularExpressionWithPattern:@"/metadata$" options:NSRegularExpressionCaseInsensitive error:NULL];
-*/
-
-#pragma mark -
 #pragma mark _____________IID_____________
 #pragma mark    /bir/weasis
 //-----------------------------------------------------------------
@@ -1275,7 +1351,7 @@ int main(int argc, const char* argv[]) {
                  ) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing requestType param in %@%@?%@",b,p,requestURL.query]];
  
              //session
-             NSString *devAdditionalParameters=(devs[q[@"custodianUID"]])[@"wadoadditionalparameters"];
+             NSString *devAdditionalParameters=(pacs[q[@"custodianUID"]])[@"wadoadditionalparameters"];
              NSString *additionalParameters;
              if(q[@"session"])
              {
@@ -1292,7 +1368,7 @@ int main(int argc, const char* argv[]) {
              
              //find URI of custodianUID
              NSString *custodianURI;
-             if (q[@"custodianUID"]) custodianURI=(devs[q[@"custodianUID"]])[@"pcsurl"];
+             if (q[@"custodianUID"]) custodianURI=(pacs[q[@"custodianUID"]])[@"pcsurl"];
              else custodianURI=@"";
              
              //redirect to specific manifest
@@ -1484,14 +1560,14 @@ int main(int argc, const char* argv[]) {
              NSString *p=requestURL.path;
              NSString *q=requestURL.query;
              
-             NSDictionary *thisSql=sql[dev0[@"sql"]];
+             NSDictionary *destSql=sql[destPacs[@"sql"]];
              NSString *sqlString;
              NSString *AccessionNumber=request.query[@"AccessionNumber"];
-             if (AccessionNumber)sqlString=[NSString stringWithFormat:thisSql[@"manifestWeasisStudyAccessionNumber"],AccessionNumber];
+             if (AccessionNumber)sqlString=[NSString stringWithFormat:destSql[@"manifestWeasisStudyAccessionNumber"],AccessionNumber];
              else
              {
                  NSString *StudyInstanceUID=request.query[@"StudyInstanceUID"];
-                 if (StudyInstanceUID)sqlString=[NSString stringWithFormat:thisSql[@"manifestWeasisStudyStudyInstanceUID"],StudyInstanceUID];
+                 if (StudyInstanceUID)sqlString=[NSString stringWithFormat:destSql[@"manifestWeasisStudyStudyInstanceUID"],StudyInstanceUID];
                  else return [GCDWebServerErrorResponse responseWithClientError:404 message:
                               @"parameter AccessionNumber or StudyInstanceUID required in %@%@?%@",b,p,q];
              }
@@ -1569,7 +1645,7 @@ int main(int argc, const char* argv[]) {
                              NSMutableData *seriesData=[NSMutableData data];
                              int seriesResult=task(@"/bin/bash",
                                                     @[@"-s"],
-                                                    [[NSString stringWithFormat:thisSql[@"manifestWeasisSeriesStudyInstanceUID"],studyInstance[5]]
+                                                    [[NSString stringWithFormat:destSql[@"manifestWeasisSeriesStudyInstanceUID"],studyInstance[5]]
                                                      dataUsingEncoding:NSUTF8StringEncoding],
                                                     seriesData
                                                     );
@@ -1590,7 +1666,7 @@ int main(int argc, const char* argv[]) {
                                  NSMutableData *instanceData=[NSMutableData data];
                                  int instanceResult=task(@"/bin/bash",
                                                        @[@"-s"],
-                                                       [[NSString stringWithFormat:thisSql[@"manifestWeasisInstanceSeriesInstanceUID"],seriesInstance[0]]
+                                                       [[NSString stringWithFormat:destSql[@"manifestWeasisInstanceSeriesInstanceUID"],seriesInstance[0]]
                                                         dataUsingEncoding:NSUTF8StringEncoding],
                                                        instanceData
                                                        );
@@ -1634,12 +1710,12 @@ int main(int argc, const char* argv[]) {
              NSString *p=requestURL.path;
              NSString *q=requestURL.query;
              
-             NSDictionary *thisSql=sql[dev0[@"sql"]];
+             NSDictionary *destSql=sql[destPacs[@"sql"]];
              NSString *sqlString;
  
              NSString *StudyInstanceUID=[p componentsSeparatedByString:@"/"][3];
              NSString *SeriesInstanceUID=request.query[@"SeriesInstanceUID"];
-                 if (StudyInstanceUID && SeriesInstanceUID)sqlString=[NSString stringWithFormat:thisSql[@"manifestWeasisSeriesStudyInstanceUIDSeriesInstanceUID"],StudyInstanceUID,SeriesInstanceUID];
+                 if (StudyInstanceUID && SeriesInstanceUID)sqlString=[NSString stringWithFormat:destSql[@"manifestWeasisSeriesStudyInstanceUIDSeriesInstanceUID"],StudyInstanceUID,SeriesInstanceUID];
                  else return [GCDWebServerErrorResponse responseWithClientError:404 message:
                               @"parameters StudyInstanceUID and SeriesInstanceUID required in %@%@?%@",b,p,q];
              
@@ -1665,7 +1741,7 @@ int main(int argc, const char* argv[]) {
              NSMutableData *studiesData=[NSMutableData data];
              int studiesResult=task(@"/bin/bash",
                                     @[@"-s"],
-                                    [[NSString stringWithFormat:thisSql[@"manifestWeasisStudyStudyInstanceUID"],StudyInstanceUID] dataUsingEncoding:NSUTF8StringEncoding],
+                                    [[NSString stringWithFormat:destSql[@"manifestWeasisStudyStudyInstanceUID"],StudyInstanceUID] dataUsingEncoding:NSUTF8StringEncoding],
                                     studiesData
                                     );
              NSMutableArray *studyArray=[NSJSONSerialization JSONObjectWithData:studiesData options:0 error:nil];
@@ -1745,7 +1821,7 @@ int main(int argc, const char* argv[]) {
                              NSMutableData *instanceData=[NSMutableData data];
                              int instanceResult=task(@"/bin/bash",
                                                      @[@"-s"],
-                                                     [[NSString stringWithFormat:thisSql[@"manifestWeasisInstanceSeriesInstanceUID"],seriesInstance[0]]
+                                                     [[NSString stringWithFormat:destSql[@"manifestWeasisInstanceSeriesInstanceUID"],seriesInstance[0]]
                                                       dataUsingEncoding:NSUTF8StringEncoding],
                                                      instanceData
                                                      );
@@ -1944,7 +2020,7 @@ int main(int argc, const char* argv[]) {
              NSString *q=requestURL.query;
              NSMutableArray *pComponent=[NSMutableArray arrayWithArray:[p componentsSeparatedByString:@"/"]];
              NSString *oid=[NSString stringWithString:pComponent[2]];
-             NSString *oidURLString=[[devs objectForKey:oid]objectForKey:@"pcsurl"];
+             NSString *oidURLString=[[pacs objectForKey:oid]objectForKey:@"pcsurl"];
              if (oidURLString){
                  [pComponent removeObjectAtIndex:2];
                  [pComponent removeObjectAtIndex:1];
@@ -1991,23 +2067,6 @@ int main(int argc, const char* argv[]) {
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-/*             //qido,wado,stow?
-             //protocolo?
-             if ([request.method isEqualToString:@"POST"])
-             {
-                 //probable stow
-             }
-             else if ([pComponents count]==4)
-             {
-                 //probable //qido studies, series or instances
-             }
-             else if ([pComponents count]==3)
-             {
-                 //probable wado-uri
-             }
-*/
-             
-             
              //request parts logging
              NSURL *requestURL=request.URL;
              NSString *bSlash=requestURL.baseURL.absoluteString;
@@ -2061,161 +2120,9 @@ int main(int argc, const char* argv[]) {
           }
          ];
 
-#pragma mark -
-#pragma mark orgs y aets
-
-        NSRegularExpression *orgtsRegex = [NSRegularExpression regularExpressionWithPattern:@"^/orgts.*$" options:0 error:NULL];
-
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:orgtsRegex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             NSURL *requestURL=request.URL;
-             NSString *p=requestURL.path;
-             NSMutableArray *pComponents=(NSMutableArray*)[p componentsSeparatedByString:@"/"];
-             NSUInteger pCount=[pComponents count];
-             if (![pComponents[1] isEqualToString:@"orgts"])
-             {
-                 return [GCDWebServerErrorResponse responseWithClientError:404 message:@"service '%@' not found",pComponents[1]];
-             }
-             if (pCount==2)
-             {
-//orgts
-                 return [GCDWebServerDataResponse responseWithData:orgtsData contentType:@"application/json"];
-             }
-             
-             NSUInteger lOrg = [pComponents[2]length];
-             if (  (lOrg>16)
-                 ||![SHRegex numberOfMatchesInString:pComponents[2] options:0 range:NSMakeRange(0,lOrg)]
-                 )
-                 return [GCDWebServerErrorResponse responseWithClientError:404 message:@"org titles should conform to DICOM SH datatype. '%@' doesn´t.",pComponents[2]];
-
-             NSUInteger orgtIndex=[orgtsArray indexOfObject:pComponents[2]];
-             if (orgtIndex==NSNotFound)
-                 return [GCDWebServerErrorResponse responseWithClientError:404 message:@"org '%@' not found",pComponents[2]];
-
-             if (pCount==3)
-             {
-                 NSData *orgiData = [NSJSONSerialization dataWithJSONObject:[NSArray arrayWithObject:[orgisArray objectAtIndex:orgtIndex]] options:0 error:nil];
-                 return [GCDWebServerDataResponse responseWithData:orgiData contentType:@"application/json"];
-             }
-//pCount>3
-             if (![pComponents[3]isEqualToString:@"aets"])
-                 return [GCDWebServerErrorResponse responseWithClientError:404 message:@"third component of the path '%@' should be 'aets'",p];
-
-//orgts/{title}/aets
-             if (pCount==4)
-                 return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[orgtsaets objectForKey:pComponents[2]] options:0 error:nil] contentType:@"application/json"];
-//pCount>4
-             NSUInteger lAet = [pComponents[4]length];
-             if (  (lAet>16)
-                 ||![SHRegex numberOfMatchesInString:pComponents[4] options:0 range:NSMakeRange(0,lAet)]
-                 )
-                 return [GCDWebServerErrorResponse responseWithClientError:404 message:@"ae titles should conform to DICOM SH datatype. '%@' doesn´t.",pComponents[4]];
-
-             if (pCount==5)
-             {
-//orgts/{title}/aets/{title}
-                 NSUInteger aetIndex=[[orgtsaets objectForKey:pComponents[2]] indexOfObject:pComponents[4]];
-                 if (aetIndex==NSNotFound)
-                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"aet '%@' not found",pComponents[4]];
-                 return [GCDWebServerDataResponse responseWithData:
-                             [NSJSONSerialization dataWithJSONObject:
-                              [NSArray arrayWithObject:
-                               [
-                                [orgisaeis objectForKey:
-                                 [orgisArray objectAtIndex:orgtIndex]
-                                 ]
-                                objectAtIndex:aetIndex
-                                ]
-                               ] options:0 error:nil
-                              ]
-                              contentType:@"application/json"
-                             ];
-             }
-             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"too many segments in path '%@'",p];
-         }
-         ];
-        
-        
-        NSRegularExpression *orgisRegex = [NSRegularExpression regularExpressionWithPattern:@"^/orgis.*$" options:0 error:NULL];
-        
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:orgisRegex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             NSURL *requestURL=request.URL;
-             NSString *p=requestURL.path;
-             NSMutableArray *pComponents=(NSMutableArray*)[p componentsSeparatedByString:@"/"];
-             NSUInteger pCount=[pComponents count];
-             if (![pComponents[1] isEqualToString:@"orgis"])
-             {
-                 return [GCDWebServerErrorResponse responseWithClientError:404 message:@"service '%@' not found",pComponents[1]];
-             }
-             if (pCount==2)
-             {
-//orgis
-                 return [GCDWebServerDataResponse responseWithData:orgisData contentType:@"application/json"];
-             }
-             
-             NSUInteger lOrg = [pComponents[2]length];
-             if (  (lOrg>64)
-                 ||![UIRegex numberOfMatchesInString:pComponents[2] options:0 range:NSMakeRange(0,lOrg)]
-                 )
-                 return [GCDWebServerErrorResponse responseWithClientError:404 message:@"org titles should conform to DICOM UI datatype. '%@' doesn´t.",pComponents[2]];
-             
-             NSUInteger orgiIndex=[orgisArray indexOfObject:pComponents[2]];
-             if (orgiIndex==NSNotFound)
-                 return [GCDWebServerErrorResponse responseWithClientError:404 message:@"org '%@' not found",pComponents[2]];
-             
-             if (pCount==3)
-             {
-//orgis/{oid}
-                 NSData *orgtData = [NSJSONSerialization dataWithJSONObject:[NSArray arrayWithObject:[orgtsArray objectAtIndex:orgiIndex]] options:0 error:nil];
-                 return [GCDWebServerDataResponse responseWithData:orgtData contentType:@"application/json"];
-             }
-//pCount>3
-             if (![pComponents[3]isEqualToString:@"aeis"])
-                 return [GCDWebServerErrorResponse responseWithClientError:404 message:@"third component of the path '%@' should be 'aeis'",p];
-             
-//orgis/{oid}/aeis
-             if (pCount==4)
-                 return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[orgisaeis objectForKey:pComponents[2]] options:0 error:nil] contentType:@"application/json"];
-//pCount>4
-             NSUInteger lAet = [pComponents[4]length];
-             if (  (lAet>64)
-                 ||![UIRegex numberOfMatchesInString:pComponents[4] options:0 range:NSMakeRange(0,lAet)]
-                 )
-                 return [GCDWebServerErrorResponse responseWithClientError:404 message:@"ae titles should conform to DICOM UI datatype. '%@' doesn´t.",pComponents[4]];
-             
-             if (pCount==5)
-             {
-                 NSUInteger aeiIndex=[[orgisaeis objectForKey:pComponents[2]] indexOfObject:pComponents[4]];
-                 if (aeiIndex==NSNotFound)
-                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"aei '%@' not found",pComponents[4]];
-//orgis/{oid}/aeis/{oid}
-                 return [GCDWebServerDataResponse responseWithData:
-                         [NSJSONSerialization dataWithJSONObject:
-                          [NSArray arrayWithObject:
-                           [
-                            [orgtsaets objectForKey:
-                             [orgtsArray objectAtIndex:orgiIndex]
-                             ]
-                            objectAtIndex:aeiIndex
-                            ]
-                           ] options:0 error:nil
-                          ]
-                          contentType:@"application/json"
-                         ];
-             }
-             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"too many segments in path '%@'",p];
-         }
-         ];
 
 #pragma mark run
-        [httpdicomServer runWithPort:pcsPort bonjourName:nil];
+        [httpdicomServer runWithPort:11111 bonjourName:nil];
         while (true) {
             CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, true);
         }

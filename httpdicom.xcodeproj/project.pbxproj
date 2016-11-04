@@ -26,7 +26,6 @@
 		2A1322ED1C87C89E00C4DB43 /* GCDWebServerErrorResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A1322EC1C87C89E00C4DB43 /* GCDWebServerErrorResponse.m */; };
 		2A1322EF1C87C8A900C4DB43 /* GCDWebServerFileResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A1322EE1C87C8A900C4DB43 /* GCDWebServerFileResponse.m */; };
 		2A1322F11C87C8B000C4DB43 /* GCDWebServerStreamedResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A1322F01C87C8B000C4DB43 /* GCDWebServerStreamedResponse.m */; };
-		2A31F5E61C87295A00A78C7C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A31F5E51C87295A00A78C7C /* Foundation.framework */; };
 		2A31F5FB1C87302600A78C7C /* GCDWebServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A31F5FA1C87302600A78C7C /* GCDWebServer.h */; };
 		2A31F5FD1C87303700A78C7C /* GCDWebServerConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A31F5FC1C87303700A78C7C /* GCDWebServerConnection.h */; };
 		2A31F5FF1C87304C00A78C7C /* GCDWebServerPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A31F5FE1C87304C00A78C7C /* GCDWebServerPrivate.h */; };
@@ -116,6 +115,9 @@
 		4AAB26771D8A42A400401FD5 /* zconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AAB26711D8A42A400401FD5 /* zconf.h */; };
 		4AAB26781D8A42A400401FD5 /* zlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AAB26721D8A42A400401FD5 /* zlib.h */; };
 		4AAB26791D8A42A400401FD5 /* LFCGzipUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AAB26731D8A42A400401FD5 /* LFCGzipUtility.h */; };
+		4AEF37841DC8678000CDA008 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A31F5E51C87295A00A78C7C /* Foundation.framework */; };
+		4AEF37871DC8D6C800CDA008 /* URLSessionDataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AEF37851DC8D6C800CDA008 /* URLSessionDataTask.h */; };
+		4AEF37881DC8D6C800CDA008 /* URLSessionDataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AEF37861DC8D6C800CDA008 /* URLSessionDataTask.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -414,6 +416,8 @@
 		4AAB26721D8A42A400401FD5 /* zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zlib.h; path = httpdicom/zlib.h; sourceTree = SOURCE_ROOT; };
 		4AAB26731D8A42A400401FD5 /* LFCGzipUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LFCGzipUtility.h; path = httpdicom/LFCGzipUtility.h; sourceTree = SOURCE_ROOT; };
 		4AAB26741D8A42A400401FD5 /* BIRproxy.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; name = BIRproxy.1; path = httpdicom/BIRproxy.1; sourceTree = SOURCE_ROOT; };
+		4AEF37851DC8D6C800CDA008 /* URLSessionDataTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = URLSessionDataTask.h; path = httpdicom/URLSessionDataTask.h; sourceTree = SOURCE_ROOT; };
+		4AEF37861DC8D6C800CDA008 /* URLSessionDataTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = URLSessionDataTask.m; path = httpdicom/URLSessionDataTask.m; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -421,6 +425,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AEF37841DC8678000CDA008 /* Foundation.framework in Frameworks */,
 				4A492E761CC65F7700A5A52D /* dcm4che-tool-storescu-3.3.7.jar in Frameworks */,
 				4A492E451CC65F7700A5A52D /* dcm4che-conf-api-3.3.7.jar in Frameworks */,
 				4A492E6E1CC65F7700A5A52D /* dcm4che-tool-movescu-3.3.7.jar in Frameworks */,
@@ -465,7 +470,6 @@
 				4A492E501CC65F7700A5A52D /* dcm4che-json-3.3.7.jar in Frameworks */,
 				4A492E7A1CC65F7700A5A52D /* dcm4che-tool-wadors-3.3.7.jar in Frameworks */,
 				4A492E811CC65F7700A5A52D /* javax.json-1.0.4.jar in Frameworks */,
-				2A31F5E61C87295A00A78C7C /* Foundation.framework in Frameworks */,
 				4A492E4E1CC65F7700A5A52D /* dcm4che-imageio-3.3.7.jar in Frameworks */,
 				4A492E681CC65F7700A5A52D /* dcm4che-tool-ianscp-3.3.7.jar in Frameworks */,
 				4A492E461CC65F7700A5A52D /* dcm4che-conf-core-3.3.7.jar in Frameworks */,
@@ -591,6 +595,8 @@
 				4A09D59B1DAD142800D18CDE /* NSString+PCS.m */,
 				4A09D59E1DAEE59000D18CDE /* NSData+PCS.h */,
 				4A09D59F1DAEE59000D18CDE /* NSData+PCS.m */,
+				4AEF37851DC8D6C800CDA008 /* URLSessionDataTask.h */,
+				4AEF37861DC8D6C800CDA008 /* URLSessionDataTask.m */,
 			);
 			name = httpdicom;
 			path = IIDproxy;
@@ -1251,6 +1257,7 @@
 				2A1322D81C87C7AC00C4DB43 /* GCDWebServerDataResponse.h in Headers */,
 				2A1322DA1C87C7B300C4DB43 /* GCDWebServerErrorResponse.h in Headers */,
 				2A1322DC1C87C7BC00C4DB43 /* GCDWebServerFileResponse.h in Headers */,
+				4AEF37871DC8D6C800CDA008 /* URLSessionDataTask.h in Headers */,
 				4AAB26771D8A42A400401FD5 /* zconf.h in Headers */,
 				2A1322DF1C87C7D600C4DB43 /* GCDWebServerStreamedResponse.h in Headers */,
 				4A09D5A01DAEE59000D18CDE /* NSData+PCS.h in Headers */,
@@ -1320,6 +1327,7 @@
 				2A1322E51C87C87A00C4DB43 /* GCDWebServerFileRequest.m in Sources */,
 				2A1322E71C87C88400C4DB43 /* GCDWebServerMultiPartFormRequest.m in Sources */,
 				2A1322E91C87C88E00C4DB43 /* GCDWebServerURLEncodedFormRequest.m in Sources */,
+				4AEF37881DC8D6C800CDA008 /* URLSessionDataTask.m in Sources */,
 				4AAB26751D8A42A400401FD5 /* main.m in Sources */,
 				4AA28D2E1D94569400B223CA /* README.md in Sources */,
 				2A1322EB1C87C89700C4DB43 /* GCDWebServerDataResponse.m in Sources */,
@@ -1419,6 +1427,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/lib",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = httpdicom;
 			};
 			name = Debug;
@@ -1437,6 +1446,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/lib",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = httpdicom;
 			};
 			name = Release;
