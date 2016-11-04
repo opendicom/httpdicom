@@ -138,15 +138,26 @@ id urlProxy(NSString *urlString,NSString *contentType)
                                                  NSLog(@"inside: %@",[__data description]);
                                              }];
     [dataTask resume];
-    while (!__shouldExit && [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
-    if (__shouldExit) NSLog(@"shouldExit==true");
-
-    if (__error) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [%@]",urlString,[__error description]];
-    if ([__data length]==0) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [empty answer %@]",urlString,[__response description]];
-    return [GCDWebServerDataResponse
-            responseWithData:__data
-            contentType:contentType
-            ];
+    
+    return [GCDWebServerStreamedResponse responseWithContentType:contentType asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock)
+    {
+        if (!__shouldExit)
+        {
+            while (!__shouldExit && [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
+            if (__shouldExit) NSLog(@"shouldExit==true");
+            if (__error)
+            {
+                NSLog(@"%@",[__error description]);
+                completionBlock(nil, nil);
+            }
+            else completionBlock(__data, nil);
+        }
+        else completionBlock([NSData data], nil);
+        //if (__error) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [%@]",urlString,[__error description]];
+        //if ([__data length]==0) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [empty answer %@]",urlString,[__response description]];
+        //return [GCDWebServerDataResponse responseWithData:__data contentType:contentType ];
+        
+    }];
 }
 
 
