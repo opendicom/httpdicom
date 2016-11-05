@@ -112,51 +112,40 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 
 id urlProxy(NSString *urlString,NSString *contentType)
 {
-    NSRunLoop * const runLoop = [NSRunLoop currentRunLoop];
-    //ephemeral data task session (response in memory, location temporary)
-    
+    dispatch_semaphore_t __urlProxySemaphore = dispatch_semaphore_create(0);
     __block bool __shouldExit = false;
     __block NSData *__data;
     __block NSURLResponse *__response;
     __block NSError *__error;
-    
-    NSURLSessionConfiguration *URLsessionConfiguration=[NSURLSessionConfiguration ephemeralSessionConfiguration];
-    
-    NSURLSession * const session = [NSURLSession sessionWithConfiguration:URLsessionConfiguration delegate:nil delegateQueue:[NSOperationQueue mainQueue]];
+    __block NSDate *__date;
+    __block unsigned long __chunks;
     
     NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     [request setValue:contentType forHTTPHeaderField:@"Accept"];//application/dicom+json not accepted !!!!!
     
     
-    NSURLSessionDataTask * const dataTask = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
-                                             {
-                                                 __data=data;
-                                                 __response=response;
-                                                 __error=error;
-                                                 __shouldExit = true;
-                                                 NSLog(@"inside: %@",[__response description]);
-                                                 NSLog(@"inside: %@",[__data description]);
-                                             }];
+    NSURLSessionDataTask * const dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+    {
+        __data=data;
+        __response=response;
+        __error=error;
+        dispatch_semaphore_signal(__urlProxySemaphore);
+    }];
+    __date=[NSDate date];
     [dataTask resume];
     
+    dispatch_semaphore_wait(__urlProxySemaphore, DISPATCH_TIME_FOREVER);
     return [GCDWebServerStreamedResponse responseWithContentType:contentType asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock)
     {
-        if (!__shouldExit)
+        if (__error) completionBlock(nil,__error);
+        if (__shouldExit)
         {
-            while (!__shouldExit && [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
-            if (__shouldExit) NSLog(@"shouldExit==true");
-            if (__error)
-            {
-                NSLog(@"%@",[__error description]);
-                completionBlock(nil, nil);
-            }
-            else completionBlock(__data, nil);
+            completionBlock([NSData data], nil);
+            NSLog(@"%f milliseconds for %lu chunks", [[NSDate date] timeIntervalSinceDate:__date],__chunks);
         }
-        else completionBlock([NSData data], nil);
-        //if (__error) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [%@]",urlString,[__error description]];
-        //if ([__data length]==0) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [empty answer %@]",urlString,[__response description]];
-        //return [GCDWebServerDataResponse responseWithData:__data contentType:contentType ];
-        
+        else completionBlock(__data, nil);
+        __shouldExit=true;
+        __chunks++;
     }];
 }
 
