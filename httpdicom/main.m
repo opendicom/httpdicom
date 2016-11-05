@@ -112,7 +112,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 
 id urlProxy(NSString *urlString,NSString *contentType)
 {
-    dispatch_semaphore_t __urlProxySemaphore = dispatch_semaphore_create(0);
+    __block dispatch_semaphore_t __urlProxySemaphore = dispatch_semaphore_create(0);
     __block bool __shouldExit = false;
     __block NSData *__data;
     __block NSURLResponse *__response;
@@ -137,14 +137,18 @@ id urlProxy(NSString *urlString,NSString *contentType)
     dispatch_semaphore_wait(__urlProxySemaphore, DISPATCH_TIME_FOREVER);
     return [GCDWebServerStreamedResponse responseWithContentType:contentType asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock)
     {
-        if (__error) completionBlock(nil,__error);
         if (__shouldExit)
         {
             completionBlock([NSData data], nil);
-            NSLog(@"%f milliseconds for %lu chunks", [[NSDate date] timeIntervalSinceDate:__date],__chunks);
+            GWS_LOG_VERBOSE(@"%lu chunk(s), %f ms for URL %@",
+                         __chunks,
+                         [[NSDate date] timeIntervalSinceDate:__date],
+                         urlString);
+            GWS_LOG_DEBUG(@"%@",[__response description]);
         }
-        else completionBlock(__data, nil);
-        __shouldExit=true;
+        else if (__error) completionBlock(nil,__error);
+        else if (__data.length)completionBlock(__data, nil);
+        else __shouldExit=true;
         __chunks++;
     }];
 }
@@ -225,7 +229,7 @@ int main(int argc, const char* argv[]) {
          *  ERROR = 4
          *  EXCEPTION = 5
          */
-        [GCDWebServer setLogLevel:2];
+        [GCDWebServer setLogLevel:0];
         
         NSDateFormatter *dicomDTFormatter = [[NSDateFormatter alloc] init];
         [dicomDTFormatter setDateFormat:@"yyyyMMddHHmmss"];
@@ -466,7 +470,6 @@ int main(int argc, const char* argv[]) {
                  NSString *urlString;
                  if (q) urlString=[NSString stringWithFormat:@"%@/%@?%@",qidoBaseString,pComponents.lastObject,q];
                  else urlString=[NSString stringWithFormat:@"%@/%@?",qidoBaseString,pComponents.lastObject];
-                 GWS_LOG_INFO(@"[QIDO] %@",urlString);
                  return urlProxy(urlString,@"application/json");//application/dicom+json not accepted
              }
              
