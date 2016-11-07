@@ -7,7 +7,6 @@
 //
 @import Foundation;
 
-NS_ASSUME_NONNULL_BEGIN
 typedef void (^CompletionHandler)();
 
 @interface URLSessionDataTask : NSObject <NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
@@ -19,8 +18,20 @@ typedef void (^CompletionHandler)();
 //, NSURLSessionDownloadDelegate, NSURLSessionStreamDelegate
 @property NSMutableDictionary <NSString *, CompletionHandler>*completionHandlers;
 
+- (void)URLSession:(NSURLSession *)session
+              task:(NSURLSessionTask *)task
+didCompleteWithError:(NSError *)error;
+
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveData:(NSData *)data;
+/*
+ Because the NSData object is often pieced together from a number of different data objects, whenever possible, use NSData’s enumerateByteRangesUsingBlock: method to iterate through the data rather than using the bytes method (which flattens the NSData object into a single memory block).
+ 
+ This delegate method may be called more than once, and each call provides only data received since the previous call. The app is responsible for accumulating this data if needed.
 
 -(id)proxySession:(NSURLSession*)session URI:(NSString*)urlString contentType:(NSString*)contentType;
+*/
+
 
 @end
-NS_ASSUME_NONNULL_END

@@ -11,6 +11,20 @@
 
 @implementation URLSessionDataTask
 
+- (void)URLSession:(NSURLSession *)session
+              task:(NSURLSessionTask *)task
+didCompleteWithError:(NSError *)error
+{
+}
+
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveData:(NSData *)data
+{
+    if (data.length) [dataPile addObject:data];
+    else [dataPile addObject:dataEnd];    
+}
+
 -(id)proxySession:(NSURLSession*)session URI:(NSString*)urlString contentType:(NSString*)contentType
 {
     dataPile=[NSMutableArray array];
@@ -34,33 +48,4 @@
     return response;
 }
 
-- (void)URLSession:(NSURLSession *)session
-          dataTask:(NSURLSessionDataTask *)dataTask
-    didReceiveData:(NSData *)data
-{
-    if (data.length) [dataPile addObject:data];
-    else [dataPile addObject:dataEnd];
-}
-/*
-- (void)URLSession:(NSURLSession *)session
-          dataTask:(NSURLSessionDataTask *)dataTask
- willCacheResponse:(NSCachedURLResponse *)proposedResponse
- completionHandler:(void (^)(NSCachedURLResponse *cachedResponse))completionHandler
-{
-    
-}
-*/
-
-/*
-- (void)URLSession:(NSURLSession *)session
-      downloadTask:(NSURLSessionDownloadTask *)downloadTask
-didFinishDownloadingToURL:(NSURL *)location
-{
-     location
-     A file URL for the temporary file. Because the file is temporary, you must either open the file for reading or move it to a permanent location in your app’s sandbox container directory before returning from this delegate method.
-     
-     If you choose to open the file for reading, you should do the actual reading in another thread to avoid blocking the delegate queue.
- 
-}
-*/
 @end
