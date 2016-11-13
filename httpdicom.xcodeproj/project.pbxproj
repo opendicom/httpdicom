@@ -36,78 +36,10 @@
 		2A31F60F1C87315E00A78C7C /* GCDWebServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A31F60E1C87315E00A78C7C /* GCDWebServerConnection.m */; };
 		2A31F6111C87317800A78C7C /* GCDWebServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A31F6101C87317800A78C7C /* GCDWebServer.m */; };
 		2A6C518A1C8DCF7C00424729 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6C51891C8DCF7C00424729 /* libz.tbd */; };
-		4A09D59C1DAD142800D18CDE /* NSString+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A09D59A1DAD142700D18CDE /* NSString+PCS.h */; };
-		4A09D59D1DAD142800D18CDE /* NSString+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A09D59B1DAD142800D18CDE /* NSString+PCS.m */; };
-		4A09D5A01DAEE59000D18CDE /* NSData+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A09D59E1DAEE59000D18CDE /* NSData+PCS.h */; };
-		4A09D5A11DAEE59000D18CDE /* NSData+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A09D59F1DAEE59000D18CDE /* NSData+PCS.m */; };
-		4A492E421CC65F7700A5A52D /* clibwrapper_jiio-1.2-pre-dr-b04.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DE81CC65F7700A5A52D /* clibwrapper_jiio-1.2-pre-dr-b04.jar */; };
-		4A492E431CC65F7700A5A52D /* commons-cli-1.2.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DE91CC65F7700A5A52D /* commons-cli-1.2.jar */; };
-		4A492E441CC65F7700A5A52D /* dcm4che-audit-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DEA1CC65F7700A5A52D /* dcm4che-audit-3.3.7.jar */; };
-		4A492E451CC65F7700A5A52D /* dcm4che-conf-api-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DEB1CC65F7700A5A52D /* dcm4che-conf-api-3.3.7.jar */; };
-		4A492E461CC65F7700A5A52D /* dcm4che-conf-core-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DEC1CC65F7700A5A52D /* dcm4che-conf-core-3.3.7.jar */; };
-		4A492E471CC65F7700A5A52D /* dcm4che-conf-core-api-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DED1CC65F7700A5A52D /* dcm4che-conf-core-api-3.3.7.jar */; };
-		4A492E481CC65F7700A5A52D /* dcm4che-conf-dicom-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DEE1CC65F7700A5A52D /* dcm4che-conf-dicom-3.3.7.jar */; };
-		4A492E491CC65F7700A5A52D /* dcm4che-core-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DEF1CC65F7700A5A52D /* dcm4che-core-3.3.7.jar */; };
-		4A492E4A1CC65F7700A5A52D /* dcm4che-emf-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DF01CC65F7700A5A52D /* dcm4che-emf-3.3.7.jar */; };
-		4A492E4B1CC65F7700A5A52D /* dcm4che-filecache-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DF11CC65F7700A5A52D /* dcm4che-filecache-3.3.7.jar */; };
-		4A492E4C1CC65F7700A5A52D /* dcm4che-hl7-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DF21CC65F7700A5A52D /* dcm4che-hl7-3.3.7.jar */; };
-		4A492E4D1CC65F7700A5A52D /* dcm4che-image-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DF31CC65F7700A5A52D /* dcm4che-image-3.3.7.jar */; };
-		4A492E4E1CC65F7700A5A52D /* dcm4che-imageio-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DF41CC65F7700A5A52D /* dcm4che-imageio-3.3.7.jar */; };
-		4A492E4F1CC65F7700A5A52D /* dcm4che-imageio-rle-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DF51CC65F7700A5A52D /* dcm4che-imageio-rle-3.3.7.jar */; };
-		4A492E501CC65F7700A5A52D /* dcm4che-json-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DF61CC65F7700A5A52D /* dcm4che-json-3.3.7.jar */; };
-		4A492E511CC65F7700A5A52D /* dcm4che-mime-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DF71CC65F7700A5A52D /* dcm4che-mime-3.3.7.jar */; };
-		4A492E521CC65F7700A5A52D /* dcm4che-net-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DF81CC65F7700A5A52D /* dcm4che-net-3.3.7.jar */; };
-		4A492E531CC65F7700A5A52D /* dcm4che-net-audit-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DF91CC65F7700A5A52D /* dcm4che-net-audit-3.3.7.jar */; };
-		4A492E541CC65F7700A5A52D /* dcm4che-net-hl7-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DFA1CC65F7700A5A52D /* dcm4che-net-hl7-3.3.7.jar */; };
-		4A492E551CC65F7700A5A52D /* dcm4che-soundex-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DFB1CC65F7700A5A52D /* dcm4che-soundex-3.3.7.jar */; };
-		4A492E561CC65F7700A5A52D /* dcm4che-tool-common-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DFC1CC65F7700A5A52D /* dcm4che-tool-common-3.3.7.jar */; };
-		4A492E571CC65F7700A5A52D /* dcm4che-tool-dcm2dcm-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DFD1CC65F7700A5A52D /* dcm4che-tool-dcm2dcm-3.3.7.jar */; };
-		4A492E581CC65F7700A5A52D /* dcm4che-tool-dcm2jpg-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DFE1CC65F7700A5A52D /* dcm4che-tool-dcm2jpg-3.3.7.jar */; };
-		4A492E591CC65F7700A5A52D /* dcm4che-tool-dcm2json-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492DFF1CC65F7700A5A52D /* dcm4che-tool-dcm2json-3.3.7.jar */; };
-		4A492E5A1CC65F7700A5A52D /* dcm4che-tool-dcm2xml-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E001CC65F7700A5A52D /* dcm4che-tool-dcm2xml-3.3.7.jar */; };
-		4A492E5B1CC65F7700A5A52D /* dcm4che-tool-dcmdict-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E011CC65F7700A5A52D /* dcm4che-tool-dcmdict-3.3.7.jar */; };
-		4A492E5C1CC65F7700A5A52D /* dcm4che-tool-dcmdir-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E021CC65F7700A5A52D /* dcm4che-tool-dcmdir-3.3.7.jar */; };
-		4A492E5D1CC65F7700A5A52D /* dcm4che-tool-dcmdump-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E031CC65F7700A5A52D /* dcm4che-tool-dcmdump-3.3.7.jar */; };
-		4A492E5E1CC65F7700A5A52D /* dcm4che-tool-dcmgen-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E041CC65F7700A5A52D /* dcm4che-tool-dcmgen-3.3.7.jar */; };
-		4A492E5F1CC65F7700A5A52D /* dcm4che-tool-dcmqrscp-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E051CC65F7700A5A52D /* dcm4che-tool-dcmqrscp-3.3.7.jar */; };
-		4A492E601CC65F7700A5A52D /* dcm4che-tool-dcmvalidate-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E061CC65F7700A5A52D /* dcm4che-tool-dcmvalidate-3.3.7.jar */; };
-		4A492E611CC65F7700A5A52D /* dcm4che-tool-emf2sf-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E071CC65F7700A5A52D /* dcm4che-tool-emf2sf-3.3.7.jar */; };
-		4A492E621CC65F7700A5A52D /* dcm4che-tool-findscu-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E081CC65F7700A5A52D /* dcm4che-tool-findscu-3.3.7.jar */; };
-		4A492E631CC65F7700A5A52D /* dcm4che-tool-getscu-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E091CC65F7700A5A52D /* dcm4che-tool-getscu-3.3.7.jar */; };
-		4A492E641CC65F7700A5A52D /* dcm4che-tool-hl72xml-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E0A1CC65F7700A5A52D /* dcm4che-tool-hl72xml-3.3.7.jar */; };
-		4A492E651CC65F7700A5A52D /* dcm4che-tool-hl7pix-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E0B1CC65F7700A5A52D /* dcm4che-tool-hl7pix-3.3.7.jar */; };
-		4A492E661CC65F7700A5A52D /* dcm4che-tool-hl7rcv-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E0C1CC65F7700A5A52D /* dcm4che-tool-hl7rcv-3.3.7.jar */; };
-		4A492E671CC65F7700A5A52D /* dcm4che-tool-hl7snd-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E0D1CC65F7700A5A52D /* dcm4che-tool-hl7snd-3.3.7.jar */; };
-		4A492E681CC65F7700A5A52D /* dcm4che-tool-ianscp-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E0E1CC65F7700A5A52D /* dcm4che-tool-ianscp-3.3.7.jar */; };
-		4A492E691CC65F7700A5A52D /* dcm4che-tool-ianscu-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E0F1CC65F7700A5A52D /* dcm4che-tool-ianscu-3.3.7.jar */; };
-		4A492E6A1CC65F7700A5A52D /* dcm4che-tool-ihe-modality-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E101CC65F7700A5A52D /* dcm4che-tool-ihe-modality-3.3.7.jar */; };
-		4A492E6B1CC65F7700A5A52D /* dcm4che-tool-jpg2dcm-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E111CC65F7700A5A52D /* dcm4che-tool-jpg2dcm-3.3.7.jar */; };
-		4A492E6C1CC65F7700A5A52D /* dcm4che-tool-json2dcm-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E121CC65F7700A5A52D /* dcm4che-tool-json2dcm-3.3.7.jar */; };
-		4A492E6D1CC65F7700A5A52D /* dcm4che-tool-mkkos-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E131CC65F7700A5A52D /* dcm4che-tool-mkkos-3.3.7.jar */; };
-		4A492E6E1CC65F7700A5A52D /* dcm4che-tool-movescu-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E141CC65F7700A5A52D /* dcm4che-tool-movescu-3.3.7.jar */; };
-		4A492E6F1CC65F7700A5A52D /* dcm4che-tool-mppsscp-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E151CC65F7700A5A52D /* dcm4che-tool-mppsscp-3.3.7.jar */; };
-		4A492E701CC65F7700A5A52D /* dcm4che-tool-mppsscu-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E161CC65F7700A5A52D /* dcm4che-tool-mppsscu-3.3.7.jar */; };
-		4A492E711CC65F7700A5A52D /* dcm4che-tool-prefs2xml-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E171CC65F7700A5A52D /* dcm4che-tool-prefs2xml-3.3.7.jar */; };
-		4A492E721CC65F7700A5A52D /* dcm4che-tool-qc-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E181CC65F7700A5A52D /* dcm4che-tool-qc-3.3.7.jar */; };
-		4A492E731CC65F7700A5A52D /* dcm4che-tool-qidors-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E191CC65F7700A5A52D /* dcm4che-tool-qidors-3.3.7.jar */; };
-		4A492E741CC65F7700A5A52D /* dcm4che-tool-stgcmtscu-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E1A1CC65F7700A5A52D /* dcm4che-tool-stgcmtscu-3.3.7.jar */; };
-		4A492E751CC65F7700A5A52D /* dcm4che-tool-storescp-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E1B1CC65F7700A5A52D /* dcm4che-tool-storescp-3.3.7.jar */; };
-		4A492E761CC65F7700A5A52D /* dcm4che-tool-storescu-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E1C1CC65F7700A5A52D /* dcm4che-tool-storescu-3.3.7.jar */; };
-		4A492E771CC65F7700A5A52D /* dcm4che-tool-stowrs-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E1D1CC65F7700A5A52D /* dcm4che-tool-stowrs-3.3.7.jar */; };
-		4A492E781CC65F7700A5A52D /* dcm4che-tool-syslog-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E1E1CC65F7700A5A52D /* dcm4che-tool-syslog-3.3.7.jar */; };
-		4A492E791CC65F7700A5A52D /* dcm4che-tool-syslogd-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E1F1CC65F7700A5A52D /* dcm4che-tool-syslogd-3.3.7.jar */; };
-		4A492E7A1CC65F7700A5A52D /* dcm4che-tool-wadors-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E201CC65F7700A5A52D /* dcm4che-tool-wadors-3.3.7.jar */; };
-		4A492E7B1CC65F7700A5A52D /* dcm4che-tool-wadouri-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E211CC65F7700A5A52D /* dcm4che-tool-wadouri-3.3.7.jar */; };
-		4A492E7C1CC65F7700A5A52D /* dcm4che-tool-xml2dcm-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E221CC65F7700A5A52D /* dcm4che-tool-xml2dcm-3.3.7.jar */; };
-		4A492E7D1CC65F7700A5A52D /* dcm4che-tool-xml2hl7-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E231CC65F7700A5A52D /* dcm4che-tool-xml2hl7-3.3.7.jar */; };
-		4A492E7E1CC65F7700A5A52D /* dcm4che-tool-xml2prefs-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E241CC65F7700A5A52D /* dcm4che-tool-xml2prefs-3.3.7.jar */; };
-		4A492E7F1CC65F7700A5A52D /* dcm4che-ws-rs-3.3.7.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E251CC65F7700A5A52D /* dcm4che-ws-rs-3.3.7.jar */; };
-		4A492E801CC65F7700A5A52D /* jai_imageio-1.2-pre-dr-b04.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E261CC65F7700A5A52D /* jai_imageio-1.2-pre-dr-b04.jar */; };
-		4A492E811CC65F7700A5A52D /* javax.json-1.0.4.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E271CC65F7700A5A52D /* javax.json-1.0.4.jar */; };
-		4A492E821CC65F7700A5A52D /* jaxrs-api-3.0.4.Final.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E281CC65F7700A5A52D /* jaxrs-api-3.0.4.Final.jar */; };
-		4A492E831CC65F7700A5A52D /* log4j-1.2.17.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E2D1CC65F7700A5A52D /* log4j-1.2.17.jar */; };
-		4A492E841CC65F7700A5A52D /* slf4j-api-1.7.5.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E2E1CC65F7700A5A52D /* slf4j-api-1.7.5.jar */; };
-		4A492E851CC65F7700A5A52D /* slf4j-log4j12-1.7.5.jar in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A492E2F1CC65F7700A5A52D /* slf4j-log4j12-1.7.5.jar */; };
+		4A83466D1DD91B5F008EFF41 /* NSData+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8346691DD91B5F008EFF41 /* NSData+PCS.h */; };
+		4A83466E1DD91B5F008EFF41 /* NSData+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */; };
+		4A83466F1DD91B5F008EFF41 /* NSString+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */; };
+		4A8346701DD91B5F008EFF41 /* NSString+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A83466C1DD91B5F008EFF41 /* NSString+PCS.m */; };
 		4AAB26751D8A42A400401FD5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AAB266F1D8A42A400401FD5 /* main.m */; };
 		4AAB26761D8A42A400401FD5 /* LFCGzipUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AAB26701D8A42A400401FD5 /* LFCGzipUtility.m */; };
 		4AAB26771D8A42A400401FD5 /* zconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AAB26711D8A42A400401FD5 /* zconf.h */; };
@@ -168,10 +100,6 @@
 		2A31F6101C87317800A78C7C /* GCDWebServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GCDWebServer.m; path = "GCDWebServer-master/GCDWebServer/Core/GCDWebServer.m"; sourceTree = "<group>"; };
 		2A6C51891C8DCF7C00424729 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		4A09D5991DA58DFD00D18CDE /* dal55mysqlopendicom.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = dal55mysqlopendicom.plist; sourceTree = SOURCE_ROOT; };
-		4A09D59A1DAD142700D18CDE /* NSString+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+PCS.h"; sourceTree = SOURCE_ROOT; };
-		4A09D59B1DAD142800D18CDE /* NSString+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+PCS.m"; sourceTree = SOURCE_ROOT; };
-		4A09D59E1DAEE59000D18CDE /* NSData+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+PCS.h"; sourceTree = SOURCE_ROOT; };
-		4A09D59F1DAEE59000D18CDE /* NSData+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+PCS.m"; sourceTree = SOURCE_ROOT; };
 		4A492D2A1CC65F7700A5A52D /* dcm2dcm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = dcm2dcm; sourceTree = "<group>"; };
 		4A492D2B1CC65F7700A5A52D /* dcm2jpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = dcm2jpg; sourceTree = "<group>"; };
 		4A492D2C1CC65F7700A5A52D /* dcm2json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = dcm2json; sourceTree = "<group>"; };
@@ -404,6 +332,10 @@
 		4A492E3F1CC65F7700A5A52D /* clib_jiio_util.dll */ = {isa = PBXFileReference; lastKnownFileType = file; path = clib_jiio_util.dll; sourceTree = "<group>"; };
 		4A492E401CC65F7700A5A52D /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		4A492E411CC65F7700A5A52D /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4A8346691DD91B5F008EFF41 /* NSData+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSData+PCS.h"; path = "httpdicom/NSData+PCS.h"; sourceTree = SOURCE_ROOT; };
+		4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+PCS.m"; path = "httpdicom/NSData+PCS.m"; sourceTree = SOURCE_ROOT; };
+		4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+PCS.h"; path = "httpdicom/NSString+PCS.h"; sourceTree = SOURCE_ROOT; };
+		4A83466C1DD91B5F008EFF41 /* NSString+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+PCS.m"; path = "httpdicom/NSString+PCS.m"; sourceTree = SOURCE_ROOT; };
 		4AA28D2B1D94532300B223CA /* httpdicom_mini.postman_collection.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = httpdicom_mini.postman_collection.json; sourceTree = "<group>"; };
 		4AA28D2C1D94569400B223CA /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		4AA28D2D1D94569400B223CA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -412,7 +344,6 @@
 		4AAB26711D8A42A400401FD5 /* zconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zconf.h; path = httpdicom/zconf.h; sourceTree = SOURCE_ROOT; };
 		4AAB26721D8A42A400401FD5 /* zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zlib.h; path = httpdicom/zlib.h; sourceTree = SOURCE_ROOT; };
 		4AAB26731D8A42A400401FD5 /* LFCGzipUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LFCGzipUtility.h; path = httpdicom/LFCGzipUtility.h; sourceTree = SOURCE_ROOT; };
-		4AAB26741D8A42A400401FD5 /* BIRproxy.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; name = BIRproxy.1; path = httpdicom/BIRproxy.1; sourceTree = SOURCE_ROOT; };
 		4AEF37851DC8D6C800CDA008 /* URLSessionDataTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = URLSessionDataTask.h; path = httpdicom/URLSessionDataTask.h; sourceTree = SOURCE_ROOT; };
 		4AEF37861DC8D6C800CDA008 /* URLSessionDataTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = URLSessionDataTask.m; path = httpdicom/URLSessionDataTask.m; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -422,75 +353,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A492E761CC65F7700A5A52D /* dcm4che-tool-storescu-3.3.7.jar in Frameworks */,
-				4A492E451CC65F7700A5A52D /* dcm4che-conf-api-3.3.7.jar in Frameworks */,
-				4A492E6E1CC65F7700A5A52D /* dcm4che-tool-movescu-3.3.7.jar in Frameworks */,
-				4A492E741CC65F7700A5A52D /* dcm4che-tool-stgcmtscu-3.3.7.jar in Frameworks */,
-				4A492E721CC65F7700A5A52D /* dcm4che-tool-qc-3.3.7.jar in Frameworks */,
-				4A492E641CC65F7700A5A52D /* dcm4che-tool-hl72xml-3.3.7.jar in Frameworks */,
-				4A492E771CC65F7700A5A52D /* dcm4che-tool-stowrs-3.3.7.jar in Frameworks */,
-				4A492E6D1CC65F7700A5A52D /* dcm4che-tool-mkkos-3.3.7.jar in Frameworks */,
-				4A492E7E1CC65F7700A5A52D /* dcm4che-tool-xml2prefs-3.3.7.jar in Frameworks */,
-				4A492E6A1CC65F7700A5A52D /* dcm4che-tool-ihe-modality-3.3.7.jar in Frameworks */,
-				4A492E5D1CC65F7700A5A52D /* dcm4che-tool-dcmdump-3.3.7.jar in Frameworks */,
-				4A492E611CC65F7700A5A52D /* dcm4che-tool-emf2sf-3.3.7.jar in Frameworks */,
-				4A492E5A1CC65F7700A5A52D /* dcm4che-tool-dcm2xml-3.3.7.jar in Frameworks */,
-				4A492E521CC65F7700A5A52D /* dcm4che-net-3.3.7.jar in Frameworks */,
-				4A492E7F1CC65F7700A5A52D /* dcm4che-ws-rs-3.3.7.jar in Frameworks */,
-				4A492E7D1CC65F7700A5A52D /* dcm4che-tool-xml2hl7-3.3.7.jar in Frameworks */,
-				4A492E5F1CC65F7700A5A52D /* dcm4che-tool-dcmqrscp-3.3.7.jar in Frameworks */,
-				4A492E851CC65F7700A5A52D /* slf4j-log4j12-1.7.5.jar in Frameworks */,
-				4A492E631CC65F7700A5A52D /* dcm4che-tool-getscu-3.3.7.jar in Frameworks */,
-				4A492E701CC65F7700A5A52D /* dcm4che-tool-mppsscu-3.3.7.jar in Frameworks */,
-				4A492E781CC65F7700A5A52D /* dcm4che-tool-syslog-3.3.7.jar in Frameworks */,
-				4A492E571CC65F7700A5A52D /* dcm4che-tool-dcm2dcm-3.3.7.jar in Frameworks */,
-				4A492E431CC65F7700A5A52D /* commons-cli-1.2.jar in Frameworks */,
-				4A492E4A1CC65F7700A5A52D /* dcm4che-emf-3.3.7.jar in Frameworks */,
-				4A492E481CC65F7700A5A52D /* dcm4che-conf-dicom-3.3.7.jar in Frameworks */,
-				4A492E621CC65F7700A5A52D /* dcm4che-tool-findscu-3.3.7.jar in Frameworks */,
-				4A492E591CC65F7700A5A52D /* dcm4che-tool-dcm2json-3.3.7.jar in Frameworks */,
-				4A492E4B1CC65F7700A5A52D /* dcm4che-filecache-3.3.7.jar in Frameworks */,
-				4A492E691CC65F7700A5A52D /* dcm4che-tool-ianscu-3.3.7.jar in Frameworks */,
-				4A492E671CC65F7700A5A52D /* dcm4che-tool-hl7snd-3.3.7.jar in Frameworks */,
-				4A492E4C1CC65F7700A5A52D /* dcm4che-hl7-3.3.7.jar in Frameworks */,
-				4A492E731CC65F7700A5A52D /* dcm4che-tool-qidors-3.3.7.jar in Frameworks */,
-				4A492E5E1CC65F7700A5A52D /* dcm4che-tool-dcmgen-3.3.7.jar in Frameworks */,
-				4A492E531CC65F7700A5A52D /* dcm4che-net-audit-3.3.7.jar in Frameworks */,
 				2A6C518A1C8DCF7C00424729 /* libz.tbd in Frameworks */,
-				4A492E4F1CC65F7700A5A52D /* dcm4che-imageio-rle-3.3.7.jar in Frameworks */,
-				4A492E5B1CC65F7700A5A52D /* dcm4che-tool-dcmdict-3.3.7.jar in Frameworks */,
-				4A492E4D1CC65F7700A5A52D /* dcm4che-image-3.3.7.jar in Frameworks */,
-				4A492E791CC65F7700A5A52D /* dcm4che-tool-syslogd-3.3.7.jar in Frameworks */,
-				4A492E601CC65F7700A5A52D /* dcm4che-tool-dcmvalidate-3.3.7.jar in Frameworks */,
-				4A492E841CC65F7700A5A52D /* slf4j-api-1.7.5.jar in Frameworks */,
-				4A492E501CC65F7700A5A52D /* dcm4che-json-3.3.7.jar in Frameworks */,
-				4A492E7A1CC65F7700A5A52D /* dcm4che-tool-wadors-3.3.7.jar in Frameworks */,
-				4A492E811CC65F7700A5A52D /* javax.json-1.0.4.jar in Frameworks */,
-				4A492E4E1CC65F7700A5A52D /* dcm4che-imageio-3.3.7.jar in Frameworks */,
-				4A492E681CC65F7700A5A52D /* dcm4che-tool-ianscp-3.3.7.jar in Frameworks */,
-				4A492E461CC65F7700A5A52D /* dcm4che-conf-core-3.3.7.jar in Frameworks */,
-				4A492E661CC65F7700A5A52D /* dcm4che-tool-hl7rcv-3.3.7.jar in Frameworks */,
-				4A492E491CC65F7700A5A52D /* dcm4che-core-3.3.7.jar in Frameworks */,
-				4A492E441CC65F7700A5A52D /* dcm4che-audit-3.3.7.jar in Frameworks */,
-				4A492E541CC65F7700A5A52D /* dcm4che-net-hl7-3.3.7.jar in Frameworks */,
-				4A492E711CC65F7700A5A52D /* dcm4che-tool-prefs2xml-3.3.7.jar in Frameworks */,
-				4A492E421CC65F7700A5A52D /* clibwrapper_jiio-1.2-pre-dr-b04.jar in Frameworks */,
-				4A492E6B1CC65F7700A5A52D /* dcm4che-tool-jpg2dcm-3.3.7.jar in Frameworks */,
-				4A492E511CC65F7700A5A52D /* dcm4che-mime-3.3.7.jar in Frameworks */,
-				4A492E651CC65F7700A5A52D /* dcm4che-tool-hl7pix-3.3.7.jar in Frameworks */,
-				4A492E5C1CC65F7700A5A52D /* dcm4che-tool-dcmdir-3.3.7.jar in Frameworks */,
-				4A492E6F1CC65F7700A5A52D /* dcm4che-tool-mppsscp-3.3.7.jar in Frameworks */,
-				4A492E751CC65F7700A5A52D /* dcm4che-tool-storescp-3.3.7.jar in Frameworks */,
-				4A492E821CC65F7700A5A52D /* jaxrs-api-3.0.4.Final.jar in Frameworks */,
-				4A492E551CC65F7700A5A52D /* dcm4che-soundex-3.3.7.jar in Frameworks */,
-				4A492E471CC65F7700A5A52D /* dcm4che-conf-core-api-3.3.7.jar in Frameworks */,
-				4A492E581CC65F7700A5A52D /* dcm4che-tool-dcm2jpg-3.3.7.jar in Frameworks */,
-				4A492E831CC65F7700A5A52D /* log4j-1.2.17.jar in Frameworks */,
-				4A492E7C1CC65F7700A5A52D /* dcm4che-tool-xml2dcm-3.3.7.jar in Frameworks */,
-				4A492E6C1CC65F7700A5A52D /* dcm4che-tool-json2dcm-3.3.7.jar in Frameworks */,
-				4A492E561CC65F7700A5A52D /* dcm4che-tool-common-3.3.7.jar in Frameworks */,
-				4A492E7B1CC65F7700A5A52D /* dcm4che-tool-wadouri-3.3.7.jar in Frameworks */,
-				4A492E801CC65F7700A5A52D /* jai_imageio-1.2-pre-dr-b04.jar in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -580,17 +443,16 @@
 		2A6BE9E31C91141D0011DEC0 /* httpdicom */ = {
 			isa = PBXGroup;
 			children = (
+				4A8346691DD91B5F008EFF41 /* NSData+PCS.h */,
+				4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */,
+				4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */,
+				4A83466C1DD91B5F008EFF41 /* NSString+PCS.m */,
 				4AAB266F1D8A42A400401FD5 /* main.m */,
 				4AAB26701D8A42A400401FD5 /* LFCGzipUtility.m */,
 				4AAB26711D8A42A400401FD5 /* zconf.h */,
 				4AAB26721D8A42A400401FD5 /* zlib.h */,
 				4AAB26731D8A42A400401FD5 /* LFCGzipUtility.h */,
-				4AAB26741D8A42A400401FD5 /* BIRproxy.1 */,
 				4A09D5991DA58DFD00D18CDE /* dal55mysqlopendicom.plist */,
-				4A09D59A1DAD142700D18CDE /* NSString+PCS.h */,
-				4A09D59B1DAD142800D18CDE /* NSString+PCS.m */,
-				4A09D59E1DAEE59000D18CDE /* NSData+PCS.h */,
-				4A09D59F1DAEE59000D18CDE /* NSData+PCS.m */,
 				4AEF37851DC8D6C800CDA008 /* URLSessionDataTask.h */,
 				4AEF37861DC8D6C800CDA008 /* URLSessionDataTask.m */,
 			);
@@ -1243,20 +1105,20 @@
 				2A1322CE1C87C74300C4DB43 /* GCDWebServerHTTPStatusCodes.h in Headers */,
 				2A31F5FF1C87304C00A78C7C /* GCDWebServerPrivate.h in Headers */,
 				2A31F6011C87306000A78C7C /* GCDWebServerRequest.h in Headers */,
+				4A83466F1DD91B5F008EFF41 /* NSString+PCS.h in Headers */,
 				2A31F6031C87307D00A78C7C /* GCDWebServerResponse.h in Headers */,
 				2A1322D01C87C75900C4DB43 /* GCDWebServerDataRequest.h in Headers */,
 				2A1322D21C87C77A00C4DB43 /* GCDWebServerFileRequest.h in Headers */,
 				2A1322D41C87C78500C4DB43 /* GCDWebServerMultiPartFormRequest.h in Headers */,
 				4AAB26791D8A42A400401FD5 /* LFCGzipUtility.h in Headers */,
-				4A09D59C1DAD142800D18CDE /* NSString+PCS.h in Headers */,
 				2A1322D61C87C79700C4DB43 /* GCDWebServerURLEncodedFormRequest.h in Headers */,
 				2A1322D81C87C7AC00C4DB43 /* GCDWebServerDataResponse.h in Headers */,
 				2A1322DA1C87C7B300C4DB43 /* GCDWebServerErrorResponse.h in Headers */,
+				4A83466D1DD91B5F008EFF41 /* NSData+PCS.h in Headers */,
 				2A1322DC1C87C7BC00C4DB43 /* GCDWebServerFileResponse.h in Headers */,
 				4AEF37871DC8D6C800CDA008 /* URLSessionDataTask.h in Headers */,
 				4AAB26771D8A42A400401FD5 /* zconf.h in Headers */,
 				2A1322DF1C87C7D600C4DB43 /* GCDWebServerStreamedResponse.h in Headers */,
-				4A09D5A01DAEE59000D18CDE /* NSData+PCS.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1314,7 +1176,7 @@
 			files = (
 				2A31F6111C87317800A78C7C /* GCDWebServer.m in Sources */,
 				2A31F60F1C87315E00A78C7C /* GCDWebServerConnection.m in Sources */,
-				4A09D59D1DAD142800D18CDE /* NSString+PCS.m in Sources */,
+				4A8346701DD91B5F008EFF41 /* NSString+PCS.m in Sources */,
 				2A1322E11C87C86300C4DB43 /* GCDWebServerFunctions.m in Sources */,
 				2A31F60B1C8730E900A78C7C /* GCDWebServerRequest.m in Sources */,
 				2A31F60D1C8730F300A78C7C /* GCDWebServerResponse.m in Sources */,
@@ -1329,7 +1191,7 @@
 				2A1322EF1C87C8A900C4DB43 /* GCDWebServerFileResponse.m in Sources */,
 				4AAB26761D8A42A400401FD5 /* LFCGzipUtility.m in Sources */,
 				2A1322F11C87C8B000C4DB43 /* GCDWebServerStreamedResponse.m in Sources */,
-				4A09D5A11DAEE59000D18CDE /* NSData+PCS.m in Sources */,
+				4A83466E1DD91B5F008EFF41 /* NSData+PCS.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1417,10 +1279,7 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SDKROOT)/usr/include/libxml2",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_NAME = httpdicom;
 			};
@@ -1436,10 +1295,7 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SDKROOT)/usr/include/libxml2",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_NAME = httpdicom;
 			};

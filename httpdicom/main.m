@@ -254,25 +254,6 @@ int main(int argc, const char* argv[]) {
             NSLog(@"could not get contents of pacs.plist");
             return 1;
         }
-
-        NSDictionary *dictLocalNode;
-        for (NSString *pacs in pacsArray)
-        {
-            if ((pacsArray[pacs])[@"isLocalNode"])
-            {
-                if (dictLocalNode)
-                {
-                    NSLog(@"more than one localNode");
-                    return 1;
-                }
-                dictLocalNode=pacsArray[pacs];
-            }
-        }
-        if (!dictLocalNode)
-        {
-            NSLog(@"no local node");
-            return 1;
-        }
         
         NSDateFormatter *dicomDTFormatter = [[NSDateFormatter alloc] init];
         [dicomDTFormatter setDateFormat:@"yyyyMMddHHmmss"];
@@ -341,9 +322,6 @@ int main(int argc, const char* argv[]) {
             [custodianOIDsaeis setValue:custodianOIDaeis forKey:custodianOID];
         }
         
-        NSString *resources=[dictLocalNode[@"pcsresources"]stringByExpandingTildeInPath];
-        
-        NSArray *storescuArgs=dictLocalNode[@"storescuargs"];
         
         GCDWebServer* httpdicomServer = [[GCDWebServer alloc] init];
         
@@ -365,11 +343,6 @@ int main(int argc, const char* argv[]) {
                      message:@"%@ [no handler]",request.path];
          }];
         
-#pragma mark static weasis
-        [httpdicomServer addGETHandlerForBasePath:@"/bir/weasis/" directoryPath:[resources stringByAppendingPathComponent:@"weasis/"] indexFilename:nil cacheAge:3600 allowRangeRequests:YES];
-        
-        
-        [httpdicomServer addGETHandlerForBasePath:@"/bir/weasis/bundle/" directoryPath:[resources stringByAppendingPathComponent:@"weasis/bundle/"] indexFilename:nil cacheAge:3600 allowRangeRequests:YES];
 
 #pragma mark custodians
         
@@ -495,12 +468,12 @@ int main(int argc, const char* argv[]) {
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
-             NSDictionary *destPacs=pacsArray[pComponents[2]];
-             if (!destPacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
+             NSDictionary *pacsaei=pacsArray[pComponents[2]];
+             if (!pacsaei) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
 
              NSString *q=request.URL.query;//a same param may repeat
              
-             NSString *qidoBaseString=destPacs[@"qido"];
+             NSString *qidoBaseString=pacsaei[@"qido"];
              if (![qidoBaseString isEqualToString:@""])
              {
                  //local: sesrvicio web qido
@@ -510,24 +483,24 @@ int main(int argc, const char* argv[]) {
                  return urlProxy(urlString,@"application/json");//application/dicom+json not accepted
              }
              
-             NSString *sql=destPacs[@"sql"];
+             NSString *sql=pacsaei[@"sql"];
              if (sql)
              {
                  //local ... simulation qido through database access
 #pragma mark TODO QIDO SQL
              }
              
-             NSString *pcsurl=destPacs[@"pcsuri"];
-             if (pcsurl)
+             NSString *pcsuri=pacsaei[@"pcsuri"];
+             if (pcsuri)
              {
                  //remote... access through another PCS
                  NSString *urlString;
                  if (q) urlString=[NSString stringWithFormat:@"%@/%@?%@",
-                                    pcsurl,
+                                    pcsuri,
                                     request.path,
                                     q];
                  else    urlString=[NSString stringWithFormat:@"%@/%@?",
-                                     pcsurl,
+                                     pcsuri,
                                      request.path];
                  GWS_LOG_INFO(@"[QIDO] %@",urlString);
                  return urlProxy(urlString,@"application/dicom+json");
@@ -547,12 +520,12 @@ int main(int argc, const char* argv[]) {
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
-             NSDictionary *pacs=pacsArray[pComponents[2]];
-             if (!pacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
+             NSDictionary *pacsaei=pacsArray[pComponents[2]];
+             if (!pacsaei) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
              
              NSString *q=request.URL.query;//a same param may repeat
 
-             NSString *wadouriBaseString=pacs[@"wadouri"];
+             NSString *wadouriBaseString=pacsaei[@"wadouri"];
              if (![wadouriBaseString isEqualToString:@""])
              {
                  //local ... there exists an URL
@@ -581,16 +554,16 @@ int main(int argc, const char* argv[]) {
                          ];
              }
              
-             NSString *pcsurl=pacs[@"pcsuri"];
-             if (pcsurl)
+             NSString *pcsuri=pacsaei[@"pcsuri"];
+             if (pcsuri)
              {
                  //remote... access through another PCS
                  NSString *urlString;
                  if (q) urlString=[NSString stringWithFormat:@"%@/%@",
-                                   pcsurl,
+                                   pcsuri,
                                    request.path];
                  else    urlString=[NSString stringWithFormat:@"%@/%@",
-                                    pcsurl,
+                                    pcsuri,
                                     request.path];
                  GWS_LOG_INFO(@"[QIDO] %@",urlString);
                  return urlProxy(urlString,@"application/dicom+json");
@@ -613,10 +586,10 @@ int main(int argc, const char* argv[]) {
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
-             NSDictionary *destPacs=pacsArray[pComponents[2]];
-             if (!destPacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
+             NSDictionary *pacsaei=pacsArray[pComponents[2]];
+             if (!pacsaei) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
 
-             NSString *wadorsBaseString=destPacs[@"wadors"];
+             NSString *wadorsBaseString=pacsaei[@"wadors"];
              if (![wadorsBaseString isEqualToString:@""])
              {
                  //local ... there exists an URI that uses the PACS implementation
@@ -629,7 +602,7 @@ int main(int argc, const char* argv[]) {
                  return urlProxy(urlString,@"multipart/related;type=application/dicom");
              }
              
-             NSString *sql=destPacs[@"sql"];
+             NSString *sql=pacsaei[@"sql"];
              if (sql)
              {
                  //local ... the PCS simulates wadors thanks to a combination of
@@ -637,10 +610,10 @@ int main(int argc, const char* argv[]) {
 #pragma mark TODO WADO-RS SQL
              }
              
-             NSString *pcsuri=destPacs[@"pcsuri"];
+             NSString *pcsuri=pacsaei[@"pcsuri"];
              if (pcsuri)
              {
-                 //when there is neither direct access to pacs implementation nor sql access in order to simulate the function, then we use the proxying services of another PCS accessed through pcsurl
+                 //when there is neither direct access to pacs implementation nor sql access in order to simulate the function, then we use the proxying services of another PCS accessed through pcsuri
                  NSString *urlString=[NSString stringWithFormat:@"%@/%@",pcsuri,request.path];
                  GWS_LOG_INFO(@"[WADO-RS] %@",urlString);
                  return urlProxy(urlString,@"multipart/related;type=application/dicom");
@@ -978,7 +951,7 @@ int main(int argc, const char* argv[]) {
              
              //find URI of custodianUID
              NSString *custodianURI;
-             if (q[@"custodianUID"]) custodianURI=(pacsArray[q[@"custodianUID"]])[@"pcsurl"];
+             if (q[@"custodianUID"]) custodianURI=(pacsArray[q[@"custodianUID"]])[@"pcsuri"];
              else custodianURI=@"";
              
              //redirect to specific manifest
