@@ -342,13 +342,7 @@ int main(int argc, const char* argv[]) {
         }
         
         NSString *resources=[dictLocalNode[@"pcsresources"]stringByExpandingTildeInPath];
-        NSString *jnlp=[[NSString stringWithContentsOfFile:[resources stringByAppendingPathComponent:@"weasis/weasis.jnlp"] encoding:NSUTF8StringEncoding error:nil]stringByReplacingOccurrencesOfString:@"{IIDURL}" withString:dictLocalNode[@"pcsurl"]];
         
-        //auditPath
-        NSString *auditPath=[dictLocalNode[@"pcsaudit"]stringByExpandingTildeInPath];
-        
-        //storescu
-        NSString *storescu=[dictLocalNode[@"storescu"]stringByExpandingTildeInPath];
         NSArray *storescuArgs=dictLocalNode[@"storescuargs"];
         
         GCDWebServer* httpdicomServer = [[GCDWebServer alloc] init];
@@ -643,11 +637,11 @@ int main(int argc, const char* argv[]) {
 #pragma mark TODO WADO-RS SQL
              }
              
-             NSString *pcsurl=destPacs[@"pcsuri"];
-             if (pcsurl)
+             NSString *pcsuri=destPacs[@"pcsuri"];
+             if (pcsuri)
              {
                  //when there is neither direct access to pacs implementation nor sql access in order to simulate the function, then we use the proxying services of another PCS accessed through pcsurl
-                 NSString *urlString=[NSString stringWithFormat:@"%@/%@",pcsurl,request.path];
+                 NSString *urlString=[NSString stringWithFormat:@"%@/%@",pcsuri,request.path];
                  GWS_LOG_INFO(@"[WADO-RS] %@",urlString);
                  return urlProxy(urlString,@"multipart/related;type=application/dicom");
              }
@@ -665,17 +659,25 @@ int main(int argc, const char* argv[]) {
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         {
             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
+            NSDictionary *destPacs=pacsArray[pComponents[2]];
+            if (!destPacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
 
             //buscar SERIES wadors URIs
-            NSDictionary *nodeDict=pacsArray[pComponents[1]];
-            if (!nodeDict) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [pacs not available]",request.path];
-            if (!nodeDict[@"qido"]) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [qido not available]",request.path];
+            if (!destPacs[@"qido"]) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [qido not available]",request.path];
+            NSArray *seriesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@/series?%@",destPacs[@"qido"],request.URL.query]]] options:0 error:nil];
 
             
-            NSArray *seriesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@/series?%@",nodeDict[@"qido"],request.URL.query]]] options:0 error:nil];
-            GWS_LOG_DEBUG(@"%@",[seriesArray description]);
-            
             __block NSMutableArray *wados=[NSMutableArray array];
+            for (NSDictionary *dictionary in seriesArray)
+            {
+                //download series
+                //00081190 UR RetrieveURL
+                [wados addObject:((dictionary[@"00081190"])[@"Value"])[0]];
+#pragma mark TODO correct proxy wadors...
+            }
+            GWS_LOG_DEBUG(@"%@",[wados description]);
+
+            
             __block NSMutableData *wadors=[NSMutableData data];
             __block NSMutableData *boundary=[NSMutableData data];
             __block NSMutableData *directory=[NSMutableData data];
@@ -685,14 +687,7 @@ int main(int argc, const char* argv[]) {
             __block uint16 entriesCount=0;
             __block NSRange ctadRange=NSMakeRange(0,0);
             __block NSRange boundaryRange=NSMakeRange(0,0);
-            
-            for (NSDictionary *dictionary in seriesArray)
-            {
-                //download series
-                //00081190 UR RetrieveURL
-                [wados addObject:((dictionary[@"00081190"])[@"Value"])[0]];
-                //NSLog(@"wadors: %@",((dictionary[@"00081190"])[@"Value"])[0]);
-            }
+
             /**
              *  The GCDWebServerAsyncStreamBlock works like the GCDWebServerStreamBlock
              *  except the streamed data can be returned at a later time allowing for
@@ -816,7 +811,7 @@ int main(int argc, const char* argv[]) {
         
 
         
-#pragma mark applicable
+#pragma mark ot  doc  cda
         /*
         {proxy}/ot?
         {proxy}/doc?
@@ -824,35 +819,31 @@ int main(int argc, const char* argv[]) {
          */
         NSRegularExpression *applicableregex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/(ot|doc|cda)$" options:NSRegularExpressionCaseInsensitive error:NULL];
          
-        NSRegularExpression *encapsulatedregex = [NSRegularExpression regularExpressionWithPattern:@"^/applicable" options:NSRegularExpressionCaseInsensitive error:NULL];
-        [httpdicomServer addHandlerForMethod:@"GET"
+         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:applicableregex
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
+             NSDictionary *destPacs=pacsArray[pComponents[2]];
+             if (!destPacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
              
              //buscar SERIES wadors URIs
-             NSDictionary *nodeDict=pacsArray[pComponents[1]];
-             if (!nodeDict) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [pacs not available]",request.path];
-             if (!nodeDict[@"qido"]) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [qido not available]",request.path];
+             if (!destPacs[@"qido"]) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [qido not available]",request.path];
 
              //AccessionNumber
              NSString *q=request.URL.query;
              if (q.length>32 || ![q hasPrefix:@"AccessionNumber="]) [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [lacks parameter AccessionNumber]",request.path];
              NSString *accessionNumber=[q substringWithRange:NSMakeRange(16,q.length-16)];
              
-             //Modality
-             NSString *p=request.URL.path;
-             NSString *modalityPrefix=[p substringWithRange:NSMakeRange(12,2)];
-             if (!([modalityPrefix isEqualToString:@"DO"] || [modalityPrefix isEqualToString:@"OT"]))  [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [for modalities DO[C] or OT]",request.path];
              NSString *modality;
-             if ([modalityPrefix isEqualToString:@"DO"]) modality=@"DOC";
-             else modality=modalityPrefix;
+                  if ([pComponents[3] isEqualToString:@"doc"]) modality=@"DOC";
+             else if ([pComponents[3] isEqualToString:@"cda"]) modality=@"DOC";
+             else if ([pComponents[3] isEqualToString:@"ot"]) modality=@"OT";
              
              //instances?AccessionNumber={AccessionNumber}&Modality=DOC
              NSString *qidoString=[NSString stringWithFormat:@"%@/instances?AccessionNumber=%@&Modality=%@",
-                                nodeDict[@"qido"],
+                                destPacs[@"qido"],
                                 accessionNumber,
                                 modality];
              GWS_LOG_DEBUG(@"%@/r/n->%@",request.path,qidoString);
@@ -891,81 +882,50 @@ int main(int argc, const char* argv[]) {
                  instance=instanceArray[index];
              }
 
-             if ([p rangeOfString:@"EncapsulatedDocument"].location!=NSNotFound)
+             //wadors returns bytstream with 00420010
+             NSString *wadoRsString=(((instanceArray[index])[@"00081190"])[@"Value"])[0];
+             GWS_LOG_INFO(@"applicable wadors %@",wadoRsString);
+             
+             NSData *applicableData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadoRsString]];
+             if (!applicableData || ![applicableData length]) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"applicable %@ notFound",request.URL.path];
+
+             NSUInteger applicableDataLength=[applicableData length];
+
+             NSUInteger valueLocation;
+             //between "Content-Type: " and "\r\n"
+             NSRange ctRange  = [applicableData rangeOfData:contentType options:0 range:NSMakeRange(0, applicableDataLength)];
+             valueLocation=ctRange.location+ctRange.length;
+             NSRange rnRange  = [applicableData rangeOfData:rn options:0 range:NSMakeRange(valueLocation, applicableDataLength-valueLocation)];
+             NSData *contentTypeData=[applicableData subdataWithRange:NSMakeRange(valueLocation,rnRange.location-valueLocation)];
+             NSString *ctString=[[NSString alloc]initWithData:contentTypeData encoding:NSUTF8StringEncoding];
+             GWS_LOG_INFO(@"%@",ctString);
+
+             
+             //between "\r\n\r\n" and "\r\n--"
+             NSRange rnrnRange=[applicableData rangeOfData:rnrn options:0 range:NSMakeRange(0, applicableDataLength)];
+             valueLocation=rnrnRange.location+rnrnRange.length;
+             NSRange rnhhRange=[applicableData rangeOfData:rnhh options:0 range:NSMakeRange(valueLocation, applicableDataLength-valueLocation)];
+             
+             //encapsulatedData
+             NSData *encapsulatedData=[applicableData subdataWithRange:NSMakeRange(valueLocation,rnhhRange.location-valueLocation - 1 - ([[applicableData subdataWithRange:NSMakeRange(rnhhRange.location-2,2)] isEqualToData:rn] * 2))];
+                 
+             if ([modality isEqualToString:@"CDA"])
              {
-                 //wadors returns bytstream with 00420010
-                 NSString *wadoRsString=(((instanceArray[index])[@"00081190"])[@"Value"])[0];
-                 GWS_LOG_INFO(@"dev0 applicable wadors %@",wadoRsString);
-                 
-                 NSData *applicableData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadoRsString]];
-                 if (!applicableData || ![applicableData length]) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"dev0 applicable %@ notFound",request.URL.path];
-
-                 NSUInteger applicableDataLength=[applicableData length];
-
-                 NSUInteger valueLocation;
-                 //between "Content-Type: " and "\r\n"
-                 NSRange ctRange  = [applicableData rangeOfData:contentType options:0 range:NSMakeRange(0, applicableDataLength)];
-                 valueLocation=ctRange.location+ctRange.length;
-                 NSRange rnRange  = [applicableData rangeOfData:rn options:0 range:NSMakeRange(valueLocation, applicableDataLength-valueLocation)];
-                 NSData *contentTypeData=[applicableData subdataWithRange:NSMakeRange(valueLocation,rnRange.location-valueLocation)];
-                 NSString *ctString=[[NSString alloc]initWithData:contentTypeData encoding:NSUTF8StringEncoding];
-                 GWS_LOG_INFO(@"%@",ctString);
-
-                 
-                 //between "\r\n\r\n" and "\r\n--"
-                 NSRange rnrnRange=[applicableData rangeOfData:rnrn options:0 range:NSMakeRange(0, applicableDataLength)];
-                 valueLocation=rnrnRange.location+rnrnRange.length;
-                 NSRange rnhhRange=[applicableData rangeOfData:rnhh options:0 range:NSMakeRange(valueLocation, applicableDataLength-valueLocation)];
-                 
-                 //encapsulatedData
-                 NSData *encapsulatedData=[applicableData subdataWithRange:NSMakeRange(valueLocation,rnhhRange.location-valueLocation - 1 - ([[applicableData subdataWithRange:NSMakeRange(rnhhRange.location-2,2)] isEqualToData:rn] * 2))];
-                     
-                 if ([p rangeOfString:@"CDA"].location != NSNotFound)
+                 GWS_LOG_INFO(@"CDA");
+                 NSRange CDAOpeningTagRange=[encapsulatedData rangeOfData:CDAOpeningTag options:0 range:NSMakeRange(0, encapsulatedData.length)];
+                 if (CDAOpeningTagRange.location != NSNotFound)
                  {
-                     GWS_LOG_INFO(@"CDA");
-                     NSRange CDAOpeningTagRange=[encapsulatedData rangeOfData:CDAOpeningTag options:0 range:NSMakeRange(0, encapsulatedData.length)];
-                     if (CDAOpeningTagRange.location != NSNotFound)
-                     {
-                         NSRange CDAClosingTagRange=[encapsulatedData rangeOfData:CDAClosingTag options:0 range:NSMakeRange(0, encapsulatedData.length)];
-                         NSData *cdaData=[encapsulatedData subdataWithRange:NSMakeRange(CDAOpeningTagRange.location, CDAClosingTagRange.location+CDAClosingTagRange.length-CDAOpeningTagRange.location)];
-                         return [GCDWebServerDataResponse
-                                 responseWithData:cdaData
-                                 contentType:ctString];
-                     }
+                     NSRange CDAClosingTagRange=[encapsulatedData rangeOfData:CDAClosingTag options:0 range:NSMakeRange(0, encapsulatedData.length)];
+                     NSData *cdaData=[encapsulatedData subdataWithRange:NSMakeRange(CDAOpeningTagRange.location, CDAClosingTagRange.location+CDAClosingTagRange.length-CDAOpeningTagRange.location)];
+                     return [GCDWebServerDataResponse
+                             responseWithData:cdaData
+                             contentType:ctString];
                  }
-                 
-                 return [GCDWebServerDataResponse
-                        responseWithData:encapsulatedData
-                        contentType:ctString];
              }
-             else
-             {
-                 NSString *wadouriString=[NSString stringWithFormat:
-                  @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application%%2Fdicom",
-                      [nodeDict objectForKey:@"wadouri"],
-                      (((instanceArray[index])[@"0020000D"])[@"Value"])[0],
-                      (((instanceArray[index])[@"0020000E"])[@"Value"])[0],
-                      (((instanceArray[index])[@"00080018"])[@"Value"])[0]];
-
-                 //wado-uri return application/dicom
-                 NSData *responseData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadouriString]];
-                 if (!responseData) return
-                 [GCDWebServerErrorResponse
-                  responseWithClientError:kGCDWebServerHTTPStatusCode_FailedDependency
-                  message:@"dev0 wadouri: %@",wadouriString
-                  ];
-                 
-                 if (![responseData length]) return
-                 [GCDWebServerErrorResponse
-                  responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound
-                  message:@"dev0 wadouri: %@",wadouriString
-                  ];
-                 return [GCDWebServerDataResponse
-                         responseWithData:responseData
-                         contentType:@"application/dicom"
-                         ];
-                 
-             }
+             
+             return [GCDWebServerDataResponse
+                    responseWithData:encapsulatedData
+                    contentType:ctString];
          }
          ];
 
