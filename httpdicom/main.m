@@ -654,7 +654,6 @@ int main(int argc, const char* argv[]) {
             __block NSMutableData *wadors=[NSMutableData data];
             __block NSMutableData *boundary=[NSMutableData data];
             __block NSMutableData *directory=[NSMutableData data];
-            __block NSMutableData *entry=[NSMutableData data];
             __block NSRange wadorsRange=NSMakeRange(0,0);
             __block uint32 entryPointer=0;
             __block uint16 entriesCount=0;
@@ -1872,11 +1871,11 @@ int main(int argc, const char* argv[]) {
                  //start y length
                  long ps=[q[@"start"]intValue];
                  long pl=[q[@"length"]intValue];
-                 NSLog(@"paging desired (start=[%ld],filas=[%ld],last=[%d])",ps,pl,recordsFiltered-1);
+                 NSLog(@"paging desired (start=[%ld],filas=[%ld],last=[%lu])",ps,pl,recordsFiltered-1);
                  if (ps < 0) ps=0;
                  if (ps > recordsFiltered-1) ps=0;
                  if (ps+pl+1 > recordsFiltered) pl=recordsFiltered-ps;
-                 NSLog(@"paging applied (start=[%ld],filas=[%ld],last=[%d])",ps,pl,recordsFiltered-1);
+                 NSLog(@"paging applied (start=[%ld],filas=[%ld],last=[%lu])",ps,pl,recordsFiltered-1);
                  NSArray *page=[Filtered[session] subarrayWithRange:NSMakeRange(ps,pl)];
                  if (!page)page=@[];
                  [resp setObject:page forKey:@"data"];
