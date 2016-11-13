@@ -63,19 +63,15 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "~/oids.plist"
+            argument = "DEBUG"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "1.2"
+            argument = "11111"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "1.2"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "1.2"
+            argument = "/Users/Shared/httpdicom/SONORAD.plist"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
