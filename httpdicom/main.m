@@ -540,7 +540,7 @@ int main(int argc, const char* argv[]) {
                  return qidoUrlProxy(
                                  [NSString stringWithFormat:@"%@/%@",qidoBaseString,pComponents.lastObject],
                                  q,
-                                 [NSString stringWithFormat:@"%@/%@",pcsuri,request.path]
+                                     [pcsuri stringByAppendingString:request.path]
                                  );//application/dicom+json not accepted
              }
              
