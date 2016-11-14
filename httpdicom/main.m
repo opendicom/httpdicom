@@ -962,227 +962,6 @@ int main(int argc, const char* argv[]) {
          ];
 
         
-#pragma mark IHEInvokeImageDisplay -> manifest
-//-----------------------------------------------------------------------------------------------------------------------------
-// IHEInvokeImageDisplay?requestType=STUDY&accessionNumber=1&viewerType=IHE_BIR&diagnosticQuality=true&keyImagesOnly=false&custodianUID=1.2&proxyURI=xxx
-//-----------------------------------------------------------------------------------------------------------------------------
-        
-        [httpdicomServer addHandlerForMethod:@"GET"
-                                  path:@"/IHEInvokeImageDisplay"
-                               requestClass:[GCDWebServerRequest class]
-                               processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             NSDictionary *q=request.query;
-
-             //(1) b= html5dicomURL
-             NSURL *requestURL=request.URL;
-             NSString *bSlash=requestURL.baseURL.absoluteString;
-             NSString *b=[bSlash substringToIndex:[bSlash length]-1];
-             NSString *p=requestURL.path;
-             GWS_LOG_INFO(@"%@%@?%@",b,p,requestURL.query);
-             
-             
-             //(2) accept requestType STUDY / SERIES only
-             NSString *requestType=q[@"requestType"];
-             if (
-                   !requestType
-                 ||!
-                    (  [requestType isEqualToString:@"STUDY"]
-                     ||[requestType isEqualToString:@"SERIES"]
-                     )
-                 ) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing requestType param in %@%@?%@",b,p,requestURL.query]];
- 
-             //session
-             NSString *devAdditionalParameters=(pacsArray[q[@"custodianUID"]])[@"wadoadditionalparameters"];
-             NSString *additionalParameters;
-             if(q[@"session"])
-             {
-                 if (devAdditionalParameters) additionalParameters=[NSString stringWithFormat:@"&amp;session=%@%@",q[@"session"],devAdditionalParameters];
-                 else additionalParameters=[NSString stringWithFormat:@"&amp;session=%@",q[@"session"]];
-             }
-             else if (devAdditionalParameters) additionalParameters=devAdditionalParameters;
-             else additionalParameters=@"";
-             
-             //proxyURI
-             NSString *proxyURI=q[@"proxyURI"];
-             if (!proxyURI) proxyURI=b;
-             
-             
-             //find URI of custodianUID
-             NSString *custodianURI;
-             if (q[@"custodianUID"]) custodianURI=(pacsArray[q[@"custodianUID"]])[@"pcsuri"];
-             else custodianURI=@"";
-             
-             //redirect to specific manifest
-             NSMutableString *manifest=[NSMutableString string];
-             
-             NSString *viewerType=q[@"viewerType"];
-             if (  !viewerType
-                 || [viewerType isEqualToString:@"IHE_BIR"]
-                 || [viewerType isEqualToString:@"weasis"]
-                 )
-             {
-                 [manifest appendString:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r"];
-                 [manifest appendFormat:@"<wado_query xmlns=\"http://www.weasis.org/xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" wadoURL=\"%@\" requireOnlySOPInstanceUID=\"false\" additionnalParameters=\"%@\" overrideDicomTagsList=\"\">",
-                     proxyURI,
-                     additionalParameters
-                  ];
-
-                 NSString *manifestWeasisURI;
-                 if ([requestType isEqualToString:@"STUDY"])
-                 {
-                     if (q[@"accessionNumber"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/weasis/studies?AccessionNumber=%@",custodianURI,q[@"accessionNumber"]];
-                     else if (q[@"studyUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/weasis/studies?StudyInstanceUID=%@",custodianURI,q[@"studyUID"]];
-                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
-                 }
-                 else
-                 {
-                     //SERIES
-                     if (q[@"studyUID"] && q[@"seriesUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/weasis/studies/%@/series?SeriesInstanceUID=%@",custodianURI,q[@"studyUID"],q[@"seriesUID"]];
-                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
-                 }
-                 NSLog(@"%@",manifestWeasisURI);
-                 [manifest appendFormat:@"%@\r</wado_query>\r",[NSString stringWithContentsOfURL:[NSURL URLWithString:manifestWeasisURI] encoding:NSUTF8StringEncoding error:nil]];
-                 GWS_LOG_INFO(@"%@",manifest);
-                 
-                 if ([manifest length]<350) [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"zero objects for %@%@?%@",b,p,requestURL.query]];
-                 
-
-                 if (![custodianURI isEqualToString:@""])
-                 {
-                     //get series not available in dev0
-                     
-                     NSXMLDocument *xmlDocument=[[NSXMLDocument alloc]initWithXMLString:manifest options:0 error:nil];
-                     NSArray *seriesWadorsArray = [xmlDocument nodesForXPath:@"wado_query/Patient/Study/Series" error:nil];
-                     for (NSXMLNode *node in seriesWadorsArray)
-                     {
-                         NSString *seriesWadors=[node stringValue];// /studies/{studies}/series/{series}
-                         
-                         //cantidad de instancias en la serie en dev0? 
-                         
-                     }
-                 }
-                 GCDWebServerDataResponse *response=[GCDWebServerDataResponse responseWithData:[[[LFCGzipUtility gzipData:[manifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
-                 [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
-                 
-                 return response;
-             }
-             else if ([viewerType isEqualToString:@"cornerstone"])
-             {
-//cornerstone
-                 NSMutableDictionary *cornerstone=[NSMutableDictionary dictionary];
-
-                 //qido uri
-                 NSString *qidoSeriesString;
-                 if ([requestType isEqualToString:@"STUDY"])
-                 {
-                     if (q[@"accessionNumber"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?AccessionNumber=%@",custodianURI,q[@"accessionNumber"]];
-                     else if (q[@"studyUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@",custodianURI,q[@"studyUID"]];
-                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
-                 }
-                 else
-                 {
-                     //SERIES
-                     if (q[@"studyUID"] && q[@"seriesUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@&SeriesInstanceUID=%@",custodianURI,q[@"studyUID"],q[@"seriesUID"]];
-                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
-                 }
-                 NSLog(@"%@",qidoSeriesString);
-
-                 NSMutableArray *seriesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoSeriesString]] options:NSJSONReadingMutableContainers error:nil];
-
-                 [cornerstone setObject:((((seriesArray[0])[@"00100010"])[@"Value"])[0])[@"Alphabetic"] forKey:@"patientName"];
-                 [cornerstone setObject:(((seriesArray[0])[@"00100020"])[@"Value"])[0] forKey:@"patientId"];
-                 NSString *s=(((seriesArray[0])[@"00080020"])[@"Value"])[0];
-                 NSString *StudyDate=[NSString stringWithFormat:@"%@-%@-%@",
-                 [s substringWithRange:NSMakeRange(0,4)],
-                 [s substringWithRange:NSMakeRange(4,2)],
-                 [s substringWithRange:NSMakeRange(6,2)]];
-                 [cornerstone setObject:StudyDate forKey:@"studyDate"];
-                 [cornerstone setObject:(((seriesArray[0])[@"00080061"])[@"Value"])[0] forKey:@"modality"];
-                 NSString *studyDescription=(((seriesArray[0])[@"00081030"])[@"Value"])[0];
-                 if (!studyDescription) studyDescription=@"";
-                 [cornerstone setObject:studyDescription forKey:@"studyDescription"];//
-                 [cornerstone setObject:@999 forKey:@"numImages"];
-                 [cornerstone setObject:(((seriesArray[0])[@"00200010"])[@"Value"])[0] forKey:@"studyId"];
-                 NSMutableArray *seriesList=[NSMutableArray array];
-                 [cornerstone setObject:seriesList forKey:@"seriesList"];
-                 for (NSDictionary *seriesQido in seriesArray)
-                 {
-                     if (
-                           !([((seriesQido[@"00080060"])[@"Value"])[0] isEqualToString:@"OT"])
-                         &&!([((seriesQido[@"00080060"])[@"Value"])[0] isEqualToString:@"DOC"]))
-                     {
-                         //cornerstone no muestra los documentos encapsulados
-                         NSMutableDictionary *seriesCornerstone=[NSMutableDictionary dictionary];
-                         [seriesList addObject:seriesCornerstone];
-                         [seriesCornerstone setObject:((seriesQido[@"0008103E"])[@"Value"])[0] forKey:@"seriesDescription"];
-                         [seriesCornerstone setObject:((seriesQido[@"00200011"])[@"Value"])[0] forKey:@"seriesNumber"];
-                         NSMutableArray *instanceList=[NSMutableArray array];
-                         [seriesCornerstone setObject:instanceList forKey:@"instanceList"];
-                         //get instances for the series
-                         
-                         NSString *qidoInstancesString=
-                         [NSString stringWithFormat:@"%@/instances?StudyInstanceUID=%@&SeriesInstanceUID=%@",
-                          custodianURI,
-                          q[@"studyUID"],
-                          ((seriesQido[@"0020000E"])[@"Value"])[0]
-                          ];
-                         NSLog(@"%@",qidoInstancesString);
-                        NSMutableArray *instancesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoInstancesString]] options:NSJSONReadingMutableContainers error:nil];
-                         
-                         //classify instancesArray by instanceNumber
-
-                          [instancesArray sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
-                          if ([((obj1[@"00200013"])[@"Value"])[0]intValue]<[((obj2[@"00200013"])[@"Value"])[0]intValue])
-                          return NSOrderedAscending;
-                          return NSOrderedDescending;
-                          }];
- 
-                         
-                         
-                         for (NSDictionary *instance in instancesArray)
-                         {
-                             NSString *wadouriInstance=[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@",proxyURI,
-                                                        q[@"studyUID"],
-                                                        ((seriesQido[@"0020000E"])[@"Value"])[0],
-                                                        ((instance[@"00080018"])[@"Value"])[0],
-                                                        q[@"session"]
-                                                        ];
-                             [instanceList addObject:@{
-                                                       @"imageId":wadouriInstance
-                                                       }];
-                         }
-                     }
-                 }
-                 return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:cornerstone options:0 error:nil] contentType:@"application/json"];
-             }
-             else if ([viewerType isEqualToString:@"MHD-I"])
-             {
-//MHD-I
-                 if ([requestType isEqualToString:@"STUDY"])
-                 {
-                     NSString *accessionNumber=q[@"accessionNumber"];
-                     NSString *studyUID=q[@"studyUID"];
-                     if (accessionNumber)
-                     {
-                         
-                     }
-                     else if (studyUID)
-                     {
-                         
-                     }
-                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
-                     
-                 }
-                 else
-                 {
-                     //SERIES
-                 }
-             }
-             return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"unknown viewerType in %@%@?%@",b,p,requestURL.query]];
-         }
-         ];
-        
         
 #pragma mark /weasis/studies? -> manifest contents
         //------------------------------------------------
@@ -1941,19 +1720,12 @@ int main(int argc, const char* argv[]) {
              NSUInteger recordsFiltered=[Filtered[session]count];
              [resp setObject:q[@"draw"] forKey:@"draw"];
              [resp setObject:[NSNumber numberWithInt:recordsTotal] forKey:@"recordsTotal"];
-             [resp setObject:[NSNumber numberWithInt:recordsFiltered] forKey:@"recordsFiltered"];
+             [resp setObject:[NSNumber numberWithUnsignedInteger:recordsFiltered] forKey:@"recordsFiltered"];
              
-
              if (!recordsFiltered)  return [GCDWebServerDataResponse
-                                            responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:@{
-                                                                                                                  @"draw":q[@"draw"],
-                                                                                                                  @"recordsTotal":@0,
-                                                                                                                  @"recordsFiltered":@0,
-                                                                                                                  @"data":@[]
-                                                                                                                  }]
+                                            responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:@{@"draw":q[@"draw"],@"recordsTotal":@0,@"recordsFiltered":@0,@"data":@[]}]
                                             contentType:@"application/dicom+json"
                                             ];
-
              else
              {
                  //start y length
@@ -2106,6 +1878,229 @@ int main(int argc, const char* argv[]) {
                      ];
          }
          ];
+
+        
+#pragma mark IHEInvokeImageDisplay -> manifest
+        //-----------------------------------------------------------------------------------------------------------------------------
+        // IHEInvokeImageDisplay?requestType=STUDY&accessionNumber=1&viewerType=IHE_BIR&diagnosticQuality=true&keyImagesOnly=false&custodianUID=1.2&proxyURI=xxx
+        //-----------------------------------------------------------------------------------------------------------------------------
+        
+        [httpdicomServer addHandlerForMethod:@"GET"
+                                        path:@"/IHEInvokeImageDisplay"
+                                requestClass:[GCDWebServerRequest class]
+                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             NSDictionary *q=request.query;
+             
+             //(1) b= html5dicomURL
+             NSURL *requestURL=request.URL;
+             NSString *bSlash=requestURL.baseURL.absoluteString;
+             NSString *b=[bSlash substringToIndex:[bSlash length]-1];
+             NSString *p=requestURL.path;
+             GWS_LOG_INFO(@"%@%@?%@",b,p,requestURL.query);
+             
+             
+             //(2) accept requestType STUDY / SERIES only
+             NSString *requestType=q[@"requestType"];
+             if (
+                 !requestType
+                 ||!
+                 (  [requestType isEqualToString:@"STUDY"]
+                  ||[requestType isEqualToString:@"SERIES"]
+                  )
+                 ) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing requestType param in %@%@?%@",b,p,requestURL.query]];
+             
+             //session
+             NSString *devAdditionalParameters=(pacsArray[q[@"custodianUID"]])[@"wadoadditionalparameters"];
+             NSString *additionalParameters;
+             if(q[@"session"])
+             {
+                 if (devAdditionalParameters) additionalParameters=[NSString stringWithFormat:@"&amp;session=%@%@",q[@"session"],devAdditionalParameters];
+                 else additionalParameters=[NSString stringWithFormat:@"&amp;session=%@",q[@"session"]];
+             }
+             else if (devAdditionalParameters) additionalParameters=devAdditionalParameters;
+             else additionalParameters=@"";
+             
+             //proxyURI
+             NSString *proxyURI=q[@"proxyURI"];
+             if (!proxyURI) proxyURI=b;
+             
+             
+             //find URI of custodianUID
+             NSString *custodianURI;
+             if (q[@"custodianUID"]) custodianURI=(pacsArray[q[@"custodianUID"]])[@"pcsuri"];
+             else custodianURI=@"";
+             
+             //redirect to specific manifest
+             NSMutableString *manifest=[NSMutableString string];
+             
+             NSString *viewerType=q[@"viewerType"];
+             if (  !viewerType
+                 || [viewerType isEqualToString:@"IHE_BIR"]
+                 || [viewerType isEqualToString:@"weasis"]
+                 )
+             {
+                 [manifest appendString:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r"];
+                 [manifest appendFormat:@"<wado_query xmlns=\"http://www.weasis.org/xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" wadoURL=\"%@\" requireOnlySOPInstanceUID=\"false\" additionnalParameters=\"%@\" overrideDicomTagsList=\"\">",
+                  proxyURI,
+                  additionalParameters
+                  ];
+                 
+                 NSString *manifestWeasisURI;
+                 if ([requestType isEqualToString:@"STUDY"])
+                 {
+                     if (q[@"accessionNumber"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/weasis/studies?AccessionNumber=%@",custodianURI,q[@"accessionNumber"]];
+                     else if (q[@"studyUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/weasis/studies?StudyInstanceUID=%@",custodianURI,q[@"studyUID"]];
+                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
+                 }
+                 else
+                 {
+                     //SERIES
+                     if (q[@"studyUID"] && q[@"seriesUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/weasis/studies/%@/series?SeriesInstanceUID=%@",custodianURI,q[@"studyUID"],q[@"seriesUID"]];
+                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
+                 }
+                 NSLog(@"%@",manifestWeasisURI);
+                 [manifest appendFormat:@"%@\r</wado_query>\r",[NSString stringWithContentsOfURL:[NSURL URLWithString:manifestWeasisURI] encoding:NSUTF8StringEncoding error:nil]];
+                 GWS_LOG_INFO(@"%@",manifest);
+                 
+                 if ([manifest length]<350) [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"zero objects for %@%@?%@",b,p,requestURL.query]];
+                 
+                 
+                 if (![custodianURI isEqualToString:@""])
+                 {
+                     //get series not available in dev0
+                     
+                     NSXMLDocument *xmlDocument=[[NSXMLDocument alloc]initWithXMLString:manifest options:0 error:nil];
+                     NSArray *seriesWadorsArray = [xmlDocument nodesForXPath:@"wado_query/Patient/Study/Series" error:nil];
+                     for (NSXMLNode *node in seriesWadorsArray)
+                     {
+                         NSString *seriesWadors=[node stringValue];// /studies/{studies}/series/{series}
+                         
+                         //cantidad de instancias en la serie en dev0?
+                         
+                     }
+                 }
+                 GCDWebServerDataResponse *response=[GCDWebServerDataResponse responseWithData:[[[LFCGzipUtility gzipData:[manifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
+                 [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
+                 
+                 return response;
+             }
+             else if ([viewerType isEqualToString:@"cornerstone"])
+             {
+                 //cornerstone
+                 NSMutableDictionary *cornerstone=[NSMutableDictionary dictionary];
+                 
+                 //qido uri
+                 NSString *qidoSeriesString;
+                 if ([requestType isEqualToString:@"STUDY"])
+                 {
+                     if (q[@"accessionNumber"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?AccessionNumber=%@",custodianURI,q[@"accessionNumber"]];
+                     else if (q[@"studyUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@",custodianURI,q[@"studyUID"]];
+                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
+                 }
+                 else
+                 {
+                     //SERIES
+                     if (q[@"studyUID"] && q[@"seriesUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@&SeriesInstanceUID=%@",custodianURI,q[@"studyUID"],q[@"seriesUID"]];
+                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
+                 }
+                 NSLog(@"%@",qidoSeriesString);
+                 
+                 NSMutableArray *seriesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoSeriesString]] options:NSJSONReadingMutableContainers error:nil];
+                 
+                 [cornerstone setObject:((((seriesArray[0])[@"00100010"])[@"Value"])[0])[@"Alphabetic"] forKey:@"patientName"];
+                 [cornerstone setObject:(((seriesArray[0])[@"00100020"])[@"Value"])[0] forKey:@"patientId"];
+                 NSString *s=(((seriesArray[0])[@"00080020"])[@"Value"])[0];
+                 NSString *StudyDate=[NSString stringWithFormat:@"%@-%@-%@",
+                                      [s substringWithRange:NSMakeRange(0,4)],
+                                      [s substringWithRange:NSMakeRange(4,2)],
+                                      [s substringWithRange:NSMakeRange(6,2)]];
+                 [cornerstone setObject:StudyDate forKey:@"studyDate"];
+                 [cornerstone setObject:(((seriesArray[0])[@"00080061"])[@"Value"])[0] forKey:@"modality"];
+                 NSString *studyDescription=(((seriesArray[0])[@"00081030"])[@"Value"])[0];
+                 if (!studyDescription) studyDescription=@"";
+                 [cornerstone setObject:studyDescription forKey:@"studyDescription"];//
+                 [cornerstone setObject:@999 forKey:@"numImages"];
+                 [cornerstone setObject:(((seriesArray[0])[@"00200010"])[@"Value"])[0] forKey:@"studyId"];
+                 NSMutableArray *seriesList=[NSMutableArray array];
+                 [cornerstone setObject:seriesList forKey:@"seriesList"];
+                 for (NSDictionary *seriesQido in seriesArray)
+                 {
+                     if (
+                         !([((seriesQido[@"00080060"])[@"Value"])[0] isEqualToString:@"OT"])
+                         &&!([((seriesQido[@"00080060"])[@"Value"])[0] isEqualToString:@"DOC"]))
+                     {
+                         //cornerstone no muestra los documentos encapsulados
+                         NSMutableDictionary *seriesCornerstone=[NSMutableDictionary dictionary];
+                         [seriesList addObject:seriesCornerstone];
+                         [seriesCornerstone setObject:((seriesQido[@"0008103E"])[@"Value"])[0] forKey:@"seriesDescription"];
+                         [seriesCornerstone setObject:((seriesQido[@"00200011"])[@"Value"])[0] forKey:@"seriesNumber"];
+                         NSMutableArray *instanceList=[NSMutableArray array];
+                         [seriesCornerstone setObject:instanceList forKey:@"instanceList"];
+                         //get instances for the series
+                         
+                         NSString *qidoInstancesString=
+                         [NSString stringWithFormat:@"%@/instances?StudyInstanceUID=%@&SeriesInstanceUID=%@",
+                          custodianURI,
+                          q[@"studyUID"],
+                          ((seriesQido[@"0020000E"])[@"Value"])[0]
+                          ];
+                         NSLog(@"%@",qidoInstancesString);
+                         NSMutableArray *instancesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoInstancesString]] options:NSJSONReadingMutableContainers error:nil];
+                         
+                         //classify instancesArray by instanceNumber
+                         
+                         [instancesArray sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
+                             if ([((obj1[@"00200013"])[@"Value"])[0]intValue]<[((obj2[@"00200013"])[@"Value"])[0]intValue])
+                                 return NSOrderedAscending;
+                             return NSOrderedDescending;
+                         }];
+                         
+                         
+                         
+                         for (NSDictionary *instance in instancesArray)
+                         {
+                             NSString *wadouriInstance=[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@",proxyURI,
+                                                        q[@"studyUID"],
+                                                        ((seriesQido[@"0020000E"])[@"Value"])[0],
+                                                        ((instance[@"00080018"])[@"Value"])[0],
+                                                        q[@"session"]
+                                                        ];
+                             [instanceList addObject:@{
+                                                       @"imageId":wadouriInstance
+                                                       }];
+                         }
+                     }
+                 }
+                 return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:cornerstone options:0 error:nil] contentType:@"application/json"];
+             }
+             else if ([viewerType isEqualToString:@"MHD-I"])
+             {
+                 //MHD-I
+                 if ([requestType isEqualToString:@"STUDY"])
+                 {
+                     NSString *accessionNumber=q[@"accessionNumber"];
+                     NSString *studyUID=q[@"studyUID"];
+                     if (accessionNumber)
+                     {
+                         
+                     }
+                     else if (studyUID)
+                     {
+                         
+                     }
+                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
+                     
+                 }
+                 else
+                 {
+                     //SERIES
+                 }
+             }
+             return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"unknown viewerType in %@%@?%@",b,p,requestURL.query]];
+         }
+         ];
+        
 
 #pragma mark run
         [httpdicomServer runWithPort:port bonjourName:nil];
