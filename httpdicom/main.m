@@ -1631,7 +1631,7 @@ int main(int argc, const char* argv[]) {
                  [studiesWhere appendFormat:
                       @" AND %@ = '%@'",
                       destSql[@"accessControlId"],
-                      q[@"institution"]
+                      q[@"aet"]
                   ];
                  
                  if (q[@"search[value]"] && ![q[@"search[value]"] isEqualToString:@""])
