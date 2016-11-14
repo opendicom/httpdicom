@@ -132,6 +132,65 @@ NSMutableArray *jsonMutableArray(NSString *scriptString, NSStringEncoding encodi
     return mutableArray;
 }
 
+
+id qidoUrlProxy(NSString *qidoString,NSString *queryString, NSString *httpdicomString)
+{
+    __block dispatch_semaphore_t __urlProxySemaphore = dispatch_semaphore_create(0);
+    __block NSMutableData *__data;
+    __block NSURLResponse *__response;
+    __block NSError *__error;
+    __block NSDate *__date;
+    __block unsigned long __chunks=0;
+    
+    NSString *urlString;
+    if (queryString) urlString=[NSString stringWithFormat:@"%@?%@",qidoString,queryString];
+    else urlString=qidoString;
+
+    NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];//application/dicom+json not accepted !!!!!
+    
+    NSURLSessionDataTask * const dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+                                             {
+                                                 __data=[NSMutableData dataWithData:data];
+                                                 __response=response;
+                                                 __error=error;
+                                                 dispatch_semaphore_signal(__urlProxySemaphore);
+                                             }];
+    __date=[NSDate date];
+    [dataTask resume];
+    dispatch_semaphore_wait(__urlProxySemaphore, DISPATCH_TIME_FOREVER);
+    //completionHandler of dataTask executed only once and before returning
+    return [GCDWebServerStreamedResponse responseWithContentType:@"application/json" asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock)
+            {
+                if (__error) completionBlock(nil,__error);
+                if (__chunks)
+                {
+                    completionBlock([NSData data], nil);
+                    GWS_LOG_DEBUG(@"urlProxy: %lu chunk in %fs for:\r\n%@",__chunks,[[NSDate date] timeIntervalSinceDate:__date],[__response description]);
+                }
+                else
+                {
+                    NSData *pacsUri=[qidoString dataUsingEncoding:NSUTF8StringEncoding];
+                    NSData *httpdicomUri=[httpdicomString dataUsingEncoding:NSUTF8StringEncoding];
+                    NSUInteger httpdicomLength=[httpdicomUri length];
+                    NSRange dataLeft=NSMakeRange(0,[__data length]);
+                    NSRange occurrence=[__data rangeOfData:pacsUri options:0 range:dataLeft];
+                    while (occurrence.length)
+                    {
+                        [__data replaceBytesInRange:occurrence
+                                          withBytes:[httpdicomUri bytes]
+                                             length:httpdicomLength];
+                        dataLeft.location=occurrence.location+httpdicomLength;
+                        dataLeft.length=[__data length]-dataLeft.location;
+                        occurrence=[__data rangeOfData:pacsUri options:0 range:dataLeft];
+                    }
+                    completionBlock(__data, nil);
+                    __chunks++;
+                }
+            }];
+}
+
+
 id urlProxy(NSString *urlString,NSString *contentType)
 {
     __block dispatch_semaphore_t __urlProxySemaphore = dispatch_semaphore_create(0);
@@ -476,11 +535,11 @@ int main(int argc, const char* argv[]) {
              NSString *qidoBaseString=pacsaei[@"qido"];
              if (![qidoBaseString isEqualToString:@""])
              {
-                 //local: sesrvicio web qido
-                 NSString *urlString;
-                 if (q) urlString=[NSString stringWithFormat:@"%@/%@?%@",qidoBaseString,pComponents.lastObject,q];
-                 else urlString=[NSString stringWithFormat:@"%@/%@?",qidoBaseString,pComponents.lastObject];
-                 return urlProxy(urlString,@"application/json");//application/dicom+json not accepted
+                 return qidoUrlProxy(
+                                 [NSString stringWithFormat:@"%@/%@",qidoBaseString,pComponents.lastObject],
+                                 q,
+                                 request.path
+                                 );//application/dicom+json not accepted
              }
              
              NSString *sql=pacsaei[@"sql"];
