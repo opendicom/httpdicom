@@ -1990,11 +1990,11 @@ int main(int argc, const char* argv[]) {
                                valueString:q[@"PatientID"]
                ]
               ];
-             //PEP por aet
+             //PEP por custodian
              [studiesWhere appendFormat:
               @" AND %@ = '%@'",
               destSql[@"accessControlId"],
-              q[@"org"]
+              q[@"custodian"]
               ];
 
              NSLog(@"SQL: %@",studiesWhere);
@@ -2049,7 +2049,6 @@ int main(int argc, const char* argv[]) {
              if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
              
              NSString *where;
-             NSString *seriesWhere=destSql[@"seriesWhere"];
              NSString *AccessionNumber=q[@"AccessionNumber"];
              NSString *StudyInstanceUID=q[@"StudyInstanceUID"];
              if (AccessionNumber && ![AccessionNumber isEqualToString:@"NULL"])
