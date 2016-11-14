@@ -1911,25 +1911,21 @@ int main(int argc, const char* argv[]) {
                  ) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing requestType param in %@%@?%@",b,p,requestURL.query]];
              
              //session
-             NSString *devAdditionalParameters=(pacsArray[q[@"custodianUID"]])[@"wadoadditionalparameters"];
-             NSString *additionalParameters;
-             if(q[@"session"])
-             {
-                 if (devAdditionalParameters) additionalParameters=[NSString stringWithFormat:@"&amp;session=%@%@",q[@"session"],devAdditionalParameters];
-                 else additionalParameters=[NSString stringWithFormat:@"&amp;session=%@",q[@"session"]];
-             }
-             else if (devAdditionalParameters) additionalParameters=devAdditionalParameters;
-             else additionalParameters=@"";
+             if (!q[@"session"]) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing session param in %@%@?%@",b,p,requestURL.query]];
+             
+             
+             //custodianURI
+             
+             if (!q[@"custodianOID"]) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing custodianOID param in %@%@?%@",b,p,requestURL.query]];
+             NSString *custodianURI;
+             if ((pacsArray[q[@"custodianOID"]])[@"islocalhosted"])custodianURI=@"http://localhost";
+             else custodianURI=(pacsArray[q[@"custodianOID"]])[@"publicuri"];
+             if (!q[@"custodianURI"]) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"invalid custodianUID param in %@%@?%@",b,p,requestURL.query]];
+             
              
              //proxyURI
              NSString *proxyURI=q[@"proxyURI"];
              if (!proxyURI) proxyURI=b;
-             
-             
-             //find URI of custodianUID
-             NSString *custodianURI;
-             if (q[@"custodianUID"]) custodianURI=(pacsArray[q[@"custodianUID"]])[@"pcsuri"];
-             else custodianURI=@"";
              
              //redirect to specific manifest
              NSMutableString *manifest=[NSMutableString string];
@@ -1941,22 +1937,25 @@ int main(int argc, const char* argv[]) {
                  )
              {
                  [manifest appendString:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r"];
-                 [manifest appendFormat:@"<wado_query xmlns=\"http://www.weasis.org/xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" wadoURL=\"%@\" requireOnlySOPInstanceUID=\"false\" additionnalParameters=\"%@\" overrideDicomTagsList=\"\">",
+                 NSString *additionalParameters=(pacsArray[q[@"custodianUID"]])[@"wadoadditionalparameters"];
+                 if (!additionalParameters)additionalParameters=@"";
+                 [manifest appendFormat:@"<wado_query xmlns=\"http://www.weasis.org/xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" wadoURL=\"%@\" requireOnlySOPInstanceUID=\"false\" additionnalParameters=\"&amp;session=%@%@\" overrideDicomTagsList=\"\">",
                   proxyURI,
+                  q[@"session"],
                   additionalParameters
                   ];
                  
                  NSString *manifestWeasisURI;
                  if ([requestType isEqualToString:@"STUDY"])
                  {
-                     if (q[@"accessionNumber"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/weasis/studies?AccessionNumber=%@",custodianURI,q[@"accessionNumber"]];
-                     else if (q[@"studyUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/weasis/studies?StudyInstanceUID=%@",custodianURI,q[@"studyUID"]];
+                     if (q[@"accessionNumber"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies?AccessionNumber=%@",custodianURI,q[@"accessionNumber"]];
+                     else if (q[@"studyUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies?StudyInstanceUID=%@",custodianURI,q[@"studyUID"]];
                      else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
                  }
                  else
                  {
                      //SERIES
-                     if (q[@"studyUID"] && q[@"seriesUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/weasis/studies/%@/series?SeriesInstanceUID=%@",custodianURI,q[@"studyUID"],q[@"seriesUID"]];
+                     if (q[@"studyUID"] && q[@"seriesUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies/%@/series/%@",custodianURI,q[@"studyUID"],q[@"seriesUID"]];
                      else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
                  }
                  NSLog(@"%@",manifestWeasisURI);
@@ -1966,7 +1965,7 @@ int main(int argc, const char* argv[]) {
                  if ([manifest length]<350) [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"zero objects for %@%@?%@",b,p,requestURL.query]];
                  
                  
-                 if (![custodianURI isEqualToString:@""])
+                 if (![custodianURI isEqualToString:@"http://localhost"])
                  {
                      //get series not available in dev0
                      
