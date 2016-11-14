@@ -1777,7 +1777,16 @@ int main(int argc, const char* argv[]) {
                  int maxCount=[q[@"max"]intValue];
                  NSLog(@"total:%d, max:%d",recordsTotal,maxCount);
                  if (recordsTotal > maxCount) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %d matches. %d matches were found",maxCount, recordsTotal]] contentType:@"application/dicom+json"];
-                 if (!recordsTotal) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"your filer returned zero match"] contentType:@"application/dicom+json"];
+
+                 if (!recordsTotal) return [GCDWebServerDataResponse
+                                            responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:@{
+                                                      @"draw":q[@"draw"],
+                                                      @"recordsTotal":@0,
+                                                      @"recordsFiltered":@0,
+                                                      @"data":@[]
+                                                      }]
+                                     contentType:@"application/dicom+json"
+                                     ];
                  else
                  {
                      //order is performed later, from mutableDictionary
@@ -1934,11 +1943,19 @@ int main(int argc, const char* argv[]) {
              [resp setObject:[NSNumber numberWithInt:recordsTotal] forKey:@"recordsTotal"];
              [resp setObject:[NSNumber numberWithInt:recordsFiltered] forKey:@"recordsFiltered"];
              
-             /*
-              if (!recordsFiltered) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"your filer returned zero match"] contentType:@"application/dicom+json"];
+
+             if (!recordsFiltered)  return [GCDWebServerDataResponse
+                                            responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:@{
+                                                                                                                  @"draw":q[@"draw"],
+                                                                                                                  @"recordsTotal":@0,
+                                                                                                                  @"recordsFiltered":@0,
+                                                                                                                  @"data":@[]
+                                                                                                                  }]
+                                            contentType:@"application/dicom+json"
+                                            ];
+
              else
              {
-              */
                  //start y length
                  long ps=[q[@"start"]intValue];
                  long pl=[q[@"length"]intValue];
@@ -1950,7 +1967,7 @@ int main(int argc, const char* argv[]) {
                  NSArray *page=[Filtered[session] subarrayWithRange:NSMakeRange(ps,pl)];
                  if (!page)page=@[];
                  [resp setObject:page forKey:@"data"];
-             //}
+             }
              
              return [GCDWebServerDataResponse
                      responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:resp]
