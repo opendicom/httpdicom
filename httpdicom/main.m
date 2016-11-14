@@ -530,6 +530,8 @@ int main(int argc, const char* argv[]) {
              NSDictionary *pacsaei=pacsArray[pComponents[2]];
              if (!pacsaei) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
 
+             NSString *pcsuri=pacsaei[@"pcsuri"];
+
              NSString *q=request.URL.query;//a same param may repeat
              
              NSString *qidoBaseString=pacsaei[@"qido"];
@@ -538,7 +540,7 @@ int main(int argc, const char* argv[]) {
                  return qidoUrlProxy(
                                  [NSString stringWithFormat:@"%@/%@",qidoBaseString,pComponents.lastObject],
                                  q,
-                                 request.path
+                                 [NSString stringWithFormat:@"%@/%@",pcsuri,request.path]
                                  );//application/dicom+json not accepted
              }
              
@@ -549,7 +551,6 @@ int main(int argc, const char* argv[]) {
 #pragma mark TODO QIDO SQL
              }
              
-             NSString *pcsuri=pacsaei[@"pcsuri"];
              if (pcsuri)
              {
                  //remote... access through another PCS
