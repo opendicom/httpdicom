@@ -1622,11 +1622,19 @@ int main(int argc, const char* argv[]) {
                  if(qStudyDescription)[sStudyDescription setObject:qStudyDescription forKey:session];
                  
 //1 create where clause
-                 //TODO: add PEP
                  
                  //WHERE study.rejection_state!=2    (or  1=1)
                  //following filters use formats like " AND a like 'b'"
                  NSMutableString *studiesWhere=[NSMutableString stringWithString:destSql[@"studiesWhere"]];
+
+                 //TODO: add PEP
+                 [studiesWhere appendString:
+                  [NSString mysqlEscapedFormat:@" AND %@ = '%@'"
+                                   fieldString:destSql[@"accessControlId"]
+                                   valueString:q[@"institution"]
+                   ]
+                  ];
+
                  
                  if (q[@"search[value]"] && ![q[@"search[value]"] isEqualToString:@""])
                  {

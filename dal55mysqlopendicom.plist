@@ -88,5 +88,7 @@ WHERE series.series_iuid = %@;&quot; | awk -F\\t &apos;{print $1}&apos;</string>
 	<string>study.study_time</string>
 	<key>InstitutionName</key>
 	<string>study.study_custom1</string>
+	<key>accessControlId</key>
+	<string>study.access_control_id</string>
 </dict>
 </plist>
