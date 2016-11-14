@@ -1585,8 +1585,8 @@ int main(int argc, const char* argv[]) {
 #pragma mark --different context
 #pragma mark reemplazar org por custodianTitle e institucion por aet
                  //find dest
-                 NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"org"]];
-                 NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"org"]] indexOfObject:q[@"institution"]];
+                 NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodian"]];
+                 NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodian"]] indexOfObject:q[@"aet"]];
                  NSDictionary *destPacs=pacsArray[(custodianOIDsaeis[custodianOIDsArray[custodianTitleIndex]])[aetIndex]];
                  
                  NSDictionary *destSql=sql[destPacs[@"sql"]];
