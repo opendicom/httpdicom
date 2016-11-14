@@ -1627,11 +1627,13 @@ int main(int argc, const char* argv[]) {
                  //following filters use formats like " AND a like 'b'"
                  NSMutableString *studiesWhere=[NSMutableString stringWithString:destSql[@"studiesWhere"]];
 
-                 //PEP por aet
+                 //PEP por aet or custodian
+                 
                  [studiesWhere appendFormat:
-                      @" AND %@ = '%@'",
+                      @" AND %@ in ('%@','%@')",
                       destSql[@"accessControlId"],
-                      q[@"aet"]
+                      q[@"aet"],
+                      q[@"custodian"]
                   ];
                  
                  if (q[@"search[value]"] && ![q[@"search[value]"] isEqualToString:@""])
