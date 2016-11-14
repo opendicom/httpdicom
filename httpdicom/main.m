@@ -1627,14 +1627,12 @@ int main(int argc, const char* argv[]) {
                  //following filters use formats like " AND a like 'b'"
                  NSMutableString *studiesWhere=[NSMutableString stringWithString:destSql[@"studiesWhere"]];
 
-                 //TODO: add PEP
-                 [studiesWhere appendString:
-                  [NSString mysqlEscapedFormat:@" AND %@ = '%@'"
-                                   fieldString:destSql[@"accessControlId"]
-                                   valueString:q[@"institution"]
-                   ]
+                 //PEP por aet
+                 [studiesWhere appendFormat:
+                      @" AND %@ = '%@'",
+                      destSql[@"accessControlId"],
+                      q[@"institution"]
                   ];
-
                  
                  if (q[@"search[value]"] && ![q[@"search[value]"] isEqualToString:@""])
                  {
@@ -1992,7 +1990,16 @@ int main(int argc, const char* argv[]) {
                                valueString:q[@"PatientID"]
                ]
               ];
+             //PEP por aet
+             [studiesWhere appendFormat:
+              @" AND %@ = '%@'",
+              destSql[@"accessControlId"],
+              q[@"org"]
+              ];
+
              NSLog(@"SQL: %@",studiesWhere);
+             
+
              
              NSString *sqlDataQuery=
              [[destSql[@"datatablesStudiesProlog"]
