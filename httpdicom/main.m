@@ -1992,11 +1992,11 @@ int main(int argc, const char* argv[]) {
                                valueString:q[@"PatientID"]
                ]
               ];
-             //PEP por custodian
+             //PEP por custodian aets
              [studiesWhere appendFormat:
-              @" AND %@ = '%@'",
+              @" AND %@ in ('%@')",
               destSql[@"accessControlId"],
-              q[@"custodian"]
+              [custodianTitlesaets[q[@"custodian"]] componentsJoinedByString:@"','"]
               ];
 
              NSLog(@"SQL: %@",studiesWhere);
