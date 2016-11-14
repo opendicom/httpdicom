@@ -348,8 +348,8 @@ int main(int argc, const char* argv[]) {
         
         for (NSDictionary *dictionary in [pacsArray allValues])
         {
-            [custodianOIDs addObject:[dictionary objectForKey:@"custodianOID"]];
-            [custodianTitles addObject:[dictionary objectForKey:@"custodianTitle"]];
+            [custodianOIDs addObject:[dictionary objectForKey:@"custodianoid"]];
+            [custodianTitles addObject:[dictionary objectForKey:@"custodiantitle"]];
             NSString *s=[dictionary objectForKey:@"sql"];
             if (s) [sqlset addObject:s];
         }
@@ -371,7 +371,7 @@ int main(int argc, const char* argv[]) {
             for (NSString *k in [pacsArray allKeys])
             {
                 NSDictionary *d=[pacsArray objectForKey:k];
-                if ([[d objectForKey:@"custodianOID"]isEqualToString:custodianOID])
+                if ([[d objectForKey:@"custodianoid"]isEqualToString:custodianOID])
                 {
                     [custodianTitleaets addObject:[d objectForKey:@"dicomaet"]];
                     [custodianOIDaeis addObject:k];
@@ -1328,7 +1328,7 @@ int main(int argc, const char* argv[]) {
                  || (q[@"username"]    && ![q[@"username"]isEqualToString:r[@"username"]])
                  || (q[@"useroid"]     && ![q[@"useroid"]isEqualToString:r[@"useroid"]])
                  || (session           && ![session isEqualToString:r[@"session"]])
-                 || (q[@"custodian"]         && ![q[@"custodian"]isEqualToString:r[@"custodian"]])
+                 || (q[@"custodiantitle"]         && ![q[@"custodiantitle"]isEqualToString:r[@"custodiantitle"]])
                  || (q[@"aet"] && ![q[@"aet"]isEqualToString:r[@"aet"]])
                  || (q[@"role"]        && ![q[@"role"]isEqualToString:r[@"role"]])
                  
@@ -1364,8 +1364,8 @@ int main(int argc, const char* argv[]) {
 #pragma mark --different context
 #pragma mark reemplazar org por custodianTitle e institucion por aet
                  //find dest
-                 NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodian"]];
-                 NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodian"]] indexOfObject:q[@"aet"]];
+                 NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodiantitle"]];
+                 NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodiantitle"]] indexOfObject:q[@"aet"]];
                  NSDictionary *destPacs=pacsArray[(custodianOIDsaeis[custodianOIDsArray[custodianTitleIndex]])[aetIndex]];
                  
                  NSDictionary *destSql=sql[destPacs[@"sql"]];
@@ -1412,7 +1412,7 @@ int main(int argc, const char* argv[]) {
                       @" AND %@ in ('%@','%@')",
                       destSql[@"accessControlId"],
                       q[@"aet"],
-                      q[@"custodian"]
+                      q[@"custodiantitle"]
                   ];
                  
                  if (q[@"search[value]"] && ![q[@"search[value]"] isEqualToString:@""])
@@ -1770,8 +1770,8 @@ int main(int argc, const char* argv[]) {
              //following filters use formats like " AND a like 'b'"
              
              //find dest
-             NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodian"]];
-             NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodian"]] indexOfObject:q[@"aet"]];
+             NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodiantitle"]];
+             NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodiantitle"]] indexOfObject:q[@"aet"]];
              NSDictionary *destPacs=pacsArray[(custodianOIDsaeis[custodianOIDsArray[custodianTitleIndex]])[aetIndex]];
              
              NSDictionary *destSql=sql[destPacs[@"sql"]];
@@ -1788,7 +1788,7 @@ int main(int argc, const char* argv[]) {
              [studiesWhere appendFormat:
               @" AND %@ in ('%@')",
               destSql[@"accessControlId"],
-              [custodianTitlesaets[q[@"custodian"]] componentsJoinedByString:@"','"]
+              [custodianTitlesaets[q[@"custodiantitle"]] componentsJoinedByString:@"','"]
               ];
 
              NSLog(@"SQL: %@",studiesWhere);
@@ -1835,8 +1835,8 @@ int main(int argc, const char* argv[]) {
              
              
              //find dest
-             NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodian"]];
-             NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodian"]] indexOfObject:q[@"aet"]];
+             NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodiantitle"]];
+             NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodiantitle"]] indexOfObject:q[@"aet"]];
              NSDictionary *destPacs=pacsArray[(custodianOIDsaeis[custodianOIDsArray[custodianTitleIndex]])[aetIndex]];
              
              NSDictionary *destSql=sql[destPacs[@"sql"]];
