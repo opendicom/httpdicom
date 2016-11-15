@@ -396,7 +396,14 @@ int main(int argc, const char* argv[]) {
          requestClass:[GCDWebServerRequest class]
          processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
-             GWS_LOG_WARNING(@"%@ [no handler]",request.path);
+             //request parts logging
+             NSURL *requestURL=request.URL;
+             NSString *bSlash=requestURL.baseURL.absoluteString;
+             NSString *b=[bSlash substringToIndex:[bSlash length]-1];
+             NSString *p=requestURL.path;
+             //NSString *q=requestURL.query;
+             NSDictionary *q=request.query;
+             GWS_LOG_WARNING(@"%@%@?%@ [no handler]",b,p,q);
              return [GCDWebServerErrorResponse
                      responseWithClientError:400
                      message:@"%@ [no handler]",request.path];
@@ -572,7 +579,7 @@ int main(int argc, const char* argv[]) {
         
         
 #pragma mark WADO-URI
-        NSRegularExpression *wadouriregex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/wado$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        NSRegularExpression *wadouriregex = [NSRegularExpression regularExpressionWithPattern:@"^\\/$" options:NSRegularExpressionCaseInsensitive error:NULL];
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:wadouriregex
@@ -580,7 +587,8 @@ int main(int argc, const char* argv[]) {
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
-             NSDictionary *pacsaei=pacsArray[pComponents[2]];
+             //NSDictionary *pacsaei=pacsArray[pComponents[2]];
+             NSDictionary *pacsaei=pacsArray[(request.query)[@"custodianOID"]];
              if (!pacsaei) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
              
              NSString *q=request.URL.query;//a same param may repeat
@@ -590,9 +598,10 @@ int main(int argc, const char* argv[]) {
              {
                  //local ... there exists an URL
                  NSString *wadouriString;
-                 if (q) wadouriString=[NSString stringWithFormat:@"%@?%@",
+                 if (q) wadouriString=[NSMutableString stringWithFormat:@"%@?%@",
                                     wadouriBaseString,
                                     q];
+                 [wadouriString stringByReplacingOccurrencesOfString:@"%22" withString:@""];
 
                  GWS_LOG_INFO(@"[WADO-URI] %@",wadouriString);
                  //no se agrega ningún control para no enlentecer
@@ -963,12 +972,9 @@ int main(int argc, const char* argv[]) {
 
         
         
-#pragma mark /weasis/studies? -> manifest contents
-        //------------------------------------------------
-        // http://{remotepcs}/weasis/studies?
-        //------------------------------------------------
+#pragma mark /manifest/weasis/studies? -> manifest contents
         
-        NSRegularExpression *mwstudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^/weasis/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
+        NSRegularExpression *mwstudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:mwstudiesregex
                                 requestClass:[GCDWebServerRequest class]
@@ -983,12 +989,7 @@ int main(int argc, const char* argv[]) {
              NSDictionary *q=request.query;
 
 
-             
-             //find dest
-             NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodian"]];
-             NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodian"]] indexOfObject:q[@"aet"]];
-             NSDictionary *destPacs=pacsArray[(custodianOIDsaeis[custodianOIDsArray[custodianTitleIndex]])[aetIndex]];
-             
+             NSDictionary *destPacs=pacsArray[q[@"custodianOID"]];
              NSDictionary *destSql=sql[destPacs[@"sql"]];
              if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
 
@@ -1123,12 +1124,9 @@ int main(int argc, const char* argv[]) {
          ];
         
         
-#pragma mark /weasis/studies/{StudyInstanceUID}/series?  -> manifest contents
-        //---------------------------------------------------------------
-        // /weasis/studies/{StudyInstanceUID}/series?SeriesInstanceUID=""
-        //---------------------------------------------------------------
+#pragma mark /manifest/weasis/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
         
-        NSRegularExpression *mwseriesregex = [NSRegularExpression regularExpressionWithPattern:@"^/weasis/studies/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*/series" options:NSRegularExpressionCaseInsensitive error:NULL];
+        NSRegularExpression *mwseriesregex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*/series/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*" options:NSRegularExpressionCaseInsensitive error:NULL];
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:mwseriesregex
                                 requestClass:[GCDWebServerRequest class]
@@ -1143,12 +1141,7 @@ int main(int argc, const char* argv[]) {
              NSDictionary *q=request.query;
              
              
-             
-             //find dest
-             NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodian"]];
-             NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodian"]] indexOfObject:q[@"aet"]];
-             NSDictionary *destPacs=pacsArray[(custodianOIDsaeis[custodianOIDsArray[custodianTitleIndex]])[aetIndex]];
-             
+             NSDictionary *destPacs=pacsArray[q[@"custodianOID"]];
              NSDictionary *destSql=sql[destPacs[@"sql"]];
              if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
 
@@ -1880,10 +1873,8 @@ int main(int argc, const char* argv[]) {
          ];
 
         
-#pragma mark IHEInvokeImageDisplay -> manifest
-        //-----------------------------------------------------------------------------------------------------------------------------
-        // IHEInvokeImageDisplay?requestType=STUDY&accessionNumber=1&viewerType=IHE_BIR&diagnosticQuality=true&keyImagesOnly=false&custodianUID=1.2&proxyURI=xxx
-        //-----------------------------------------------------------------------------------------------------------------------------
+#pragma mark IHEInvokeImageDisplay
+        // IHEInvokeImageDisplay?requestType=STUDY&accessionNumber=1&viewerType=IHE_BIR&diagnosticQuality=true&keyImagesOnly=false&custodianOID=xxx&proxyURI=yyy
         
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/IHEInvokeImageDisplay"
@@ -1918,9 +1909,9 @@ int main(int argc, const char* argv[]) {
              
              if (!q[@"custodianOID"]) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing custodianOID param in %@%@?%@",b,p,requestURL.query]];
              NSString *custodianURI;
-             if ((pacsArray[q[@"custodianOID"]])[@"islocalhosted"])custodianURI=@"http://localhost";
+             if ((pacsArray[q[@"custodianOID"]])[@"islocalhosted"])custodianURI=[NSString stringWithFormat:@"http://localhost:%lld",port];
              else custodianURI=(pacsArray[q[@"custodianOID"]])[@"publicuri"];
-             if (!q[@"custodianURI"]) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"invalid custodianUID param in %@%@?%@",b,p,requestURL.query]];
+             if (!@"custodianURI") return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"invalid custodianOID param in %@%@?%@",b,p,requestURL.query]];
              
              
              //proxyURI
@@ -1937,25 +1928,26 @@ int main(int argc, const char* argv[]) {
                  )
              {
                  [manifest appendString:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r"];
-                 NSString *additionalParameters=(pacsArray[q[@"custodianUID"]])[@"wadoadditionalparameters"];
+                 NSString *additionalParameters=(pacsArray[q[@"custodianOID"]])[@"wadoadditionalparameters"];
                  if (!additionalParameters)additionalParameters=@"";
-                 [manifest appendFormat:@"<wado_query xmlns=\"http://www.weasis.org/xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" wadoURL=\"%@\" requireOnlySOPInstanceUID=\"false\" additionnalParameters=\"&amp;session=%@%@\" overrideDicomTagsList=\"\">",
+                 [manifest appendFormat:@"<wado_query xmlns=\"http://www.weasis.org/xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" wadoURL=\"%@\" requireOnlySOPInstanceUID=\"false\" additionnalParameters=\"%@&amp;session=%@&amp;custodianOID=%@\" overrideDicomTagsList=\"\">",
                   proxyURI,
+                  additionalParameters,
                   q[@"session"],
-                  additionalParameters
+                  q[@"custodianOID"]
                   ];
                  
                  NSString *manifestWeasisURI;
                  if ([requestType isEqualToString:@"STUDY"])
                  {
-                     if (q[@"accessionNumber"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies?AccessionNumber=%@",custodianURI,q[@"accessionNumber"]];
-                     else if (q[@"studyUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies?StudyInstanceUID=%@",custodianURI,q[@"studyUID"]];
+                     if (q[@"accessionNumber"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies?AccessionNumber=%@&custodianOID=%@",custodianURI,q[@"accessionNumber"],q[@"custodianOID"]];
+                     else if (q[@"studyUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies?StudyInstanceUID=%@&custodianOID=%@",custodianURI,q[@"studyUID"],q[@"custodianOID"]];
                      else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
                  }
                  else
                  {
                      //SERIES
-                     if (q[@"studyUID"] && q[@"seriesUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies/%@/series/%@",custodianURI,q[@"studyUID"],q[@"seriesUID"]];
+                     if (q[@"studyUID"] && q[@"seriesUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies/%@/series/%@?custodianOID=%@",custodianURI,q[@"studyUID"],q[@"seriesUID"],q[@"custodianOID"]];
                      else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
                  }
                  NSLog(@"%@",manifestWeasisURI);
