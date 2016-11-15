@@ -700,6 +700,7 @@ int main(int argc, const char* argv[]) {
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         {
+            NSLog(@"osirix");
             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
             NSDictionary *destPacs=pacsArray[pComponents[2]];
             if (!destPacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
@@ -972,7 +973,7 @@ int main(int argc, const char* argv[]) {
 
         
         
-#pragma mark /manifest/weasis/studies? -> manifest contents
+#pragma mark /manifest/weasis/studies?
         
         NSRegularExpression *mwstudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
         [httpdicomServer addHandlerForMethod:@"GET"
@@ -1136,23 +1137,22 @@ int main(int argc, const char* argv[]) {
              NSURL *requestURL=request.URL;
              NSString *bSlash=requestURL.baseURL.absoluteString;
              NSString *b=[bSlash substringToIndex:[bSlash length]-1];
+             
              NSString *p=requestURL.path;
+             NSArray *pComponents=[p componentsSeparatedByString:@"/"];
+             NSString *StudyInstanceUID=pComponents[4];
+             NSString *SeriesInstanceUID=pComponents[6];
+             
              //NSString *q=requestURL.query;
              NSDictionary *q=request.query;
-             
-             
              NSDictionary *destPacs=pacsArray[q[@"custodianOID"]];
              NSDictionary *destSql=sql[destPacs[@"sql"]];
              if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
 
-             NSString *sqlString;
+             NSString *sqlString=[NSString stringWithFormat:destSql[@"manifestWeasisSeriesStudyInstanceUIDSeriesInstanceUID"],StudyInstanceUID,SeriesInstanceUID];
  
-             NSString *StudyInstanceUID=[p componentsSeparatedByString:@"/"][3];
-             NSString *SeriesInstanceUID=request.query[@"SeriesInstanceUID"];
-                 if (StudyInstanceUID && SeriesInstanceUID)sqlString=[NSString stringWithFormat:destSql[@"manifestWeasisSeriesStudyInstanceUIDSeriesInstanceUID"],StudyInstanceUID,SeriesInstanceUID];
-                 else return [GCDWebServerErrorResponse responseWithClientError:404 message:
-                              @"parameters StudyInstanceUID and SeriesInstanceUID required in %@%@?%@",b,p,q];
-             
+             NSLog(@"%@",sqlString);
+            
              //SQL for series
              NSMutableData *seriesData=[NSMutableData data];
              int seriesResult=task(@"/bin/bash",
@@ -1985,14 +1985,14 @@ int main(int argc, const char* argv[]) {
                  NSString *qidoSeriesString;
                  if ([requestType isEqualToString:@"STUDY"])
                  {
-                     if (q[@"accessionNumber"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?AccessionNumber=%@",custodianURI,q[@"accessionNumber"]];
-                     else if (q[@"studyUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@",custodianURI,q[@"studyUID"]];
+                     if (q[@"accessionNumber"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?AccessionNumber=%@",(pacsArray[q[@"custodianOID"]])[@"qido"],q[@"accessionNumber"]];
+                     else if (q[@"studyUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@",(pacsArray[q[@"custodianOID"]])[@"qido"],q[@"studyUID"]];
                      else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
                  }
                  else
                  {
                      //SERIES
-                     if (q[@"studyUID"] && q[@"seriesUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@&SeriesInstanceUID=%@",custodianURI,q[@"studyUID"],q[@"seriesUID"]];
+                     if (q[@"studyUID"] && q[@"seriesUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@&SeriesInstanceUID=%@",(pacsArray[q[@"custodianOID"]])[@"qido"],q[@"studyUID"],q[@"seriesUID"]];
                      else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
                  }
                  NSLog(@"%@",qidoSeriesString);
@@ -2032,7 +2032,7 @@ int main(int argc, const char* argv[]) {
                          
                          NSString *qidoInstancesString=
                          [NSString stringWithFormat:@"%@/instances?StudyInstanceUID=%@&SeriesInstanceUID=%@",
-                          custodianURI,
+                          (pacsArray[q[@"custodianOID"]])[@"qido"],
                           q[@"studyUID"],
                           ((seriesQido[@"0020000E"])[@"Value"])[0]
                           ];
@@ -2051,11 +2051,12 @@ int main(int argc, const char* argv[]) {
                          
                          for (NSDictionary *instance in instancesArray)
                          {
-                             NSString *wadouriInstance=[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@",proxyURI,
+                             NSString *wadouriInstance=[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@",proxyURI,
                                                         q[@"studyUID"],
                                                         ((seriesQido[@"0020000E"])[@"Value"])[0],
                                                         ((instance[@"00080018"])[@"Value"])[0],
-                                                        q[@"session"]
+                                                        q[@"session"],
+                                                        q[@"custodianOID"]
                                                         ];
                              [instanceList addObject:@{
                                                        @"imageId":wadouriInstance
@@ -2063,6 +2064,7 @@ int main(int argc, const char* argv[]) {
                          }
                      }
                  }
+                 NSLog(@"%@",[cornerstone description]);
                  return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:cornerstone options:0 error:nil] contentType:@"application/json"];
              }
              else if ([viewerType isEqualToString:@"MHD-I"])
