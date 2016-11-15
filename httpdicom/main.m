@@ -359,28 +359,31 @@ int main(int argc, const char* argv[]) {
         NSData *custodianTitlesData = [NSJSONSerialization dataWithJSONObject:custodianTitlesArray options:0 error:nil];
 
         //crear un dictionario con índice custodianOID y custodianTitle y objeto el json corresondiente de lista de aet o de lista de aei
-        NSMutableDictionary *custodianTitlesaets=[NSMutableDictionary dictionary];
         NSMutableDictionary *custodianOIDsaeis=[NSMutableDictionary dictionary];
         for (NSString *custodianOID in custodianOIDsArray)
         {
-            
-            //para cada custodian
-            NSString *custodianTitle=[custodianTitlesArray objectAtIndex:[custodianOIDsArray indexOfObject:custodianOID]];
-            NSMutableArray *custodianTitleaets=[NSMutableArray array];
             NSMutableArray *custodianOIDaeis=[NSMutableArray array];
             for (NSString *k in [pacsArray allKeys])
             {
                 NSDictionary *d=[pacsArray objectForKey:k];
-                if ([[d objectForKey:@"custodianoid"]isEqualToString:custodianOID])
-                {
-                    [custodianTitleaets addObject:[d objectForKey:@"dicomaet"]];
-                    [custodianOIDaeis addObject:k];
-                }
+                if ([[d objectForKey:@"custodianoid"]isEqualToString:custodianOID])[custodianOIDaeis addObject:k];
             }
-            [custodianTitlesaets setValue:custodianTitleaets forKey:custodianTitle];
             [custodianOIDsaeis setValue:custodianOIDaeis forKey:custodianOID];
         }
-        
+
+        NSMutableDictionary *custodianTitlesaets=[NSMutableDictionary dictionary];
+        for (NSString *custodianTitle in custodianTitlesArray)
+        {
+            NSMutableArray *custodianTitleaets=[NSMutableArray array];
+            for (NSString *k in [pacsArray allKeys])
+            {
+                NSDictionary *d=[pacsArray objectForKey:k];
+                if ([[d objectForKey:@"custodiantitle"]isEqualToString:custodianTitle])
+                    [custodianTitleaets addObject:[d objectForKey:@"dicomaet"]];
+            }
+            [custodianTitlesaets setObject:custodianTitleaets forKey:custodianTitle];
+        }
+
         
         GCDWebServer* httpdicomServer = [[GCDWebServer alloc] init];
         
