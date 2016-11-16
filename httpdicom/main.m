@@ -306,14 +306,6 @@ int main(int argc, const char* argv[]) {
             return 1;
         }
         
-        //[3]
-        NSDictionary *pacsArray=[NSDictionary dictionaryWithContentsOfFile:[args[3]stringByExpandingTildeInPath]];
-        if (!pacsArray)
-        {
-            NSLog(@"could not get contents of pacs.plist");
-            return 1;
-        }
-        
         NSDateFormatter *dicomDTFormatter = [[NSDateFormatter alloc] init];
         [dicomDTFormatter setDateFormat:@"yyyyMMddHHmmss"];
         NSRegularExpression *UIRegex = [NSRegularExpression regularExpressionWithPattern:@"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:0 error:NULL];
@@ -341,49 +333,62 @@ int main(int argc, const char* argv[]) {
         sStudyDescription=[NSMutableDictionary dictionary];
         
 
-        //custodians y aets
-        NSMutableSet *custodianOIDs=[NSMutableSet set];
-        NSMutableSet *custodianTitles=[NSMutableSet set];
-        NSMutableSet *sqlset=[NSMutableSet set];
-        
-        for (NSDictionary *dictionary in [pacsArray allValues])
+        //[3]
+        //arrays custodians
+        NSDictionary *pacsDictionaries=[NSDictionary dictionaryWithContentsOfFile:[args[3]stringByExpandingTildeInPath]];
+        if (!pacsDictionaries)
         {
-            [custodianOIDs addObject:[dictionary objectForKey:@"custodianoid"]];
-            [custodianTitles addObject:[dictionary objectForKey:@"custodiantitle"]];
-            NSString *s=[dictionary objectForKey:@"sql"];
+            NSLog(@"could not get contents of pacs.plist");
+            return 1;
+        }
+        NSMutableDictionary *custodianoids=[NSMutableDictionary dictionary];
+        NSMutableDictionary *custodiantitles=[NSMutableDictionary dictionary];
+        NSMutableSet *sqlset=[NSMutableSet set];
+        for (NSDictionary *d in [pacsDictionaries allValues])
+        {
+            [custodianoids setObject:d[@"custodiantitle"] forKey:d[@"custodianoid"]];
+            [custodiantitles setObject:d[@"custodianoid"] forKey:d[@"custodiantitle"]];
+            NSString *s=[d objectForKey:@"sql"];
             if (s) [sqlset addObject:s];
         }
-        NSArray *custodianOIDsArray=[custodianOIDs allObjects];
-        NSData *custodianOIDsData = [NSJSONSerialization dataWithJSONObject:custodianOIDsArray options:0 error:nil];
-        NSArray *custodianTitlesArray=[custodianTitles allObjects];
-        NSData *custodianTitlesData = [NSJSONSerialization dataWithJSONObject:custodianTitlesArray options:0 error:nil];
+        NSData *custodianOIDsData = [NSJSONSerialization dataWithJSONObject:[custodianoids allKeys] options:0 error:nil];
+        NSData *custodianTitlesData = [NSJSONSerialization dataWithJSONObject:[custodiantitles allKeys] options:0 error:nil];
 
-        //crear un dictionario con índice custodianOID y custodianTitle y objeto el json corresondiente de lista de aet o de lista de aei
+        
         NSMutableDictionary *custodianOIDsaeis=[NSMutableDictionary dictionary];
-        for (NSString *custodianOID in custodianOIDsArray)
+        for (NSString *custodianOID in [custodianoids allKeys])
         {
             NSMutableArray *custodianOIDaeis=[NSMutableArray array];
-            for (NSString *k in [pacsArray allKeys])
+            for (NSString *k in [pacsDictionaries allKeys])
             {
-                NSDictionary *d=[pacsArray objectForKey:k];
+                NSDictionary *d=[pacsDictionaries objectForKey:k];
                 if ([[d objectForKey:@"custodianoid"]isEqualToString:custodianOID])[custodianOIDaeis addObject:k];
             }
             [custodianOIDsaeis setValue:custodianOIDaeis forKey:custodianOID];
         }
+        NSLog(@"%@",[custodianOIDsaeis description]);
 
+        
         NSMutableDictionary *custodianTitlesaets=[NSMutableDictionary dictionary];
-        for (NSString *custodianTitle in custodianTitlesArray)
+        for (NSString *custodianTitle in [custodiantitles allKeys])
         {
             NSMutableArray *custodianTitleaets=[NSMutableArray array];
-            for (NSString *k in [pacsArray allKeys])
+            for (NSString *k in [pacsDictionaries allKeys])
             {
-                NSDictionary *d=[pacsArray objectForKey:k];
+                NSDictionary *d=[pacsDictionaries objectForKey:k];
                 if ([[d objectForKey:@"custodiantitle"]isEqualToString:custodianTitle])
                     [custodianTitleaets addObject:[d objectForKey:@"dicomaet"]];
             }
             [custodianTitlesaets setObject:custodianTitleaets forKey:custodianTitle];
         }
+        NSLog(@"%@",[custodianTitlesaets description]);
 
+        NSMutableDictionary *pacsTitlesDictionary=[NSMutableDictionary dictionary];
+        for (NSString *key in [pacsDictionaries allKeys])
+        {
+            [pacsTitlesDictionary setObject:key forKey:[(pacsDictionaries[key])[@"custodiantitle"] stringByAppendingPathExtension:(pacsDictionaries[key])[@"dicomaet"]]];
+        }
+        NSLog(@"%@",[pacsTitlesDictionary description]);
         
         GCDWebServer* httpdicomServer = [[GCDWebServer alloc] init];
         
@@ -436,12 +441,11 @@ int main(int argc, const char* argv[]) {
                      ||![SHRegex numberOfMatchesInString:pComponents[3] options:0 range:NSMakeRange(0,p3Length)])
                      return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{title} datatype should be DICOM SH]",request.path];
                  
-                 NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:pComponents[3]];
-                 if (custodianTitleIndex==NSNotFound)
+                 if (!custodiantitles[pComponents[3]])
                      return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{title} not found]",request.path];
                  
                  //custodian/titles/{TITLE}
-                 if (pCount==4) return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[NSArray arrayWithObject:[custodianOIDsArray objectAtIndex:custodianTitleIndex]] options:0 error:nil] contentType:@"application/json"];
+                 if (pCount==4) return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[NSArray arrayWithObject:custodiantitles[pComponents[3]]] options:0 error:nil] contentType:@"application/json"];
                  
                  if (![pComponents[4]isEqualToString:@"aets"])
                      return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{title} unique resource is 'aets']",request.path];
@@ -464,7 +468,7 @@ int main(int argc, const char* argv[]) {
                  //custodian/titles/{title}/aets/{aet}
                      return [GCDWebServerDataResponse responseWithData:
                              [NSJSONSerialization dataWithJSONObject:
-                              [NSArray arrayWithObject:(custodianOIDsaeis[custodianOIDsArray[custodianTitleIndex]])[aetIndex]]
+                              [NSArray arrayWithObject:(custodianOIDsaeis[custodiantitles[pComponents[3]]])[aetIndex]]
                               options:0
                               error:nil
                              ]
@@ -484,12 +488,11 @@ int main(int argc, const char* argv[]) {
                      )
                      return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{OID} datatype should be DICOM UI]",request.path];
                  
-                 NSUInteger custodianOIDIndex=[custodianOIDsArray indexOfObject:pComponents[3]];
-                 if (custodianOIDIndex==NSNotFound)
+                 if (custodianoids[pComponents[3]])
                      return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{OID} not found]",request.path];
                  
                  //custodian/oids/{OID}
-                 if (pCount==4) return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[NSArray arrayWithObject:[custodianTitlesArray objectAtIndex:custodianOIDIndex]] options:0 error:nil] contentType:@"application/json"];
+                 if (pCount==4) return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[NSArray arrayWithObject:custodianoids[pComponents[3]]] options:0 error:nil] contentType:@"application/json"];
                  
                  if (![pComponents[4]isEqualToString:@"aeis"])
                      return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{OID} unique resource is 'aeis']",request.path];
@@ -513,7 +516,7 @@ int main(int argc, const char* argv[]) {
                  //custodian/oids/{OID}/aeis/{aei}
                  return [GCDWebServerDataResponse responseWithData:
                          [NSJSONSerialization dataWithJSONObject:
-                          [NSArray arrayWithObject:(custodianTitlesaets[custodianTitlesArray[custodianOIDIndex]])[aeiIndex]]
+                          [NSArray arrayWithObject:(pacsDictionaries[pComponents[5]])[@"dicomaet"]]
                                                          options:0
                                                            error:nil
                           ]
@@ -537,7 +540,7 @@ int main(int argc, const char* argv[]) {
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
-             NSDictionary *pacsaei=pacsArray[pComponents[2]];
+             NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
              if (!pacsaei) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
 
              NSString *pcsuri=pacsaei[@"pcsuri"];
@@ -590,8 +593,8 @@ int main(int argc, const char* argv[]) {
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
-             //NSDictionary *pacsaei=pacsArray[pComponents[2]];
-             NSDictionary *pacsaei=pacsArray[(request.query)[@"custodianOID"]];
+             //NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
+             NSDictionary *pacsaei=pacsDictionaries[(request.query)[@"custodianOID"]];
              if (!pacsaei) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
              
              NSString *q=request.URL.query;//a same param may repeat
@@ -658,7 +661,7 @@ int main(int argc, const char* argv[]) {
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
-             NSDictionary *pacsaei=pacsArray[pComponents[2]];
+             NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
              if (!pacsaei) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
 
              NSString *wadorsBaseString=pacsaei[@"wadors"];
@@ -705,7 +708,7 @@ int main(int argc, const char* argv[]) {
         {
             NSLog(@"osirix");
             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
-            NSDictionary *destPacs=pacsArray[pComponents[2]];
+            NSDictionary *destPacs=pacsDictionaries[pComponents[2]];
             if (!destPacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
 
             //buscar SERIES wadors URIs
@@ -870,7 +873,7 @@ int main(int argc, const char* argv[]) {
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
-             NSDictionary *destPacs=pacsArray[pComponents[2]];
+             NSDictionary *destPacs=pacsDictionaries[pComponents[2]];
              if (!destPacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
              
              //buscar SERIES wadors URIs
@@ -993,7 +996,7 @@ int main(int argc, const char* argv[]) {
              NSDictionary *q=request.query;
 
 
-             NSDictionary *destPacs=pacsArray[q[@"custodianOID"]];
+             NSDictionary *destPacs=pacsDictionaries[q[@"custodianOID"]];
              NSDictionary *destSql=sql[destPacs[@"sql"]];
              if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
 
@@ -1148,7 +1151,7 @@ int main(int argc, const char* argv[]) {
              
              //NSString *q=requestURL.query;
              NSDictionary *q=request.query;
-             NSDictionary *destPacs=pacsArray[q[@"custodianOID"]];
+             NSDictionary *destPacs=pacsDictionaries[q[@"custodianOID"]];
              NSDictionary *destSql=sql[destPacs[@"sql"]];
              if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
 
@@ -1360,9 +1363,8 @@ int main(int argc, const char* argv[]) {
 #pragma mark --different context
 #pragma mark reemplazar org por custodianTitle e institucion por aet
                  //find dest
-                 NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodiantitle"]];
-                 NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodiantitle"]] indexOfObject:q[@"aet"]];
-                 NSDictionary *destPacs=pacsArray[(custodianOIDsaeis[custodianOIDsArray[custodianTitleIndex]])[aetIndex]];
+                 NSString *destOID=pacsTitlesDictionary[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
+                 NSDictionary *destPacs=pacsDictionaries[destOID];
                  
                  NSDictionary *destSql=sql[destPacs[@"sql"]];
                  if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
@@ -1766,9 +1768,8 @@ int main(int argc, const char* argv[]) {
              //following filters use formats like " AND a like 'b'"
              
              //find dest
-             NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodiantitle"]];
-             NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodiantitle"]] indexOfObject:q[@"aet"]];
-             NSDictionary *destPacs=pacsArray[(custodianOIDsaeis[custodianOIDsArray[custodianTitleIndex]])[aetIndex]];
+             NSString *destOID=pacsTitlesDictionary[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
+             NSDictionary *destPacs=pacsDictionaries[destOID];
              
              NSDictionary *destSql=sql[destPacs[@"sql"]];
              if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
@@ -1831,9 +1832,8 @@ int main(int argc, const char* argv[]) {
              
              
              //find dest
-             NSUInteger custodianTitleIndex=[custodianTitlesArray indexOfObject:q[@"custodiantitle"]];
-             NSUInteger aetIndex=[[custodianTitlesaets objectForKey:q[@"custodiantitle"]] indexOfObject:q[@"aet"]];
-             NSDictionary *destPacs=pacsArray[(custodianOIDsaeis[custodianOIDsArray[custodianTitleIndex]])[aetIndex]];
+             NSString *destOID=pacsTitlesDictionary[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
+             NSDictionary *destPacs=pacsDictionaries[destOID];
              
              NSDictionary *destSql=sql[destPacs[@"sql"]];
              if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
@@ -1912,8 +1912,8 @@ int main(int argc, const char* argv[]) {
              
              if (!q[@"custodianOID"]) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing custodianOID param in %@%@?%@",b,p,requestURL.query]];
              NSString *custodianURI;
-             if ((pacsArray[q[@"custodianOID"]])[@"islocalhosted"])custodianURI=[NSString stringWithFormat:@"http://localhost:%lld",port];
-             else custodianURI=(pacsArray[q[@"custodianOID"]])[@"publicuri"];
+             if ((pacsDictionaries[q[@"custodianOID"]])[@"islocalhosted"])custodianURI=[NSString stringWithFormat:@"http://localhost:%lld",port];
+             else custodianURI=(pacsDictionaries[q[@"custodianOID"]])[@"publicuri"];
              if (!@"custodianURI") return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"invalid custodianOID param in %@%@?%@",b,p,requestURL.query]];
              
              
@@ -1931,7 +1931,7 @@ int main(int argc, const char* argv[]) {
                  )
              {
                  [manifest appendString:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r"];
-                 NSString *additionalParameters=(pacsArray[q[@"custodianOID"]])[@"wadoadditionalparameters"];
+                 NSString *additionalParameters=(pacsDictionaries[q[@"custodianOID"]])[@"wadoadditionalparameters"];
                  if (!additionalParameters)additionalParameters=@"";
                  [manifest appendFormat:@"<wado_query xmlns=\"http://www.weasis.org/xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" wadoURL=\"%@\" requireOnlySOPInstanceUID=\"false\" additionnalParameters=\"%@&amp;session=%@&amp;custodianOID=%@\" overrideDicomTagsList=\"\">",
                   proxyURI,
@@ -1988,14 +1988,14 @@ int main(int argc, const char* argv[]) {
                  NSString *qidoSeriesString;
                  if ([requestType isEqualToString:@"STUDY"])
                  {
-                     if (q[@"accessionNumber"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?AccessionNumber=%@",(pacsArray[q[@"custodianOID"]])[@"qido"],q[@"accessionNumber"]];
-                     else if (q[@"studyUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@",(pacsArray[q[@"custodianOID"]])[@"qido"],q[@"studyUID"]];
+                     if (q[@"accessionNumber"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?AccessionNumber=%@",(pacsDictionaries[q[@"custodianOID"]])[@"qido"],q[@"accessionNumber"]];
+                     else if (q[@"studyUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@",(pacsDictionaries[q[@"custodianOID"]])[@"qido"],q[@"studyUID"]];
                      else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
                  }
                  else
                  {
                      //SERIES
-                     if (q[@"studyUID"] && q[@"seriesUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@&SeriesInstanceUID=%@",(pacsArray[q[@"custodianOID"]])[@"qido"],q[@"studyUID"],q[@"seriesUID"]];
+                     if (q[@"studyUID"] && q[@"seriesUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@&SeriesInstanceUID=%@",(pacsDictionaries[q[@"custodianOID"]])[@"qido"],q[@"studyUID"],q[@"seriesUID"]];
                      else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
                  }
                  NSLog(@"%@",qidoSeriesString);
@@ -2015,7 +2015,9 @@ int main(int argc, const char* argv[]) {
                  if (!studyDescription) studyDescription=@"";
                  [cornerstone setObject:studyDescription forKey:@"studyDescription"];//
                  [cornerstone setObject:@999 forKey:@"numImages"];
-                 [cornerstone setObject:(((seriesArray[0])[@"00200010"])[@"Value"])[0] forKey:@"studyId"];
+                 NSString *studyId=(((seriesArray[0])[@"00200010"])[@"Value"])[0];
+                 if (!studyId)studyId=@"";
+                 [cornerstone setObject:studyId forKey:@"studyId"];
                  NSMutableArray *seriesList=[NSMutableArray array];
                  [cornerstone setObject:seriesList forKey:@"seriesList"];
                  for (NSDictionary *seriesQido in seriesArray)
@@ -2027,7 +2029,9 @@ int main(int argc, const char* argv[]) {
                          //cornerstone no muestra los documentos encapsulados
                          NSMutableDictionary *seriesCornerstone=[NSMutableDictionary dictionary];
                          [seriesList addObject:seriesCornerstone];
-                         [seriesCornerstone setObject:((seriesQido[@"0008103E"])[@"Value"])[0] forKey:@"seriesDescription"];
+                         NSString *seriesDescription=((seriesQido[@"0008103E"])[@"Value"])[0];
+                         if (!seriesDescription)seriesDescription=@"";
+                         [seriesCornerstone setObject:seriesDescription forKey:@"seriesDescription"];
                          [seriesCornerstone setObject:((seriesQido[@"00200011"])[@"Value"])[0] forKey:@"seriesNumber"];
                          NSMutableArray *instanceList=[NSMutableArray array];
                          [seriesCornerstone setObject:instanceList forKey:@"instanceList"];
@@ -2035,7 +2039,7 @@ int main(int argc, const char* argv[]) {
                          
                          NSString *qidoInstancesString=
                          [NSString stringWithFormat:@"%@/instances?StudyInstanceUID=%@&SeriesInstanceUID=%@",
-                          (pacsArray[q[@"custodianOID"]])[@"qido"],
+                          (pacsDictionaries[q[@"custodianOID"]])[@"qido"],
                           q[@"studyUID"],
                           ((seriesQido[@"0020000E"])[@"Value"])[0]
                           ];
