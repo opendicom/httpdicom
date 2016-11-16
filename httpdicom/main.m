@@ -370,18 +370,29 @@ int main(int argc, const char* argv[]) {
 
         
         NSMutableDictionary *custodianTitlesaets=[NSMutableDictionary dictionary];
+        NSMutableDictionary *custodianTitlesaetsStrings=[NSMutableDictionary dictionary];
         for (NSString *custodianTitle in [custodiantitles allKeys])
         {
             NSMutableArray *custodianTitleaets=[NSMutableArray array];
+            NSMutableString *s=[NSMutableString stringWithString:@"("];
+
             for (NSString *k in [pacsDictionaries allKeys])
             {
                 NSDictionary *d=[pacsDictionaries objectForKey:k];
                 if ([[d objectForKey:@"custodiantitle"]isEqualToString:custodianTitle])
+                {
                     [custodianTitleaets addObject:[d objectForKey:@"dicomaet"]];
+                    if ([s isEqualToString:@"("])
+                        [s appendFormat:@"'%@'",[d objectForKey:@"dicomaet"]];
+                    else [s appendFormat:@",'%@'",[d objectForKey:@"dicomaet"]];
+                }
             }
             [custodianTitlesaets setObject:custodianTitleaets forKey:custodianTitle];
+            [s appendString:@")"];
+            [custodianTitlesaetsStrings setObject:s forKey:custodianTitle];
         }
         NSLog(@"%@",[custodianTitlesaets description]);
+        NSLog(@"%@",custodianTitlesaetsStrings);
 
         NSMutableDictionary *pacsTitlesDictionary=[NSMutableDictionary dictionary];
         for (NSString *key in [pacsDictionaries allKeys])
@@ -1290,6 +1301,10 @@ int main(int argc, const char* argv[]) {
         /*
          query ajax with params:
          agregate 00080090 in other accesible PCS...
+         
+         q=current query
+         r=Req=request sql
+         s=subselection from caché
          */
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/datatables/studies"
@@ -1308,7 +1323,10 @@ int main(int argc, const char* argv[]) {
              //NSString *qStudyDate=q[@"columns[5][search][value]"];
              NSString *qDate_start=q[@"date_start"];
              NSString *qDate_end=q[@"date_end"];
-             NSString *qModalitiesInStudy=q[@"columns[6][search][value]"];
+             NSString *qModalitiesInStudy;
+             if ([q[@"columns[6][search][value]"] isEqualToString:@""])
+                 qModalitiesInStudy=@"*";
+             else qModalitiesInStudy=q[@"columns[6][search][value]"];
              NSString *qStudyDescription=q[@"columns[7][search][value]"];
              
              NSString *rPatientID=r[@"columns[3][search][value]"];
@@ -1351,7 +1369,7 @@ int main(int argc, const char* argv[]) {
                     )
                  ||(    qModalitiesInStudy
                     &&![qModalitiesInStudy isEqualToString:rModalitiesInStudy]
-                    &&![rModalitiesInStudy isEqualToString:@""]
+                    &&![rModalitiesInStudy isEqualToString:@"*"]
                     )
                  ||(    qStudyDescription
                     &&![qStudyDescription isEqualToString:rStduyDescription]
@@ -1405,13 +1423,23 @@ int main(int argc, const char* argv[]) {
                  NSMutableString *studiesWhere=[NSMutableString stringWithString:destSql[@"studiesWhere"]];
 
                  //PEP por aet or custodian
-                 
-                 [studiesWhere appendFormat:
+                 if ([q[@"aet"] isEqualToString:q[@"custodiantitle"]])
+                 {
+                     [studiesWhere appendFormat:
+                      @" AND %@ in %@",
+                      destSql[@"accessControlId"],
+                      custodianTitlesaetsStrings[q[@"custodiantitle"]]
+                      ];
+                 }
+                 else
+                 {
+                     [studiesWhere appendFormat:
                       @" AND %@ in ('%@','%@')",
                       destSql[@"accessControlId"],
                       q[@"aet"],
                       q[@"custodiantitle"]
-                  ];
+                      ];
+                 }
                  
                  if (q[@"search[value]"] && ![q[@"search[value]"] isEqualToString:@""])
                  {
@@ -1595,6 +1623,13 @@ int main(int argc, const char* argv[]) {
                  if (recordsTotal > 0)
                  {
                      BOOL toBeFiltered=false;
+                     NSString *newModalitiesInStudy=nil;
+                     NSLog(@"qModalities:'%@'  rModalities:'%@'  sModalities:'%@'",qModalitiesInStudy,rModalitiesInStudy,sModalitiesInStudy[session]);
+                     if( qModalitiesInStudy && ![qModalitiesInStudy isEqualToString:sModalitiesInStudy[session]])
+                     {
+                         toBeFiltered=true;
+                         newModalitiesInStudy=qModalitiesInStudy;
+                     }
                      
                      NSRegularExpression *PatientIDRegex=nil;
                      if(qPatientID && ![qPatientID isEqualToString:sPatientID[session]])
@@ -1630,13 +1665,6 @@ int main(int argc, const char* argv[]) {
                      {
                          toBeFiltered=true;
                          since=qDate_start;
-                     }
-                     
-                     NSString *newModalitiesInStudy=nil;
-                     if(qModalitiesInStudy && ![qModalitiesInStudy isEqualToString:sModalitiesInStudy[session]])
-                     {
-                         toBeFiltered=true;
-                         newModalitiesInStudy=qModalitiesInStudy;
                      }
                      
                      
@@ -1677,8 +1705,8 @@ int main(int argc, const char* argv[]) {
                              }
                              if (newModalitiesInStudy)
                              {
-                                 //NSLog(@"modalities filter");
-                                 if (![BRow[6] containsString:newModalitiesInStudy]) return false;
+                                 if (  ![newModalitiesInStudy isEqualToString:@"*"]
+                                     &&![BRow[6] containsString:newModalitiesInStudy]) return false;
                              }
                              if (StudyDescriptionRegex)
                              {
