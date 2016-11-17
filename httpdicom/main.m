@@ -73,7 +73,7 @@ static NSMutableDictionary *sPatientID;
 static NSMutableDictionary *sPatientName;
 static NSMutableDictionary *sDate_start;
 static NSMutableDictionary *sDate_end;
-static NSMutableDictionary *sModalitiesInStudy;
+static NSMutableDictionary *sModality;
 static NSMutableDictionary *sStudyDescription;
 
 int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
@@ -329,7 +329,7 @@ int main(int argc, const char* argv[]) {
         sPatientName=[NSMutableDictionary dictionary];
         sDate_start=[NSMutableDictionary dictionary];
         sDate_end=[NSMutableDictionary dictionary];
-        sModalitiesInStudy=[NSMutableDictionary dictionary];
+        sModality=[NSMutableDictionary dictionary];
         sStudyDescription=[NSMutableDictionary dictionary];
         
 
@@ -1323,10 +1323,9 @@ int main(int argc, const char* argv[]) {
              //NSString *qStudyDate=q[@"columns[5][search][value]"];
              NSString *qDate_start=q[@"date_start"];
              NSString *qDate_end=q[@"date_end"];
-             NSString *qModalitiesInStudy;
-             if ([q[@"columns[6][search][value]"] isEqualToString:@""])
-                 qModalitiesInStudy=@"*";
-             else qModalitiesInStudy=q[@"columns[6][search][value]"];
+             NSString *qModality=q[@"columns[6][search][value]"];
+             if (!qModality || [qModality isEqualToString:@""]) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'columns[6][search][value]' (modality) parameter"] contentType:@"application/dicom+json"];
+             
              NSString *qStudyDescription=q[@"columns[7][search][value]"];
              
              NSString *rPatientID=r[@"columns[3][search][value]"];
@@ -1334,7 +1333,7 @@ int main(int argc, const char* argv[]) {
              //NSString *rStudyDate=r[@"columns[5][search][value]"];
              NSString *rDate_start=r[@"date_start"];
              NSString *rDate_end=r[@"date_end"];
-             NSString *rModalitiesInStudy=r[@"columns[6][search][value]"];
+             NSString *rModality=r[@"columns[6][search][value]"];
              NSString *rStduyDescription=r[@"columns[7][search][value]"];
              
              
@@ -1367,9 +1366,8 @@ int main(int argc, const char* argv[]) {
                     &&![qDate_end isEqualToString:rDate_end]
                     &&![rDate_end isEqualToString:@""]
                     )
-                 ||(    qModalitiesInStudy
-                    &&![qModalitiesInStudy isEqualToString:rModalitiesInStudy]
-                    &&![rModalitiesInStudy isEqualToString:@"*"]
+                 ||(  ![qModality isEqualToString:rModality]
+                    &&![rModality isEqualToString:@"%%"]
                     )
                  ||(    qStudyDescription
                     &&![qStudyDescription isEqualToString:rStduyDescription]
@@ -1402,18 +1400,22 @@ int main(int argc, const char* argv[]) {
                      //if(sStudyDate[@"session"])[sStudyDate removeObjectForKey:session];
                      if(sDate_start[@"session"])[sDate_start removeObjectForKey:session];
                      if(sDate_end[@"session"])[sDate_end removeObjectForKey:session];
-                     if(sModalitiesInStudy[@"session"])[sModalitiesInStudy removeObjectForKey:session];
+                     if(sModality[@"session"])[sModality removeObjectForKey:session];
                      if(sStudyDescription[@"session"])[sStudyDescription removeObjectForKey:session];
                      
                  }
+                 //copy of the sql request of the new context
                  [Req setObject:q forKey:session];
+                 
+//TODO: remove old sessions
                  [Date setObject:[NSDate date] forKey:session];
+
                  if(qPatientID)[sPatientID setObject:qPatientID forKey:session];
                  if(qPatientName)[sPatientName setObject:qPatientName forKey:session];
                  //if(qStudyDate)[sStudyDate setObject:qStudyDate forKey:session];
                  if(qDate_start)[sDate_start setObject:qDate_start forKey:session];
                  if(qDate_end)[sDate_end setObject:qDate_end forKey:session];
-                 if(qModalitiesInStudy)[sModalitiesInStudy setObject:qModalitiesInStudy forKey:session];
+                 [sModality setObject:qModality forKey:session];
                  if(qStudyDescription)[sStudyDescription setObject:qStudyDescription forKey:session];
                  
 //1 create where clause
@@ -1547,11 +1549,8 @@ int main(int argc, const char* argv[]) {
                          }
                      }
                      
-                     if(qModalitiesInStudy && [qModalitiesInStudy length] && ![qModalitiesInStudy isEqualToString:@"*"])
-                     {
-                         //ModalitiesInStudy _00080061 Modalidades (coma separated)
-                         [studiesWhere appendFormat:@" AND %@ like '%%%@%%'", destSql[@"ModalitiesInStudy"], qModalitiesInStudy];
-                     }
+                     //qModality contains ONE modality or joker %%
+                     [studiesWhere appendFormat:@" AND %@ like '%%%@%%'", destSql[@"ModalitiesInStudy"], qModality];
                      
                      if(qStudyDescription && [qStudyDescription length])
                      {
@@ -1623,13 +1622,6 @@ int main(int argc, const char* argv[]) {
                  if (recordsTotal > 0)
                  {
                      BOOL toBeFiltered=false;
-                     NSString *newModalitiesInStudy=nil;
-                     NSLog(@"qModalities:'%@'  rModalities:'%@'  sModalities:'%@'",qModalitiesInStudy,rModalitiesInStudy,sModalitiesInStudy[session]);
-                     if( qModalitiesInStudy && ![qModalitiesInStudy isEqualToString:sModalitiesInStudy[session]])
-                     {
-                         toBeFiltered=true;
-                         newModalitiesInStudy=qModalitiesInStudy;
-                     }
                      
                      NSRegularExpression *PatientIDRegex=nil;
                      if(qPatientID && ![qPatientID isEqualToString:sPatientID[session]])
@@ -1667,6 +1659,14 @@ int main(int argc, const char* argv[]) {
                          since=qDate_start;
                      }
                      
+                     NSString *modalitySelected=nil;
+                     //sModality contains the last selected modality within the same context
+                     NSLog(@"qModalities:'%@'  sModalities:'%@'   (context:'%@')",qModality,sModality[session],rModality);
+                     if(![qModality isEqualToString:sModality[session]])
+                     {
+                         toBeFiltered=true;
+                         modalitySelected=qModality;
+                     }
                      
                      NSRegularExpression *StudyDescriptionRegex=nil;
                      if(qStudyDescription  && ![qStudyDescription isEqualToString:sStudyDescription[session]])
@@ -1682,36 +1682,34 @@ int main(int argc, const char* argv[]) {
                          [Filtered setObject:[Total[session] mutableCopy] forKey:session];
                          
                          //create compound predicate
-                         NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *BRow, NSDictionary *bindings) {
+                         NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings) {
                              if (PatientIDRegex)
                              {
                                  //NSLog(@"patientID filter");
-                                 if (![PatientIDRegex numberOfMatchesInString:BRow[3] options:0 range:NSMakeRange(0,[BRow[3] length])]) return false;
+                                 if (![PatientIDRegex numberOfMatchesInString:row[3] options:0 range:NSMakeRange(0,[row[3] length])]) return false;
                              }
                              if (PatientNameRegex)
                              {
                                  //NSLog(@"patientName filter");
-                                 if (![PatientNameRegex numberOfMatchesInString:BRow[4] options:0 range:NSMakeRange(0,[BRow[4] length])]) return false;
+                                 if (![PatientNameRegex numberOfMatchesInString:row[4] options:0 range:NSMakeRange(0,[row[4] length])]) return false;
                              }
                              if (until)
                              {
                                  //NSLog(@"until filter");
-                                 if ([until compare:BRow[5]]==NSOrderedDescending) return false;
+                                 if ([until compare:row[5]]==NSOrderedDescending) return false;
                              }
                              if (since)
                              {
                                  //NSLog(@"since filter");
-                                 if ([since compare:BRow[5]]==NSOrderedAscending) return false;
+                                 if ([since compare:row[5]]==NSOrderedAscending) return false;
                              }
-                             if (newModalitiesInStudy)
-                             {
-                                 if (  ![newModalitiesInStudy isEqualToString:@"*"]
-                                     &&![BRow[6] containsString:newModalitiesInStudy]) return false;
-                             }
+                             //row[6] contains modalitiesInStudies. Ej: CT\OT
+                             if (![row[6] containsString:modalitySelected]) return false;
+
                              if (StudyDescriptionRegex)
                              {
                                  //NSLog(@"description filter");
-                                 if (![StudyDescriptionRegex numberOfMatchesInString:BRow[7] options:0 range:NSMakeRange(0,[BRow[7] length])]) return false;
+                                 if (![StudyDescriptionRegex numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
                              }
                              return true;
                          }];
