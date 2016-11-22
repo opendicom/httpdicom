@@ -1323,8 +1323,10 @@ int main(int argc, const char* argv[]) {
              //NSString *qStudyDate=q[@"columns[5][search][value]"];
              NSString *qDate_start=q[@"date_start"];
              NSString *qDate_end=q[@"date_end"];
-             NSString *qModality=q[@"columns[6][search][value]"];
-             if (!qModality || [qModality isEqualToString:@""]) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'columns[6][search][value]' (modality) parameter"] contentType:@"application/dicom+json"];
+             NSString *qModality;
+             if ([q[@"columns[6][search][value]"]isEqualToString:@"ALL"]) qModality=@"%%";
+             else qModality=q[@"columns[6][search][value]"];
+             if (!qModality) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'columns[6][search][value]' (modality) parameter"] contentType:@"application/dicom+json"];
              
              NSString *qStudyDescription=q[@"columns[7][search][value]"];
              
