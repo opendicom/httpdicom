@@ -99,7 +99,6 @@
 		2A31F60E1C87315E00A78C7C /* GCDWebServerConnection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerConnection.m; path = "GCDWebServer-master/GCDWebServer/Core/GCDWebServerConnection.m"; sourceTree = "<group>"; };
 		2A31F6101C87317800A78C7C /* GCDWebServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GCDWebServer.m; path = "GCDWebServer-master/GCDWebServer/Core/GCDWebServer.m"; sourceTree = "<group>"; };
 		2A6C51891C8DCF7C00424729 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		4A09D5991DA58DFD00D18CDE /* dal55mysqlopendicom.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = dal55mysqlopendicom.plist; sourceTree = SOURCE_ROOT; };
 		4A8346691DD91B5F008EFF41 /* NSData+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSData+PCS.h"; path = "httpdicom/NSData+PCS.h"; sourceTree = SOURCE_ROOT; };
 		4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+PCS.m"; path = "httpdicom/NSData+PCS.m"; sourceTree = SOURCE_ROOT; };
 		4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+PCS.h"; path = "httpdicom/NSString+PCS.h"; sourceTree = SOURCE_ROOT; };
@@ -219,7 +218,6 @@
 				4AAB26711D8A42A400401FD5 /* zconf.h */,
 				4AAB26721D8A42A400401FD5 /* zlib.h */,
 				4AAB26731D8A42A400401FD5 /* LFCGzipUtility.h */,
-				4A09D5991DA58DFD00D18CDE /* dal55mysqlopendicom.plist */,
 				4AEF37851DC8D6C800CDA008 /* URLSessionDataTask.h */,
 				4AEF37861DC8D6C800CDA008 /* URLSessionDataTask.m */,
 			);
