@@ -7,5 +7,7 @@ httpdicom.xcodeproj/xcuserdata/jacquesfauquex.xcuserdatad/xcdebugger/Breakpoints
 
 *.xcscheme
 
-
 httpdicom.xcodeproj/xcuserdata/admin.xcuserdatad/xcschemes/xcschememanagement.plist
+
+conf/*
+
