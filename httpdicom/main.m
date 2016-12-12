@@ -1865,11 +1865,13 @@ int main(int argc, const char* argv[]) {
              
              NSDictionary *destSql=sql[destPacs[@"sql"]];
              if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
-             
              NSString *where;
              NSString *AccessionNumber=q[@"AccessionNumber"];
              NSString *StudyInstanceUID=q[@"StudyInstanceUID"];
-             if (AccessionNumber && ![AccessionNumber isEqualToString:@"NULL"])
+             if (
+                    [destSql[@"preferredStudyIdentificator"] isEqualToString:@"AccessionNumber"]
+                 && AccessionNumber
+                 && ![AccessionNumber isEqualToString:@"NULL"])
              {
                  NSString *IssuerOfAccessionNumber=q[@"IssuerOfAccessionNumber.UniversalEntityID"];
                  if (IssuerOfAccessionNumber && ![IssuerOfAccessionNumber isEqualToString:@"NULL"]) where=[NSString stringWithFormat:@"%@ AND %@='%@' AND %@='%@'", destSql[@"seriesWhere"],destSql[@"AccessionNumber"],AccessionNumber,destSql[@"IssuerOfAccessionNumber"],IssuerOfAccessionNumber];
