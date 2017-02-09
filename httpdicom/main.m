@@ -1663,12 +1663,12 @@ int main(int argc, const char* argv[]) {
                      
                      NSString *modalitySelected=nil;
                      //sModality contains the last selected modality within the same context
-                     NSLog(@"qModalities:'%@'  sModalities:'%@'   (context:'%@')",qModality,sModality[session],rModality);
                      if(![qModality isEqualToString:sModality[session]])
                      {
                          toBeFiltered=true;
                          modalitySelected=qModality;
                      }
+                     else modalitySelected=sModality[session];
                      
                      NSRegularExpression *StudyDescriptionRegex=nil;
                      if(qStudyDescription  && ![qStudyDescription isEqualToString:sStudyDescription[session]])
