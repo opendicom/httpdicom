@@ -81,7 +81,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
     NSTask *task=[[NSTask alloc]init];
     [task setLaunchPath:launchPath];
     [task setArguments:launchArgs];
-    //NSLog(@"%@",[task arguments]);
+    //GWS_LOG_INFO(@"%@",[task arguments]);
     NSPipe *writePipe = [NSPipe pipe];
     NSFileHandle *writeHandle = [writePipe fileHandleForWriting];
     [task setStandardInput:writePipe];
@@ -106,7 +106,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
     
     [task waitUntilExit];
     int terminationStatus = [task terminationStatus];
-    if (terminationStatus!=0) NSLog(@"ERROR task terminationStatus: %d",terminationStatus);
+    if (terminationStatus!=0) GWS_LOG_INFO(@"ERROR task terminationStatus: %d",terminationStatus);
     return terminationStatus;
 }
 
@@ -283,7 +283,7 @@ int main(int argc, const char* argv[]) {
         NSArray *args=[[NSProcessInfo processInfo] arguments];
         if ([args count]!=4)
         {
-            NSLog(@"syntax: httpdicom port path2pacs.plist");
+            GWS_LOG_INFO(@"syntax: httpdicom port path2pacs.plist");
             return 1;
         }
         
@@ -292,7 +292,7 @@ int main(int argc, const char* argv[]) {
         NSArray *logLevel=@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"];
         if ([logLevel indexOfObject:args[1]]==NSNotFound)
         {
-            NSLog(@"logLevel (arg 1) should be one of [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION]");
+            GWS_LOG_INFO(@"logLevel (arg 1) should be one of [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION]");
             return 1;
         }
         [GCDWebServer setLogLevel:(int)[logLevel indexOfObject:args[1]]];
@@ -302,7 +302,7 @@ int main(int argc, const char* argv[]) {
         
         if (port <1 || port>65535)
         {
-            NSLog(@"port should be between 0 and 65535");
+            GWS_LOG_INFO(@"port should be between 0 and 65535");
             return 1;
         }
         
@@ -338,7 +338,7 @@ int main(int argc, const char* argv[]) {
         NSDictionary *pacsDictionaries=[NSDictionary dictionaryWithContentsOfFile:[args[3]stringByExpandingTildeInPath]];
         if (!pacsDictionaries)
         {
-            NSLog(@"could not get contents of pacs.plist");
+            GWS_LOG_INFO(@"could not get contents of pacs.plist");
             return 1;
         }
         NSMutableDictionary *custodianoids=[NSMutableDictionary dictionary];
@@ -366,7 +366,7 @@ int main(int argc, const char* argv[]) {
             }
             [custodianOIDsaeis setValue:custodianOIDaeis forKey:custodianOID];
         }
-        NSLog(@"%@",[custodianOIDsaeis description]);
+        GWS_LOG_INFO(@"%@",[custodianOIDsaeis description]);
 
         
         NSMutableDictionary *custodianTitlesaets=[NSMutableDictionary dictionary];
@@ -391,15 +391,15 @@ int main(int argc, const char* argv[]) {
             [s appendString:@")"];
             [custodianTitlesaetsStrings setObject:s forKey:custodianTitle];
         }
-        NSLog(@"%@",[custodianTitlesaets description]);
-        NSLog(@"%@",custodianTitlesaetsStrings);
+        GWS_LOG_INFO(@"%@",[custodianTitlesaets description]);
+        GWS_LOG_INFO(@"%@",custodianTitlesaetsStrings);
 
         NSMutableDictionary *pacsTitlesDictionary=[NSMutableDictionary dictionary];
         for (NSString *key in [pacsDictionaries allKeys])
         {
             [pacsTitlesDictionary setObject:key forKey:[(pacsDictionaries[key])[@"custodiantitle"] stringByAppendingPathExtension:(pacsDictionaries[key])[@"dicomaet"]]];
         }
-        NSLog(@"%@",[pacsTitlesDictionary description]);
+        GWS_LOG_INFO(@"%@",[pacsTitlesDictionary description]);
         
         GCDWebServer* httpdicomServer = [[GCDWebServer alloc] init];
         
@@ -427,7 +427,19 @@ int main(int argc, const char* argv[]) {
                      responseWithClientError:400
                      message:@"%@ [no handler]",request.path];
          }];
+
         
+#pragma mark echo
+        [httpdicomServer
+         addHandlerForMethod:@"GET"
+         pathRegularExpression:[NSRegularExpression regularExpressionWithPattern:@"^/echo$" options:0 error:NULL]
+         requestClass:[GCDWebServerRequest class]
+         processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         {
+             return [GCDWebServerDataResponse responseWithText:@"echo"];
+         }];
+        
+
 
 #pragma mark custodians
         
@@ -717,7 +729,7 @@ int main(int argc, const char* argv[]) {
                                 requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         {
-            NSLog(@"osirix");
+            GWS_LOG_INFO(@"osirix");
             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
             NSDictionary *destPacs=pacsDictionaries[pComponents[2]];
             if (!destPacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
@@ -762,7 +774,7 @@ int main(int argc, const char* argv[]) {
             {
                 if (wadorsRange.length<1000)
                 {
-                    NSLog(@"need data. Remaining wadors:%lu",(unsigned long)wados.count);
+                    GWS_LOG_INFO(@"need data. Remaining wadors:%lu",(unsigned long)wados.count);
                     if (wados.count>0)
                     {
                         //request, response and error
@@ -784,7 +796,7 @@ int main(int argc, const char* argv[]) {
                             NSString *ctString=response.allHeaderFields[@"Content-Type"];
                             NSString *boundaryString=[@"\r\n--" stringByAppendingString:[ctString substringFromIndex:ctString.length-36]];
                             [boundary setData:[boundaryString dataUsingEncoding:NSUTF8StringEncoding]];
-                            NSLog(@"%@\r\n(%lu,%lu) boundary:%@",wados[0],(unsigned long)wadorsRange.location,(unsigned long)wadorsRange.length,boundaryString);
+                            GWS_LOG_INFO(@"%@\r\n(%lu,%lu) boundary:%@",wados[0],(unsigned long)wadorsRange.location,(unsigned long)wadorsRange.length,boundaryString);
                         }
                         [wados removeObjectAtIndex:0];
                     }
@@ -801,7 +813,7 @@ int main(int argc, const char* argv[]) {
                     
                     NSString *dcmUUID=[[[NSUUID UUID]UUIDString]stringByAppendingPathExtension:@"dcm"];
                     NSData *dcmName=[dcmUUID dataUsingEncoding:NSUTF8StringEncoding];
-                    NSLog(@"dcm (%lu bytes):%@",dcmLength,dcmUUID);
+                    //GWS_LOG_INFO(@"dcm (%lu bytes):%@",dcmLength,dcmUUID);
                     
                     __block NSMutableData *entry=[NSMutableData data];
                     [entry appendBytes:&zipLocalFileHeader length:4];//0x04034B50
@@ -1168,7 +1180,7 @@ int main(int argc, const char* argv[]) {
 
              NSString *sqlString=[NSString stringWithFormat:destSql[@"manifestWeasisSeriesStudyInstanceUIDSeriesInstanceUID"],StudyInstanceUID,SeriesInstanceUID];
  
-             NSLog(@"%@",sqlString);
+             //GWS_LOG_INFO(@"%@",sqlString);
             
              //SQL for series
              NSMutableData *seriesData=[NSMutableData data];
@@ -1377,7 +1389,7 @@ int main(int argc, const char* argv[]) {
                     )
                  )
              {
-                 NSLog(@"%@",[[request URL]description]);
+                 //GWS_LOG_INFO(@"%@",[[request URL]description]);
 #pragma mark --different context
 #pragma mark reemplazar org por custodianTitle e institucion por aet
                  //find dest
@@ -1389,7 +1401,7 @@ int main(int argc, const char* argv[]) {
                  
                  //local ... simulation qido through database access
                  
-                 NSLog(@"different context with db: %@",destPacs[@"sql"]);
+                 //GWS_LOG_INFO(@"different context with db: %@",destPacs[@"sql"]);
                  
                  if (r){
                      //replace previous request of the session.
@@ -1565,7 +1577,7 @@ int main(int argc, const char* argv[]) {
                           ];
                      }
                  }
-                 GWS_LOG_INFO(@"%@",studiesWhere);
+                 GWS_LOG_INFO(@"%@",[studiesWhere substringFromIndex:65]);
 
 
 //2 count
@@ -1581,7 +1593,7 @@ int main(int argc, const char* argv[]) {
                  // max (max records filtered para evitar que filtros insuficientes devuelvan casi todos los registros... lo que devolvería un resultado inútil.
                  recordsTotal=[countString intValue];
                  int maxCount=[q[@"max"]intValue];
-                 NSLog(@"total:%d, max:%d",recordsTotal,maxCount);
+                 GWS_LOG_INFO(@"total:%d, max:%d",recordsTotal,maxCount);
                  if (recordsTotal > maxCount) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %d matches. %d matches were found",maxCount, recordsTotal]] contentType:@"application/dicom+json"];
 
                  if (!recordsTotal) return [GCDWebServerDataResponse
@@ -1615,7 +1627,7 @@ int main(int argc, const char* argv[]) {
 #pragma mark --same context
                  
                  recordsTotal=[Total[session] count];
-                 NSLog(@"same context recordsTotal: %d ",recordsTotal);
+                 //GWS_LOG_INFO(@"same context recordsTotal: %d ",recordsTotal);
                  
                  //subfilter?
                  // in case there is subfilter, derive BFiltered from BTotal
@@ -1687,22 +1699,22 @@ int main(int argc, const char* argv[]) {
                          NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings) {
                              if (PatientIDRegex)
                              {
-                                 //NSLog(@"patientID filter");
+                                 //GWS_LOG_INFO(@"patientID filter");
                                  if (![PatientIDRegex numberOfMatchesInString:row[3] options:0 range:NSMakeRange(0,[row[3] length])]) return false;
                              }
                              if (PatientNameRegex)
                              {
-                                 //NSLog(@"patientName filter");
+                                 //GWS_LOG_INFO(@"patientName filter");
                                  if (![PatientNameRegex numberOfMatchesInString:row[4] options:0 range:NSMakeRange(0,[row[4] length])]) return false;
                              }
                              if (until)
                              {
-                                 //NSLog(@"until filter");
+                                 //GWS_LOG_INFO(@"until filter");
                                  if ([until compare:row[5]]==NSOrderedDescending) return false;
                              }
                              if (since)
                              {
-                                 //NSLog(@"since filter");
+                                 //GWS_LOG_INFO(@"since filter");
                                  if ([since compare:row[5]]==NSOrderedAscending) return false;
                              }
                              //row[6] contains modalitiesInStudies. Ej: CT\OT
@@ -1710,7 +1722,7 @@ int main(int argc, const char* argv[]) {
 
                              if (StudyDescriptionRegex)
                              {
-                                 //NSLog(@"description filter");
+                                 //GWS_LOG_INFO(@"description filter");
                                  if (![StudyDescriptionRegex numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
                              }
                              return true;
@@ -1723,7 +1735,7 @@ int main(int argc, const char* argv[]) {
 #pragma mark --order
              if (q[@"order[0][column]"] && q[@"order[0][dir]"])
              {
-                 NSLog(@"ordering with %@, %@",q[@"order[0][column]"],q[@"order[0][dir]"]);
+                 GWS_LOG_INFO(@"ordering with %@, %@",q[@"order[0][column]"],q[@"order[0][dir]"]);
                  
                  int column=[q[@"order[0][column]"]intValue];
                  if ([q[@"order[0][dir]"]isEqualToString:@"desc"])
@@ -1757,11 +1769,11 @@ int main(int argc, const char* argv[]) {
                  //start y length
                  long ps=[q[@"start"]intValue];
                  long pl=[q[@"length"]intValue];
-                 NSLog(@"paging desired (start=[%ld],filas=[%ld],last=[%lu])",ps,pl,recordsFiltered-1);
+                 //GWS_LOG_INFO(@"paging desired (start=[%ld],filas=[%ld],last=[%lu])",ps,pl,recordsFiltered-1);
                  if (ps < 0) ps=0;
                  if (ps > recordsFiltered-1) ps=0;
                  if (ps+pl+1 > recordsFiltered) pl=recordsFiltered-ps;
-                 NSLog(@"paging applied (start=[%ld],filas=[%ld],last=[%lu])",ps,pl,recordsFiltered-1);
+                 //GWS_LOG_INFO(@"paging applied (start=[%ld],filas=[%ld],last=[%lu])",ps,pl,recordsFiltered-1);
                  NSArray *page=[Filtered[session] subarrayWithRange:NSMakeRange(ps,pl)];
                  if (!page)page=@[];
                  [resp setObject:page forKey:@"data"];
@@ -1785,7 +1797,7 @@ int main(int argc, const char* argv[]) {
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSDictionary *q=request.query;
-             NSLog(@"%@",[q description]);
+             //GWS_LOG_INFO(@"%@",[q description]);
              
              NSString *session=q[@"session"];
              if (!session || [session isEqualToString:@""]) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
@@ -1816,7 +1828,7 @@ int main(int argc, const char* argv[]) {
               [custodianTitlesaets[q[@"custodiantitle"]] componentsJoinedByString:@"','"]
               ];
 
-             NSLog(@"SQL: %@",studiesWhere);
+             GWS_LOG_INFO(@"WHERE %@",[studiesWhere substringFromIndex:38]);
              
 
              
@@ -1883,7 +1895,7 @@ int main(int argc, const char* argv[]) {
              else return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'AccessionNumber' or 'StudyInstanceUID' parameter"] contentType:@"application/dicom+json"];
              
              
-             NSLog(@"SQL: %@",where);
+             GWS_LOG_INFO(@"WHERE %@",[where substringFromIndex:38]);
              
              NSString *sqlDataQuery=
              [[destSql[@"datatablesSeriesProlog"]
@@ -1891,7 +1903,7 @@ int main(int argc, const char* argv[]) {
               stringByAppendingFormat:destSql[@"datatablesSeriesEpilog"],session,session];
              
              NSMutableArray *seriesArray=jsonMutableArray(sqlDataQuery, [destSql[@"stringEncoding"]unsignedIntegerValue]);
-             NSLog(@"series array:%@",[seriesArray description]);
+             //GWS_LOG_INFO(@"series array:%@",[seriesArray description]);
              
              NSMutableDictionary *resp = [NSMutableDictionary dictionary];
              if (q[@"draw"])[resp setObject:q[@"draw"] forKey:@"draw"];
@@ -1984,7 +1996,7 @@ int main(int argc, const char* argv[]) {
                      if (q[@"studyUID"] && q[@"seriesUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies/%@/series/%@?custodianOID=%@",custodianURI,q[@"studyUID"],q[@"seriesUID"],q[@"custodianOID"]];
                      else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
                  }
-                 NSLog(@"%@",manifestWeasisURI);
+                 GWS_LOG_INFO(@"%@",manifestWeasisURI);
                  [manifest appendFormat:@"%@\r</wado_query>\r",[NSString stringWithContentsOfURL:[NSURL URLWithString:manifestWeasisURI] encoding:NSUTF8StringEncoding error:nil]];
                  GWS_LOG_INFO(@"%@",manifest);
                  
@@ -2029,7 +2041,7 @@ int main(int argc, const char* argv[]) {
                      if (q[@"studyUID"] && q[@"seriesUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@&SeriesInstanceUID=%@",(pacsDictionaries[q[@"custodianOID"]])[@"qido"],q[@"studyUID"],q[@"seriesUID"]];
                      else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
                  }
-                 NSLog(@"%@",qidoSeriesString);
+                 //GWS_LOG_INFO(@"%@",qidoSeriesString);
                  
                  NSMutableArray *seriesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoSeriesString]] options:NSJSONReadingMutableContainers error:nil];
                  
@@ -2074,7 +2086,7 @@ int main(int argc, const char* argv[]) {
                           q[@"studyUID"],
                           ((seriesQido[@"0020000E"])[@"Value"])[0]
                           ];
-                         NSLog(@"%@",qidoInstancesString);
+                         //GWS_LOG_INFO(@"%@",qidoInstancesString);
                          NSMutableArray *instancesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:qidoInstancesString]] options:NSJSONReadingMutableContainers error:nil];
                          
                          //classify instancesArray by instanceNumber
@@ -2102,7 +2114,7 @@ int main(int argc, const char* argv[]) {
                          }
                      }
                  }
-                 NSLog(@"%@",[cornerstone description]);
+                 //GWS_LOG_INFO(@"%@",[cornerstone description]);
                  return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:cornerstone options:0 error:nil] contentType:@"application/json"];
              }
              else if ([viewerType isEqualToString:@"MHD-I"])
