@@ -13,3 +13,5 @@ conf/*
 
 
 httpdicom.xcodeproj/xcuserdata/admin.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+
+*.log
