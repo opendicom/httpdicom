@@ -225,7 +225,7 @@ static NSData* _dashNewlineData = nil;
           _contentType = @"text/plain";
         }
       } else {
-        GWS_LOG_ERROR(@"Failed decoding headers in part of 'multipart/form-data'");
+        LOG_ERROR(@"Failed decoding headers in part of 'multipart/form-data'");
       }
       if (_controlName) {
         if ([GCDWebServerTruncateHeaderValue(_contentType) isEqualToString:@"multipart/mixed"]) {

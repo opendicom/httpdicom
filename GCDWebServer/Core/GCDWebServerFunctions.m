@@ -215,7 +215,7 @@ NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form) {
     if (unescapedKey && unescapedValue) {
       [parameters setObject:unescapedValue forKey:unescapedKey];
     } else {
-      GWS_LOG_WARNING(@"Failed parsing URL encoded form for key \"%@\" and value \"%@\"", key, value);
+      LOG_WARNING(@"Failed parsing URL encoded form for key \"%@\" and value \"%@\"", key, value);
     }
     
     if ([scanner isAtEnd]) {
