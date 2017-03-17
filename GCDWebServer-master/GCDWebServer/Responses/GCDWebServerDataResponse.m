@@ -46,7 +46,6 @@
 
 - (instancetype)initWithData:(NSData*)data contentType:(NSString*)type {
   if (data == nil) {
-    GWS_DNOT_REACHED();
     return nil;
   }
   
@@ -104,7 +103,6 @@
 - (instancetype)initWithText:(NSString*)text {
   NSData* data = [text dataUsingEncoding:NSUTF8StringEncoding];
   if (data == nil) {
-    GWS_DNOT_REACHED();
     return nil;
   }
   return [self initWithData:data contentType:@"text/plain; charset=utf-8"];
@@ -113,7 +111,6 @@
 - (instancetype)initWithHTML:(NSString*)html {
   NSData* data = [html dataUsingEncoding:NSUTF8StringEncoding];
   if (data == nil) {
-    GWS_DNOT_REACHED();
     return nil;
   }
   return [self initWithData:data contentType:@"text/html; charset=utf-8"];

@@ -407,7 +407,18 @@ int main(int argc, const char* argv[]) {
         NSMutableDictionary *sql=[NSMutableDictionary dictionary];
         for (NSString *s in sqlset)
         {
-            [sql setObject:[NSDictionary dictionaryWithContentsOfFile:[s stringByExpandingTildeInPath]] forKey:s];
+            [sql setObject:
+             [NSDictionary dictionaryWithContentsOfFile:
+              [
+               [
+                [args[3]stringByExpandingTildeInPath]
+                stringByDeletingLastPathComponent
+                ]
+               stringByAppendingPathComponent:s
+               ]
+              ]
+              forKey:s
+             ];
         }
 
 #pragma mark no handler for GET
@@ -2149,9 +2160,7 @@ int main(int argc, const char* argv[]) {
         [httpdicomServer runWithPort:port bonjourName:nil];
         while (true) {
             CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, true);
-        }
-        [httpdicomServer stop];
-        
+        }        
     }//end autorelease pool
     return success ? 0 : -1;
 }

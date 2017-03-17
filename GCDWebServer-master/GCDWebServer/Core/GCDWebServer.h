@@ -520,53 +520,10 @@ extern NSString* const GCDWebServerAuthenticationMethod_DigestAccess;
 
 @end
 
-/**
- *  GCDWebServer provides its own built-in logging facility which is used by
- *  default. It simply sends log messages to stderr assuming it is connected
- *  to a terminal type device.
- *
- *  GCDWebServer is also compatible with a limited set of third-party logging
- *  facilities. If one of them is available at compile time, GCDWebServer will
- *  automatically use it in place of the built-in one.
- *
- *  Currently supported third-party logging facilities are:
- *  - XLFacility (by the same author as GCDWebServer): https://github.com/swisspol/XLFacility
- *  - CocoaLumberjack: https://github.com/CocoaLumberjack/CocoaLumberjack
- *
- *  For both the built-in logging facility and CocoaLumberjack, the default
- *  logging level is INFO (or DEBUG if the preprocessor constant "DEBUG"
- *  evaluates to non-zero at compile time).
- *
- *  It's possible to have GCDWebServer use a custom logging facility by defining
- *  the "__GCDWEBSERVER_LOGGING_HEADER__" preprocessor constant in Xcode build
- *  settings to the name of a custom header file (escaped like \"MyLogging.h\").
- *  This header file must define the following set of macros:
- *
- *    GWS_LOG_DEBUG(...)
- *    GWS_LOG_VERBOSE(...)
- *    GWS_LOG_INFO(...)
- *    GWS_LOG_WARNING(...)
- *    GWS_LOG_ERROR(...)
- *    GWS_LOG_EXCEPTION(__EXCEPTION__)
- *
- *  IMPORTANT: Except for GWS_LOG_EXCEPTION() which gets passed an NSException,
- *  these macros must behave like NSLog(). Furthermore the GWS_LOG_DEBUG() macro
- *  should not do anything unless the preprocessor constant "DEBUG" evaluates to
- *  non-zero.
- *
- *  The logging methods below send log messages to the same logging facility
- *  used by GCDWebServer. They can be used for consistency wherever you interact
- *  with GCDWebServer in your code (e.g. in the implementation of handlers).
- */
 @interface GCDWebServer (Logging)
 
 /**
- *  Sets the log level of the logging facility below which log messages are discarded.
- *
- *  @warning The interpretation of the "level" argument depends on the logging
- *  facility used at compile time.
- *
- *  If using the built-in logging facility, the log levels are as follow:
+ *  the log levels are as follow:
  *  DEBUG = 0
  *  VERBOSE = 1
  *  INFO = 2
@@ -575,30 +532,10 @@ extern NSString* const GCDWebServerAuthenticationMethod_DigestAccess;
  *  EXCEPTION = 5
  */
 + (void)setLogLevel:(int)level;
-
-/**
- *  Logs a message to the logging facility at the VERBOSE level.
- */
 - (void)logVerbose:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
-
-/**
- *  Logs a message to the logging facility at the INFO level.
- */
 - (void)logInfo:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
-
-/**
- *  Logs a message to the logging facility at the WARNING level.
- */
 - (void)logWarning:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
-
-/**
- *  Logs a message to the logging facility at the ERROR level.
- */
 - (void)logError:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
-
-/**
- *  Logs an exception to the logging facility at the EXCEPTION level.
- */
 - (void)logException:(NSException*)exception;
 
 @end

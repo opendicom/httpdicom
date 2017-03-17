@@ -63,43 +63,13 @@ typedef NS_ENUM(int, GCDWebServerLoggingLevel) {
 extern GCDWebServerLoggingLevel GCDWebServerLogLevel;
 extern void GCDWebServerLogMessage(GCDWebServerLoggingLevel level, NSString* format, ...) NS_FORMAT_FUNCTION(2, 3);
 
-#if DEBUG
-    #define GWS_LOG_DEBUG(...) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Debug) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Debug, __VA_ARGS__); } while (0)
-#else
-    #define GWS_LOG_DEBUG(...)
-#endif
-
+#define GWS_LOG_DEBUG(...) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Debug) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Debug, __VA_ARGS__); } while (0)
 #define GWS_LOG_VERBOSE(...) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Verbose) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Verbose, __VA_ARGS__); } while (0)
 #define GWS_LOG_INFO(...) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Info) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Info, __VA_ARGS__); } while (0)
 #define GWS_LOG_WARNING(...) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Warning) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Warning, __VA_ARGS__); } while (0)
 #define GWS_LOG_ERROR(...) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Error) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Error, __VA_ARGS__); } while (0)
 #define GWS_LOG_EXCEPTION(__EXCEPTION__) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Exception) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Exception, @"%@", __EXCEPTION__); } while (0)
 
-
-/**
- *  Consistency check macros used when building Debug only.
- */
-
-#if !defined(GWS_DCHECK) || !defined(GWS_DNOT_REACHED)
-
-#if DEBUG
-
-#define GWS_DCHECK(__CONDITION__) \
-  do { \
-    if (!(__CONDITION__)) { \
-      abort(); \
-    } \
-  } while (0)
-#define GWS_DNOT_REACHED() abort()
-
-#else
-
-#define GWS_DCHECK(__CONDITION__)
-#define GWS_DNOT_REACHED()
-
-#endif
-
-#endif
 
 /**
  *  GCDWebServer internal constants and APIs.

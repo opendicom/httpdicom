@@ -113,7 +113,6 @@
   } else {
     encodedData = [[NSMutableData alloc] initWithLength:kGZipInitialBufferSize];
     if (encodedData == nil) {
-      GWS_DNOT_REACHED();
       return nil;
     }
     NSUInteger length = 0;
@@ -143,7 +142,6 @@
         }
         encodedData.length = 2 * encodedData.length;  // zlib has used all the output buffer so resize it and try again in case more data is available
       }
-      GWS_DCHECK(_stream.avail_in == 0);
     } while (length == 0);  // Make sure we don't return an empty NSData if not in finished state
     encodedData.length = length;
   }
@@ -230,10 +228,7 @@
 }
 
 - (BOOL)performOpen:(NSError**)error {
-  GWS_DCHECK(_type);
-  GWS_DCHECK(_reader);
   if (_opened) {
-    GWS_DNOT_REACHED();
     return NO;
   }
   _opened = YES;
@@ -251,7 +246,6 @@
 }
 
 - (void)performClose {
-  GWS_DCHECK(_opened);
   [_reader close];
 }
 

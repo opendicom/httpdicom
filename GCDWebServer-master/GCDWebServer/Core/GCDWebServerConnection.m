@@ -119,7 +119,6 @@ static int32_t _connectionCounter = 0;
 }
 
 - (void)_readHeaders:(NSMutableData*)headersData withCompletionBlock:(ReadHeadersCompletionBlock)block {
-  GWS_DCHECK(_requestMessage);
   [self _readData:headersData withLength:NSUIntegerMax completionBlock:^(BOOL success) {
     
     if (success) {
@@ -148,7 +147,6 @@ static int32_t _connectionCounter = 0;
 }
 
 - (void)_readBodyWithRemainingLength:(NSUInteger)length completionBlock:(ReadBodyCompletionBlock)block {
-  GWS_DCHECK([_request hasBody] && ![_request usesChunkedTransferEncoding]);
   NSMutableData* bodyData = [[NSMutableData alloc] initWithCapacity:kBodyReadCapacity];
   [self _readData:bodyData withLength:length completionBlock:^(BOOL success) {
     
@@ -169,7 +167,6 @@ static int32_t _connectionCounter = 0;
       } else {
         GWS_LOG_ERROR(@"Unexpected extra content reading request body on socket %i", _socket);
         block(NO);
-        GWS_DNOT_REACHED();
       }
     } else {
       block(NO);
@@ -188,7 +185,6 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 }
 
 - (void)_readNextBodyChunk:(NSMutableData*)chunkData completionBlock:(ReadBodyCompletionBlock)block {
-  GWS_DCHECK([_request hasBody] && [_request usesChunkedTransferEncoding]);
   
   while (1) {
     NSRange range = [chunkData rangeOfData:_CRLFData options:0 range:NSMakeRange(0, chunkData.length)];
@@ -254,7 +250,6 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
     
     @autoreleasepool {
       if (error == 0) {
-        GWS_DCHECK(remainingData == NULL);
         [self didWriteBytes:data.bytes length:data.length];
         block(YES);
       } else {
@@ -270,14 +265,12 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 }
 
 - (void)_writeHeadersWithCompletionBlock:(WriteHeadersCompletionBlock)block {
-  GWS_DCHECK(_responseMessage);
   CFDataRef data = CFHTTPMessageCopySerializedMessage(_responseMessage);
   [self _writeData:(__bridge NSData*)data withCompletionBlock:block];
   CFRelease(data);
 }
 
 - (void)_writeBodyWithCompletionBlock:(WriteBodyCompletionBlock)block {
-  GWS_DCHECK([_response hasBody]);
   [_response performReadDataWithCompletion:^(NSData* data, NSError* error) {
     
     if (data) {
@@ -339,17 +332,14 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 + (void)initialize {
   if (_CRLFData == nil) {
     _CRLFData = [[NSData alloc] initWithBytes:"\r\n" length:2];
-    GWS_DCHECK(_CRLFData);
   }
   if (_CRLFCRLFData == nil) {
     _CRLFCRLFData = [[NSData alloc] initWithBytes:"\r\n\r\n" length:4];
-    GWS_DCHECK(_CRLFCRLFData);
   }
   if (_continueData == nil) {
     CFHTTPMessageRef message = CFHTTPMessageCreateResponse(kCFAllocatorDefault, 100, NULL, kCFHTTPVersion1_1);
     _continueData = CFBridgingRelease(CFHTTPMessageCopySerializedMessage(message));
     CFRelease(message);
-    GWS_DCHECK(_continueData);
   }
   if (_lastChunkData == nil) {
     _lastChunkData = [[NSData alloc] initWithBytes:"0\r\n\r\n" length:5];
@@ -375,7 +365,6 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 }
 
 - (void)_startProcessingRequest {
-  GWS_DCHECK(_responseMessage == NULL);
   
   GCDWebServerResponse* preflightResponse = [self preflightRequest:_request];
   if (preflightResponse) {
@@ -389,7 +378,6 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 
 // http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 - (void)_finishProcessingRequest:(GCDWebServerResponse*)response {
-  GWS_DCHECK(_responseMessage == NULL);
   BOOL hasBody = NO;
   
   if (response) {
@@ -535,7 +523,6 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
       NSURL* requestURL = CFBridgingRelease(CFHTTPMessageCopyRequestURL(_requestMessage));
       if (requestURL) {
         requestURL = [self rewriteRequestURL:requestURL withMethod:requestMethod headers:requestHeaders];
-        GWS_DCHECK(requestURL);
       }
       NSString* requestPath = requestURL ? GCDWebServerUnescapeURLString(CFBridgingRelease(CFURLCopyPath((CFURLRef)requestURL))) : nil;  // Don't use -[NSURL path] which strips the ending slash
       NSString* queryString = requestURL ? CFBridgingRelease(CFURLCopyQueryString((CFURLRef)requestURL, NULL)) : nil;  // Don't use -[NSURL query] to make sure query is not unescaped;
@@ -587,12 +574,10 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
           }
         } else {
           _request = [[GCDWebServerRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:requestPath query:requestQuery];
-          GWS_DCHECK(_request);
           [self abortRequest:_request withStatusCode:kGCDWebServerHTTPStatusCode_MethodNotAllowed];
         }
       } else {
         [self abortRequest:nil withStatusCode:kGCDWebServerHTTPStatusCode_InternalServerError];
-        GWS_DNOT_REACHED();
       }
     } else {
       [self abortRequest:nil withStatusCode:kGCDWebServerHTTPStatusCode_InternalServerError];
@@ -664,11 +649,9 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
     
     _requestPath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
     _requestFD = open([_requestPath fileSystemRepresentation], O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    GWS_DCHECK(_requestFD > 0);
     
     _responsePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
     _responseFD = open([_responsePath fileSystemRepresentation], O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    GWS_DCHECK(_responseFD > 0);
   }
 #endif
   
@@ -792,15 +775,12 @@ static inline BOOL _CompareResources(NSString* responseETag, NSString* requestET
     newResponse.cacheControlMaxAge = response.cacheControlMaxAge;
     newResponse.lastModifiedDate = response.lastModifiedDate;
     newResponse.eTag = response.eTag;
-    GWS_DCHECK(newResponse);
     return newResponse;
   }
   return response;
 }
 
 - (void)abortRequest:(GCDWebServerRequest*)request withStatusCode:(NSInteger)statusCode {
-  GWS_DCHECK(_responseMessage == NULL);
-  GWS_DCHECK((statusCode >= 400) && (statusCode < 600));
   [self _initializeResponseHeadersWithStatusCode:statusCode];
   [self _writeHeadersWithCompletionBlock:^(BOOL success) {
     ;  // Nothing more to do
@@ -820,7 +800,6 @@ static inline BOOL _CompareResources(NSString* responseETag, NSString* requestET
     }
     if (!success) {
       GWS_LOG_ERROR(@"Failed saving recorded request: %@", error);
-      GWS_DNOT_REACHED();
     }
     unlink([_requestPath fileSystemRepresentation]);
   }
@@ -835,7 +814,6 @@ static inline BOOL _CompareResources(NSString* responseETag, NSString* requestET
     }
     if (!success) {
       GWS_LOG_ERROR(@"Failed saving recorded response: %@", error);
-      GWS_DNOT_REACHED();
     }
     unlink([_responsePath fileSystemRepresentation]);
   }

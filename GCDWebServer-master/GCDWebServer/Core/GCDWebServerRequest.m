@@ -101,12 +101,10 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
 }
 
 - (BOOL)writeData:(NSData*)data error:(NSError**)error {
-  GWS_DCHECK(!_finished);
   _stream.next_in = (Bytef*)data.bytes;
   _stream.avail_in = (uInt)data.length;
   NSMutableData* decodedData = [[NSMutableData alloc] initWithLength:kGZipInitialBufferSize];
   if (decodedData == nil) {
-    GWS_DNOT_REACHED();
     return NO;
   }
   NSUInteger length = 0;
@@ -136,7 +134,6 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
 }
 
 - (BOOL)close:(NSError**)error {
-  GWS_DCHECK(_finished);
   inflateEnd(&_stream);
   return [super close:error];
 }
@@ -187,7 +184,6 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
       NSInteger length = [lengthHeader integerValue];
       if (_chunked || (length < 0)) {
         GWS_LOG_WARNING(@"Invalid 'Content-Length' header '%@' for '%@' request on \"%@\"", lengthHeader, _method, _url);
-        GWS_DNOT_REACHED();
         return nil;
       }
       _length = length;
@@ -287,10 +283,7 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
 }
 
 - (BOOL)performOpen:(NSError**)error {
-  GWS_DCHECK(_type);
-  GWS_DCHECK(_writer);
   if (_opened) {
-    GWS_DNOT_REACHED();
     return NO;
   }
   _opened = YES;
@@ -298,12 +291,10 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
 }
 
 - (BOOL)performWriteData:(NSData*)data error:(NSError**)error {
-  GWS_DCHECK(_opened);
   return [_writer writeData:data error:error];
 }
 
 - (BOOL)performClose:(NSError**)error {
-  GWS_DCHECK(_opened);
   return [_writer close:error];
 }
 
