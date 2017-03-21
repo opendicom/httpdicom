@@ -1,3 +1,5 @@
+#import "GCDWebServer.h"
+
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
  All rights reserved.
@@ -25,7 +27,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "GCDWebServer.h"
 
 @class GCDWebServerHandler;
 

@@ -1,3 +1,9 @@
+#import <netinet/in.h>
+#import <dns_sd.h>
+
+#import "GCDWebServerPrivate.h"
+#import "Log.h"
+
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
  All rights reserved.
@@ -25,29 +31,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !__has_feature(objc_arc)
-#error GCDWebServer requires ARC
-#endif
-
-#import <TargetConditionals.h>
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#else
-#ifdef __GCDWEBSERVER_ENABLE_TESTING__
-#import <AppKit/AppKit.h>
-#endif
-#endif
-#import <netinet/in.h>
-#import <dns_sd.h>
-
-#import "GCDWebServerPrivate.h"
-
-#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
-#define kDefaultPort 80
-#else
-#define kDefaultPort 8080
-#endif
-
 #define kBonjourResolutionTimeout 5.0
 
 NSString* const GCDWebServerOption_Port = @"Port";
@@ -63,37 +46,18 @@ NSString* const GCDWebServerOption_AuthenticationAccounts = @"AuthenticationAcco
 NSString* const GCDWebServerOption_ConnectionClass = @"ConnectionClass";
 NSString* const GCDWebServerOption_AutomaticallyMapHEADToGET = @"AutomaticallyMapHEADToGET";
 NSString* const GCDWebServerOption_ConnectedStateCoalescingInterval = @"ConnectedStateCoalescingInterval";
-#if TARGET_OS_IPHONE
-NSString* const GCDWebServerOption_AutomaticallySuspendInBackground = @"AutomaticallySuspendInBackground";
-#endif
 
 NSString* const GCDWebServerAuthenticationMethod_Basic = @"Basic";
 NSString* const GCDWebServerAuthenticationMethod_DigestAccess = @"DigestAccess";
 
-#if !TARGET_OS_IPHONE
+
 static BOOL _run;
-#endif
-
-GCDWebServerLoggingLevel GCDWebServerLogLevel = kGCDWebServerLoggingLevel_Info;
-static const char* levelNames[] = {"DEBUG", "VERBOSE", "INFO", "WARNING", "ERROR", "EXCEPTION"};
-void GCDWebServerLogMessage(GCDWebServerLoggingLevel level, NSString* format, ...) {
-    va_list arguments;
-    va_start(arguments, format);
-    NSString* message = [[NSString alloc] initWithFormat:format arguments:arguments];
-    va_end(arguments);
-    fprintf(stderr, "[%s] %s\n", levelNames[level], [message UTF8String]);
-}
-
-#if !TARGET_OS_IPHONE
 
 static void _SignalHandler(int signal) {
   _run = NO;
   printf("\n");
 }
 
-#endif
-
-#if !TARGET_OS_IPHONE || defined(__GCDWEBSERVER_ENABLE_TESTING__)
 
 // This utility function is used to ensure scheduled callbacks on the main thread are called when running the server synchronously
 // https://developer.apple.com/library/mac/documentation/General/Conceptual/ConcurrencyProgrammingGuide/OperationQueues/OperationQueues.html
@@ -106,7 +70,6 @@ static void _ExecuteMainThreadRunLoopSources() {
   } while (result == kCFRunLoopRunHandledSource);
 }
 
-#endif
 
 @interface GCDWebServerHandler () {
 @private
@@ -158,13 +121,6 @@ static void _ExecuteMainThreadRunLoopSources() {
   NSString* _dnsAddress;
   NSUInteger _dnsPort;
   BOOL _bindToLocalhost;
-#if TARGET_OS_IPHONE
-  BOOL _suspendInBackground;
-  UIBackgroundTaskIdentifier _backgroundTask;
-#endif
-#ifdef __GCDWEBSERVER_ENABLE_TESTING__
-  BOOL _recording;
-#endif
 }
 @end
 
@@ -183,9 +139,6 @@ static void _ExecuteMainThreadRunLoopSources() {
     _syncQueue = dispatch_queue_create([NSStringFromClass([self class]) UTF8String], DISPATCH_QUEUE_SERIAL);
     _sourceGroup = dispatch_group_create();
     _handlers = [[NSMutableArray alloc] init];
-#if TARGET_OS_IPHONE
-    _backgroundTask = UIBackgroundTaskInvalid;
-#endif
   }
   return self;
 }
@@ -200,34 +153,11 @@ static void _ExecuteMainThreadRunLoopSources() {
 #endif
 }
 
-#if TARGET_OS_IPHONE
-
-// Always called on main thread
-- (void)_startBackgroundTask {
-  if (_backgroundTask == UIBackgroundTaskInvalid) {
-    LOG_DEBUG(@"Did start background task");
-    _backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-      
-      LOG_WARNING(@"Application is being suspended while %@ is still connected", [self class]);
-      [self _endBackgroundTask];
-      
-    }];
-  }
-}
-
-#endif
 
 // Always called on main thread
 - (void)_didConnect {
   _connected = YES;
   LOG_DEBUG(@"Did connect");
-  
-#if TARGET_OS_IPHONE
-  if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground) {
-    [self _startBackgroundTask];
-  }
-#endif
-  
   if ([_delegate respondsToSelector:@selector(webServerDidConnect:)]) {
     [_delegate webServerDidConnect:self];
   }
@@ -253,31 +183,11 @@ static void _ExecuteMainThreadRunLoopSources() {
   });
 }
 
-#if TARGET_OS_IPHONE
-
-// Always called on main thread
-- (void)_endBackgroundTask {
-  if (_backgroundTask != UIBackgroundTaskInvalid) {
-    if (_suspendInBackground && ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) && _source4) {
-      [self _stop];
-    }
-    [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
-    _backgroundTask = UIBackgroundTaskInvalid;
-    LOG_DEBUG(@"Did end background task");
-  }
-}
-
-#endif
 
 // Always called on main thread
 - (void)_didDisconnect {
   _connected = NO;
   LOG_DEBUG(@"Did disconnect");
-  
-#if TARGET_OS_IPHONE
-  [self _endBackgroundTask];
-#endif
-  
   if ([_delegate respondsToSelector:@selector(webServerDidDisconnect:)]) {
     [_delegate webServerDidDisconnect:self];
   }
@@ -316,21 +226,47 @@ static void _ExecuteMainThreadRunLoopSources() {
   CFStringRef type = _resolutionService ? CFNetServiceGetType(_resolutionService) : NULL;
   return type && CFStringGetLength(type) ? CFBridgingRelease(CFStringCreateCopy(kCFAllocatorDefault, type)) : nil;
 }
-
-- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock processBlock:(GCDWebServerProcessBlock)processBlock {
-  [self addHandlerWithMatchBlock:matchBlock asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
-    completionBlock(processBlock(request));
-  }];
+- (NSURL*)serverURL {
+    if (_source4) {
+        NSString* ipAddress = _bindToLocalhost ? @"localhost" : GCDWebServerGetPrimaryIPAddress(NO);  // We can't really use IPv6 anyway as it doesn't work great with HTTP URLs in practice
+        if (ipAddress) {
+            if (_port != 80) {
+                return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%i/", ipAddress, (int)_port]];
+            } else {
+                return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@/", ipAddress]];
+            }
+        }
+    }
+    return nil;
 }
 
-- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock asyncProcessBlock:(GCDWebServerAsyncProcessBlock)processBlock {
-  GCDWebServerHandler* handler = [[GCDWebServerHandler alloc] initWithMatchBlock:matchBlock asyncProcessBlock:processBlock];
-  [_handlers insertObject:handler atIndex:0];
+- (NSURL*)bonjourServerURL {
+    if (_source4 && _resolutionService) {
+        NSString* name = (__bridge NSString*)CFNetServiceGetTargetHost(_resolutionService);
+        if (name.length) {
+            name = [name substringToIndex:(name.length - 1)];  // Strip trailing period at end of domain
+            if (_port != 80) {
+                return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%i/", name, (int)_port]];
+            } else {
+                return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@/", name]];
+            }
+        }
+    }
+    return nil;
 }
 
-- (void)removeAllHandlers {
-  [_handlers removeAllObjects];
+- (NSURL*)publicServerURL {
+    if (_source4 && _dnsService && _dnsAddress && _dnsPort) {
+        if (_dnsPort != 80) {
+            return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%i/", _dnsAddress, (int)_dnsPort]];
+        } else {
+            return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@/", _dnsAddress]];
+        }
+    }
+    return nil;
 }
+
+#pragma mark handlers
 
 static void _NetServiceRegisterCallBack(CFNetServiceRef service, CFStreamError* error, void* info) {
   @autoreleasepool {
@@ -402,11 +338,6 @@ static inline id _GetOption(NSDictionary* options, NSString* key, id defaultValu
 
 static inline NSString* _EncodeBase64(NSString* string) {
   NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
-#if (TARGET_OS_IPHONE && !(__IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_7_0)) || (!TARGET_OS_IPHONE && !(__MAC_OS_X_VERSION_MIN_REQUIRED >= __MAC_10_9))
-  if (![data respondsToSelector:@selector(base64EncodedDataWithOptions:)]) {
-    return [data base64Encoding];
-  }
-#endif
   return [[NSString alloc] initWithData:[data base64EncodedDataWithOptions:0] encoding:NSASCIIStringEncoding];
 }
 
@@ -683,46 +614,52 @@ static inline NSString* _EncodeBase64(NSString* string) {
   }
 }
 
-#if TARGET_OS_IPHONE
-
-- (void)_didEnterBackground:(NSNotification*)notification {
-  LOG_DEBUG(@"Did enter background");
-  if ((_backgroundTask == UIBackgroundTaskInvalid) && _source4) {
-    [self _stop];
-  }
-}
-
-- (void)_willEnterForeground:(NSNotification*)notification {
-  LOG_DEBUG(@"Will enter foreground");
-  if (!_source4) {
-    [self _start:NULL];  // TODO: There's probably nothing we can do on failure
-  }
-}
-
-#endif
-
 - (BOOL)startWithOptions:(NSDictionary*)options error:(NSError**)error {
   if (_options == nil) {
     _options = options ? [options copy] : @{};
-#if TARGET_OS_IPHONE
-    _suspendInBackground = [_GetOption(_options, GCDWebServerOption_AutomaticallySuspendInBackground, @YES) boolValue];
-    if (((_suspendInBackground == NO) || ([[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground)) && ![self _start:error])
-#else
     if (![self _start:error])
-#endif
     {
       _options = nil;
       return NO;
     }
-#if TARGET_OS_IPHONE
-    if (_suspendInBackground) {
-      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
-      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
-    }
-#endif
     return YES;
   }
   return NO;
+}
+
+
+- (BOOL)startWithPort:(NSUInteger)port bonjourName:(NSString*)name {
+    NSMutableDictionary* options = [NSMutableDictionary dictionary];
+    [options setObject:[NSNumber numberWithInteger:port] forKey:GCDWebServerOption_Port];
+    [options setValue:name forKey:GCDWebServerOption_BonjourName];
+    return [self startWithOptions:options error:NULL];
+}
+
+- (BOOL)runWithPort:(NSUInteger)port bonjourName:(NSString*)name {
+    NSMutableDictionary* options = [NSMutableDictionary dictionary];
+    [options setObject:[NSNumber numberWithInteger:port] forKey:GCDWebServerOption_Port];
+    [options setValue:name forKey:GCDWebServerOption_BonjourName];
+    return [self runWithOptions:options error:NULL];
+}
+
+- (BOOL)runWithOptions:(NSDictionary*)options error:(NSError**)error {
+    BOOL success = NO;
+    _run = YES;
+    void (*termHandler)(int) = signal(SIGTERM, _SignalHandler);
+    void (*intHandler)(int) = signal(SIGINT, _SignalHandler);
+    if ((termHandler != SIG_ERR) && (intHandler != SIG_ERR)) {
+        if ([self startWithOptions:options error:error]) {
+            while (_run) {
+                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, true);
+            }
+            [self stop];
+            success = YES;
+        }
+        _ExecuteMainThreadRunLoopSources();
+        signal(SIGINT, intHandler);
+        signal(SIGTERM, termHandler);
+    }
+    return success;
 }
 
 - (BOOL)isRunning {
@@ -731,12 +668,6 @@ static inline NSString* _EncodeBase64(NSString* string) {
 
 - (void)stop {
   if (_options) {
-#if TARGET_OS_IPHONE
-    if (_suspendInBackground) {
-      [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
-      [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
-    }
-#endif
     if (_source4) {
       [self _stop];
     }
@@ -746,182 +677,108 @@ static inline NSString* _EncodeBase64(NSString* string) {
 
 @end
 
-@implementation GCDWebServer (Extensions)
-
-- (NSURL*)serverURL {
-  if (_source4) {
-    NSString* ipAddress = _bindToLocalhost ? @"localhost" : GCDWebServerGetPrimaryIPAddress(NO);  // We can't really use IPv6 anyway as it doesn't work great with HTTP URLs in practice
-    if (ipAddress) {
-      if (_port != 80) {
-        return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%i/", ipAddress, (int)_port]];
-      } else {
-        return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@/", ipAddress]];
-      }
-    }
-  }
-  return nil;
-}
-
-- (NSURL*)bonjourServerURL {
-  if (_source4 && _resolutionService) {
-    NSString* name = (__bridge NSString*)CFNetServiceGetTargetHost(_resolutionService);
-    if (name.length) {
-      name = [name substringToIndex:(name.length - 1)];  // Strip trailing period at end of domain
-      if (_port != 80) {
-        return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%i/", name, (int)_port]];
-      } else {
-        return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@/", name]];
-      }
-    }
-  }
-  return nil;
-}
-
-- (NSURL*)publicServerURL {
-  if (_source4 && _dnsService && _dnsAddress && _dnsPort) {
-    if (_dnsPort != 80) {
-      return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%i/", _dnsAddress, (int)_dnsPort]];
-    } else {
-      return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@/", _dnsAddress]];
-    }
-  }
-  return nil;
-}
-
-- (BOOL)start {
-  return [self startWithPort:kDefaultPort bonjourName:@""];
-}
-
-- (BOOL)startWithPort:(NSUInteger)port bonjourName:(NSString*)name {
-  NSMutableDictionary* options = [NSMutableDictionary dictionary];
-  [options setObject:[NSNumber numberWithInteger:port] forKey:GCDWebServerOption_Port];
-  [options setValue:name forKey:GCDWebServerOption_BonjourName];
-  return [self startWithOptions:options error:NULL];
-}
-
-#if !TARGET_OS_IPHONE
-
-- (BOOL)runWithPort:(NSUInteger)port bonjourName:(NSString*)name {
-  NSMutableDictionary* options = [NSMutableDictionary dictionary];
-  [options setObject:[NSNumber numberWithInteger:port] forKey:GCDWebServerOption_Port];
-  [options setValue:name forKey:GCDWebServerOption_BonjourName];
-  return [self runWithOptions:options error:NULL];
-}
-
-- (BOOL)runWithOptions:(NSDictionary*)options error:(NSError**)error {
-  BOOL success = NO;
-  _run = YES;
-  void (*termHandler)(int) = signal(SIGTERM, _SignalHandler);
-  void (*intHandler)(int) = signal(SIGINT, _SignalHandler);
-  if ((termHandler != SIG_ERR) && (intHandler != SIG_ERR)) {
-    if ([self startWithOptions:options error:error]) {
-      while (_run) {
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, true);
-      }
-      [self stop];
-      success = YES;
-    }
-    _ExecuteMainThreadRunLoopSources();
-    signal(SIGINT, intHandler);
-    signal(SIGTERM, termHandler);
-  }
-  return success;
-}
-
-#endif
-
-@end
-
 @implementation GCDWebServer (Handlers)
 
+#pragma mark synchronous
+
+- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock processBlock:(GCDWebServerProcessBlock)processBlock {
+    [self addHandlerWithMatchBlock:matchBlock asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
+        completionBlock(processBlock(request));
+    }];
+}
 - (void)addDefaultHandlerForMethod:(NSString*)method requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block {
-  [self addDefaultHandlerForMethod:method requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
-    completionBlock(block(request));
-  }];
+    [self addDefaultHandlerForMethod:method requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
+        completionBlock(block(request));
+    }];
 }
-
-- (void)addDefaultHandlerForMethod:(NSString*)method requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
-  [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
-    
-    if (![requestMethod isEqualToString:method]) {
-      return nil;
-    }
-    return [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
-    
-  } asyncProcessBlock:block];
-}
-
 - (void)addHandlerForMethod:(NSString*)method path:(NSString*)path requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block {
-  [self addHandlerForMethod:method path:path requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
-    completionBlock(block(request));
-  }];
-}
-
-- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
-  if ([path hasPrefix:@"/"] && [aClass isSubclassOfClass:[GCDWebServerRequest class]]) {
-    [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
-      
-      if (![requestMethod isEqualToString:method]) {
-        return nil;
-      }
-      if ([urlPath caseInsensitiveCompare:path] != NSOrderedSame) {
-        return nil;
-      }
-      return [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
-      
-    } asyncProcessBlock:block];
-  }
+    [self addHandlerForMethod:method path:path requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
+        completionBlock(block(request));
+    }];
 }
 
 - (void)addHandlerForMethod:(NSString*)method pathRegex:(NSString*)regex requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block {
-  [self addHandlerForMethod:method pathRegex:regex requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
-    completionBlock(block(request));
-  }];
+    [self addHandlerForMethod:method pathRegex:regex requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
+        completionBlock(block(request));
+    }];
 }
 
-- (void)addHandlerForMethod:(NSString*)method pathRegex:(NSString*)regex requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
-  NSRegularExpression* expression = [NSRegularExpression regularExpressionWithPattern:regex options:NSRegularExpressionCaseInsensitive error:NULL];
-  if (expression && [aClass isSubclassOfClass:[GCDWebServerRequest class]]) {
-    [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
-      
-      if (![requestMethod isEqualToString:method]) {
-        return nil;
-      }
-
-      NSArray* matches = [expression matchesInString:urlPath options:0 range:NSMakeRange(0, urlPath.length)];
-      if (matches.count == 0) {
-        return nil;
-      }
-
-      NSMutableArray* captures = [NSMutableArray array];
-      for (NSTextCheckingResult* result in matches) {
-        // Start at 1; index 0 is the whole string
-        for (NSUInteger i = 1; i < result.numberOfRanges; i++) {
-          NSRange range = [result rangeAtIndex:i];
-          // range is {NSNotFound, 0} "if one of the capture groups did not participate in this particular match"
-          // see discussion in -[NSRegularExpression firstMatchInString:options:range:]
-          if (range.location != NSNotFound) {
-            [captures addObject:[urlPath substringWithRange:range]];
-          }
-        }
-      }
-
-      GCDWebServerRequest* request = [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
-      [request setAttribute:captures forKey:GCDWebServerRequestAttribute_RegexCaptures];
-      return request;
-      
-    } asyncProcessBlock:block];
-  }
-}
-
-#pragma mark JF version of the two last methods with NSRegularExpression parameter.
-
+//JF version of the last methods with NSRegularExpression parameter.
 - (void)addHandlerForMethod:(NSString*)method pathRegularExpression:(NSRegularExpression*)pathRegularExpression requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block {
     [self addHandlerForMethod:method pathRegularExpression:pathRegularExpression requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
         completionBlock(block(request));
     }];
 }
 
+#pragma mark asynchronous
+
+- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock asyncProcessBlock:(GCDWebServerAsyncProcessBlock)processBlock {
+    GCDWebServerHandler* handler = [[GCDWebServerHandler alloc] initWithMatchBlock:matchBlock asyncProcessBlock:processBlock];
+    [_handlers insertObject:handler atIndex:0];
+}
+- (void)addDefaultHandlerForMethod:(NSString*)method requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
+    [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
+        
+        if (![requestMethod isEqualToString:method]) {
+            return nil;
+        }
+        return [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
+        
+    } asyncProcessBlock:block];
+}
+
+- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
+    if ([path hasPrefix:@"/"] && [aClass isSubclassOfClass:[GCDWebServerRequest class]]) {
+        [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
+            
+            if (![requestMethod isEqualToString:method]) {
+                return nil;
+            }
+            if ([urlPath caseInsensitiveCompare:path] != NSOrderedSame) {
+                return nil;
+            }
+            return [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
+            
+        } asyncProcessBlock:block];
+    }
+}
+
+- (void)addHandlerForMethod:(NSString*)method pathRegex:(NSString*)regex requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
+    NSRegularExpression* expression = [NSRegularExpression regularExpressionWithPattern:regex options:NSRegularExpressionCaseInsensitive error:NULL];
+    if (expression && [aClass isSubclassOfClass:[GCDWebServerRequest class]]) {
+        [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
+            
+            if (![requestMethod isEqualToString:method]) {
+                return nil;
+            }
+            
+            NSArray* matches = [expression matchesInString:urlPath options:0 range:NSMakeRange(0, urlPath.length)];
+            if (matches.count == 0) {
+                return nil;
+            }
+            
+            NSMutableArray* captures = [NSMutableArray array];
+            for (NSTextCheckingResult* result in matches) {
+                // Start at 1; index 0 is the whole string
+                for (NSUInteger i = 1; i < result.numberOfRanges; i++) {
+                    NSRange range = [result rangeAtIndex:i];
+                    // range is {NSNotFound, 0} "if one of the capture groups did not participate in this particular match"
+                    // see discussion in -[NSRegularExpression firstMatchInString:options:range:]
+                    if (range.location != NSNotFound) {
+                        [captures addObject:[urlPath substringWithRange:range]];
+                    }
+                }
+            }
+            
+            GCDWebServerRequest* request = [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
+            [request setAttribute:captures forKey:GCDWebServerRequestAttribute_RegexCaptures];
+            return request;
+            
+        } asyncProcessBlock:block];
+    }
+}
+
+//JF version of the last methods with NSRegularExpression parameter.
 - (void)addHandlerForMethod:(NSString*)method pathRegularExpression:(NSRegularExpression*)pathRegularExpression requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
     if (pathRegularExpression && [aClass isSubclassOfClass:[GCDWebServerRequest class]]) {
         [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
@@ -954,6 +811,11 @@ static inline NSString* _EncodeBase64(NSString* string) {
             
         } asyncProcessBlock:block];
     }
+}
+
+
+- (void)removeAllHandlers {
+    [_handlers removeAllObjects];
 }
 
 @end
@@ -1055,7 +917,7 @@ static inline NSString* _EncodeBase64(NSString* string) {
       if (response) {
         response.cacheControlMaxAge = cacheAge;
       } else {
-        response = [GCDWebServerResponse responseWithStatusCode:kGCDWebServerHTTPStatusCode_NotFound];
+          response = [GCDWebServerResponse responseWithStatusCode:404];//NotFound
       }
       return response;
       
@@ -1064,212 +926,3 @@ static inline NSString* _EncodeBase64(NSString* string) {
 }
 
 @end
-
-@implementation GCDWebServer (Logging)
-
-+ (void)setLogLevel:(int)level {
-  GCDWebServerLogLevel = level;
-}
-
-- (void)logVerbose:(NSString*)format, ... {
-  va_list arguments;
-  va_start(arguments, format);
-  LOG_VERBOSE(@"%@", [[NSString alloc] initWithFormat:format arguments:arguments]);
-  va_end(arguments);
-}
-
-- (void)logInfo:(NSString*)format, ... {
-  va_list arguments;
-  va_start(arguments, format);
-  LOG_INFO(@"%@", [[NSString alloc] initWithFormat:format arguments:arguments]);
-  va_end(arguments);
-}
-
-- (void)logWarning:(NSString*)format, ... {
-  va_list arguments;
-  va_start(arguments, format);
-  LOG_WARNING(@"%@", [[NSString alloc] initWithFormat:format arguments:arguments]);
-  va_end(arguments);
-}
-
-- (void)logError:(NSString*)format, ... {
-  va_list arguments;
-  va_start(arguments, format);
-  LOG_ERROR(@"%@", [[NSString alloc] initWithFormat:format arguments:arguments]);
-  va_end(arguments);
-}
-
-- (void)logException:(NSException*)exception {
-  LOG_EXCEPTION(exception);
-}
-
-@end
-
-#ifdef __GCDWEBSERVER_ENABLE_TESTING__
-
-@implementation GCDWebServer (Testing)
-
-- (void)setRecordingEnabled:(BOOL)flag {
-  _recording = flag;
-}
-
-- (BOOL)isRecordingEnabled {
-  return _recording;
-}
-
-static CFHTTPMessageRef _CreateHTTPMessageFromData(NSData* data, BOOL isRequest) {
-  CFHTTPMessageRef message = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, isRequest);
-  if (CFHTTPMessageAppendBytes(message, data.bytes, data.length)) {
-    return message;
-  }
-  CFRelease(message);
-  return NULL;
-}
-
-static CFHTTPMessageRef _CreateHTTPMessageFromPerformingRequest(NSData* inData, NSUInteger port) {
-  CFHTTPMessageRef response = NULL;
-  int httpSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (httpSocket > 0) {
-    struct sockaddr_in addr4;
-    bzero(&addr4, sizeof(addr4));
-    addr4.sin_len = sizeof(port);
-    addr4.sin_family = AF_INET;
-    addr4.sin_port = htons(8080);
-    addr4.sin_addr.s_addr = htonl(INADDR_ANY);
-    if (connect(httpSocket, (void*)&addr4, sizeof(addr4)) == 0) {
-      if (write(httpSocket, inData.bytes, inData.length) == (ssize_t)inData.length) {
-        NSMutableData* outData = [[NSMutableData alloc] initWithLength:(256 * 1024)];
-        NSUInteger length = 0;
-        while (1) {
-          ssize_t result = read(httpSocket, (char*)outData.mutableBytes + length, outData.length - length);
-          if (result < 0) {
-            length = NSUIntegerMax;
-            break;
-          } else if (result == 0) {
-            break;
-          }
-          length += result;
-          if (length >= outData.length) {
-            outData.length = 2 * outData.length;
-          }
-        }
-        if (length != NSUIntegerMax) {
-          outData.length = length;
-          response = _CreateHTTPMessageFromData(outData, NO);
-        }
-      }
-    }
-    close(httpSocket);
-  }
-  return response;
-}
-
-static void _LogResult(NSString* format, ...) {
-  va_list arguments;
-  va_start(arguments, format);
-  NSString* message = [[NSString alloc] initWithFormat:format arguments:arguments];
-  va_end(arguments);
-  fprintf(stdout, "%s\n", [message UTF8String]);
-}
-
-- (NSInteger)runTestsWithOptions:(NSDictionary*)options inDirectory:(NSString*)path {
-  NSArray* ignoredHeaders = @[@"Date", @"Etag"];  // Dates are always different by definition and ETags depend on file system node IDs
-  NSInteger result = -1;
-  if ([self startWithOptions:options error:NULL]) {
-    _ExecuteMainThreadRunLoopSources();
-    
-    result = 0;
-    NSArray* files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:NULL];
-    for (NSString* requestFile in files) {
-      if (![requestFile hasSuffix:@".request"]) {
-        continue;
-      }
-      @autoreleasepool {
-        NSString* index = [[requestFile componentsSeparatedByString:@"-"] firstObject];
-        BOOL success = NO;
-        NSData* requestData = [NSData dataWithContentsOfFile:[path stringByAppendingPathComponent:requestFile]];
-        if (requestData) {
-          CFHTTPMessageRef request = _CreateHTTPMessageFromData(requestData, YES);
-          if (request) {
-            NSString* requestMethod = CFBridgingRelease(CFHTTPMessageCopyRequestMethod(request));
-            NSURL* requestURL = CFBridgingRelease(CFHTTPMessageCopyRequestURL(request));
-            _LogResult(@"[%i] %@ %@", (int)[index integerValue], requestMethod, requestURL.path);
-            NSString* prefix = [index stringByAppendingString:@"-"];
-            for (NSString* responseFile in files) {
-              if ([responseFile hasPrefix:prefix] && [responseFile hasSuffix:@".response"]) {
-                NSData* responseData = [NSData dataWithContentsOfFile:[path stringByAppendingPathComponent:responseFile]];
-                if (responseData) {
-                CFHTTPMessageRef expectedResponse = _CreateHTTPMessageFromData(responseData, NO);
-                  if (expectedResponse) {
-                    CFHTTPMessageRef actualResponse = _CreateHTTPMessageFromPerformingRequest(requestData, self.port);
-                    if (actualResponse) {
-                      success = YES;
-                      
-                      CFIndex expectedStatusCode = CFHTTPMessageGetResponseStatusCode(expectedResponse);
-                      CFIndex actualStatusCode = CFHTTPMessageGetResponseStatusCode(actualResponse);
-                      if (actualStatusCode != expectedStatusCode) {
-                        _LogResult(@"  Status code not matching:\n    Expected: %i\n      Actual: %i", (int)expectedStatusCode, (int)actualStatusCode);
-                        success = NO;
-                      }
-                      
-                      NSDictionary* expectedHeaders = CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(expectedResponse));
-                      NSDictionary* actualHeaders = CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(actualResponse));
-                      for (NSString* expectedHeader in expectedHeaders) {
-                        if ([ignoredHeaders containsObject:expectedHeader]) {
-                          continue;
-                        }
-                        NSString* expectedValue = [expectedHeaders objectForKey:expectedHeader];
-                        NSString* actualValue = [actualHeaders objectForKey:expectedHeader];
-                        if (![actualValue isEqualToString:expectedValue]) {
-                          _LogResult(@"  Header '%@' not matching:\n    Expected: \"%@\"\n      Actual: \"%@\"", expectedHeader, expectedValue, actualValue);
-                          success = NO;
-                        }
-                      }
-                      for (NSString* actualHeader in actualHeaders) {
-                        if (![expectedHeaders objectForKey:actualHeader]) {
-                          _LogResult(@"  Header '%@' not matching:\n    Expected: \"%@\"\n      Actual: \"%@\"", actualHeader, nil, [actualHeaders objectForKey:actualHeader]);
-                          success = NO;
-                        }
-                      }
-                      
-                      NSString* expectedContentLength = CFBridgingRelease(CFHTTPMessageCopyHeaderFieldValue(expectedResponse, CFSTR("Content-Length")));
-                      NSData* expectedBody = CFBridgingRelease(CFHTTPMessageCopyBody(expectedResponse));
-                      NSString* actualContentLength = CFBridgingRelease(CFHTTPMessageCopyHeaderFieldValue(actualResponse, CFSTR("Content-Length")));
-                      NSData* actualBody = CFBridgingRelease(CFHTTPMessageCopyBody(actualResponse));
-                      if ([actualContentLength isEqualToString:expectedContentLength] && (actualBody.length > expectedBody.length)) {  // Handle web browser closing connection before retrieving entire body (e.g. when playing a video file)
-                        actualBody = [actualBody subdataWithRange:NSMakeRange(0, expectedBody.length)];
-                      }
-                      if (![actualBody isEqualToData:expectedBody]) {
-                        _LogResult(@"  Bodies not matching:\n    Expected: %lu bytes\n      Actual: %lu bytes", (unsigned long)expectedBody.length, (unsigned long)actualBody.length);
-                        success = NO;
-                      }
-                      
-                      CFRelease(actualResponse);
-                    }
-                    CFRelease(expectedResponse);
-                  }
-                }
-                break;
-              }
-            }
-            CFRelease(request);
-          }
-        }
-        _LogResult(@"");
-        if (!success) {
-          ++result;
-        }
-      }
-      _ExecuteMainThreadRunLoopSources();
-    }
-    
-    [self stop];
-    
-    _ExecuteMainThreadRunLoopSources();
-  }
-  return result;
-}
-
-@end
-
-#endif

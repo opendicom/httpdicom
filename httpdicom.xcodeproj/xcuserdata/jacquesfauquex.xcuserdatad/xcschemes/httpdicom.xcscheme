@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "INFO"
+            argument = "/Users/Shared/httpdicom/conf/SONORAD.plist"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -71,7 +71,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/Shared/httpdicom/conf/SONORAD.plist"
+            argument = "DEBUG"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

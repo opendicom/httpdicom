@@ -1,3 +1,7 @@
+#import "GCDWebServerPrivate.h"
+#import "Log.h"
+//#import "GCDWebServerDataRequest.h"
+
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
  All rights reserved.
@@ -25,11 +29,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !__has_feature(objc_arc)
-#error GCDWebServer requires ARC
-#endif
-
-#import "GCDWebServerPrivate.h"
 
 @interface GCDWebServerDataRequest () {
 @private
@@ -52,7 +51,7 @@
   }
   if (_data == nil) {
     if (error) {
-      *error = [NSError errorWithDomain:kGCDWebServerErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey: @"Failed allocating memory"}];
+      *error = [NSError errorWithDomain:@"GCDWebServerErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey: @"Failed allocating memory"}];
     }
     return NO;
   }

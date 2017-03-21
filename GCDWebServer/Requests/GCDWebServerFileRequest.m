@@ -1,3 +1,6 @@
+#import "GCDWebServerPrivate.h"
+#import "Log.h"
+
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
  All rights reserved.
@@ -25,11 +28,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !__has_feature(objc_arc)
-#error GCDWebServer requires ARC
-#endif
-
-#import "GCDWebServerPrivate.h"
 
 @interface GCDWebServerFileRequest () {
 @private

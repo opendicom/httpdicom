@@ -1,3 +1,7 @@
+#import <zlib.h>
+#import "GCDWebServerPrivate.h"
+#import "Log.h"
+
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
  All rights reserved.
@@ -25,13 +29,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !__has_feature(objc_arc)
-#error GCDWebServer requires ARC
-#endif
-
-#import <zlib.h>
-
-#import "GCDWebServerPrivate.h"
 
 #define kZlibErrorDomain @"ZlibErrorDomain"
 #define kGZipInitialBufferSize (256 * 1024)
@@ -186,7 +183,7 @@
   if ((self = [super init])) {
     _type = nil;
     _length = NSUIntegerMax;
-    _status = kGCDWebServerHTTPStatusCode_OK;
+    _status = 200;//OK
     _maxAge = 0;
     _headers = [[NSMutableDictionary alloc] init];
     _encoders = [[NSMutableArray alloc] init];
@@ -294,7 +291,7 @@
 
 - (instancetype)initWithRedirect:(NSURL*)location permanent:(BOOL)permanent {
   if ((self = [self init])) {
-    self.statusCode = permanent ? kGCDWebServerHTTPStatusCode_MovedPermanently : kGCDWebServerHTTPStatusCode_TemporaryRedirect;
+    self.statusCode = permanent ? 301 : 307;//?MovedPermanently:TemporaryRedirect
     [self setValue:[location absoluteString] forAdditionalHeader:@"Location"];
   }
   return self;

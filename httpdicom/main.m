@@ -35,6 +35,8 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "Log.h"
+//ver
 
 #import "GCDWebServerResponse.h"
 #import "GCDWebServer.h"
@@ -118,7 +120,7 @@ NSMutableArray *jsonMutableArray(NSString *scriptString, NSStringEncoding encodi
 
     NSMutableData *mutableData=[NSMutableData data];
     if (!task(@"/bin/bash",@[@"-s"],[scriptString dataUsingEncoding:NSUTF8StringEncoding],mutableData))
-    [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"%@",@"can not execute the script"];
+    [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@",@"can not execute the script"];//NotFound
     NSString *string=[[NSString alloc]initWithData:mutableData encoding:encoding];//5=latinISO1 4=UTF8
     NSData *utf8Data=[string dataUsingEncoding:NSUTF8StringEncoding];
 
@@ -268,14 +270,26 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType)
             }];
 }
 
+ODLogLevelEnum ODLogLevel = ODLogLevel_Info;
+static const char* levelNames[] = {"DEBUG", "VERBOSE", "INFO", "WARNING", "ERROR", "EXCEPTION"};
+void ODLog(ODLogLevelEnum level, NSString* format, ...) {
+    va_list arguments;
+    va_start(arguments, format);
+    NSString* message = [[NSString alloc] initWithFormat:format arguments:arguments];
+    va_end(arguments);
+    fprintf(stderr, "[%s] %s\n", levelNames[level], [message UTF8String]);
+}
+
 int main(int argc, const char* argv[]) {
     BOOL success = NO;
     /*
      syntax: 
      [0] httpdicom
-     [1] [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION]
+     [1] path to pacs.plist
      [2] puerto
-     [3] path to pacs.plist
+     [3] [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION]
+     ... path to log file
+     
      */
     
     @autoreleasepool {
@@ -283,19 +297,19 @@ int main(int argc, const char* argv[]) {
         NSArray *args=[[NSProcessInfo processInfo] arguments];
         if ([args count]!=4)
         {
-            LOG_INFO(@"syntax: httpdicom port path2pacs.plist");
+            LOG_WARNING(@"syntax: httpdicom path2pacs.plist port debug");
             return 1;
         }
         
         
-        //[1]
-        NSArray *logLevel=@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"];
-        if ([logLevel indexOfObject:args[1]]==NSNotFound)
+        //[3]
+        NSUInteger llindex=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:args[3]];
+        if (llindex==NSNotFound)
         {
-            LOG_ERROR(@"logLevel (arg 1) should be one of [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION]");
+            LOG_ERROR(@"ODLogLevel (arg 1) should be one of [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION ]");
             return 1;
         }
-        [GCDWebServer setLogLevel:(int)[logLevel indexOfObject:args[1]]];
+        ODLogLevel=(int)llindex;
         
         //[2]
         long long port=[args[2]longLongValue];
@@ -333,9 +347,9 @@ int main(int argc, const char* argv[]) {
         sStudyDescription=[NSMutableDictionary dictionary];
         
 
-        //[3]
+        //[1]
         //arrays custodians
-        NSDictionary *pacsDictionaries=[NSDictionary dictionaryWithContentsOfFile:[args[3]stringByExpandingTildeInPath]];
+        NSDictionary *pacsDictionaries=[NSDictionary dictionaryWithContentsOfFile:[args[1]stringByExpandingTildeInPath]];
         if (!pacsDictionaries)
         {
             LOG_ERROR(@"could not get contents of pacs.plist");
@@ -411,7 +425,7 @@ int main(int argc, const char* argv[]) {
              [NSDictionary dictionaryWithContentsOfFile:
               [
                [
-                [args[3]stringByExpandingTildeInPath]
+                [args[1]stringByExpandingTildeInPath]
                 stringByDeletingLastPathComponent
                 ]
                stringByAppendingPathComponent:s
@@ -650,13 +664,13 @@ int main(int argc, const char* argv[]) {
                  NSData *responseData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadouriString]];
                  if (!responseData) return
                      [GCDWebServerErrorResponse
-                      responseWithClientError:kGCDWebServerHTTPStatusCode_FailedDependency
-                      message:@"no reply"];
+                      responseWithClientError:424
+                      message:@"no reply"];//FailedDependency
                  
                  if (![responseData length]) return
                      [GCDWebServerErrorResponse
-                      responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound
-                      message:@"empty reply"];
+                      responseWithClientError:404
+                      message:@"empty reply"];//NotFound
                  return [GCDWebServerDataResponse
                          responseWithData:responseData
                          contentType:@"application/dicom"
@@ -940,7 +954,7 @@ int main(int argc, const char* argv[]) {
              
              NSArray *instanceArray=[NSJSONSerialization JSONObjectWithData:instanceQidoData options:0 error:nil];
              NSUInteger instanceArrayCount=[instanceArray count];
-             if (instanceArrayCount==0) [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"dev0 /applicable not found"];
+             if (instanceArrayCount==0) [GCDWebServerErrorResponse responseWithClientError:404 message:@"dev0 /applicable not found"];//NotFound
              
              NSDictionary *instance;
              NSInteger i=0;
@@ -1599,7 +1613,7 @@ int main(int argc, const char* argv[]) {
                  LOG_DEBUG(@"%@",sqlCountQuery);
                  NSMutableData *countData=[NSMutableData data];
                  if (task(@"/bin/bash",@[@"-s"],[sqlCountQuery dataUsingEncoding:NSUTF8StringEncoding],countData))
-                     [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_NotFound message:@"%@",@"can not access the db"];
+                     [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@",@"can not access the db"];//NotFound
                  NSString *countString=[[NSString alloc]initWithData:countData encoding:NSUTF8StringEncoding];
                  // max (max records filtered para evitar que filtros insuficientes devuelvan casi todos los registros... lo que devolvería un resultado inútil.
                  recordsTotal=[countString intValue];

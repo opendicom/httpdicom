@@ -1,3 +1,7 @@
+#import <sys/stat.h>
+#import "GCDWebServerPrivate.h"
+#import "Log.h"
+
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
  All rights reserved.
@@ -25,13 +29,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !__has_feature(objc_arc)
-#error GCDWebServer requires ARC
-#endif
-
-#import <sys/stat.h>
-
-#import "GCDWebServerPrivate.h"
 
 #define kFileReadBufferSize (32 * 1024)
 
@@ -112,7 +109,7 @@ static inline NSDate* _NSDateFromTimeSpec(const struct timespec* t) {
     _offset = range.location;
     _size = range.length;
     if (hasByteRange) {
-      [self setStatusCode:kGCDWebServerHTTPStatusCode_PartialContent];
+      [self setStatusCode:206];//PartialContent];
       [self setValue:[NSString stringWithFormat:@"bytes %lu-%lu/%lu", (unsigned long)_offset, (unsigned long)(_offset + _size - 1), (unsigned long)fileSize] forAdditionalHeader:@"Content-Range"];
       LOG_DEBUG(@"Using content bytes range [%lu-%lu] for file \"%@\"", (unsigned long)_offset, (unsigned long)(_offset + _size - 1), path);
     }

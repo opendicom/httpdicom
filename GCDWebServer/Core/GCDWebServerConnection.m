@@ -1,3 +1,8 @@
+#import <netdb.h>
+#import "GCDWebServerConnection.h"
+#import "GCDWebServerPrivate.h"
+#import "Log.h"
+
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
  All rights reserved.
@@ -24,18 +29,6 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#if !__has_feature(objc_arc)
-#error GCDWebServer requires ARC
-#endif
-
-#import <TargetConditionals.h>
-#import <netdb.h>
-#ifdef __GCDWEBSERVER_ENABLE_TESTING__
-#import <libkern/OSAtomic.h>
-#endif
-
-#import "GCDWebServerPrivate.h"
 
 #define kHeadersReadCapacity (1 * 1024)
 #define kBodyReadCapacity (256 * 1024)
@@ -439,7 +432,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
       
     }];
   } else {
-    [self abortRequest:_request withStatusCode:kGCDWebServerHTTPStatusCode_InternalServerError];
+    [self abortRequest:_request withStatusCode:500];//InternalServerError
   }
   
 }
@@ -448,7 +441,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
   NSError* error = nil;
   if (![_request performOpen:&error]) {
     LOG_ERROR(@"Failed opening request body for socket %i: %@", _socket, error);
-    [self abortRequest:_request withStatusCode:kGCDWebServerHTTPStatusCode_InternalServerError];
+    [self abortRequest:_request withStatusCode:500];//InternalServerError
     return;
   }
   
@@ -458,7 +451,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
       if (![_request performClose:&error]) {
         LOG_ERROR(@"Failed closing request body for socket %i: %@", _socket, error);
       }
-      [self abortRequest:_request withStatusCode:kGCDWebServerHTTPStatusCode_InternalServerError];
+      [self abortRequest:_request withStatusCode:500];//InternalServerError
       return;
     }
     length -= initialData.length;
@@ -472,7 +465,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
         [self _startProcessingRequest];
       } else {
         LOG_ERROR(@"Failed closing request body for socket %i: %@", _socket, error);
-        [self abortRequest:_request withStatusCode:kGCDWebServerHTTPStatusCode_InternalServerError];
+        [self abortRequest:_request withStatusCode:500];//InternalServerError
       }
       
     }];
@@ -481,7 +474,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
       [self _startProcessingRequest];
     } else {
       LOG_ERROR(@"Failed closing request body for socket %i: %@", _socket, error);
-      [self abortRequest:_request withStatusCode:kGCDWebServerHTTPStatusCode_InternalServerError];
+      [self abortRequest:_request withStatusCode:500];//InternalServerError
     }
   }
 }
@@ -490,7 +483,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
   NSError* error = nil;
   if (![_request performOpen:&error]) {
     LOG_ERROR(@"Failed opening request body for socket %i: %@", _socket, error);
-    [self abortRequest:_request withStatusCode:kGCDWebServerHTTPStatusCode_InternalServerError];
+    [self abortRequest:_request withStatusCode:500];//InternalServerError
     return;
   }
   
@@ -502,7 +495,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
       [self _startProcessingRequest];
     } else {
       LOG_ERROR(@"Failed closing request body for socket %i: %@", _socket, error);
-      [self abortRequest:_request withStatusCode:kGCDWebServerHTTPStatusCode_InternalServerError];
+      [self abortRequest:_request withStatusCode:500];//InternalServerError
     }
     
   }];
@@ -556,7 +549,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
                   }];
                 } else {
                   LOG_ERROR(@"Unsupported 'Expect' / 'Content-Length' header combination on socket %i", _socket);
-                  [self abortRequest:_request withStatusCode:kGCDWebServerHTTPStatusCode_ExpectationFailed];
+                    [self abortRequest:_request withStatusCode:417];//ExpectationFailed
                 }
               } else {
                 if (_request.usesChunkedTransferEncoding) {
@@ -567,20 +560,20 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
               }
             } else {
               LOG_ERROR(@"Unexpected 'Content-Length' header value on socket %i", _socket);
-              [self abortRequest:_request withStatusCode:kGCDWebServerHTTPStatusCode_BadRequest];
+                [self abortRequest:_request withStatusCode:400];//BadRequest
             }
           } else {
             [self _startProcessingRequest];
           }
         } else {
           _request = [[GCDWebServerRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:requestPath query:requestQuery];
-          [self abortRequest:_request withStatusCode:kGCDWebServerHTTPStatusCode_MethodNotAllowed];
+          [self abortRequest:_request withStatusCode:405];//MethodNotAllowed
         }
       } else {
-        [self abortRequest:nil withStatusCode:kGCDWebServerHTTPStatusCode_InternalServerError];
+        [self abortRequest:nil withStatusCode:500];//InternalServerError
       }
     } else {
-      [self abortRequest:nil withStatusCode:kGCDWebServerHTTPStatusCode_InternalServerError];
+      [self abortRequest:nil withStatusCode:500];//InternalServerError
     }
     
   }];
@@ -705,7 +698,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
       }];
     }
     if (!authenticated) {
-      response = [GCDWebServerResponse responseWithStatusCode:kGCDWebServerHTTPStatusCode_Unauthorized];
+      response = [GCDWebServerResponse responseWithStatusCode:401];//Unauthorized
       [response setValue:[NSString stringWithFormat:@"Basic realm=\"%@\"", _server.authenticationRealm] forAdditionalHeader:@"WWW-Authenticate"];
     }
   } else if (_server.authenticationDigestAccounts) {
@@ -732,7 +725,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
       }
     }
     if (!authenticated) {
-      response = [GCDWebServerResponse responseWithStatusCode:kGCDWebServerHTTPStatusCode_Unauthorized];
+      response = [GCDWebServerResponse responseWithStatusCode:401];//Unauthorized
       [response setValue:[NSString stringWithFormat:@"Digest realm=\"%@\", nonce=\"%@\"%@", _server.authenticationRealm, _digestAuthenticationNonce, isStaled ? @", stale=TRUE" : @""] forAdditionalHeader:@"WWW-Authenticate"];  // TODO: Support Quality of Protection ("qop")
     }
   }
@@ -770,7 +763,7 @@ static inline BOOL _CompareResources(NSString* responseETag, NSString* requestET
 
 - (GCDWebServerResponse*)overrideResponse:(GCDWebServerResponse*)response forRequest:(GCDWebServerRequest*)request {
   if ((response.statusCode >= 200) && (response.statusCode < 300) && _CompareResources(response.eTag, request.ifNoneMatch, response.lastModifiedDate, request.ifModifiedSince)) {
-    NSInteger code = [request.method isEqualToString:@"HEAD"] || [request.method isEqualToString:@"GET"] ? kGCDWebServerHTTPStatusCode_NotModified : kGCDWebServerHTTPStatusCode_PreconditionFailed;
+    NSInteger code = [request.method isEqualToString:@"HEAD"] || [request.method isEqualToString:@"GET"] ? 304 : 412;//?NotModified:PreconditionFailed
     GCDWebServerResponse* newResponse = [GCDWebServerResponse responseWithStatusCode:code];
     newResponse.cacheControlMaxAge = response.cacheControlMaxAge;
     newResponse.lastModifiedDate = response.lastModifiedDate;

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2A6C518A1C8DCF7C00424729 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6C51891C8DCF7C00424729 /* libz.tbd */; };
+		4A0E60441E81C01B005D7F2B /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A0E60431E81C01B005D7F2B /* Log.h */; };
 		4A83466D1DD91B5F008EFF41 /* NSData+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8346691DD91B5F008EFF41 /* NSData+PCS.h */; };
 		4A83466E1DD91B5F008EFF41 /* NSData+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */; };
 		4A83466F1DD91B5F008EFF41 /* NSString+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */; };
@@ -23,7 +24,6 @@
 		4ABAF4801E7B8511003B3217 /* GCDWebServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4621E7B8511003B3217 /* GCDWebServerConnection.m */; };
 		4ABAF4811E7B8511003B3217 /* GCDWebServerFunctions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4631E7B8511003B3217 /* GCDWebServerFunctions.h */; };
 		4ABAF4821E7B8511003B3217 /* GCDWebServerFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4641E7B8511003B3217 /* GCDWebServerFunctions.m */; };
-		4ABAF4831E7B8511003B3217 /* GCDWebServerHTTPStatusCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4651E7B8511003B3217 /* GCDWebServerHTTPStatusCodes.h */; };
 		4ABAF4841E7B8511003B3217 /* GCDWebServerPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4661E7B8511003B3217 /* GCDWebServerPrivate.h */; };
 		4ABAF4851E7B8511003B3217 /* GCDWebServerRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4671E7B8511003B3217 /* GCDWebServerRequest.h */; };
 		4ABAF4861E7B8511003B3217 /* GCDWebServerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4681E7B8511003B3217 /* GCDWebServerRequest.m */; };
@@ -65,6 +65,7 @@
 		2A31F5E21C87295A00A78C7C /* httpdicom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = httpdicom; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A31F5E51C87295A00A78C7C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2A6C51891C8DCF7C00424729 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		4A0E60431E81C01B005D7F2B /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Log.h; path = httpdicom/Log.h; sourceTree = SOURCE_ROOT; };
 		4A8346691DD91B5F008EFF41 /* NSData+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSData+PCS.h"; path = "httpdicom/NSData+PCS.h"; sourceTree = SOURCE_ROOT; };
 		4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+PCS.m"; path = "httpdicom/NSData+PCS.m"; sourceTree = SOURCE_ROOT; };
 		4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+PCS.h"; path = "httpdicom/NSString+PCS.h"; sourceTree = SOURCE_ROOT; };
@@ -83,7 +84,6 @@
 		4ABAF4621E7B8511003B3217 /* GCDWebServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerConnection.m; sourceTree = "<group>"; };
 		4ABAF4631E7B8511003B3217 /* GCDWebServerFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerFunctions.h; sourceTree = "<group>"; };
 		4ABAF4641E7B8511003B3217 /* GCDWebServerFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerFunctions.m; sourceTree = "<group>"; };
-		4ABAF4651E7B8511003B3217 /* GCDWebServerHTTPStatusCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerHTTPStatusCodes.h; sourceTree = "<group>"; };
 		4ABAF4661E7B8511003B3217 /* GCDWebServerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerPrivate.h; sourceTree = "<group>"; };
 		4ABAF4671E7B8511003B3217 /* GCDWebServerRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerRequest.h; sourceTree = "<group>"; };
 		4ABAF4681E7B8511003B3217 /* GCDWebServerRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerRequest.m; sourceTree = "<group>"; };
@@ -105,6 +105,7 @@
 		4ABAF47A1E7B8511003B3217 /* GCDWebServerFileResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerFileResponse.m; sourceTree = "<group>"; };
 		4ABAF47B1E7B8511003B3217 /* GCDWebServerStreamedResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerStreamedResponse.h; sourceTree = "<group>"; };
 		4ABAF47C1E7B8511003B3217 /* GCDWebServerStreamedResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerStreamedResponse.m; sourceTree = "<group>"; };
+		4ABAF4991E7B891B003B3217 /* bin */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bin; sourceTree = "<group>"; };
 		4AEF37851DC8D6C800CDA008 /* URLSessionDataTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = URLSessionDataTask.h; path = httpdicom/URLSessionDataTask.h; sourceTree = SOURCE_ROOT; };
 		4AEF37861DC8D6C800CDA008 /* URLSessionDataTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = URLSessionDataTask.m; path = httpdicom/URLSessionDataTask.m; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -124,6 +125,7 @@
 		2A31F5D91C87295A00A78C7C = {
 			isa = PBXGroup;
 			children = (
+				4ABAF4991E7B891B003B3217 /* bin */,
 				4ABAF45D1E7B8511003B3217 /* GCDWebServer */,
 				4AA28D2C1D94569400B223CA /* LICENSE */,
 				4AA28D2D1D94569400B223CA /* README.md */,
@@ -154,6 +156,7 @@
 		2A6BE9E31C91141D0011DEC0 /* httpdicom */ = {
 			isa = PBXGroup;
 			children = (
+				4A0E60431E81C01B005D7F2B /* Log.h */,
 				4A8346691DD91B5F008EFF41 /* NSData+PCS.h */,
 				4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */,
 				4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */,
@@ -189,7 +192,6 @@
 				4ABAF4621E7B8511003B3217 /* GCDWebServerConnection.m */,
 				4ABAF4631E7B8511003B3217 /* GCDWebServerFunctions.h */,
 				4ABAF4641E7B8511003B3217 /* GCDWebServerFunctions.m */,
-				4ABAF4651E7B8511003B3217 /* GCDWebServerHTTPStatusCodes.h */,
 				4ABAF4661E7B8511003B3217 /* GCDWebServerPrivate.h */,
 				4ABAF4671E7B8511003B3217 /* GCDWebServerRequest.h */,
 				4ABAF4681E7B8511003B3217 /* GCDWebServerRequest.m */,
@@ -239,6 +241,7 @@
 				4AAB26781D8A42A400401FD5 /* zlib.h in Headers */,
 				4ABAF47F1E7B8511003B3217 /* GCDWebServerConnection.h in Headers */,
 				4ABAF4911E7B8511003B3217 /* GCDWebServerDataResponse.h in Headers */,
+				4A0E60441E81C01B005D7F2B /* Log.h in Headers */,
 				4ABAF48D1E7B8511003B3217 /* GCDWebServerMultiPartFormRequest.h in Headers */,
 				4ABAF4811E7B8511003B3217 /* GCDWebServerFunctions.h in Headers */,
 				4ABAF4871E7B8511003B3217 /* GCDWebServerResponse.h in Headers */,
@@ -254,7 +257,6 @@
 				4ABAF4951E7B8511003B3217 /* GCDWebServerFileResponse.h in Headers */,
 				4AEF37871DC8D6C800CDA008 /* URLSessionDataTask.h in Headers */,
 				4ABAF48B1E7B8511003B3217 /* GCDWebServerFileRequest.h in Headers */,
-				4ABAF4831E7B8511003B3217 /* GCDWebServerHTTPStatusCodes.h in Headers */,
 				4AAB26771D8A42A400401FD5 /* zconf.h in Headers */,
 				4ABAF4891E7B8511003B3217 /* GCDWebServerDataRequest.h in Headers */,
 			);

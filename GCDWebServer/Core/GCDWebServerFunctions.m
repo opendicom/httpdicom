@@ -1,3 +1,13 @@
+#import <SystemConfiguration/SystemConfiguration.h>
+#import <CommonCrypto/CommonDigest.h>
+
+#import <ifaddrs.h>
+#import <net/if.h>
+#import <netdb.h>
+
+#import "GCDWebServerPrivate.h"
+#import "Log.h"
+
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
  All rights reserved.
@@ -25,23 +35,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !__has_feature(objc_arc)
-#error GCDWebServer requires ARC
-#endif
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IPHONE
-#import <MobileCoreServices/MobileCoreServices.h>
-#else
-#import <SystemConfiguration/SystemConfiguration.h>
-#endif
-#import <CommonCrypto/CommonDigest.h>
-
-#import <ifaddrs.h>
-#import <net/if.h>
-#import <netdb.h>
-
-#import "GCDWebServerPrivate.h"
 
 static NSDateFormatter* _dateFormatterRFC822 = nil;
 static NSDateFormatter* _dateFormatterISO8601 = nil;

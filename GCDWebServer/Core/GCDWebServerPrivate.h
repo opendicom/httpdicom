@@ -1,3 +1,25 @@
+#import <os/object.h>
+#import <sys/socket.h>
+
+/**
+ *  All GCDWebServer headers.
+ */
+
+#import "GCDWebServerFunctions.h"
+
+#import "GCDWebServer.h"
+#import "GCDWebServerConnection.h"
+
+#import "GCDWebServerDataRequest.h"
+#import "GCDWebServerFileRequest.h"
+#import "GCDWebServerMultiPartFormRequest.h"
+#import "GCDWebServerURLEncodedFormRequest.h"
+
+#import "GCDWebServerDataResponse.h"
+#import "GCDWebServerErrorResponse.h"
+#import "GCDWebServerFileResponse.h"
+#import "GCDWebServerStreamedResponse.h"
+
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
  All rights reserved.
@@ -25,51 +47,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <os/object.h>
-#import <sys/socket.h>
-
-/**
- *  All GCDWebServer headers.
- */
-
-#import "GCDWebServerHTTPStatusCodes.h"
-#import "GCDWebServerFunctions.h"
-
-#import "GCDWebServer.h"
-#import "GCDWebServerConnection.h"
-
-#import "GCDWebServerDataRequest.h"
-#import "GCDWebServerFileRequest.h"
-#import "GCDWebServerMultiPartFormRequest.h"
-#import "GCDWebServerURLEncodedFormRequest.h"
-
-#import "GCDWebServerDataResponse.h"
-#import "GCDWebServerErrorResponse.h"
-#import "GCDWebServerFileResponse.h"
-#import "GCDWebServerStreamedResponse.h"
-
-
-#define __GCDWEBSERVER_LOGGING_FACILITY_BUILTIN__
-
-typedef NS_ENUM(int, GCDWebServerLoggingLevel) {
-  kGCDWebServerLoggingLevel_Debug = 0,
-  kGCDWebServerLoggingLevel_Verbose,
-  kGCDWebServerLoggingLevel_Info,
-  kGCDWebServerLoggingLevel_Warning,
-  kGCDWebServerLoggingLevel_Error,
-  kGCDWebServerLoggingLevel_Exception
-};
-
-extern GCDWebServerLoggingLevel GCDWebServerLogLevel;
-extern void GCDWebServerLogMessage(GCDWebServerLoggingLevel level, NSString* format, ...) NS_FORMAT_FUNCTION(2, 3);
-
-#define LOG_DEBUG(...) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Debug) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Debug, __VA_ARGS__); } while (0)
-#define LOG_VERBOSE(...) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Verbose) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Verbose, __VA_ARGS__); } while (0)
-#define LOG_INFO(...) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Info) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Info, __VA_ARGS__); } while (0)
-#define LOG_WARNING(...) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Warning) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Warning, __VA_ARGS__); } while (0)
-#define LOG_ERROR(...) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Error) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Error, __VA_ARGS__); } while (0)
-#define LOG_EXCEPTION(__EXCEPTION__) do { if (GCDWebServerLogLevel <= kGCDWebServerLoggingLevel_Exception) GCDWebServerLogMessage(kGCDWebServerLoggingLevel_Exception, @"%@", __EXCEPTION__); } while (0)
-
 
 /**
  *  GCDWebServer internal constants and APIs.
@@ -77,7 +54,6 @@ extern void GCDWebServerLogMessage(GCDWebServerLoggingLevel level, NSString* for
 
 #define kGCDWebServerDefaultMimeType @"application/octet-stream"
 #define kGCDWebServerGCDQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
-#define kGCDWebServerErrorDomain @"GCDWebServerErrorDomain"
 
 static inline BOOL GCDWebServerIsValidByteRange(NSRange range) {
   return ((range.location != NSUIntegerMax) || (range.length > 0));
