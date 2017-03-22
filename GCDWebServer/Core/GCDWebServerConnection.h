@@ -34,13 +34,6 @@
  *  The GCDWebServerConnection class is instantiated by GCDWebServer to handle
  *  each new HTTP connection. Each instance stays alive until the connection is
  *  closed.
- *
- *  You cannot use this class directly, but it is made public so you can
- *  subclass it to override some hooks. Use the GCDWebServerOption_ConnectionClass
- *  option for GCDWebServer to install your custom subclass.
- *
- *  @warning The GCDWebServerConnection retains the GCDWebServer until the
- *  connection is closed.
  */
 @interface GCDWebServerConnection : NSObject
 

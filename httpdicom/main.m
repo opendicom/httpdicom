@@ -35,8 +35,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "Log.h"
-//ver
+#import "ODLog.h"
+//look at the implementation of the function ODLog below
 
 #import "GCDWebServerResponse.h"
 #import "GCDWebServer.h"
@@ -2171,7 +2171,8 @@ int main(int argc, const char* argv[]) {
         
 
 #pragma mark run
-        [httpdicomServer runWithPort:port bonjourName:nil];
+        NSError *error=nil;
+        [httpdicomServer startWithPort:port maxPendingConnections:16 error:&error];
         while (true) {
             CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, true);
         }        

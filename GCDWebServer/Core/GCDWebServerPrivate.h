@@ -83,9 +83,6 @@ extern NSString* GCDWebServerStringFromSockAddr(const struct sockaddr* addr, BOO
 @property(nonatomic, readonly) NSString* authenticationRealm;
 @property(nonatomic, readonly) NSDictionary* authenticationBasicAccounts;
 @property(nonatomic, readonly) NSDictionary* authenticationDigestAccounts;
-@property(nonatomic, readonly) BOOL shouldAutomaticallyMapHEADToGET;
-- (void)willStartConnection:(GCDWebServerConnection*)connection;
-- (void)didEndConnection:(GCDWebServerConnection*)connection;
 @end
 
 @interface GCDWebServerHandler : NSObject

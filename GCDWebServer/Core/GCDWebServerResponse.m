@@ -1,6 +1,6 @@
 #import <zlib.h>
 #import "GCDWebServerPrivate.h"
-#import "Log.h"
+#import "ODLog.h"
 
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour

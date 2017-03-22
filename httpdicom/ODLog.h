@@ -1,5 +1,5 @@
 //
-//  Log.h
+//  ODLog.h
 //  httpdicom
 //
 //  Created by jacquesfauquex on 2017-03-20.

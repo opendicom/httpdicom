@@ -1,7 +1,7 @@
 #import <netdb.h>
 #import "GCDWebServerConnection.h"
 #import "GCDWebServerPrivate.h"
-#import "Log.h"
+#import "ODLog.h"
 
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
@@ -58,7 +58,6 @@ static int32_t _connectionCounter = 0;
   CFSocketNativeHandle _socket;
   NSUInteger _bytesRead;
   NSUInteger _bytesWritten;
-  BOOL _virtualHEAD;
   
   CFHTTPMessageRef _requestMessage;
   GCDWebServerRequest* _request;
@@ -68,13 +67,6 @@ static int32_t _connectionCounter = 0;
   NSInteger _statusCode;
   
   BOOL _opened;
-#ifdef __GCDWEBSERVER_ENABLE_TESTING__
-  NSUInteger _connectionIndex;
-  NSString* _requestPath;
-  int _requestFD;
-  NSString* _responsePath;
-  int _responseFD;
-#endif
 }
 @end
 
@@ -252,9 +244,6 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
     }
     
   });
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(buffer);
-#endif
 }
 
 - (void)_writeHeadersWithCompletionBlock:(WriteHeadersCompletionBlock)block {
@@ -379,7 +368,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
   if (response) {
     if ([response hasBody]) {
       [response prepareForReading];
-      hasBody = !_virtualHEAD;
+      hasBody = YES;
     }
     NSError* error = nil;
     if (hasBody && ![response performOpen:&error]) {
@@ -508,10 +497,6 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
     
     if (extraData) {
       NSString* requestMethod = CFBridgingRelease(CFHTTPMessageCopyRequestMethod(_requestMessage));  // Method verbs are case-sensitive and uppercase
-      if (_server.shouldAutomaticallyMapHEADToGET && [requestMethod isEqualToString:@"HEAD"]) {
-        requestMethod = @"GET";
-        _virtualHEAD = YES;
-      }
       NSDictionary* requestHeaders = CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_requestMessage));  // Header names are case-insensitive but CFHTTPMessageCopyAllHeaderFields() will standardize the common ones
       NSURL* requestURL = CFBridgingRelease(CFHTTPMessageCopyRequestURL(_requestMessage));
       if (requestURL) {
@@ -587,7 +572,6 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
     _socket = socket;
     LOG_DEBUG(@"Did open connection on socket %i", _socket);
     
-    [_server willStartConnection:self];
     
     if (![self open]) {
       close(_socket);
@@ -619,9 +603,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
   if (_opened) {
     [self close];
   }
-  
-  [_server didEndConnection:self];
-  
+    
   if (_requestMessage) {
     CFRelease(_requestMessage);
   }
@@ -683,7 +665,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 
 // https://tools.ietf.org/html/rfc2617
 - (GCDWebServerResponse*)preflightRequest:(GCDWebServerRequest*)request {
-  LOG_DEBUG(@"Connection on socket %i preflighting request \"%@ %@\" with %lu bytes body", _socket, _virtualHEAD ? @"HEAD" : _request.method, _request.path, (unsigned long)_bytesRead);
+  LOG_DEBUG(@"Connection on socket %i preflighting request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);
   GCDWebServerResponse* response = nil;
   if (_server.authenticationBasicAccounts) {
     __block BOOL authenticated = NO;
@@ -733,7 +715,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 }
 
 - (void)processRequest:(GCDWebServerRequest*)request completion:(GCDWebServerCompletionBlock)completion {
-  LOG_DEBUG(@"Connection on socket %i processing request \"%@ %@\" with %lu bytes body", _socket, _virtualHEAD ? @"HEAD" : _request.method, _request.path, (unsigned long)_bytesRead);
+  LOG_DEBUG(@"Connection on socket %i processing request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);
   @try {
     _handler.asyncProcessBlock(request, [completion copy]);
   }
@@ -788,7 +770,7 @@ static inline BOOL _CompareResources(NSString* responseETag, NSString* requestET
     NSError* error = nil;
     if (_requestFD > 0) {
       close(_requestFD);
-      NSString* name = [NSString stringWithFormat:@"%03lu-%@.request", (unsigned long)_connectionIndex, _virtualHEAD ? @"HEAD" : _request.method];
+      NSString* name = [NSString stringWithFormat:@"%03lu-%@.request", (unsigned long)_connectionIndex, _request.method];
       success = [[NSFileManager defaultManager] moveItemAtPath:_requestPath toPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent:name] error:&error];
     }
     if (!success) {
@@ -813,7 +795,7 @@ static inline BOOL _CompareResources(NSString* responseETag, NSString* requestET
 #endif
   
   if (_request) {
-    LOG_VERBOSE(@"[%@] %@ %i \"%@ %@\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, _virtualHEAD ? @"HEAD" : _request.method, _request.path, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
+    LOG_VERBOSE(@"[%@] %@ %i \"%@ %@\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, _request.method, _request.path, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
   } else {
     LOG_VERBOSE(@"[%@] %@ %i \"(invalid request)\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
   }

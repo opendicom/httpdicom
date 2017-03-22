@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2A6C518A1C8DCF7C00424729 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A6C51891C8DCF7C00424729 /* libz.tbd */; };
-		4A0E60441E81C01B005D7F2B /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A0E60431E81C01B005D7F2B /* Log.h */; };
+		4A0E60441E81C01B005D7F2B /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A0E60431E81C01B005D7F2B /* ODLog.h */; };
 		4A83466D1DD91B5F008EFF41 /* NSData+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A8346691DD91B5F008EFF41 /* NSData+PCS.h */; };
 		4A83466E1DD91B5F008EFF41 /* NSData+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */; };
 		4A83466F1DD91B5F008EFF41 /* NSString+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */; };
@@ -65,7 +65,7 @@
 		2A31F5E21C87295A00A78C7C /* httpdicom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = httpdicom; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A31F5E51C87295A00A78C7C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2A6C51891C8DCF7C00424729 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		4A0E60431E81C01B005D7F2B /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Log.h; path = httpdicom/Log.h; sourceTree = SOURCE_ROOT; };
+		4A0E60431E81C01B005D7F2B /* ODLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ODLog.h; path = httpdicom/ODLog.h; sourceTree = SOURCE_ROOT; };
 		4A8346691DD91B5F008EFF41 /* NSData+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSData+PCS.h"; path = "httpdicom/NSData+PCS.h"; sourceTree = SOURCE_ROOT; };
 		4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+PCS.m"; path = "httpdicom/NSData+PCS.m"; sourceTree = SOURCE_ROOT; };
 		4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+PCS.h"; path = "httpdicom/NSString+PCS.h"; sourceTree = SOURCE_ROOT; };
@@ -156,7 +156,7 @@
 		2A6BE9E31C91141D0011DEC0 /* httpdicom */ = {
 			isa = PBXGroup;
 			children = (
-				4A0E60431E81C01B005D7F2B /* Log.h */,
+				4A0E60431E81C01B005D7F2B /* ODLog.h */,
 				4A8346691DD91B5F008EFF41 /* NSData+PCS.h */,
 				4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */,
 				4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */,
@@ -241,7 +241,7 @@
 				4AAB26781D8A42A400401FD5 /* zlib.h in Headers */,
 				4ABAF47F1E7B8511003B3217 /* GCDWebServerConnection.h in Headers */,
 				4ABAF4911E7B8511003B3217 /* GCDWebServerDataResponse.h in Headers */,
-				4A0E60441E81C01B005D7F2B /* Log.h in Headers */,
+				4A0E60441E81C01B005D7F2B /* ODLog.h in Headers */,
 				4ABAF48D1E7B8511003B3217 /* GCDWebServerMultiPartFormRequest.h in Headers */,
 				4ABAF4811E7B8511003B3217 /* GCDWebServerFunctions.h in Headers */,
 				4ABAF4871E7B8511003B3217 /* GCDWebServerResponse.h in Headers */,
