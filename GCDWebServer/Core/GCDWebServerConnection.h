@@ -42,10 +42,6 @@
  */
 @property(nonatomic, readonly) GCDWebServer* server;
 
-/**
- *  Returns YES if the connection is using IPv6.
- */
-@property(nonatomic, readonly, getter=isUsingIPv6) BOOL usingIPv6;
 
 /**
  *  Returns the address of the local peer (i.e. server) of the connection
@@ -82,80 +78,6 @@
  */
 @property(nonatomic, readonly) NSUInteger totalBytesWritten;
 
-@end
-
-/**
- *  Hooks to customize the behavior of GCDWebServer HTTP connections.
- *
- *  @warning These methods can be called on any GCD thread.
- *  Be sure to also call "super" when overriding them.
- */
-@interface GCDWebServerConnection (Subclassing)
-
-/**
- *  This method is called when the connection is opened.
- *
- *  Return NO to reject the connection e.g. after validating the local
- *  or remote address.
- */
-- (BOOL)open;
-
-/**
- *  This method is called whenever data has been received
- *  from the remote peer (i.e. client).
- *
- *  @warning Do not attempt to modify this data.
- */
-- (void)didReadBytes:(const void*)bytes length:(NSUInteger)length;
-
-/**
- *  This method is called whenever data has been sent
- *  to the remote peer (i.e. client).
- *
- *  @warning Do not attempt to modify this data.
- */
-- (void)didWriteBytes:(const void*)bytes length:(NSUInteger)length;
-
-/**
- *  This method is called after the HTTP headers have been received to
- *  allow replacing the request URL by another one.
- *
- *  The default implementation returns the original URL.
- */
-- (NSURL*)rewriteRequestURL:(NSURL*)url withMethod:(NSString*)method headers:(NSDictionary*)headers;
-
-/**
- *  Assuming a valid HTTP request was received, this method is called before
- *  the request is processed.
- *
- *  Return a non-nil GCDWebServerResponse to bypass the request processing entirely.
- *
- *  The default implementation checks for HTTP authentication if applicable
- *  and returns a barebone 401 status code response if authentication failed.
- */
-- (GCDWebServerResponse*)preflightRequest:(GCDWebServerRequest*)request;
-
-/**
- *  Assuming a valid HTTP request was received and -preflightRequest: returned nil,
- *  this method is called to process the request by executing the handler's
- *  process block.
- */
-- (void)processRequest:(GCDWebServerRequest*)request completion:(GCDWebServerCompletionBlock)completion;
-
-/**
- *  Assuming a valid HTTP request was received and either -preflightRequest:
- *  or -processRequest:completion: returned a non-nil GCDWebServerResponse,
- *  this method is called to override the response.
- *
- *  You can either modify the current response and return it, or return a
- *  completely new one.
- *
- *  The default implementation replaces any response matching the "ETag" or
- *  "Last-Modified-Date" header of the request by a barebone "Not-Modified" (304)
- *  one.
- */
-- (GCDWebServerResponse*)overrideResponse:(GCDWebServerResponse*)response forRequest:(GCDWebServerRequest*)request;
-
 /**
  *  This method is called if any error happens while validing or processing
  *  the request or if no GCDWebServerResponse was generated during processing.
@@ -164,10 +86,5 @@
  *  the "request" argument will be nil.
  */
 - (void)abortRequest:(GCDWebServerRequest*)request withStatusCode:(NSInteger)statusCode;
-
-/**
- *  Called when the connection is closed.
- */
-- (void)close;
 
 @end

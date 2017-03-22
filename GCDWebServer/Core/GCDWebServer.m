@@ -232,32 +232,6 @@
     return YES;
 }
 
-
-- (void)_stop {
-  dispatch_source_cancel(_source6);
-  dispatch_source_cancel(_source4);
-  dispatch_group_wait(_sourceGroup, DISPATCH_TIME_FOREVER);  // Wait until the cancellation handlers have been called which guarantees the listening sockets are closed
-  _source6 = NULL;
-  _source4 = NULL;
-  _port = 0;
-  
-  _serverName = nil;
-  _authenticationRealm = nil;
-  _authenticationBasicAccounts = nil;
-  _authenticationDigestAccounts = nil;
-    
-  LOG_INFO(@"%@ stopped", [self class]);
-}
-
-- (void)stop {
-  if (_options) {
-    if (_source4) {
-      [self _stop];
-    }
-    _options = nil;
-  }
-}
-
 @end
 
 @implementation GCDWebServer (Handlers)

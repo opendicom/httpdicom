@@ -1,6 +1,7 @@
 #import <netdb.h>
 #import "GCDWebServerConnection.h"
 #import "GCDWebServerPrivate.h"
+
 #import "ODLog.h"
 
 /*
@@ -65,8 +66,6 @@ static int32_t _connectionCounter = 0;
   CFHTTPMessageRef _responseMessage;
   GCDWebServerResponse* _response;
   NSInteger _statusCode;
-  
-  BOOL _opened;
 }
 @end
 
@@ -84,7 +83,8 @@ static int32_t _connectionCounter = 0;
             [data appendBytes:chunkBytes length:chunkSize];
             return true;
           });
-          [self didReadBytes:((char*)data.bytes + originalLength) length:(data.length - originalLength)];
+          LOG_DEBUG(@"Connection received %lu bytes on socket %i", (unsigned long)(data.length - originalLength), _socket);
+          _bytesRead += (data.length - originalLength);
           block(YES);
         } else {
           if (_bytesRead > 0) {
@@ -235,7 +235,8 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
     
     @autoreleasepool {
       if (error == 0) {
-        [self didWriteBytes:data.bytes length:data.length];
+        LOG_DEBUG(@"Connection sent %lu bytes on socket %i", (unsigned long)data.length, _socket);
+        _bytesWritten += data.length;
         block(YES);
       } else {
         LOG_ERROR(@"Error while writing to socket %i: %s (%i)", _socket, strerror(error), error);
@@ -333,28 +334,70 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
   }
 }
 
-- (BOOL)isUsingIPv6 {
-  const struct sockaddr* localSockAddr = _localAddress.bytes;
-  return (localSockAddr->sa_family == AF_INET6);
-}
-
-- (void)_initializeResponseHeadersWithStatusCode:(NSInteger)statusCode {
-  _statusCode = statusCode;
-  _responseMessage = CFHTTPMessageCreateResponse(kCFAllocatorDefault, statusCode, NULL, kCFHTTPVersion1_1);
-  CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Connection"), CFSTR("Close"));
-  CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Server"), (__bridge CFStringRef)_server.serverName);
-  CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Date"), (__bridge CFStringRef)GCDWebServerFormatRFC822([NSDate date]));
-}
 
 - (void)_startProcessingRequest {
-  
-  GCDWebServerResponse* preflightResponse = [self preflightRequest:_request];
+    // https://tools.ietf.org/html/rfc2617
+    
+    LOG_DEBUG(@"Connection on socket %i preflighting request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);
+    GCDWebServerResponse* preflightResponse = nil;
+    if (_server.authenticationBasicAccounts) {
+        __block BOOL authenticated = NO;
+        NSString* authorizationHeader = [_request.headers objectForKey:@"Authorization"];
+        if ([authorizationHeader hasPrefix:@"Basic "]) {
+            NSString* basicAccount = [authorizationHeader substringFromIndex:6];
+            [_server.authenticationBasicAccounts enumerateKeysAndObjectsUsingBlock:^(NSString* username, NSString* digest, BOOL* stop) {
+                if ([basicAccount isEqualToString:digest]) {
+                    authenticated = YES;
+                    *stop = YES;
+                }
+            }];
+        }
+        if (!authenticated) {
+            preflightResponse = [GCDWebServerResponse responseWithStatusCode:401];//Unauthorized
+            [preflightResponse setValue:[NSString stringWithFormat:@"Basic realm=\"%@\"", _server.authenticationRealm] forAdditionalHeader:@"WWW-Authenticate"];
+        }
+    } else if (_server.authenticationDigestAccounts) {
+        BOOL authenticated = NO;
+        BOOL isStaled = NO;
+        NSString* authorizationHeader = [_request.headers objectForKey:@"Authorization"];
+        if ([authorizationHeader hasPrefix:@"Digest "]) {
+            NSString* realm = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"realm");
+            if ([realm isEqualToString:_server.authenticationRealm]) {
+                NSString* nonce = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"nonce");
+                if ([nonce isEqualToString:_digestAuthenticationNonce]) {
+                    NSString* username = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"username");
+                    NSString* uri = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"uri");
+                    NSString* actualResponse = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"response");
+                    NSString* ha1 = [_server.authenticationDigestAccounts objectForKey:username];
+                    NSString* ha2 = GCDWebServerComputeMD5Digest(@"%@:%@", _request.method, uri);  // We cannot use "request.path" as the query string is required
+                    NSString* expectedResponse = GCDWebServerComputeMD5Digest(@"%@:%@:%@", ha1, _digestAuthenticationNonce, ha2);
+                    if ([actualResponse isEqualToString:expectedResponse]) {
+                        authenticated = YES;
+                    }
+                } else if (nonce.length) {
+                    isStaled = YES;
+                }
+            }
+        }
+        if (!authenticated) {
+            preflightResponse = [GCDWebServerResponse responseWithStatusCode:401];//Unauthorized
+            [preflightResponse setValue:[NSString stringWithFormat:@"Digest realm=\"%@\", nonce=\"%@\"%@", _server.authenticationRealm, _digestAuthenticationNonce, isStaled ? @", stale=TRUE" : @""] forAdditionalHeader:@"WWW-Authenticate"];
+        }
+    }
+    
   if (preflightResponse) {
     [self _finishProcessingRequest:preflightResponse];
   } else {
-    [self processRequest:_request completion:^(GCDWebServerResponse* processResponse) {
-      [self _finishProcessingRequest:processResponse];
-    }];
+    LOG_DEBUG(@"Connection on socket %i processing request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);
+    @try {
+          _handler.asyncProcessBlock(
+            _request,
+            [^(GCDWebServerResponse* processResponse){[self _finishProcessingRequest:processResponse];} copy]
+          );
+    }
+    @catch (NSException* exception) {
+        LOG_EXCEPTION(exception);
+    }
   }
 }
 
@@ -362,9 +405,6 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 - (void)_finishProcessingRequest:(GCDWebServerResponse*)response {
   BOOL hasBody = NO;
   
-  if (response) {
-    response = [self overrideResponse:response forRequest:_request];
-  }
   if (response) {
     if ([response hasBody]) {
       [response prepareForReading];
@@ -379,7 +419,12 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
   }
   
   if (_response) {
-    [self _initializeResponseHeadersWithStatusCode:_response.statusCode];
+       _statusCode = _response.statusCode;
+      _responseMessage = CFHTTPMessageCreateResponse(kCFAllocatorDefault, _statusCode, NULL, kCFHTTPVersion1_1);
+      CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Connection"), CFSTR("Close"));
+      CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Server"), (__bridge CFStringRef)_server.serverName);
+      CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Date"), (__bridge CFStringRef)GCDWebServerFormatRFC822([NSDate date]));
+
     if (_response.lastModifiedDate) {
       CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Last-Modified"), (__bridge CFStringRef)GCDWebServerFormatRFC822(_response.lastModifiedDate));
     }
@@ -499,9 +544,6 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
       NSString* requestMethod = CFBridgingRelease(CFHTTPMessageCopyRequestMethod(_requestMessage));  // Method verbs are case-sensitive and uppercase
       NSDictionary* requestHeaders = CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_requestMessage));  // Header names are case-insensitive but CFHTTPMessageCopyAllHeaderFields() will standardize the common ones
       NSURL* requestURL = CFBridgingRelease(CFHTTPMessageCopyRequestURL(_requestMessage));
-      if (requestURL) {
-        requestURL = [self rewriteRequestURL:requestURL withMethod:requestMethod headers:requestHeaders];
-      }
       NSString* requestPath = requestURL ? GCDWebServerUnescapeURLString(CFBridgingRelease(CFURLCopyPath((CFURLRef)requestURL))) : nil;  // Don't use -[NSURL path] which strips the ending slash
       NSString* queryString = requestURL ? CFBridgingRelease(CFURLCopyQueryString((CFURLRef)requestURL, NULL)) : nil;  // Don't use -[NSURL query] to make sure query is not unescaped;
       NSDictionary* requestQuery = queryString ? GCDWebServerParseURLEncodedForm(queryString) : @{};
@@ -571,14 +613,6 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
     _remoteAddress = remoteAddress;
     _socket = socket;
     LOG_DEBUG(@"Did open connection on socket %i", _socket);
-    
-    
-    if (![self open]) {
-      close(_socket);
-      return nil;
-    }
-    _opened = YES;
-    
     [self _readRequestHeaders];
   }
   return self;
@@ -592,6 +626,20 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
   return GCDWebServerStringFromSockAddr(_remoteAddress.bytes, YES);
 }
 
+- (void)abortRequest:(GCDWebServerRequest*)request withStatusCode:(NSInteger)statusCode
+{
+    _statusCode = _response.statusCode;
+    _responseMessage = CFHTTPMessageCreateResponse(kCFAllocatorDefault, _statusCode, NULL, kCFHTTPVersion1_1);
+    CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Connection"), CFSTR("Close"));
+    CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Server"), (__bridge CFStringRef)_server.serverName);
+    CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Date"), (__bridge CFStringRef)GCDWebServerFormatRFC822([NSDate date]));
+    
+    [self _writeHeadersWithCompletionBlock:^(BOOL success) {
+        ;  // Nothing more to do
+    }];
+    LOG_DEBUG(@"Connection aborted with status code %i on socket %i", (int)statusCode, _socket);
+}
+
 - (void)dealloc {
   int result = close(_socket);
   if (result != 0) {
@@ -599,10 +647,11 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
   } else {
     LOG_DEBUG(@"Did close connection on socket %i", _socket);
   }
-  
-  if (_opened) {
-    [self close];
-  }
+    if (_request) {
+        LOG_VERBOSE(@"[%@] %@ %i \"%@ %@\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, _request.method, _request.path, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
+    } else {
+        LOG_VERBOSE(@"[%@] %@ %i \"(invalid request)\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
+    }
     
   if (_requestMessage) {
     CFRelease(_requestMessage);
@@ -610,194 +659,6 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
   
   if (_responseMessage) {
     CFRelease(_responseMessage);
-  }
-}
-
-@end
-
-@implementation GCDWebServerConnection (Subclassing)
-
-- (BOOL)open {
-#ifdef __GCDWEBSERVER_ENABLE_TESTING__
-  if (_server.recordingEnabled) {
-    _connectionIndex = OSAtomicIncrement32(&_connectionCounter);
-    
-    _requestPath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
-    _requestFD = open([_requestPath fileSystemRepresentation], O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    
-    _responsePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
-    _responseFD = open([_responsePath fileSystemRepresentation], O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-  }
-#endif
-  
-  return YES;
-}
-
-- (void)didReadBytes:(const void*)bytes length:(NSUInteger)length {
-  LOG_DEBUG(@"Connection received %lu bytes on socket %i", (unsigned long)length, _socket);
-  _bytesRead += length;
-  
-#ifdef __GCDWEBSERVER_ENABLE_TESTING__
-  if ((_requestFD > 0) && (write(_requestFD, bytes, length) != (ssize_t)length)) {
-    LOG_ERROR(@"Failed recording request data: %s (%i)", strerror(errno), errno);
-    close(_requestFD);
-    _requestFD = 0;
-  }
-#endif
-}
-
-- (void)didWriteBytes:(const void*)bytes length:(NSUInteger)length {
-  LOG_DEBUG(@"Connection sent %lu bytes on socket %i", (unsigned long)length, _socket);
-  _bytesWritten += length;
-  
-#ifdef __GCDWEBSERVER_ENABLE_TESTING__
-  if ((_responseFD > 0) && (write(_responseFD, bytes, length) != (ssize_t)length)) {
-    LOG_ERROR(@"Failed recording response data: %s (%i)", strerror(errno), errno);
-    close(_responseFD);
-    _responseFD = 0;
-  }
-#endif
-}
-
-- (NSURL*)rewriteRequestURL:(NSURL*)url withMethod:(NSString*)method headers:(NSDictionary*)headers {
-  return url;
-}
-
-// https://tools.ietf.org/html/rfc2617
-- (GCDWebServerResponse*)preflightRequest:(GCDWebServerRequest*)request {
-  LOG_DEBUG(@"Connection on socket %i preflighting request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);
-  GCDWebServerResponse* response = nil;
-  if (_server.authenticationBasicAccounts) {
-    __block BOOL authenticated = NO;
-    NSString* authorizationHeader = [request.headers objectForKey:@"Authorization"];
-    if ([authorizationHeader hasPrefix:@"Basic "]) {
-      NSString* basicAccount = [authorizationHeader substringFromIndex:6];
-      [_server.authenticationBasicAccounts enumerateKeysAndObjectsUsingBlock:^(NSString* username, NSString* digest, BOOL* stop) {
-        if ([basicAccount isEqualToString:digest]) {
-          authenticated = YES;
-          *stop = YES;
-        }
-      }];
-    }
-    if (!authenticated) {
-      response = [GCDWebServerResponse responseWithStatusCode:401];//Unauthorized
-      [response setValue:[NSString stringWithFormat:@"Basic realm=\"%@\"", _server.authenticationRealm] forAdditionalHeader:@"WWW-Authenticate"];
-    }
-  } else if (_server.authenticationDigestAccounts) {
-    BOOL authenticated = NO;
-    BOOL isStaled = NO;
-    NSString* authorizationHeader = [request.headers objectForKey:@"Authorization"];
-    if ([authorizationHeader hasPrefix:@"Digest "]) {
-      NSString* realm = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"realm");
-      if ([realm isEqualToString:_server.authenticationRealm]) {
-        NSString* nonce = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"nonce");
-        if ([nonce isEqualToString:_digestAuthenticationNonce]) {
-          NSString* username = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"username");
-          NSString* uri = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"uri");
-          NSString* actualResponse = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"response");
-          NSString* ha1 = [_server.authenticationDigestAccounts objectForKey:username];
-          NSString* ha2 = GCDWebServerComputeMD5Digest(@"%@:%@", request.method, uri);  // We cannot use "request.path" as the query string is required
-          NSString* expectedResponse = GCDWebServerComputeMD5Digest(@"%@:%@:%@", ha1, _digestAuthenticationNonce, ha2);
-          if ([actualResponse isEqualToString:expectedResponse]) {
-            authenticated = YES;
-          }
-        } else if (nonce.length) {
-          isStaled = YES;
-        }
-      }
-    }
-    if (!authenticated) {
-      response = [GCDWebServerResponse responseWithStatusCode:401];//Unauthorized
-      [response setValue:[NSString stringWithFormat:@"Digest realm=\"%@\", nonce=\"%@\"%@", _server.authenticationRealm, _digestAuthenticationNonce, isStaled ? @", stale=TRUE" : @""] forAdditionalHeader:@"WWW-Authenticate"];  // TODO: Support Quality of Protection ("qop")
-    }
-  }
-  return response;
-}
-
-- (void)processRequest:(GCDWebServerRequest*)request completion:(GCDWebServerCompletionBlock)completion {
-  LOG_DEBUG(@"Connection on socket %i processing request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);
-  @try {
-    _handler.asyncProcessBlock(request, [completion copy]);
-  }
-  @catch (NSException* exception) {
-    LOG_EXCEPTION(exception);
-  }
-}
-
-// http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.25
-// http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.26
-static inline BOOL _CompareResources(NSString* responseETag, NSString* requestETag, NSDate* responseLastModified, NSDate* requestLastModified) {
-  if (requestLastModified && responseLastModified) {
-    if ([responseLastModified compare:requestLastModified] != NSOrderedDescending) {
-      return YES;
-    }
-  }
-  if (requestETag && responseETag) {  // Per the specs "If-None-Match" must be checked after "If-Modified-Since"
-    if ([requestETag isEqualToString:@"*"]) {
-      return YES;
-    }
-    if ([responseETag isEqualToString:requestETag]) {
-      return YES;
-    }
-  }
-  return NO;
-}
-
-- (GCDWebServerResponse*)overrideResponse:(GCDWebServerResponse*)response forRequest:(GCDWebServerRequest*)request {
-  if ((response.statusCode >= 200) && (response.statusCode < 300) && _CompareResources(response.eTag, request.ifNoneMatch, response.lastModifiedDate, request.ifModifiedSince)) {
-    NSInteger code = [request.method isEqualToString:@"HEAD"] || [request.method isEqualToString:@"GET"] ? 304 : 412;//?NotModified:PreconditionFailed
-    GCDWebServerResponse* newResponse = [GCDWebServerResponse responseWithStatusCode:code];
-    newResponse.cacheControlMaxAge = response.cacheControlMaxAge;
-    newResponse.lastModifiedDate = response.lastModifiedDate;
-    newResponse.eTag = response.eTag;
-    return newResponse;
-  }
-  return response;
-}
-
-- (void)abortRequest:(GCDWebServerRequest*)request withStatusCode:(NSInteger)statusCode {
-  [self _initializeResponseHeadersWithStatusCode:statusCode];
-  [self _writeHeadersWithCompletionBlock:^(BOOL success) {
-    ;  // Nothing more to do
-  }];
-  LOG_DEBUG(@"Connection aborted with status code %i on socket %i", (int)statusCode, _socket);
-}
-
-- (void)close {
-#ifdef __GCDWEBSERVER_ENABLE_TESTING__
-  if (_requestPath) {
-    BOOL success = NO;
-    NSError* error = nil;
-    if (_requestFD > 0) {
-      close(_requestFD);
-      NSString* name = [NSString stringWithFormat:@"%03lu-%@.request", (unsigned long)_connectionIndex, _request.method];
-      success = [[NSFileManager defaultManager] moveItemAtPath:_requestPath toPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent:name] error:&error];
-    }
-    if (!success) {
-      LOG_ERROR(@"Failed saving recorded request: %@", error);
-    }
-    unlink([_requestPath fileSystemRepresentation]);
-  }
-  
-  if (_responsePath) {
-    BOOL success = NO;
-    NSError* error = nil;
-    if (_responseFD > 0) {
-      close(_responseFD);
-      NSString* name = [NSString stringWithFormat:@"%03lu-%i.response", (unsigned long)_connectionIndex, (int)_statusCode];
-      success = [[NSFileManager defaultManager] moveItemAtPath:_responsePath toPath:[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent:name] error:&error];
-    }
-    if (!success) {
-      LOG_ERROR(@"Failed saving recorded response: %@", error);
-    }
-    unlink([_responsePath fileSystemRepresentation]);
-  }
-#endif
-  
-  if (_request) {
-    LOG_VERBOSE(@"[%@] %@ %i \"%@ %@\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, _request.method, _request.path, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
-  } else {
-    LOG_VERBOSE(@"[%@] %@ %i \"(invalid request)\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
   }
 }
 

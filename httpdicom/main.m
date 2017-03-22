@@ -281,18 +281,15 @@ void ODLog(ODLogLevelEnum level, NSString* format, ...) {
 }
 
 int main(int argc, const char* argv[]) {
-    BOOL success = NO;
-    /*
-     syntax: 
-     [0] httpdicom
-     [1] path to pacs.plist
-     [2] puerto
-     [3] [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION]
-     ... path to log file
-     
-     */
-    
     @autoreleasepool {
+        /*
+         syntax:
+         [0] httpdicom
+         [1] path to pacs.plist
+         [2] puerto
+         [3] [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION]
+         ... path to log file         
+         */
 
         NSArray *args=[[NSProcessInfo processInfo] arguments];
         if ([args count]!=4)
@@ -2177,5 +2174,4 @@ int main(int argc, const char* argv[]) {
             CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, true);
         }        
     }//end autorelease pool
-    return success ? 0 : -1;
 }

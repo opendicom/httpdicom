@@ -84,12 +84,6 @@ typedef void (^GCDWebServerAsyncProcessBlock)(__kindof GCDWebServerRequest* requ
 - (instancetype)init;//designated initializer
 //Returns NO if the server failed to start and sets "error" argument if not NULL.
 - (BOOL)startWithPort:(NSUInteger)port maxPendingConnections:(NSUInteger)maxPendingConnections error:(NSError**)error;
-//Stops the server and prevents it to accepts new HTTP requests.
-//@warning Stopping the server does not abort GCDWebServerConnection instances
-//currently handling already received HTTP requests. These connections will
-//continue to execute normally until completion.
-- (void)stop;
-
 @end
 
 @interface GCDWebServer (Handlers)
