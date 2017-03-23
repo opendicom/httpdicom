@@ -185,11 +185,11 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
       }
       _length = length;
       if (_type == nil) {
-        _type = kGCDWebServerDefaultMimeType;
+        _type = @"application/octet-stream";
       }
     } else if (_chunked) {
       if (_type == nil) {
-        _type = kGCDWebServerDefaultMimeType;
+        _type = @"application/octet-stream";
       }
       _length = NSUIntegerMax;
     } else {
@@ -202,7 +202,14 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
     
     NSString* modifiedHeader = [_headers objectForKey:@"If-Modified-Since"];
     if (modifiedHeader) {
-      _modifiedSince = [GCDWebServerParseRFC822(modifiedHeader) copy];
+        static NSDateFormatter* _dateFormatterRFC822 = nil;
+        if (_dateFormatterRFC822 == nil) {
+            _dateFormatterRFC822 = [[NSDateFormatter alloc] init];
+            _dateFormatterRFC822.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
+            _dateFormatterRFC822.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
+            _dateFormatterRFC822.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
+        }
+        _modifiedSince = [[_dateFormatterRFC822 dateFromString:modifiedHeader] copy];
     }
     _noneMatch = [_headers objectForKey:@"If-None-Match"];
     

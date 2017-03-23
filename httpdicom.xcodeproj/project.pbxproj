@@ -29,14 +29,6 @@
 		4ABAF4861E7B8511003B3217 /* GCDWebServerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4681E7B8511003B3217 /* GCDWebServerRequest.m */; };
 		4ABAF4871E7B8511003B3217 /* GCDWebServerResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4691E7B8511003B3217 /* GCDWebServerResponse.h */; };
 		4ABAF4881E7B8511003B3217 /* GCDWebServerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF46A1E7B8511003B3217 /* GCDWebServerResponse.m */; };
-		4ABAF4891E7B8511003B3217 /* GCDWebServerDataRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF46C1E7B8511003B3217 /* GCDWebServerDataRequest.h */; };
-		4ABAF48A1E7B8511003B3217 /* GCDWebServerDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF46D1E7B8511003B3217 /* GCDWebServerDataRequest.m */; };
-		4ABAF48B1E7B8511003B3217 /* GCDWebServerFileRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF46E1E7B8511003B3217 /* GCDWebServerFileRequest.h */; };
-		4ABAF48C1E7B8511003B3217 /* GCDWebServerFileRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF46F1E7B8511003B3217 /* GCDWebServerFileRequest.m */; };
-		4ABAF48D1E7B8511003B3217 /* GCDWebServerMultiPartFormRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4701E7B8511003B3217 /* GCDWebServerMultiPartFormRequest.h */; };
-		4ABAF48E1E7B8511003B3217 /* GCDWebServerMultiPartFormRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4711E7B8511003B3217 /* GCDWebServerMultiPartFormRequest.m */; };
-		4ABAF48F1E7B8511003B3217 /* GCDWebServerURLEncodedFormRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4721E7B8511003B3217 /* GCDWebServerURLEncodedFormRequest.h */; };
-		4ABAF4901E7B8511003B3217 /* GCDWebServerURLEncodedFormRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4731E7B8511003B3217 /* GCDWebServerURLEncodedFormRequest.m */; };
 		4ABAF4911E7B8511003B3217 /* GCDWebServerDataResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4751E7B8511003B3217 /* GCDWebServerDataResponse.h */; };
 		4ABAF4921E7B8511003B3217 /* GCDWebServerDataResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4761E7B8511003B3217 /* GCDWebServerDataResponse.m */; };
 		4ABAF4931E7B8511003B3217 /* GCDWebServerErrorResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4771E7B8511003B3217 /* GCDWebServerErrorResponse.h */; };
@@ -89,14 +81,6 @@
 		4ABAF4681E7B8511003B3217 /* GCDWebServerRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerRequest.m; sourceTree = "<group>"; };
 		4ABAF4691E7B8511003B3217 /* GCDWebServerResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerResponse.h; sourceTree = "<group>"; };
 		4ABAF46A1E7B8511003B3217 /* GCDWebServerResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerResponse.m; sourceTree = "<group>"; };
-		4ABAF46C1E7B8511003B3217 /* GCDWebServerDataRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerDataRequest.h; sourceTree = "<group>"; };
-		4ABAF46D1E7B8511003B3217 /* GCDWebServerDataRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerDataRequest.m; sourceTree = "<group>"; };
-		4ABAF46E1E7B8511003B3217 /* GCDWebServerFileRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerFileRequest.h; sourceTree = "<group>"; };
-		4ABAF46F1E7B8511003B3217 /* GCDWebServerFileRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerFileRequest.m; sourceTree = "<group>"; };
-		4ABAF4701E7B8511003B3217 /* GCDWebServerMultiPartFormRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerMultiPartFormRequest.h; sourceTree = "<group>"; };
-		4ABAF4711E7B8511003B3217 /* GCDWebServerMultiPartFormRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerMultiPartFormRequest.m; sourceTree = "<group>"; };
-		4ABAF4721E7B8511003B3217 /* GCDWebServerURLEncodedFormRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerURLEncodedFormRequest.h; sourceTree = "<group>"; };
-		4ABAF4731E7B8511003B3217 /* GCDWebServerURLEncodedFormRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerURLEncodedFormRequest.m; sourceTree = "<group>"; };
 		4ABAF4751E7B8511003B3217 /* GCDWebServerDataResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerDataResponse.h; sourceTree = "<group>"; };
 		4ABAF4761E7B8511003B3217 /* GCDWebServerDataResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerDataResponse.m; sourceTree = "<group>"; };
 		4ABAF4771E7B8511003B3217 /* GCDWebServerErrorResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerErrorResponse.h; sourceTree = "<group>"; };
@@ -177,7 +161,6 @@
 			isa = PBXGroup;
 			children = (
 				4ABAF45E1E7B8511003B3217 /* Core */,
-				4ABAF46B1E7B8511003B3217 /* Requests */,
 				4ABAF4741E7B8511003B3217 /* Responses */,
 			);
 			path = GCDWebServer;
@@ -199,21 +182,6 @@
 				4ABAF46A1E7B8511003B3217 /* GCDWebServerResponse.m */,
 			);
 			path = Core;
-			sourceTree = "<group>";
-		};
-		4ABAF46B1E7B8511003B3217 /* Requests */ = {
-			isa = PBXGroup;
-			children = (
-				4ABAF46C1E7B8511003B3217 /* GCDWebServerDataRequest.h */,
-				4ABAF46D1E7B8511003B3217 /* GCDWebServerDataRequest.m */,
-				4ABAF46E1E7B8511003B3217 /* GCDWebServerFileRequest.h */,
-				4ABAF46F1E7B8511003B3217 /* GCDWebServerFileRequest.m */,
-				4ABAF4701E7B8511003B3217 /* GCDWebServerMultiPartFormRequest.h */,
-				4ABAF4711E7B8511003B3217 /* GCDWebServerMultiPartFormRequest.m */,
-				4ABAF4721E7B8511003B3217 /* GCDWebServerURLEncodedFormRequest.h */,
-				4ABAF4731E7B8511003B3217 /* GCDWebServerURLEncodedFormRequest.m */,
-			);
-			path = Requests;
 			sourceTree = "<group>";
 		};
 		4ABAF4741E7B8511003B3217 /* Responses */ = {
@@ -242,7 +210,6 @@
 				4ABAF47F1E7B8511003B3217 /* GCDWebServerConnection.h in Headers */,
 				4ABAF4911E7B8511003B3217 /* GCDWebServerDataResponse.h in Headers */,
 				4A0E60441E81C01B005D7F2B /* ODLog.h in Headers */,
-				4ABAF48D1E7B8511003B3217 /* GCDWebServerMultiPartFormRequest.h in Headers */,
 				4ABAF4811E7B8511003B3217 /* GCDWebServerFunctions.h in Headers */,
 				4ABAF4871E7B8511003B3217 /* GCDWebServerResponse.h in Headers */,
 				4A83466F1DD91B5F008EFF41 /* NSString+PCS.h in Headers */,
@@ -253,12 +220,9 @@
 				4ABAF47D1E7B8511003B3217 /* GCDWebServer.h in Headers */,
 				4ABAF4851E7B8511003B3217 /* GCDWebServerRequest.h in Headers */,
 				4A83466D1DD91B5F008EFF41 /* NSData+PCS.h in Headers */,
-				4ABAF48F1E7B8511003B3217 /* GCDWebServerURLEncodedFormRequest.h in Headers */,
 				4ABAF4951E7B8511003B3217 /* GCDWebServerFileResponse.h in Headers */,
 				4AEF37871DC8D6C800CDA008 /* URLSessionDataTask.h in Headers */,
-				4ABAF48B1E7B8511003B3217 /* GCDWebServerFileRequest.h in Headers */,
 				4AAB26771D8A42A400401FD5 /* zconf.h in Headers */,
-				4ABAF4891E7B8511003B3217 /* GCDWebServerDataRequest.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,16 +281,12 @@
 				4A8346701DD91B5F008EFF41 /* NSString+PCS.m in Sources */,
 				4ABAF4861E7B8511003B3217 /* GCDWebServerRequest.m in Sources */,
 				4ABAF4941E7B8511003B3217 /* GCDWebServerErrorResponse.m in Sources */,
-				4ABAF48E1E7B8511003B3217 /* GCDWebServerMultiPartFormRequest.m in Sources */,
 				4ABAF4801E7B8511003B3217 /* GCDWebServerConnection.m in Sources */,
 				4AEF37881DC8D6C800CDA008 /* URLSessionDataTask.m in Sources */,
 				4ABAF4981E7B8511003B3217 /* GCDWebServerStreamedResponse.m in Sources */,
 				4ABAF47E1E7B8511003B3217 /* GCDWebServer.m in Sources */,
-				4ABAF48A1E7B8511003B3217 /* GCDWebServerDataRequest.m in Sources */,
-				4ABAF4901E7B8511003B3217 /* GCDWebServerURLEncodedFormRequest.m in Sources */,
 				4AAB26751D8A42A400401FD5 /* main.m in Sources */,
 				4AAB26761D8A42A400401FD5 /* LFCGzipUtility.m in Sources */,
-				4ABAF48C1E7B8511003B3217 /* GCDWebServerFileRequest.m in Sources */,
 				4ABAF4881E7B8511003B3217 /* GCDWebServerResponse.m in Sources */,
 				4ABAF4961E7B8511003B3217 /* GCDWebServerFileResponse.m in Sources */,
 				4ABAF4921E7B8511003B3217 /* GCDWebServerDataResponse.m in Sources */,

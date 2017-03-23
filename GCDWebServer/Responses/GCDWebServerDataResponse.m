@@ -1,4 +1,4 @@
-#import "GCDWebServerPrivate.h"
+#import "GCDWebServerDataResponse.h"
 #import "ODLog.h"
 
 /*
@@ -70,7 +70,39 @@
 - (NSString*)description {
   NSMutableString* description = [NSMutableString stringWithString:[super description]];
   [description appendString:@"\n\n"];
-  [description appendString:GCDWebServerDescribeData(_data, self.contentType)];
+    
+    if (
+           [self.contentType hasPrefix:@"text/"]
+        || [self.contentType hasPrefix:@"application/json"]
+        || [self.contentType hasPrefix:@"application/xml"]
+        ) {
+        
+        NSString* charset = nil;
+        NSScanner* scanner = [[NSScanner alloc] initWithString:self.contentType];
+        [scanner setCaseSensitive:NO];  // Assume parameter names are case-insensitive
+        if ([scanner scanUpToString:@"charset=" intoString:NULL]) {
+            [scanner scanString:@"charset=" intoString:NULL];
+            if ([scanner scanString:@"\"" intoString:NULL]) {
+                [scanner scanUpToString:@"\"" intoString:&charset];
+            } else {
+                [scanner scanUpToCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:&charset];
+            }
+        }
+        
+        
+        // http://www.w3schools.com/tags/ref_charactersets.asp
+        NSStringEncoding encoding = kCFStringEncodingInvalidId;
+        if (charset) encoding = CFStringConvertEncodingToNSStringEncoding(CFStringConvertIANACharSetNameToEncoding((CFStringRef)charset));
+
+        NSString* string = nil;
+        if (encoding != kCFStringEncodingInvalidId)
+            string = [[NSString alloc] initWithData:_data encoding:encoding];
+        else
+            string = [[NSString alloc] initWithData:_data encoding:NSUTF8StringEncoding];
+        
+        if (string) [description appendString:string];
+        else        [description appendFormat:@"<%lu bytes>", (unsigned long)_data.length];
+    }
   return description;
 }
 

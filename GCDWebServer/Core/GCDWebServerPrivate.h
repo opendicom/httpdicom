@@ -10,11 +10,6 @@
 #import "GCDWebServer.h"
 #import "GCDWebServerConnection.h"
 
-#import "GCDWebServerDataRequest.h"
-#import "GCDWebServerFileRequest.h"
-#import "GCDWebServerMultiPartFormRequest.h"
-#import "GCDWebServerURLEncodedFormRequest.h"
-
 #import "GCDWebServerDataResponse.h"
 #import "GCDWebServerErrorResponse.h"
 #import "GCDWebServerFileResponse.h"
@@ -52,7 +47,6 @@
  *  GCDWebServer internal constants and APIs.
  */
 
-#define kGCDWebServerDefaultMimeType @"application/octet-stream"
 #define kGCDWebServerGCDQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
 
 static inline BOOL GCDWebServerIsValidByteRange(NSRange range) {
@@ -65,11 +59,7 @@ static inline NSError* GCDWebServerMakePosixError(int code) {
 
 extern void GCDWebServerInitializeFunctions();
 extern NSString* GCDWebServerNormalizeHeaderValue(NSString* value);
-extern NSString* GCDWebServerTruncateHeaderValue(NSString* value);
 extern NSString* GCDWebServerExtractHeaderValueParameter(NSString* header, NSString* attribute);
-extern NSStringEncoding GCDWebServerStringEncodingFromCharset(NSString* charset);
-extern BOOL GCDWebServerIsTextContentType(NSString* type);
-extern NSString* GCDWebServerDescribeData(NSData* data, NSString* contentType);
 extern NSString* GCDWebServerComputeMD5Digest(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
 extern NSString* GCDWebServerStringFromSockAddr(const struct sockaddr* addr, BOOL includeService);
 

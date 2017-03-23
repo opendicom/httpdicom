@@ -119,12 +119,34 @@ static inline NSDate* _NSDateFromTimeSpec(const struct timespec* t) {
       NSData* data = [[fileName stringByReplacingOccurrencesOfString:@"\"" withString:@""] dataUsingEncoding:NSISOLatin1StringEncoding allowLossyConversion:YES];
       NSString* lossyFileName = data ? [[NSString alloc] initWithData:data encoding:NSISOLatin1StringEncoding] : nil;
       if (lossyFileName) {
-        NSString* value = [NSString stringWithFormat:@"attachment; filename=\"%@\"; filename*=UTF-8''%@", lossyFileName, GCDWebServerEscapeURLString(fileName)];
+          
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        NSString* value = [NSString stringWithFormat:@"attachment; filename=\"%@\"; filename*=UTF-8''%@", lossyFileName, CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)fileName, NULL, CFSTR(":@/?&=+"), kCFStringEncodingUTF8))];
+#pragma clang diagnostic pop
         [self setValue:value forAdditionalHeader:@"Content-Disposition"];
       }
     }
     
-    self.contentType = GCDWebServerGetMimeTypeForExtension([_path pathExtension]);
+    static NSDictionary* _overrides = nil;
+    if (_overrides == nil) {
+        _overrides = [[NSDictionary alloc] initWithObjectsAndKeys:
+                        @"text/css", @"css",
+                        nil];
+    }
+    NSString* mimeType = nil;
+    NSString *extension = [[_path pathExtension] lowercaseString];
+    if (extension.length) {
+          mimeType = [_overrides objectForKey:extension];
+          if (mimeType == nil) {
+              CFStringRef uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)extension, NULL);
+              if (uti) {
+                  mimeType = CFBridgingRelease(UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType));
+                  CFRelease(uti);
+              }
+          }
+      }
+      if (mimeType == nil) mimeType=@"application/octet-stream";
     self.contentLength = _size;
     self.lastModifiedDate = _NSDateFromTimeSpec(&info.st_mtimespec);
     self.eTag = [NSString stringWithFormat:@"%llu/%li/%li", info.st_ino, info.st_mtimespec.tv_sec, info.st_mtimespec.tv_nsec];
