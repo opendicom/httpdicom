@@ -2,6 +2,7 @@
 #import "GCDWebServerPrivate.h"
 #import "ODLog.h"
 #import "RFC822.h"
+#import "NSString+PCS.h"
 
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
@@ -175,8 +176,8 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
     _path = [path copy];
     _query = query;
     
-    _type = GCDWebServerNormalizeHeaderValue([_headers objectForKey:@"Content-Type"]);
-    _chunked = [GCDWebServerNormalizeHeaderValue([_headers objectForKey:@"Transfer-Encoding"]) isEqualToString:@"chunked"];
+    _type = [[_headers objectForKey:@"Content-Type"] normalizeHeaderValue];
+    _chunked = [[[_headers objectForKey:@"Transfer-Encoding"] normalizeHeaderValue] isEqualToString:@"chunked"];
     NSString* lengthHeader = [_headers objectForKey:@"Content-Length"];
     if (lengthHeader) {
       NSInteger length = [lengthHeader integerValue];
@@ -206,7 +207,7 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
     _noneMatch = [_headers objectForKey:@"If-None-Match"];
     
     _range = NSMakeRange(NSUIntegerMax, 0);
-    NSString* rangeHeader = GCDWebServerNormalizeHeaderValue([_headers objectForKey:@"Range"]);
+    NSString* rangeHeader = [[_headers objectForKey:@"Range"] normalizeHeaderValue];
     if (rangeHeader) {
       if ([rangeHeader hasPrefix:@"bytes="]) {
         NSArray* components = [[rangeHeader substringFromIndex:6] componentsSeparatedByString:@","];
@@ -271,7 +272,7 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
 
 - (void)prepareForWriting {
   _writer = self;
-  if ([GCDWebServerNormalizeHeaderValue([self.headers objectForKey:@"Content-Encoding"]) isEqualToString:@"gzip"]) {
+  if ([[[self.headers objectForKey:@"Content-Encoding"] normalizeHeaderValue] isEqualToString:@"gzip"]) {
     GCDWebServerGZipDecoder* decoder = [[GCDWebServerGZipDecoder alloc] initWithRequest:self writer:_writer];
     [_decoders addObject:decoder];
     _writer = decoder;
@@ -299,11 +300,11 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
 }
 
 - (NSString*)localAddressString {
-  return GCDWebServerStringFromSockAddr(_localAddress.bytes, YES);
+    return [NSString stringFromSockAddr:_localAddress.bytes includeService:YES];
 }
 
 - (NSString*)remoteAddressString {
-  return GCDWebServerStringFromSockAddr(_remoteAddress.bytes, YES);
+    return [NSString stringFromSockAddr:_remoteAddress.bytes includeService:YES];
 }
 
 - (NSString*)description {

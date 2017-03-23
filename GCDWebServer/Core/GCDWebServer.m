@@ -7,6 +7,8 @@
 #import "GCDWebServerErrorResponse.h"
 #import "GCDWebServerFileResponse.h"
 
+#import "NSString+PCS.h"
+
 #import "ODLog.h"
 
 /*
@@ -81,14 +83,6 @@
 
 @synthesize handlers=_handlers, port=_port, serverName=_serverName, authenticationRealm=_authenticationRealm,
             authenticationBasicAccounts=_authenticationBasicAccounts, authenticationDigestAccounts=_authenticationDigestAccounts;
-
-static dispatch_queue_t _dateFormatterQueue = NULL;
-
-+ (void)initialize {
-        if (_dateFormatterQueue == NULL) {
-            _dateFormatterQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
-        }
-}
 
 - (instancetype)init {
   if ((self = [super init])) {
@@ -225,7 +219,7 @@ static dispatch_queue_t _dateFormatterQueue = NULL;
         _authenticationDigestAccounts = [[NSMutableDictionary alloc] init];
         NSDictionary* accounts = @{};
         [accounts enumerateKeysAndObjectsUsingBlock:^(NSString* username, NSString* password, BOOL* stop) {
-            [_authenticationDigestAccounts setObject:GCDWebServerComputeMD5Digest(@"%@:%@:%@", username, _authenticationRealm, password) forKey:username];
+            [_authenticationDigestAccounts setObject:[[NSString stringWithFormat:@"%@:%@:%@", username, _authenticationRealm, password]MD5String] forKey:username];
         }];
     }
      */

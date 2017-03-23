@@ -4,6 +4,7 @@
 
 #import "RFC822.h"
 #import "ODLog.h"
+#import "NSString+PCS.h"
 
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
@@ -330,8 +331,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
   }
   if (_digestAuthenticationNonce == nil) {
     CFUUIDRef uuid = CFUUIDCreate(kCFAllocatorDefault);
-    _digestAuthenticationNonce = GCDWebServerComputeMD5Digest(@"%@", CFBridgingRelease(CFUUIDCreateString(kCFAllocatorDefault, uuid)));
-    CFRelease(uuid);
+      _digestAuthenticationNonce = [[NSString stringWithFormat:@"%@", CFBridgingRelease(CFUUIDCreateString(kCFAllocatorDefault, uuid))] MD5String];
   }
 }
 
@@ -362,16 +362,16 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
         BOOL isStaled = NO;
         NSString* authorizationHeader = [_request.headers objectForKey:@"Authorization"];
         if ([authorizationHeader hasPrefix:@"Digest "]) {
-            NSString* realm = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"realm");
+            NSString* realm = [authorizationHeader extractHeaderValueParameter:@"realm"];
             if ([realm isEqualToString:_server.authenticationRealm]) {
-                NSString* nonce = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"nonce");
+                NSString* nonce = [authorizationHeader extractHeaderValueParameter:@"nonce"];
                 if ([nonce isEqualToString:_digestAuthenticationNonce]) {
-                    NSString* username = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"username");
-                    NSString* uri = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"uri");
-                    NSString* actualResponse = GCDWebServerExtractHeaderValueParameter(authorizationHeader, @"response");
+                    NSString* username = [authorizationHeader  extractHeaderValueParameter:@"username"];
+                    NSString* uri = [authorizationHeader  extractHeaderValueParameter:@"uri"];
+                    NSString* actualResponse = [authorizationHeader  extractHeaderValueParameter:@"response"];
                     NSString* ha1 = [_server.authenticationDigestAccounts objectForKey:username];
-                    NSString* ha2 = GCDWebServerComputeMD5Digest(@"%@:%@", _request.method, uri);  // We cannot use "request.path" as the query string is required
-                    NSString* expectedResponse = GCDWebServerComputeMD5Digest(@"%@:%@:%@", ha1, _digestAuthenticationNonce, ha2);
+                    NSString* ha2 = [[NSString stringWithFormat:@"%@:%@", _request.method, uri] MD5String];  // We cannot use "request.path" as the query string is required
+                    NSString* expectedResponse = [[NSString stringWithFormat:@"%@:%@:%@", ha1, _digestAuthenticationNonce, ha2]MD5String];
                     if ([actualResponse isEqualToString:expectedResponse]) {
                         authenticated = YES;
                     }
@@ -440,7 +440,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
       }
     }
     if (_response.contentType != nil) {
-      CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Content-Type"), (__bridge CFStringRef)GCDWebServerNormalizeHeaderValue(_response.contentType));
+      CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Content-Type"), (__bridge CFStringRef)[_response.contentType normalizeHeaderValue]);
     }
     if (_response.contentLength != NSUIntegerMax) {
       CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Content-Length"), (__bridge CFStringRef)[NSString stringWithFormat:@"%lu", (unsigned long)_response.contentLength]);
@@ -666,11 +666,11 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 }
 
 - (NSString*)localAddressString {
-  return GCDWebServerStringFromSockAddr(_localAddress.bytes, YES);
+    return [NSString stringFromSockAddr:_localAddress.bytes includeService:YES];
 }
 
 - (NSString*)remoteAddressString {
-  return GCDWebServerStringFromSockAddr(_remoteAddress.bytes, YES);
+    return [NSString stringFromSockAddr:_remoteAddress.bytes includeService:YES];
 }
 
 - (void)abortRequest:(GCDWebServerRequest*)request withStatusCode:(NSInteger)statusCode
