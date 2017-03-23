@@ -1,6 +1,7 @@
 #import <zlib.h>
 #import "GCDWebServerPrivate.h"
 #import "ODLog.h"
+#import "RFC822.h"
 
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
@@ -201,16 +202,7 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
     }
     
     NSString* modifiedHeader = [_headers objectForKey:@"If-Modified-Since"];
-    if (modifiedHeader) {
-        static NSDateFormatter* _dateFormatterRFC822 = nil;
-        if (_dateFormatterRFC822 == nil) {
-            _dateFormatterRFC822 = [[NSDateFormatter alloc] init];
-            _dateFormatterRFC822.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
-            _dateFormatterRFC822.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
-            _dateFormatterRFC822.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
-        }
-        _modifiedSince = [[_dateFormatterRFC822 dateFromString:modifiedHeader] copy];
-    }
+    if (modifiedHeader) _modifiedSince = [[RFC822 dateFromString:modifiedHeader] copy];
     _noneMatch = [_headers objectForKey:@"If-None-Match"];
     
     _range = NSMakeRange(NSUIntegerMax, 0);
@@ -258,7 +250,7 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
 }
 
 - (BOOL)hasByteRange {
-  return GCDWebServerIsValidByteRange(_range);
+  return ((_range.location != NSUIntegerMax) || (_range.length > 0));
 }
 
 - (id)attributeForKey:(NSString*)key {

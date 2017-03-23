@@ -1,4 +1,4 @@
-#import "GCDWebServerPrivate.h"
+#import "GCDWebServerErrorResponse.h"
 #import "ODLog.h"
 
 /*

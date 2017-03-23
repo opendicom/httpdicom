@@ -103,3 +103,14 @@ extern NSString* const GCDWebServerRequestAttribute_RegexCaptures;
 - (id)attributeForKey:(NSString*)key;
 
 @end
+
+@interface GCDWebServerRequest ()
+@property(nonatomic, readonly) BOOL usesChunkedTransferEncoding;
+@property(nonatomic, readwrite) NSData* localAddressData;
+@property(nonatomic, readwrite) NSData* remoteAddressData;
+- (void)prepareForWriting;
+- (BOOL)performOpen:(NSError**)error;
+- (BOOL)performWriteData:(NSData*)data error:(NSError**)error;
+- (BOOL)performClose:(NSError**)error;
+- (void)setAttribute:(id)attribute forKey:(NSString*)key;
+@end

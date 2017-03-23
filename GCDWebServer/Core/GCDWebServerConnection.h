@@ -88,3 +88,7 @@
 - (void)abortRequest:(GCDWebServerRequest*)request withStatusCode:(NSInteger)statusCode;
 
 @end
+
+@interface GCDWebServerConnection ()
+- (id)initWithServer:(GCDWebServer*)server localAddress:(NSData*)localAddress remoteAddress:(NSData*)remoteAddress socket:(CFSocketNativeHandle)socket;
+@end

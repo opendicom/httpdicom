@@ -1,12 +1,22 @@
-//
-//  main.m
-//  httpdicom
-//
-//  Created by saluduy on 20160302.
-//  Copyright (c) 2016 ridi.salud.uy. All rights reserved.
-//
+#import <Foundation/Foundation.h>
+#import "ODLog.h"
+//look at the implementation of the function ODLog below
+
+#import "GCDWebServer.h"
+#import "GCDWebServerDataResponse.h"
+#import "GCDWebServerErrorResponse.h"
+#import "GCDWebServerFileResponse.h"
+#import "GCDWebServerStreamedResponse.h"
+
+#import "LFCGzipUtility.h"
+
+#import "NSString+PCS.h"
+#import "NSData+PCS.h"
+
+#import "URLSessionDataTask.h"
+
 /*
- Copyright:  Copyright (c) jacques.fauquex@opendicom.com All Rights Reserved.
+ Copyright:  Copyright (c) 2017 jacques.fauquex@opendicom.com All Rights Reserved.
  
  This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
  If a copy of the MPL was not distributed with this file, You can obtain one at
@@ -34,20 +44,6 @@
  You.
  */
 
-#import <Foundation/Foundation.h>
-#import "ODLog.h"
-//look at the implementation of the function ODLog below
-
-#import "GCDWebServerResponse.h"
-#import "GCDWebServer.h"
-#import "GCDWebServerDataResponse.h"
-#import "GCDWebServerPrivate.h"
-#import "LFCGzipUtility.h"
-
-#import "NSString+PCS.h"
-#import "NSData+PCS.h"
-
-#import "URLSessionDataTask.h"
 
 //static immutable write
 static uint32 zipLocalFileHeader=0x04034B50;

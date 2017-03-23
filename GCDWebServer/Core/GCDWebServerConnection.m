@@ -2,6 +2,7 @@
 #import "GCDWebServerConnection.h"
 #import "GCDWebServerPrivate.h"
 
+#import "RFC822.h"
 #import "ODLog.h"
 
 /*
@@ -72,7 +73,7 @@ static int32_t _connectionCounter = 0;
 @implementation GCDWebServerConnection (Read)
 
 - (void)_readData:(NSMutableData*)data withLength:(NSUInteger)length completionBlock:(ReadDataCompletionBlock)block {
-  dispatch_read(_socket, length, kGCDWebServerGCDQueue, ^(dispatch_data_t buffer, int error) {
+  dispatch_read(_socket, length, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(dispatch_data_t buffer, int error) {
     
     @autoreleasepool {
       if (error == 0) {
@@ -228,10 +229,10 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 @implementation GCDWebServerConnection (Write)
 
 - (void)_writeData:(NSData*)data withCompletionBlock:(WriteDataCompletionBlock)block {
-  dispatch_data_t buffer = dispatch_data_create(data.bytes, data.length, kGCDWebServerGCDQueue, ^{
+  dispatch_data_t buffer = dispatch_data_create(data.bytes, data.length, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [data self];  // Keeps ARC from releasing data too early
   });
-  dispatch_write(_socket, buffer, kGCDWebServerGCDQueue, ^(dispatch_data_t remainingData, int error) {
+  dispatch_write(_socket, buffer, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(dispatch_data_t remainingData, int error) {
     
     @autoreleasepool {
       if (error == 0) {
@@ -423,10 +424,10 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
       _responseMessage = CFHTTPMessageCreateResponse(kCFAllocatorDefault, _statusCode, NULL, kCFHTTPVersion1_1);
       CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Connection"), CFSTR("Close"));
       CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Server"), (__bridge CFStringRef)_server.serverName);
-      CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Date"), (__bridge CFStringRef)GCDWebServerFormatRFC822([NSDate date]));
+      CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Date"), (__bridge CFStringRef)[RFC822 stringFromDate:[NSDate date]]);
 
     if (_response.lastModifiedDate) {
-      CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Last-Modified"), (__bridge CFStringRef)GCDWebServerFormatRFC822(_response.lastModifiedDate));
+      CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Last-Modified"), (__bridge CFStringRef)[RFC822 stringFromDate:_response.lastModifiedDate]);
     }
     if (_response.eTag) {
       CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("ETag"), (__bridge CFStringRef)_response.eTag);
@@ -546,7 +547,53 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
       NSURL* requestURL = CFBridgingRelease(CFHTTPMessageCopyRequestURL(_requestMessage));
       NSString* requestPath = [[requestURL absoluteString] stringByRemovingPercentEncoding];  // Don't use -[NSURL path] which strips the ending slash
       NSString* queryString = requestURL ? CFBridgingRelease(CFURLCopyQueryString((CFURLRef)requestURL, NULL)) : nil;  // Don't use -[NSURL query] to make sure query is not unescaped;
-      NSDictionary* requestQuery = queryString ? GCDWebServerParseURLEncodedForm(queryString) : @{};
+        
+        /**
+         *  Extracts the unescaped names and values from an
+         *  "application/x-www-form-urlencoded" form.
+         *  http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
+         */
+
+        NSDictionary* requestQuery = nil;
+        if (!queryString) requestQuery = @{};
+        else
+        {
+            NSMutableDictionary* parameters = [NSMutableDictionary dictionary];
+            NSScanner* scanner = [[NSScanner alloc] initWithString:queryString];
+            [scanner setCharactersToBeSkipped:nil];
+            while (1) {
+                NSString* key = nil;
+                if (![scanner scanUpToString:@"=" intoString:&key] || [scanner isAtEnd]) {
+                    break;
+                }
+                [scanner setScanLocation:([scanner scanLocation] + 1)];
+                
+                NSString* value = nil;
+                [scanner scanUpToString:@"&" intoString:&value];
+                if (value == nil) {
+                    value = @"";
+                }
+                
+                key = [key stringByReplacingOccurrencesOfString:@"+" withString:@" "];
+                NSString* unescapedKey = [key stringByRemovingPercentEncoding];
+                value = [value stringByReplacingOccurrencesOfString:@"+" withString:@" "];
+                NSString* unescapedValue = [value stringByRemovingPercentEncoding];
+                if (unescapedKey && unescapedValue) {
+                    [parameters setObject:unescapedValue forKey:unescapedKey];
+                } else {
+                    LOG_WARNING(@"Failed parsing URL encoded form for key \"%@\" and value \"%@\"", key, value);
+                }
+                
+                if ([scanner isAtEnd]) {
+                    break;
+                }
+                [scanner setScanLocation:([scanner scanLocation] + 1)];
+            }
+            requestQuery=[NSDictionary dictionaryWithDictionary:parameters];
+        }
+
+        
+        
       if (requestMethod && requestURL && requestHeaders && requestPath && requestQuery) {
         for (_handler in _server.handlers) {
           _request = _handler.matchBlock(requestMethod, requestURL, requestHeaders, requestPath, requestQuery);
@@ -632,7 +679,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
     _responseMessage = CFHTTPMessageCreateResponse(kCFAllocatorDefault, _statusCode, NULL, kCFHTTPVersion1_1);
     CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Connection"), CFSTR("Close"));
     CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Server"), (__bridge CFStringRef)_server.serverName);
-    CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Date"), (__bridge CFStringRef)GCDWebServerFormatRFC822([NSDate date]));
+    CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Date"), (__bridge CFStringRef)[RFC822 stringFromDate:[NSDate date]]);
     
     [self _writeHeadersWithCompletionBlock:^(BOOL success) {
         ;  // Nothing more to do

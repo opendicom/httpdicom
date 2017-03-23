@@ -10,11 +10,6 @@
 #import "GCDWebServer.h"
 #import "GCDWebServerConnection.h"
 
-#import "GCDWebServerDataResponse.h"
-#import "GCDWebServerErrorResponse.h"
-#import "GCDWebServerFileResponse.h"
-#import "GCDWebServerStreamedResponse.h"
-
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
  All rights reserved.
@@ -47,15 +42,6 @@
  *  GCDWebServer internal constants and APIs.
  */
 
-#define kGCDWebServerGCDQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
-
-static inline BOOL GCDWebServerIsValidByteRange(NSRange range) {
-  return ((range.location != NSUIntegerMax) || (range.length > 0));
-}
-
-static inline NSError* GCDWebServerMakePosixError(int code) {
-  return [NSError errorWithDomain:NSPOSIXErrorDomain code:code userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithUTF8String:strerror(code)]}];
-}
 
 extern void GCDWebServerInitializeFunctions();
 extern NSString* GCDWebServerNormalizeHeaderValue(NSString* value);
@@ -63,10 +49,12 @@ extern NSString* GCDWebServerExtractHeaderValueParameter(NSString* header, NSStr
 extern NSString* GCDWebServerComputeMD5Digest(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
 extern NSString* GCDWebServerStringFromSockAddr(const struct sockaddr* addr, BOOL includeService);
 
+/*
 @interface GCDWebServerConnection ()
 - (id)initWithServer:(GCDWebServer*)server localAddress:(NSData*)localAddress remoteAddress:(NSData*)remoteAddress socket:(CFSocketNativeHandle)socket;
 @end
-
+*/
+/*
 @interface GCDWebServer ()
 @property(nonatomic, readonly) NSArray* handlers;
 @property(nonatomic, readonly) NSString* serverName;
@@ -74,12 +62,14 @@ extern NSString* GCDWebServerStringFromSockAddr(const struct sockaddr* addr, BOO
 @property(nonatomic, readonly) NSDictionary* authenticationBasicAccounts;
 @property(nonatomic, readonly) NSDictionary* authenticationDigestAccounts;
 @end
-
+*/
+/*
 @interface GCDWebServerHandler : NSObject
 @property(nonatomic, readonly) GCDWebServerMatchBlock matchBlock;
 @property(nonatomic, readonly) GCDWebServerAsyncProcessBlock asyncProcessBlock;
 @end
-
+*/
+/*
 @interface GCDWebServerRequest ()
 @property(nonatomic, readonly) BOOL usesChunkedTransferEncoding;
 @property(nonatomic, readwrite) NSData* localAddressData;
@@ -90,7 +80,9 @@ extern NSString* GCDWebServerStringFromSockAddr(const struct sockaddr* addr, BOO
 - (BOOL)performClose:(NSError**)error;
 - (void)setAttribute:(id)attribute forKey:(NSString*)key;
 @end
+*/
 
+/*
 @interface GCDWebServerResponse ()
 @property(nonatomic, readonly) NSDictionary* additionalHeaders;
 @property(nonatomic, readonly) BOOL usesChunkedTransferEncoding;
@@ -99,3 +91,4 @@ extern NSString* GCDWebServerStringFromSockAddr(const struct sockaddr* addr, BOO
 - (void)performReadDataWithCompletion:(GCDWebServerBodyReaderCompletionBlock)block;
 - (void)performClose;
 @end
+*/

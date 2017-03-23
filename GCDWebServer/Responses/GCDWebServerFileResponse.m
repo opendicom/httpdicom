@@ -1,5 +1,5 @@
 #import <sys/stat.h>
-#import "GCDWebServerPrivate.h"
+#import "GCDWebServerFileResponse.h"
 #import "ODLog.h"
 
 /*
@@ -87,7 +87,7 @@ static inline NSDate* _NSDateFromTimeSpec(const struct timespec* t) {
 #endif
   NSUInteger fileSize = (NSUInteger)info.st_size;
   
-  BOOL hasByteRange = GCDWebServerIsValidByteRange(range);
+  BOOL hasByteRange = ((range.location != NSUIntegerMax) || (range.length > 0));
   if (hasByteRange) {
     if (range.location != NSUIntegerMax) {
       range.location = MIN(range.location, fileSize);
@@ -158,13 +158,13 @@ static inline NSDate* _NSDateFromTimeSpec(const struct timespec* t) {
   _file = open([_path fileSystemRepresentation], O_NOFOLLOW | O_RDONLY);
   if (_file <= 0) {
     if (error) {
-      *error = GCDWebServerMakePosixError(errno);
+      *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithUTF8String:strerror(errno)]}];
     }
     return NO;
   }
   if (lseek(_file, _offset, SEEK_SET) != (off_t)_offset) {
     if (error) {
-      *error = GCDWebServerMakePosixError(errno);
+      *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithUTF8String:strerror(errno)]}];
     }
     close(_file);
     return NO;
@@ -178,7 +178,7 @@ static inline NSDate* _NSDateFromTimeSpec(const struct timespec* t) {
   ssize_t result = read(_file, data.mutableBytes, length);
   if (result < 0) {
     if (error) {
-      *error = GCDWebServerMakePosixError(errno);
+      *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithUTF8String:strerror(errno)]}];
     }
     return nil;
   }

@@ -37,17 +37,11 @@
 
 
 
-static NSDateFormatter* _dateFormatterRFC822 = nil;
 static dispatch_queue_t _dateFormatterQueue = NULL;
+
 
 // TODO: Handle RFC 850 and ANSI C's asctime() format
 void GCDWebServerInitializeFunctions() {
-  if (_dateFormatterRFC822 == nil) {
-    _dateFormatterRFC822 = [[NSDateFormatter alloc] init];
-    _dateFormatterRFC822.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
-    _dateFormatterRFC822.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
-    _dateFormatterRFC822.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
-  }
   if (_dateFormatterQueue == NULL) {
     _dateFormatterQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
   }
@@ -82,49 +76,6 @@ NSString* GCDWebServerExtractHeaderValueParameter(NSString* value, NSString* nam
   return parameter;
 }
 
-NSString* GCDWebServerFormatRFC822(NSDate* date) {
-  __block NSString* string;
-  dispatch_sync(_dateFormatterQueue, ^{
-    string = [_dateFormatterRFC822 stringFromDate:date];
-  });
-  return string;
-}
-
-
-NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form) {
-  NSMutableDictionary* parameters = [NSMutableDictionary dictionary];
-  NSScanner* scanner = [[NSScanner alloc] initWithString:form];
-  [scanner setCharactersToBeSkipped:nil];
-  while (1) {
-    NSString* key = nil;
-    if (![scanner scanUpToString:@"=" intoString:&key] || [scanner isAtEnd]) {
-      break;
-    }
-    [scanner setScanLocation:([scanner scanLocation] + 1)];
-    
-    NSString* value = nil;
-    [scanner scanUpToString:@"&" intoString:&value];
-    if (value == nil) {
-      value = @"";
-    }
-    
-    key = [key stringByReplacingOccurrencesOfString:@"+" withString:@" "];
-    NSString* unescapedKey = [key stringByRemovingPercentEncoding];
-    value = [value stringByReplacingOccurrencesOfString:@"+" withString:@" "];
-    NSString* unescapedValue = [value stringByRemovingPercentEncoding];
-    if (unescapedKey && unescapedValue) {
-      [parameters setObject:unescapedValue forKey:unescapedKey];
-    } else {
-      LOG_WARNING(@"Failed parsing URL encoded form for key \"%@\" and value \"%@\"", key, value);
-    }
-    
-    if ([scanner isAtEnd]) {
-      break;
-    }
-    [scanner setScanLocation:([scanner scanLocation] + 1)];
-  }
-  return parameters;
-}
 
 NSString* GCDWebServerStringFromSockAddr(const struct sockaddr* addr, BOOL includeService) {
   NSString* string = nil;

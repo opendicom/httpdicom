@@ -86,6 +86,14 @@ typedef void (^GCDWebServerAsyncProcessBlock)(__kindof GCDWebServerRequest* requ
 - (BOOL)startWithPort:(NSUInteger)port maxPendingConnections:(NSUInteger)maxPendingConnections error:(NSError**)error;
 @end
 
+@interface GCDWebServer ()
+@property(nonatomic, readonly) NSArray* handlers;
+@property(nonatomic, readonly) NSString* serverName;
+@property(nonatomic, readonly) NSString* authenticationRealm;
+@property(nonatomic, readonly) NSDictionary* authenticationBasicAccounts;
+@property(nonatomic, readonly) NSDictionary* authenticationDigestAccounts;
+@end
+
 @interface GCDWebServer (Handlers)
 
 #pragma mark synchronous
@@ -145,4 +153,9 @@ typedef void (^GCDWebServerAsyncProcessBlock)(__kindof GCDWebServerRequest* requ
  */
 - (void)addGETHandlerForBasePath:(NSString*)basePath directoryPath:(NSString*)directoryPath indexFilename:(NSString*)indexFilename cacheAge:(NSUInteger)cacheAge allowRangeRequests:(BOOL)allowRangeRequests;
 
+@end
+
+@interface GCDWebServerHandler : NSObject
+@property(nonatomic, readonly) GCDWebServerMatchBlock matchBlock;
+@property(nonatomic, readonly) GCDWebServerAsyncProcessBlock asyncProcessBlock;
 @end

@@ -1,7 +1,12 @@
 #import <netinet/in.h>
-#import <dns_sd.h>
 
 #import "GCDWebServerPrivate.h"
+#import "GCDWebServerConnection.h"
+
+#import "GCDWebServer.h"
+#import "GCDWebServerErrorResponse.h"
+#import "GCDWebServerFileResponse.h"
+
 #import "ODLog.h"
 
 /*
@@ -77,8 +82,12 @@
 @synthesize handlers=_handlers, port=_port, serverName=_serverName, authenticationRealm=_authenticationRealm,
             authenticationBasicAccounts=_authenticationBasicAccounts, authenticationDigestAccounts=_authenticationDigestAccounts;
 
+static dispatch_queue_t _dateFormatterQueue = NULL;
+
 + (void)initialize {
-  GCDWebServerInitializeFunctions();
+        if (_dateFormatterQueue == NULL) {
+            _dateFormatterQueue = dispatch_queue_create(NULL, DISPATCH_QUEUE_SERIAL);
+        }
 }
 
 - (instancetype)init {
@@ -109,14 +118,14 @@
         return listeningSocket;
       } else {
         if (error) {
-          *error = GCDWebServerMakePosixError(errno);
+          *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithUTF8String:strerror(errno)]}];
         }
         LOG_ERROR(@"Failed starting %s listening socket: %s (%i)", useIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
         close(listeningSocket);
       }
     } else {
       if (error) {
-        *error = GCDWebServerMakePosixError(errno);
+        *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithUTF8String:strerror(errno)]}];
       }
       LOG_ERROR(@"Failed binding %s listening socket: %s (%i)", useIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
       close(listeningSocket);
@@ -124,7 +133,7 @@
     
   } else {
     if (error) {
-      *error = GCDWebServerMakePosixError(errno);
+      *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithUTF8String:strerror(errno)]}];
     }
     LOG_ERROR(@"Failed creating %s listening socket: %s (%i)", useIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
   }
@@ -133,7 +142,7 @@
 
 - (dispatch_source_t)_createDispatchSourceWithListeningSocket:(int)listeningSocket isIPv6:(BOOL)isIPv6 {
   dispatch_group_enter(_sourceGroup);
-  dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, kGCDWebServerGCDQueue);
+  dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
   dispatch_source_set_cancel_handler(source, ^{
     
     @autoreleasepool {

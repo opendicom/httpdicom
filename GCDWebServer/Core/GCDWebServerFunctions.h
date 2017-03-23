@@ -36,16 +36,7 @@ extern "C" {
  *  "application/x-www-form-urlencoded" form.
  *  http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
  */
-NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form);
-
-
-/**
- *  Converts a date into a string using RFC822 formatting.
- *  https://tools.ietf.org/html/rfc822#section-5
- *  https://tools.ietf.org/html/rfc1123#section-5.2.14
- */
-NSString* GCDWebServerFormatRFC822(NSDate* date);
-
+//NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form);
 
 
 #ifdef __cplusplus

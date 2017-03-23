@@ -1,4 +1,4 @@
-#import "GCDWebServerPrivate.h"
+#import "GCDWebServerStreamedResponse.h"
 #import "ODLog.h"
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour

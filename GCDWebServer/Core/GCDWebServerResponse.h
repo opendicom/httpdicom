@@ -184,6 +184,15 @@ typedef void (^GCDWebServerBodyReaderCompletionBlock)(NSData* data, NSError* err
 
 @end
 
+@interface GCDWebServerResponse ()
+@property(nonatomic, readonly) NSDictionary* additionalHeaders;
+@property(nonatomic, readonly) BOOL usesChunkedTransferEncoding;
+- (void)prepareForReading;
+- (BOOL)performOpen:(NSError**)error;
+- (void)performReadDataWithCompletion:(GCDWebServerBodyReaderCompletionBlock)block;
+- (void)performClose;
+@end
+
 @interface GCDWebServerResponse (Extensions)
 
 /**
