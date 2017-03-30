@@ -96,26 +96,26 @@ typedef void (^GCDWebServerAsyncProcessBlock)(__kindof GCDWebServerRequest* requ
 @interface GCDWebServer (Handlers)
 
 #pragma mark synchronous
-- (void)addDefaultHandlerForMethod:(NSString*)method requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)processBlock;
+- (void)addDefaultHandlerForMethod:(NSString*)method processBlock:(GCDWebServerProcessBlock)processBlock;
 //specific case-insensitive path
-- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)processBlock;
+- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path processBlock:(GCDWebServerProcessBlock)processBlock;
 /**
  * NSRegularExpression* pathRegularExpression = [NSRegularExpression regularExpressionWithPattern:regex options:NSRegularExpressionCaseInsensitive error:NULL];
  * may be initiated only once for every aplication of the pattern
  */
-- (void)addHandlerForMethod:(NSString*)method pathRegularExpression:(NSRegularExpression*)pathRegularExpression requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)processBlock;
+- (void)addHandlerForMethod:(NSString*)method pathRegularExpression:(NSRegularExpression*)pathRegularExpression processBlock:(GCDWebServerProcessBlock)processBlock;
 
 
 #pragma mark asynchronous
 - (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock asyncProcessBlock:(GCDWebServerAsyncProcessBlock)processBlock;
-- (void)addDefaultHandlerForMethod:(NSString*)method requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
+- (void)addDefaultHandlerForMethod:(NSString*)method asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
 //specific case-insensitive path
-- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
+- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
 /**
  * NSRegularExpression* pathRegularExpression = [NSRegularExpression regularExpressionWithPattern:regex options:NSRegularExpressionCaseInsensitive error:NULL];
  * may be initiated only once por every aplication of the pattern
  */
-- (void)addHandlerForMethod:(NSString*)method pathRegularExpression:(NSRegularExpression*)pathRegularExpression requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
+- (void)addHandlerForMethod:(NSString*)method pathRegularExpression:(NSRegularExpression*)pathRegularExpression asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
 
 
 - (void)removeAllHandlers;

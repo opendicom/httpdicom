@@ -431,8 +431,7 @@ int main(int argc, const char* argv[]) {
 
 #pragma mark no handler for GET
         [httpdicomServer addDefaultHandlerForMethod:@"GET"
-         requestClass:[GCDWebServerRequest class]
-         processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              //request parts logging
              NSURL *requestURL=request.URL;
@@ -456,7 +455,6 @@ int main(int argc, const char* argv[]) {
         [httpdicomServer
          addHandlerForMethod:@"GET"
          path:@"/"
-         requestClass:[GCDWebServerRequest class]
          processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              return [GCDWebServerDataResponse responseWithText:@"echo"];
@@ -469,7 +467,6 @@ int main(int argc, const char* argv[]) {
         [httpdicomServer
          addHandlerForMethod:@"GET"
          pathRegularExpression:[NSRegularExpression regularExpressionWithPattern:@"^/custodians/.*$" options:0 error:NULL]
-         requestClass:[GCDWebServerRequest class]
          processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
@@ -582,7 +579,6 @@ int main(int argc, const char* argv[]) {
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:qidoregex
-                                requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
@@ -635,7 +631,6 @@ int main(int argc, const char* argv[]) {
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:wadouriregex
-                                requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
@@ -703,7 +698,6 @@ int main(int argc, const char* argv[]) {
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:wadorsregex
-                                requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
@@ -749,7 +743,6 @@ int main(int argc, const char* argv[]) {
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:dcmzipregex
-                                requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         {
             LOG_INFO(@"osirix");
@@ -915,7 +908,6 @@ int main(int argc, const char* argv[]) {
          
          [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:applicableregex
-                                requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
@@ -1030,7 +1022,6 @@ int main(int argc, const char* argv[]) {
         NSRegularExpression *mwstudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:mwstudiesregex
-                                requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              //request parts logging
@@ -1182,7 +1173,6 @@ int main(int argc, const char* argv[]) {
         NSRegularExpression *mwseriesregex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*/series/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*" options:NSRegularExpressionCaseInsensitive error:NULL];
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:mwseriesregex
-                                requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              //request parts logging
@@ -1533,7 +1523,6 @@ int main(int argc, const char* argv[]) {
          */
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/datatables/studies"
-                                requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSDictionary *q=request.query;
@@ -2006,7 +1995,6 @@ int main(int argc, const char* argv[]) {
         
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/datatables/patient"
-                                requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSDictionary *q=request.query;
@@ -2076,7 +2064,6 @@ int main(int argc, const char* argv[]) {
         //"datatables/series?AccessionNumber=22&IssuerOfAccessionNumber.UniversalEntityID=NULL&StudyIUID=2.16.858.2.10000675.72769.20160411084701.1.100&session=1"
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/datatables/series"
-                                requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSDictionary *q=request.query;
@@ -2137,7 +2124,6 @@ int main(int argc, const char* argv[]) {
         
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/IHEInvokeImageDisplay"
-                                requestClass:[GCDWebServerRequest class]
                                 processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {
              NSDictionary *q=request.query;

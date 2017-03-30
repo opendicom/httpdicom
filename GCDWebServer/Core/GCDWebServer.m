@@ -224,34 +224,29 @@
 #pragma mark synchronous (incluye process block into completion block of asynchronous
 
 - (void)addDefaultHandlerForMethod:(NSString*)method
-                      requestClass:(Class)aClass
                       processBlock:(GCDWebServerProcessBlock)processBlock {
     
     [self addDefaultHandlerForMethod:method
-                        requestClass:aClass
                    asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) { completionBlock(processBlock(request)); }
 ];}
 
 
 - (void)addHandlerForMethod:(NSString*)method
                        path:(NSString*)path
-               requestClass:(Class)aClass
                processBlock:(GCDWebServerProcessBlock)processBlock {
     
     [self addHandlerForMethod:method
                          path:path
-                 requestClass:aClass
             asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) { completionBlock(processBlock(request)); }
 ];}
 
 - (void)addHandlerForMethod:(NSString*)method
       pathRegularExpression:(NSRegularExpression*)pathRegularExpression
-               requestClass:(Class)aClass
                processBlock:(GCDWebServerProcessBlock)processBlock {
     
     [self addHandlerForMethod:method
         pathRegularExpression:pathRegularExpression
-                 requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {completionBlock(processBlock(request));}
+            asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {completionBlock(processBlock(request));}
 ];}
 
 #pragma mark asynchronous
@@ -266,19 +261,17 @@
 
 
 - (void)addDefaultHandlerForMethod:(NSString*)method
-                      requestClass:(Class)aClass
                  asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
     
     [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
             if (![requestMethod isEqualToString:method]) return nil;
-            return [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
+            return [[GCDWebServerRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
         }
                 asyncProcessBlock:block];
 }
 
 - (void)addHandlerForMethod:(NSString*)method
                        path:(NSString*)path
-               requestClass:(Class)aClass
           asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
 
     [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
@@ -289,7 +282,7 @@
             if ([urlPath caseInsensitiveCompare:path] != NSOrderedSame) {
                 return nil;
             }
-            return [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
+            return [[GCDWebServerRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
             
         } asyncProcessBlock:block
      ];
@@ -297,7 +290,6 @@
 
 - (void)addHandlerForMethod:(NSString*)method
       pathRegularExpression:(NSRegularExpression*)pathRegularExpression
-               requestClass:(Class)aClass
           asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
     
         [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
@@ -324,7 +316,7 @@
                 }
             }
             
-            GCDWebServerRequest* request = [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
+            GCDWebServerRequest* request = [[GCDWebServerRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
             [request setAttribute:captures forKey:GCDWebServerRequestAttribute_RegexCaptures];
             return request;
             
@@ -341,7 +333,7 @@
 @implementation GCDWebServer (GETHandlers)
 
 - (void)addGETHandlerForPath:(NSString*)path staticData:(NSData*)staticData contentType:(NSString*)contentType cacheAge:(NSUInteger)cacheAge {
-  [self addHandlerForMethod:@"GET" path:path requestClass:[GCDWebServerRequest class] processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
+  [self addHandlerForMethod:@"GET" path:path processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
     
     GCDWebServerResponse* response = [GCDWebServerDataResponse responseWithData:staticData contentType:contentType];
     response.cacheControlMaxAge = cacheAge;
@@ -351,7 +343,7 @@
 }
 
 - (void)addGETHandlerForPath:(NSString*)path filePath:(NSString*)filePath isAttachment:(BOOL)isAttachment cacheAge:(NSUInteger)cacheAge allowRangeRequests:(BOOL)allowRangeRequests {
-  [self addHandlerForMethod:@"GET" path:path requestClass:[GCDWebServerRequest class] processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
+  [self addHandlerForMethod:@"GET" path:path processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
     
     GCDWebServerResponse* response = nil;
     if (allowRangeRequests) {
@@ -364,35 +356,6 @@
     return response;
     
   }];
-}
-
-- (GCDWebServerResponse*)_responseWithContentsOfDirectory:(NSString*)path {
-  NSDirectoryEnumerator* enumerator = [[NSFileManager defaultManager] enumeratorAtPath:path];
-  if (enumerator == nil) {
-    return nil;
-  }
-  NSMutableString* html = [NSMutableString string];
-  [html appendString:@"<!DOCTYPE html>\n"];
-  [html appendString:@"<html><head><meta charset=\"utf-8\"></head><body>\n"];
-  [html appendString:@"<ul>\n"];
-  for (NSString* file in enumerator) {
-    if (![file hasPrefix:@"."]) {
-      NSString* type = [[enumerator fileAttributes] objectForKey:NSFileType];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      NSString* escapedFile = [file stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-#pragma clang diagnostic pop
-      if ([type isEqualToString:NSFileTypeRegular]) {
-        [html appendFormat:@"<li><a href=\"%@\">%@</a></li>\n", escapedFile, file];
-      } else if ([type isEqualToString:NSFileTypeDirectory]) {
-        [html appendFormat:@"<li><a href=\"%@/\">%@/</a></li>\n", escapedFile, file];
-      }
-    }
-    [enumerator skipDescendents];
-  }
-  [html appendString:@"</ul>\n"];
-  [html appendString:@"</body></html>\n"];
-  return [GCDWebServerDataResponse responseWithHTML:html];
 }
 
 @end
