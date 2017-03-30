@@ -15,3 +15,11 @@ conf/*
 httpdicom.xcodeproj/xcuserdata/admin.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
 
 *.log
+
+deploy/pacs.plist
+
+deploy/dal55mysqlpacs.plist
+
+httpdicom.xcodeproj/xcuserdata/claudiobaeza.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+
+httpdicom.xcodeproj/xcuserdata/claudiobaeza.xcuserdatad/xcschemes/xcschememanagement.plist

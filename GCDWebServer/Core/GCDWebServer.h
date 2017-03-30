@@ -96,17 +96,14 @@ typedef void (^GCDWebServerAsyncProcessBlock)(__kindof GCDWebServerRequest* requ
 @interface GCDWebServer (Handlers)
 
 #pragma mark synchronous
-- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock processBlock:(GCDWebServerProcessBlock)processBlock;
-- (void)addDefaultHandlerForMethod:(NSString*)method requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block;
+- (void)addDefaultHandlerForMethod:(NSString*)method requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)processBlock;
 //specific case-insensitive path
-- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block;
-//path matching a case-insensitive regular expression and
-- (void)addHandlerForMethod:(NSString*)method pathRegex:(NSString*)regex requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block;
+- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)processBlock;
 /**
  * NSRegularExpression* pathRegularExpression = [NSRegularExpression regularExpressionWithPattern:regex options:NSRegularExpressionCaseInsensitive error:NULL];
- * may be initiated only once por every aplication of the pattern
+ * may be initiated only once for every aplication of the pattern
  */
-- (void)addHandlerForMethod:(NSString*)method pathRegularExpression:(NSRegularExpression*)pathRegularExpression requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block;
+- (void)addHandlerForMethod:(NSString*)method pathRegularExpression:(NSRegularExpression*)pathRegularExpression requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)processBlock;
 
 
 #pragma mark asynchronous
@@ -114,8 +111,6 @@ typedef void (^GCDWebServerAsyncProcessBlock)(__kindof GCDWebServerRequest* requ
 - (void)addDefaultHandlerForMethod:(NSString*)method requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
 //specific case-insensitive path
 - (void)addHandlerForMethod:(NSString*)method path:(NSString*)path requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
-//path matching a case-insensitive regular expression and
-- (void)addHandlerForMethod:(NSString*)method pathRegex:(NSString*)regex requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
 /**
  * NSRegularExpression* pathRegularExpression = [NSRegularExpression regularExpressionWithPattern:regex options:NSRegularExpressionCaseInsensitive error:NULL];
  * may be initiated only once por every aplication of the pattern
@@ -140,17 +135,6 @@ typedef void (^GCDWebServerAsyncProcessBlock)(__kindof GCDWebServerRequest* requ
  *  with a specific case-insensitive path with a file.
  */
 - (void)addGETHandlerForPath:(NSString*)path filePath:(NSString*)filePath isAttachment:(BOOL)isAttachment cacheAge:(NSUInteger)cacheAge allowRangeRequests:(BOOL)allowRangeRequests;
-
-/**
- *  Adds a handler to the server to respond to incoming "GET" HTTP requests
- *  with a case-insensitive path inside a base path with the corresponding file
- *  inside a local directory. If no local file matches the request path, a 401
- *  HTTP status code is returned to the client.
- *
- *  The "indexFilename" argument allows to specify an "index" file name to use
- *  when the request path corresponds to a directory.
- */
-- (void)addGETHandlerForBasePath:(NSString*)basePath directoryPath:(NSString*)directoryPath indexFilename:(NSString*)indexFilename cacheAge:(NSUInteger)cacheAge allowRangeRequests:(BOOL)allowRangeRequests;
 
 @end
 

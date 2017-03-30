@@ -47,10 +47,6 @@ static NSData* _CRLFData = nil;
 static NSData* _CRLFCRLFData = nil;
 static NSData* _continueData = nil;
 static NSData* _lastChunkData = nil;
-static NSString* _digestAuthenticationNonce = nil;
-#ifdef __GCDWEBSERVER_ENABLE_TESTING__
-static int32_t _connectionCounter = 0;
-#endif
 
 @interface GCDWebServerConnection () {
 @private
@@ -328,66 +324,12 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
   if (_lastChunkData == nil) {
     _lastChunkData = [[NSData alloc] initWithBytes:"0\r\n\r\n" length:5];
   }
-  if (_digestAuthenticationNonce == nil) {
-    CFUUIDRef uuid = CFUUIDCreate(kCFAllocatorDefault);
-      _digestAuthenticationNonce = [[NSString stringWithFormat:@"%@", CFBridgingRelease(CFUUIDCreateString(kCFAllocatorDefault, uuid))] MD5String];
-  }
 }
 
 
 - (void)_startProcessingRequest {
     // https://tools.ietf.org/html/rfc2617
     
-    LOG_DEBUG(@"Connection on socket %i preflighting request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);
-    GCDWebServerResponse* preflightResponse = nil;
-    if (_server.authenticationBasicAccounts) {
-        __block BOOL authenticated = NO;
-        NSString* authorizationHeader = [_request.headers objectForKey:@"Authorization"];
-        if ([authorizationHeader hasPrefix:@"Basic "]) {
-            NSString* basicAccount = [authorizationHeader substringFromIndex:6];
-            [_server.authenticationBasicAccounts enumerateKeysAndObjectsUsingBlock:^(NSString* username, NSString* digest, BOOL* stop) {
-                if ([basicAccount isEqualToString:digest]) {
-                    authenticated = YES;
-                    *stop = YES;
-                }
-            }];
-        }
-        if (!authenticated) {
-            preflightResponse = [GCDWebServerResponse responseWithStatusCode:401];//Unauthorized
-            [preflightResponse setValue:[NSString stringWithFormat:@"Basic realm=\"%@\"", _server.authenticationRealm] forAdditionalHeader:@"WWW-Authenticate"];
-        }
-    } else if (_server.authenticationDigestAccounts) {
-        BOOL authenticated = NO;
-        BOOL isStaled = NO;
-        NSString* authorizationHeader = [_request.headers objectForKey:@"Authorization"];
-        if ([authorizationHeader hasPrefix:@"Digest "]) {
-            NSString* realm = [authorizationHeader extractHeaderValueParameter:@"realm"];
-            if ([realm isEqualToString:_server.authenticationRealm]) {
-                NSString* nonce = [authorizationHeader extractHeaderValueParameter:@"nonce"];
-                if ([nonce isEqualToString:_digestAuthenticationNonce]) {
-                    NSString* username = [authorizationHeader  extractHeaderValueParameter:@"username"];
-                    NSString* uri = [authorizationHeader  extractHeaderValueParameter:@"uri"];
-                    NSString* actualResponse = [authorizationHeader  extractHeaderValueParameter:@"response"];
-                    NSString* ha1 = [_server.authenticationDigestAccounts objectForKey:username];
-                    NSString* ha2 = [[NSString stringWithFormat:@"%@:%@", _request.method, uri] MD5String];  // We cannot use "request.path" as the query string is required
-                    NSString* expectedResponse = [[NSString stringWithFormat:@"%@:%@:%@", ha1, _digestAuthenticationNonce, ha2]MD5String];
-                    if ([actualResponse isEqualToString:expectedResponse]) {
-                        authenticated = YES;
-                    }
-                } else if (nonce.length) {
-                    isStaled = YES;
-                }
-            }
-        }
-        if (!authenticated) {
-            preflightResponse = [GCDWebServerResponse responseWithStatusCode:401];//Unauthorized
-            [preflightResponse setValue:[NSString stringWithFormat:@"Digest realm=\"%@\", nonce=\"%@\"%@", _server.authenticationRealm, _digestAuthenticationNonce, isStaled ? @", stale=TRUE" : @""] forAdditionalHeader:@"WWW-Authenticate"];
-        }
-    }
-    
-  if (preflightResponse) {
-    [self _finishProcessingRequest:preflightResponse];
-  } else {
     LOG_DEBUG(@"Connection on socket %i processing request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);
     @try {
           _handler.asyncProcessBlock(
@@ -398,8 +340,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
     @catch (NSException* exception) {
         LOG_EXCEPTION(exception);
     }
-  }
-}
+ }
 
 // http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 - (void)_finishProcessingRequest:(GCDWebServerResponse*)response {
@@ -592,10 +533,10 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
         }
 
         
-        
+//JF where the blocks in main are called from Connection
       if (requestMethod && requestURL && requestHeaders && requestPath && requestQuery) {
         for (_handler in _server.handlers) {
-          _request = _handler.matchBlock(requestMethod, requestURL, requestHeaders, requestPath, requestQuery);
+           _request = _handler.matchBlock(requestMethod, requestURL, requestHeaders, requestPath, requestQuery);
           if (_request) {
             break;
           }

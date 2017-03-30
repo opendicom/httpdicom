@@ -441,6 +441,7 @@ int main(int argc, const char* argv[]) {
              NSString *p=requestURL.path;
              //NSString *q=requestURL.query;
              NSDictionary *q=request.query;
+             LOG_WARNING(@"%@",requestURL);
              LOG_WARNING(@"%@%@?%@ [no handler]",b,p,q);
              return [GCDWebServerErrorResponse
                      responseWithClientError:400
@@ -449,9 +450,12 @@ int main(int argc, const char* argv[]) {
 
         
 #pragma mark echo
+        /*
+         pathRegularExpression:[NSRegularExpression regularExpressionWithPattern:@"^/echo$" options:0 error:NULL]
+         */
         [httpdicomServer
          addHandlerForMethod:@"GET"
-         pathRegularExpression:[NSRegularExpression regularExpressionWithPattern:@"^/echo$" options:0 error:NULL]
+         path:@"/"
          requestClass:[GCDWebServerRequest class]
          processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          {

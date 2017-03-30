@@ -87,7 +87,6 @@
 		4ABAF47A1E7B8511003B3217 /* GCDWebServerFileResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerFileResponse.m; sourceTree = "<group>"; };
 		4ABAF47B1E7B8511003B3217 /* GCDWebServerStreamedResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerStreamedResponse.h; sourceTree = "<group>"; };
 		4ABAF47C1E7B8511003B3217 /* GCDWebServerStreamedResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerStreamedResponse.m; sourceTree = "<group>"; };
-		4ABAF4991E7B891B003B3217 /* bin */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bin; sourceTree = "<group>"; };
 		4AEF37851DC8D6C800CDA008 /* URLSessionDataTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = URLSessionDataTask.h; path = httpdicom/URLSessionDataTask.h; sourceTree = SOURCE_ROOT; };
 		4AEF37861DC8D6C800CDA008 /* URLSessionDataTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = URLSessionDataTask.m; path = httpdicom/URLSessionDataTask.m; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -107,7 +106,6 @@
 		2A31F5D91C87295A00A78C7C = {
 			isa = PBXGroup;
 			children = (
-				4ABAF4991E7B891B003B3217 /* bin */,
 				4ABAF45D1E7B8511003B3217 /* GCDWebServer */,
 				4AA28D2C1D94569400B223CA /* LICENSE */,
 				4AA28D2D1D94569400B223CA /* README.md */,

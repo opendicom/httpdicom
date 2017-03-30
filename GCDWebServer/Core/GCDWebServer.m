@@ -204,24 +204,7 @@
     }
     
     _serverName = @"httpdicom";
-    /*
-    NSString* authenticationMethod = nil);
-    if ([authenticationMethod isEqualToString:@"Basic"]) {
-        _authenticationRealm = @"AuthenticationRealm";
-        _authenticationBasicAccounts = [[NSMutableDictionary alloc] init];
-        NSDictionary* accounts = @{};
-        [accounts enumerateKeysAndObjectsUsingBlock:^(NSString* username, NSString* password, BOOL* stop) {
-            [_authenticationBasicAccounts setObject:_EncodeBase64([NSString stringWithFormat:@"%@:%@", username, password]) forKey:username];
-        }];
-    } else if ([authenticationMethod isEqualToString:@"DigestAccess"]) {
-        _authenticationRealm = @"AuthenticationRealm";
-        _authenticationDigestAccounts = [[NSMutableDictionary alloc] init];
-        NSDictionary* accounts = @{};
-        [accounts enumerateKeysAndObjectsUsingBlock:^(NSString* username, NSString* password, BOOL* stop) {
-            [_authenticationDigestAccounts setObject:[[NSString stringWithFormat:@"%@:%@:%@", username, _authenticationRealm, password]MD5String] forKey:username];
-        }];
-    }
-     */
+
     _connectionClass = [GCDWebServerConnection class];
     
     _source4 = [self _createDispatchSourceWithListeningSocket:listeningSocket4 isIPv6:NO];
@@ -238,57 +221,67 @@
 
 @implementation GCDWebServer (Handlers)
 
-#pragma mark synchronous
+#pragma mark synchronous (incluye process block into completion block of asynchronous
 
-- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock processBlock:(GCDWebServerProcessBlock)processBlock {
-    [self addHandlerWithMatchBlock:matchBlock asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
-        completionBlock(processBlock(request));
-    }];
-}
-- (void)addDefaultHandlerForMethod:(NSString*)method requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block {
-    [self addDefaultHandlerForMethod:method requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
-        completionBlock(block(request));
-    }];
-}
-- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block {
-    [self addHandlerForMethod:method path:path requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
-        completionBlock(block(request));
-    }];
-}
+- (void)addDefaultHandlerForMethod:(NSString*)method
+                      requestClass:(Class)aClass
+                      processBlock:(GCDWebServerProcessBlock)processBlock {
+    
+    [self addDefaultHandlerForMethod:method
+                        requestClass:aClass
+                   asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) { completionBlock(processBlock(request)); }
+];}
 
-- (void)addHandlerForMethod:(NSString*)method pathRegex:(NSString*)regex requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block {
-    [self addHandlerForMethod:method pathRegex:regex requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
-        completionBlock(block(request));
-    }];
-}
 
-//JF version of the last methods with NSRegularExpression parameter.
-- (void)addHandlerForMethod:(NSString*)method pathRegularExpression:(NSRegularExpression*)pathRegularExpression requestClass:(Class)aClass processBlock:(GCDWebServerProcessBlock)block {
-    [self addHandlerForMethod:method pathRegularExpression:pathRegularExpression requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {
-        completionBlock(block(request));
-    }];
-}
+- (void)addHandlerForMethod:(NSString*)method
+                       path:(NSString*)path
+               requestClass:(Class)aClass
+               processBlock:(GCDWebServerProcessBlock)processBlock {
+    
+    [self addHandlerForMethod:method
+                         path:path
+                 requestClass:aClass
+            asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) { completionBlock(processBlock(request)); }
+];}
+
+- (void)addHandlerForMethod:(NSString*)method
+      pathRegularExpression:(NSRegularExpression*)pathRegularExpression
+               requestClass:(Class)aClass
+               processBlock:(GCDWebServerProcessBlock)processBlock {
+    
+    [self addHandlerForMethod:method
+        pathRegularExpression:pathRegularExpression
+                 requestClass:aClass asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock) {completionBlock(processBlock(request));}
+];}
 
 #pragma mark asynchronous
 
-- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock asyncProcessBlock:(GCDWebServerAsyncProcessBlock)processBlock {
+//creates handler and adjusts LIFO array
+- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock
+               asyncProcessBlock:(GCDWebServerAsyncProcessBlock)processBlock {
+    
     GCDWebServerHandler* handler = [[GCDWebServerHandler alloc] initWithMatchBlock:matchBlock asyncProcessBlock:processBlock];
     [_handlers insertObject:handler atIndex:0];
 }
-- (void)addDefaultHandlerForMethod:(NSString*)method requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
+
+
+- (void)addDefaultHandlerForMethod:(NSString*)method
+                      requestClass:(Class)aClass
+                 asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
+    
     [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
-        
-        if (![requestMethod isEqualToString:method]) {
-            return nil;
+            if (![requestMethod isEqualToString:method]) return nil;
+            return [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
         }
-        return [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
-        
-    } asyncProcessBlock:block];
+                asyncProcessBlock:block];
 }
 
-- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
-    if ([path hasPrefix:@"/"] && [aClass isSubclassOfClass:[GCDWebServerRequest class]]) {
-        [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
+- (void)addHandlerForMethod:(NSString*)method
+                       path:(NSString*)path
+               requestClass:(Class)aClass
+          asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
+
+    [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
             
             if (![requestMethod isEqualToString:method]) {
                 return nil;
@@ -298,48 +291,15 @@
             }
             return [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
             
-        } asyncProcessBlock:block];
-    }
+        } asyncProcessBlock:block
+     ];
 }
 
-- (void)addHandlerForMethod:(NSString*)method pathRegex:(NSString*)regex requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
-    NSRegularExpression* expression = [NSRegularExpression regularExpressionWithPattern:regex options:NSRegularExpressionCaseInsensitive error:NULL];
-    if (expression && [aClass isSubclassOfClass:[GCDWebServerRequest class]]) {
-        [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
-            
-            if (![requestMethod isEqualToString:method]) {
-                return nil;
-            }
-            
-            NSArray* matches = [expression matchesInString:urlPath options:0 range:NSMakeRange(0, urlPath.length)];
-            if (matches.count == 0) {
-                return nil;
-            }
-            
-            NSMutableArray* captures = [NSMutableArray array];
-            for (NSTextCheckingResult* result in matches) {
-                // Start at 1; index 0 is the whole string
-                for (NSUInteger i = 1; i < result.numberOfRanges; i++) {
-                    NSRange range = [result rangeAtIndex:i];
-                    // range is {NSNotFound, 0} "if one of the capture groups did not participate in this particular match"
-                    // see discussion in -[NSRegularExpression firstMatchInString:options:range:]
-                    if (range.location != NSNotFound) {
-                        [captures addObject:[urlPath substringWithRange:range]];
-                    }
-                }
-            }
-            
-            GCDWebServerRequest* request = [[aClass alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
-            [request setAttribute:captures forKey:GCDWebServerRequestAttribute_RegexCaptures];
-            return request;
-            
-        } asyncProcessBlock:block];
-    }
-}
-
-//JF version of the last methods with NSRegularExpression parameter.
-- (void)addHandlerForMethod:(NSString*)method pathRegularExpression:(NSRegularExpression*)pathRegularExpression requestClass:(Class)aClass asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
-    if (pathRegularExpression && [aClass isSubclassOfClass:[GCDWebServerRequest class]]) {
+- (void)addHandlerForMethod:(NSString*)method
+      pathRegularExpression:(NSRegularExpression*)pathRegularExpression
+               requestClass:(Class)aClass
+          asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
+    
         [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
             
             if (![requestMethod isEqualToString:method]) {
@@ -369,7 +329,6 @@
             return request;
             
         } asyncProcessBlock:block];
-    }
 }
 
 
@@ -434,54 +393,6 @@
   [html appendString:@"</ul>\n"];
   [html appendString:@"</body></html>\n"];
   return [GCDWebServerDataResponse responseWithHTML:html];
-}
-
-- (void)addGETHandlerForBasePath:(NSString*)basePath directoryPath:(NSString*)directoryPath indexFilename:(NSString*)indexFilename cacheAge:(NSUInteger)cacheAge allowRangeRequests:(BOOL)allowRangeRequests {
-  if ([basePath hasPrefix:@"/"] && [basePath hasSuffix:@"/"]) {
-    GCDWebServer* __unsafe_unretained server = self;
-    [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
-      
-      if (![requestMethod isEqualToString:@"GET"]) {
-        return nil;
-      }
-      if (![urlPath hasPrefix:basePath]) {
-        return nil;
-      }
-      return [[GCDWebServerRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
-      
-    } processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request) {
-      
-      GCDWebServerResponse* response = nil;
-      NSString* filePath = [directoryPath stringByAppendingPathComponent:[request.path substringFromIndex:basePath.length]];
-      NSString* fileType = [[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:NULL] fileType];
-      if (fileType) {
-        if ([fileType isEqualToString:NSFileTypeDirectory]) {
-          if (indexFilename) {
-            NSString* indexPath = [filePath stringByAppendingPathComponent:indexFilename];
-            NSString* indexType = [[[NSFileManager defaultManager] attributesOfItemAtPath:indexPath error:NULL] fileType];
-            if ([indexType isEqualToString:NSFileTypeRegular]) {
-              return [GCDWebServerFileResponse responseWithFile:indexPath];
-            }
-          }
-          response = [server _responseWithContentsOfDirectory:filePath];
-        } else if ([fileType isEqualToString:NSFileTypeRegular]) {
-          if (allowRangeRequests) {
-            response = [GCDWebServerFileResponse responseWithFile:filePath byteRange:request.byteRange];
-            [response setValue:@"bytes" forAdditionalHeader:@"Accept-Ranges"];
-          } else {
-            response = [GCDWebServerFileResponse responseWithFile:filePath];
-          }
-        }
-      }
-      if (response) {
-        response.cacheControlMaxAge = cacheAge;
-      } else {
-          response = [GCDWebServerResponse responseWithStatusCode:404];//NotFound
-      }
-      return response;
-      
-    }];
-  }
 }
 
 @end
