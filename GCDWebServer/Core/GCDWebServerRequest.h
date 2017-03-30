@@ -1,13 +1,11 @@
 #import <Foundation/Foundation.h>
 
 /**
- *  Attribute key to retrieve an NSArray containing NSStrings from a GCDWebServerRequest
- *  with the contents of any regular expression captures done on the request path.
- *
- *  @warning This attribute will only be set on the request if adding a handler using 
- *  -addHandlerForMethod:pathRegex:requestClass:processBlock:.
+ *  Attribute key asociated to an NSArray containing NSStrings from a GCDWebServerRequest with the contents of any regular expression captures done on the request path.
+    @warning This attribute will only be set on the request if adding a handler using  -addHandlerForMethod:pathRegex:requestClass:processBlock:.
  */
 extern NSString* const GCDWebServerRequestAttribute_RegexCaptures;
+
 
 /**
  *  This protocol is used by the GCDWebServerConnection to communicate with
@@ -20,31 +18,15 @@ extern NSString* const GCDWebServerRequestAttribute_RegexCaptures;
  *  @warning These methods can be called on any GCD thread.
  */
 @protocol GCDWebServerBodyWriter <NSObject>
+//returns YES on success
+//or NO on failure and set the "error" argument which is guaranteed to be non-NULL.
 
-/**
- *  This method is called before any body data is received.
- *
- *  It should return YES on success or NO on failure and set the "error" argument
- *  which is guaranteed to be non-NULL.
- */
+//called before any body data is received.
 - (BOOL)open:(NSError**)error;
-
-/**
- *  This method is called whenever body data has been received.
- *
- *  It should return YES on success or NO on failure and set the "error" argument
- *  which is guaranteed to be non-NULL.
- */
+//called whenever body data has been received.
 - (BOOL)writeData:(NSData*)data error:(NSError**)error;
-
-/**
- *  This method is called after all body data has been received.
- *
- *  It should return YES on success or NO on failure and set the "error" argument
- *  which is guaranteed to be non-NULL.
- */
+//called after all body data has been received.
 - (BOOL)close:(NSError**)error;
-
 @end
 
 /**
@@ -53,8 +35,7 @@ extern NSString* const GCDWebServerRequestAttribute_RegexCaptures;
  *  request. If a body is present, the methods from the GCDWebServerBodyWriter
  *  protocol will be called by the GCDWebServerConnection to receive it.
  *
- *  The default implementation of the GCDWebServerBodyWriter protocol on the class
- *  simply ignores the body data.
+ *  The default implementation of the GCDWebServerBodyWriter protocol on the class  simply ignores the body data.
  *
  *  @warning GCDWebServerRequest instances can be created and used on any GCD thread.
  */

@@ -1,6 +1,5 @@
 #import <netinet/in.h>
 
-#import "GCDWebServerPrivate.h"
 #import "GCDWebServerConnection.h"
 
 #import "GCDWebServer.h"

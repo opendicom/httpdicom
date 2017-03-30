@@ -1,5 +1,6 @@
+#import "GCDWebServerRequest.h"
+
 #import <zlib.h>
-#import "GCDWebServerPrivate.h"
 #import "ODLog.h"
 #import "RFC822.h"
 #import "NSString+PCS.h"

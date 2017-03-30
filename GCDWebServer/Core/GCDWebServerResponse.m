@@ -1,5 +1,6 @@
+#import "GCDWebServerResponse.h"
+
 #import <zlib.h>
-#import "GCDWebServerPrivate.h"
 #import "ODLog.h"
 
 /*

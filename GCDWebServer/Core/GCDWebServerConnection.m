@@ -1,7 +1,6 @@
-#import <netdb.h>
 #import "GCDWebServerConnection.h"
-#import "GCDWebServerPrivate.h"
 
+#import <netdb.h>
 #import "RFC822.h"
 #import "ODLog.h"
 #import "NSString+PCS.h"

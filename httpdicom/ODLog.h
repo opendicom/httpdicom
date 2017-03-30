@@ -5,6 +5,7 @@
 //  Created by jacquesfauquex on 2017-03-20.
 //  Copyright © 2017 opendicom.com. All rights reserved.
 //
+#import <Foundation/Foundation.h>
 
 typedef NS_ENUM(int, ODLogLevelEnum) {
     ODLogLevel_Debug = 0,
