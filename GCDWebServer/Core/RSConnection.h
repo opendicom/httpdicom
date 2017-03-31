@@ -1,94 +1,55 @@
 #import "RS.h"
+//instantiated by RS to handle each new HTTP connection.
+// Each instance stays alive until the connection is closed.
 
-/*
- Copyright (c) 2012-2015, Pierre-Olivier Latour
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions are met:
- * Redistributions of source code must retain the above copyright
- notice, this list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright
- notice, this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
- * The name of Pierre-Olivier Latour may not be used to endorse
- or promote products derived from this software without specific
- prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- DISCLAIMED. IN NO EVENT SHALL PIERRE-OLIVIER LATOUR BE LIABLE FOR ANY
- DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+typedef void (^ReadDataCompletionBlock)(BOOL success);
+typedef void (^ReadHeadersCompletionBlock)(NSData* extraData);
+typedef void (^ReadBodyCompletionBlock)(BOOL success);
 
+typedef void (^WriteDataCompletionBlock)(BOOL success);
+typedef void (^WriteHeadersCompletionBlock)(BOOL success);
+typedef void (^WriteBodyCompletionBlock)(BOOL success);
 
 @class RSHandler;
 
-/**
- *  The RSConnection class is instantiated by RS to handle
- *  each new HTTP connection. Each instance stays alive until the connection is
- *  closed.
- */
+
 @interface RSConnection : NSObject
 
-/**
- *  Returns the RS that owns the connection.
- */
+{
+    RS* _server;
+    NSData* _localAddress;
+    NSData* _remoteAddress;
+    CFSocketNativeHandle _socket;
+    NSUInteger _bytesRead;
+    NSUInteger _bytesWritten;
+    
+    CFHTTPMessageRef _requestMessage;
+    RSRequest* _request;
+    RSHandler* _handler;
+    CFHTTPMessageRef _responseMessage;
+    RSResponse* _response;
+    NSInteger _statusCode;
+}
+
 @property(nonatomic, readonly) RS* server;
 
+@property(nonatomic, readonly) NSData* localAddressData;//server address as a raw "struct sockaddr"
+@property(nonatomic, readonly) NSString* localAddressString;//server address as a string
 
-/**
- *  Returns the address of the local peer (i.e. server) of the connection
- *  as a raw "struct sockaddr".
- */
-@property(nonatomic, readonly) NSData* localAddressData;
+@property(nonatomic, readonly) NSData* remoteAddressData;//client address as a raw "struct sockaddr"
+@property(nonatomic, readonly) NSString* remoteAddressString;//client address as a string
 
-/**
- *  Returns the address of the local peer (i.e. server) of the connection
- *  as a string.
- */
-@property(nonatomic, readonly) NSString* localAddressString;
+@property(nonatomic, readonly) NSUInteger totalBytesRead;//received from the client so far
+@property(nonatomic, readonly) NSUInteger totalBytesWritten;//sent to the client so far
 
-/**
- *  Returns the address of the remote peer (i.e. client) of the connection
- *  as a raw "struct sockaddr".
- */
-@property(nonatomic, readonly) NSData* remoteAddressData;
+- (id)initWithServer:(RS*)server localAddress:(NSData*)localAddress remoteAddress:(NSData*)remoteAddress socket:(CFSocketNativeHandle)socket;
 
-/**
- *  Returns the address of the remote peer (i.e. client) of the connection
- *  as a string.
- */
-@property(nonatomic, readonly) NSString* remoteAddressString;
+//called if any error happens while
+//  validing or processing the request
+//  or if no RSResponse was generated during processing.
 
-/**
- *  Returns the total number of bytes received from the remote peer (i.e. client)
- *  so far.
- */
-@property(nonatomic, readonly) NSUInteger totalBytesRead;
-
-/**
- *  Returns the total number of bytes sent to the remote peer (i.e. client) so far.
- */
-@property(nonatomic, readonly) NSUInteger totalBytesWritten;
-
-/**
- *  This method is called if any error happens while validing or processing
- *  the request or if no RSResponse was generated during processing.
- *
- *  @warning If the request was invalid (e.g. the HTTP headers were malformed),
- *  the "request" argument will be nil.
- */
+//@warning If the request was invalid (e.g. the HTTP headers were malformed),
+//  the "request" argument will be nil.
 - (void)abortRequest:(RSRequest*)request withStatusCode:(NSInteger)statusCode;
 
-@end
-
-@interface RSConnection ()
-- (id)initWithServer:(RS*)server localAddress:(NSData*)localAddress remoteAddress:(NSData*)remoteAddress socket:(CFSocketNativeHandle)socket;
 @end

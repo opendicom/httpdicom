@@ -1,13 +1,6 @@
 #import <Foundation/Foundation.h>
 
 /**
- *  Attribute key asociated to an NSArray containing NSStrings from a RSRequest with the contents of any regular expression captures done on the request path.
-    @warning This attribute will only be set on the request if adding a handler using  -addHandlerForMethod:pathRegex:requestClass:processBlock:.
- */
-extern NSString* const RSRequestAttribute_RegexCaptures;
-
-
-/**
  *  This protocol is used by the RSConnection to communicate with
  *  the RSRequest and write the received HTTP body data.
  *

@@ -10,38 +10,10 @@
 
 #import "ODLog.h"
 
-/*
- Copyright (c) 2012-2015, Pierre-Olivier Latour
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions are met:
- * Redistributions of source code must retain the above copyright
- notice, this list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright
- notice, this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
- * The name of Pierre-Olivier Latour may not be used to endorse
- or promote products derived from this software without specific
- prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- DISCLAIMED. IN NO EVENT SHALL PIERRE-OLIVIER LATOUR BE LIABLE FOR ANY
- DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-
 
 @implementation RS
 
-@synthesize handlers=_handlers, port=_port, serverName=_serverName;
+@synthesize handlers=_handlers;
 - (instancetype)init {
   if ((self = [super init])) {
     _syncQueue = dispatch_queue_create([NSStringFromClass([self class]) UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -89,6 +61,7 @@
   return -1;
 }
 
+#pragma mark starts listening and calling RSConnection for each new connection
 - (dispatch_source_t)_createDispatchSourceWithListeningSocket:(int)listeningSocket isIPv6:(BOOL)isIPv6 {
   dispatch_group_enter(_sourceGroup);
   dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
@@ -123,7 +96,7 @@
         int noSigPipe = 1;
         setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));  // Make sure this socket cannot generate SIG_PIPE
         
-        RSConnection* connection = [[_connectionClass alloc] initWithServer:self localAddress:localAddress remoteAddress:remoteAddress socket:socket];  // Connection will automatically retain itself while opened
+        RSConnection* connection = [[RSConnection alloc] initWithServer:self localAddress:localAddress remoteAddress:remoteAddress socket:socket];  // Connection will automatically retain itself while opened
         [connection self];  // Prevent compiler from complaining about unused variable / useless statement
       } else {
         LOG_ERROR(@"Failed accepting %s socket: %s (%i)", isIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
@@ -159,16 +132,11 @@
         return NO;
     }
     
-    _serverName = @"httpdicom";
-
-    _connectionClass = [RSConnection class];
-    
     _source4 = [self _createDispatchSourceWithListeningSocket:listeningSocket4 isIPv6:NO];
     _source6 = [self _createDispatchSourceWithListeningSocket:listeningSocket6 isIPv6:YES];
-    _port = port;
     dispatch_resume(_source4);
     dispatch_resume(_source6);
-    LOG_INFO(@"httpdicom started on port %i", (int)_port);
+    LOG_INFO(@"httpdicom started on port %i", (int)port);
     
     return YES;
 }
@@ -231,7 +199,11 @@
         }
         
         RSRequest* request = [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
-        [request setAttribute:captures forKey:RSRequestAttribute_RegexCaptures];
+        /**
+         *  Attribute key asociated to an NSArray containing NSStrings from a RSRequest with the contents of any regular expression captures done on the request path.
+         @warning This attribute will only be set on the request if adding a handler using  -addHandlerForMethod:pathRegex:requestClass:processBlock:.
+         */
+        [request setAttribute:captures forKey:@"RSRequestAttribute_RegexCaptures"];
         return request;
         
     } asyncProcessBlock:block];
