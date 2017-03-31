@@ -1,4 +1,4 @@
-#import "GCDWebServer.h"
+#import "RS.h"
 
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
@@ -28,19 +28,19 @@
  */
 
 
-@class GCDWebServerHandler;
+@class RSHandler;
 
 /**
- *  The GCDWebServerConnection class is instantiated by GCDWebServer to handle
+ *  The RSConnection class is instantiated by RS to handle
  *  each new HTTP connection. Each instance stays alive until the connection is
  *  closed.
  */
-@interface GCDWebServerConnection : NSObject
+@interface RSConnection : NSObject
 
 /**
- *  Returns the GCDWebServer that owns the connection.
+ *  Returns the RS that owns the connection.
  */
-@property(nonatomic, readonly) GCDWebServer* server;
+@property(nonatomic, readonly) RS* server;
 
 
 /**
@@ -80,15 +80,15 @@
 
 /**
  *  This method is called if any error happens while validing or processing
- *  the request or if no GCDWebServerResponse was generated during processing.
+ *  the request or if no RSResponse was generated during processing.
  *
  *  @warning If the request was invalid (e.g. the HTTP headers were malformed),
  *  the "request" argument will be nil.
  */
-- (void)abortRequest:(GCDWebServerRequest*)request withStatusCode:(NSInteger)statusCode;
+- (void)abortRequest:(RSRequest*)request withStatusCode:(NSInteger)statusCode;
 
 @end
 
-@interface GCDWebServerConnection ()
-- (id)initWithServer:(GCDWebServer*)server localAddress:(NSData*)localAddress remoteAddress:(NSData*)remoteAddress socket:(CFSocketNativeHandle)socket;
+@interface RSConnection ()
+- (id)initWithServer:(RS*)server localAddress:(NSData*)localAddress remoteAddress:(NSData*)remoteAddress socket:(CFSocketNativeHandle)socket;
 @end

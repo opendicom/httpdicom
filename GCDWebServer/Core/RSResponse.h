@@ -29,22 +29,22 @@
 
 
 /**
- *  The GCDWebServerBodyReaderCompletionBlock is passed by GCDWebServer to the
- *  GCDWebServerBodyReader object when reading data from it asynchronously.
+ *  The RSBodyReaderCompletionBlock is passed by RS to the
+ *  RSBodyReader object when reading data from it asynchronously.
  */
-typedef void (^GCDWebServerBodyReaderCompletionBlock)(NSData* data, NSError* error);
+typedef void (^RSBodyReaderCompletionBlock)(NSData* data, NSError* error);
 
 /**
- *  This protocol is used by the GCDWebServerConnection to communicate with
- *  the GCDWebServerResponse and read the HTTP body data to send.
+ *  This protocol is used by the RSConnection to communicate with
+ *  the RSResponse and read the HTTP body data to send.
  *
- *  Note that multiple GCDWebServerBodyReader objects can be chained together
+ *  Note that multiple RSBodyReader objects can be chained together
  *  internally e.g. to automatically apply gzip encoding to the content before
- *  passing it on to the GCDWebServerResponse.
+ *  passing it on to the RSResponse.
  *
  *  @warning These methods can be called on any GCD thread.
  */
-@protocol GCDWebServerBodyReader <NSObject>
+@protocol RSBodyReader <NSObject>
 
 @required
 
@@ -79,22 +79,22 @@ typedef void (^GCDWebServerBodyReaderCompletionBlock)(NSData* data, NSError* err
  *  NSData if there is body data available, or an empty NSData there is no more
  *  body data, or nil on error and pass an NSError along.
  */
-- (void)asyncReadDataWithCompletion:(GCDWebServerBodyReaderCompletionBlock)block;
+- (void)asyncReadDataWithCompletion:(RSBodyReaderCompletionBlock)block;
 
 @end
 
 /**
- *  The GCDWebServerResponse class is used to wrap a single HTTP response.
- *  It is instantiated by the handler of the GCDWebServer that handled the request.
- *  If a body is present, the methods from the GCDWebServerBodyReader protocol
- *  will be called by the GCDWebServerConnection to send it.
+ *  The RSResponse class is used to wrap a single HTTP response.
+ *  It is instantiated by the handler of the RS that handled the request.
+ *  If a body is present, the methods from the RSBodyReader protocol
+ *  will be called by the RSConnection to send it.
  *
- *  The default implementation of the GCDWebServerBodyReader protocol
+ *  The default implementation of the RSBodyReader protocol
  *  on the class simply returns an empty body.
  *
- *  @warning GCDWebServerResponse instances can be created and used on any GCD thread.
+ *  @warning RSResponse instances can be created and used on any GCD thread.
  */
-@interface GCDWebServerResponse : NSObject <GCDWebServerBodyReader>
+@interface RSResponse : NSObject <RSBodyReader>
 
 /**
  *  Sets the content type for the body of the response.
@@ -109,7 +109,7 @@ typedef void (^GCDWebServerBodyReaderCompletionBlock)(NSData* data, NSError* err
  *  Sets the content length for the body of the response. If a body is present
  *  but this property is set to "NSUIntegerMax", this means the length of the body
  *  cannot be known ahead of time. Chunked transfer encoding will be
- *  automatically enabled by the GCDWebServerConnection to comply with HTTP/1.1
+ *  automatically enabled by the RSConnection to comply with HTTP/1.1
  *  specifications.
  *
  *  The default value is "NSUIntegerMax" i.e. the response has no body or its length
@@ -173,7 +173,7 @@ typedef void (^GCDWebServerBodyReaderCompletionBlock)(NSData* data, NSError* err
  *  Pass a nil value to remove an additional header.
  *
  *  @warning Do not attempt to override the primary headers used
- *  by GCDWebServerResponse like "Content-Type", "ETag", etc...
+ *  by RSResponse like "Content-Type", "ETag", etc...
  */
 - (void)setValue:(NSString*)value forAdditionalHeader:(NSString*)header;
 
@@ -184,16 +184,16 @@ typedef void (^GCDWebServerBodyReaderCompletionBlock)(NSData* data, NSError* err
 
 @end
 
-@interface GCDWebServerResponse ()
+@interface RSResponse ()
 @property(nonatomic, readonly) NSDictionary* additionalHeaders;
 @property(nonatomic, readonly) BOOL usesChunkedTransferEncoding;
 - (void)prepareForReading;
 - (BOOL)performOpen:(NSError**)error;
-- (void)performReadDataWithCompletion:(GCDWebServerBodyReaderCompletionBlock)block;
+- (void)performReadDataWithCompletion:(RSBodyReaderCompletionBlock)block;
 - (void)performClose;
 @end
 
-@interface GCDWebServerResponse (Extensions)
+@interface RSResponse (Extensions)
 
 /**
  *  Creates a empty response with a specific HTTP status code.

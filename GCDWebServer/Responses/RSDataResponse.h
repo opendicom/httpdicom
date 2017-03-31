@@ -1,4 +1,4 @@
-#import "GCDWebServerResponse.h"
+#import "RSResponse.h"
 
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
@@ -29,10 +29,10 @@
 
 
 /**
- *  The GCDWebServerDataResponse subclass of GCDWebServerResponse reads the body
+ *  The RSDataResponse subclass of RSResponse reads the body
  *  of the HTTP response from memory.
  */
-@interface GCDWebServerDataResponse : GCDWebServerResponse
+@interface RSDataResponse : RSResponse
 
 /**
  *  Creates a response with data in memory and a given content type.
@@ -46,7 +46,7 @@
 
 @end
 
-@interface GCDWebServerDataResponse (Extensions)
+@interface RSDataResponse (Extensions)
 
 /**
  *  Creates a data response from text encoded using UTF-8.

@@ -1,4 +1,4 @@
-#import "GCDWebServerDataResponse.h"
+#import "RSDataResponse.h"
 #import "ODLog.h"
 
 /*
@@ -29,14 +29,14 @@
  */
 
 
-@interface GCDWebServerDataResponse () {
+@interface RSDataResponse () {
 @private
   NSData* _data;
   BOOL _done;
 }
 @end
 
-@implementation GCDWebServerDataResponse
+@implementation RSDataResponse
 
 + (instancetype)responseWithData:(NSData*)data contentType:(NSString*)type {
   return [[[self class] alloc] initWithData:data contentType:type];
@@ -108,7 +108,7 @@
 
 @end
 
-@implementation GCDWebServerDataResponse (Extensions)
+@implementation RSDataResponse (Extensions)
 
 + (instancetype)responseWithText:(NSString*)text {
   return [[self alloc] initWithText:text];

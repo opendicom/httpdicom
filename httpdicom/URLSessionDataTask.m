@@ -7,7 +7,7 @@
 //
 
 #import "URLSessionDataTask.h"
-#import "GCDWebServerStreamedResponse.h"
+#import "RSStreamedResponse.h"
 
 @implementation URLSessionDataTask
 
@@ -34,7 +34,7 @@ didCompleteWithError:(NSError *)error
     __block NSURLSessionDataTask * const __URLSessionDataTask = [session dataTaskWithURL:[NSURL URLWithString:urlString]];
     //__block bool __shouldExit = false;
     [__URLSessionDataTask resume];
-    GCDWebServerStreamedResponse* response = [GCDWebServerStreamedResponse responseWithContentType:contentType asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock){
+    RSStreamedResponse* response = [RSStreamedResponse responseWithContentType:contentType asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock){
         //while (!__shouldExit && [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]])
         
         if ([dataPile count]>0)

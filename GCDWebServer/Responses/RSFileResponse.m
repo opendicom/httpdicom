@@ -1,5 +1,5 @@
 #import <sys/stat.h>
-#import "GCDWebServerFileResponse.h"
+#import "RSFileResponse.h"
 #import "ODLog.h"
 
 /*
@@ -32,7 +32,7 @@
 
 #define kFileReadBufferSize (32 * 1024)
 
-@interface GCDWebServerFileResponse () {
+@interface RSFileResponse () {
 @private
   NSString* _path;
   NSUInteger _offset;
@@ -41,7 +41,7 @@
 }
 @end
 
-@implementation GCDWebServerFileResponse
+@implementation RSFileResponse
 
 + (instancetype)responseWithFile:(NSString*)path {
   return [[[self class] alloc] initWithFile:path];

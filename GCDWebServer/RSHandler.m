@@ -1,11 +1,11 @@
-#import "GCDWebServerHandler.h"
+#import "RSHandler.h"
 
-@implementation GCDWebServerHandler
+@implementation RSHandler
 
 @synthesize matchBlock=_matchBlock, asyncProcessBlock=_asyncProcessBlock;
 
-- (id)initWithMatchBlock:(GCDWebServerMatchBlock)matchBlock
-       asyncProcessBlock:(GCDWebServerAsyncProcessBlock)processBlock {
+- (id)initWithMatchBlock:(RSMatchBlock)matchBlock
+       asyncProcessBlock:(RSAsyncProcessBlock)processBlock {
     if ((self = [super init])) {
         _matchBlock = [matchBlock copy];
         _asyncProcessBlock = [processBlock copy];

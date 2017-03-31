@@ -1,10 +1,10 @@
 #import <netinet/in.h>
 
-#import "GCDWebServerConnection.h"
+#import "RSConnection.h"
 
-#import "GCDWebServer.h"
-#import "GCDWebServerErrorResponse.h"
-#import "GCDWebServerFileResponse.h"
+#import "RS.h"
+#import "RSErrorResponse.h"
+#import "RSFileResponse.h"
 
 #import "NSString+PCS.h"
 
@@ -39,7 +39,7 @@
 
 
 
-@implementation GCDWebServer
+@implementation RS
 
 @synthesize handlers=_handlers, port=_port, serverName=_serverName;
 - (instancetype)init {
@@ -123,7 +123,7 @@
         int noSigPipe = 1;
         setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));  // Make sure this socket cannot generate SIG_PIPE
         
-        GCDWebServerConnection* connection = [[_connectionClass alloc] initWithServer:self localAddress:localAddress remoteAddress:remoteAddress socket:socket];  // Connection will automatically retain itself while opened
+        RSConnection* connection = [[_connectionClass alloc] initWithServer:self localAddress:localAddress remoteAddress:remoteAddress socket:socket];  // Connection will automatically retain itself while opened
         [connection self];  // Prevent compiler from complaining about unused variable / useless statement
       } else {
         LOG_ERROR(@"Failed accepting %s socket: %s (%i)", isIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
@@ -161,7 +161,7 @@
     
     _serverName = @"httpdicom";
 
-    _connectionClass = [GCDWebServerConnection class];
+    _connectionClass = [RSConnection class];
     
     _source4 = [self _createDispatchSourceWithListeningSocket:listeningSocket4 isIPv6:NO];
     _source6 = [self _createDispatchSourceWithListeningSocket:listeningSocket6 isIPv6:YES];
@@ -175,20 +175,20 @@
 
 
 - (void)addDefaultHandlerForMethod:(NSString*)method
-                 asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
+                 asyncProcessBlock:(RSAsyncProcessBlock)block {
     
-    [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
+    [self addHandlerWithMatchBlock:^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
         if (![requestMethod isEqualToString:method]) return nil;
-        return [[GCDWebServerRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
+        return [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
     }
                  asyncProcessBlock:block];
 }
 
 - (void)addHandlerForMethod:(NSString*)method
                        path:(NSString*)path
-          asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
+          asyncProcessBlock:(RSAsyncProcessBlock)block {
     
-    [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
+    [self addHandlerWithMatchBlock:^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
         
         if (![requestMethod isEqualToString:method]) {
             return nil;
@@ -196,7 +196,7 @@
         if ([urlPath caseInsensitiveCompare:path] != NSOrderedSame) {
             return nil;
         }
-        return [[GCDWebServerRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
+        return [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
         
     } asyncProcessBlock:block
      ];
@@ -204,9 +204,9 @@
 
 - (void)addHandlerForMethod:(NSString*)method
       pathRegularExpression:(NSRegularExpression*)pathRegularExpression
-          asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block {
+          asyncProcessBlock:(RSAsyncProcessBlock)block {
     
-    [self addHandlerWithMatchBlock:^GCDWebServerRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
+    [self addHandlerWithMatchBlock:^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
         
         if (![requestMethod isEqualToString:method]) {
             return nil;
@@ -230,8 +230,8 @@
             }
         }
         
-        GCDWebServerRequest* request = [[GCDWebServerRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
-        [request setAttribute:captures forKey:GCDWebServerRequestAttribute_RegexCaptures];
+        RSRequest* request = [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
+        [request setAttribute:captures forKey:RSRequestAttribute_RegexCaptures];
         return request;
         
     } asyncProcessBlock:block];
@@ -240,10 +240,10 @@
 
 #pragma mark root handler with matchBlock and asyncProcessBlock
 
-- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock
-               asyncProcessBlock:(GCDWebServerAsyncProcessBlock)processBlock {
+- (void)addHandlerWithMatchBlock:(RSMatchBlock)matchBlock
+               asyncProcessBlock:(RSAsyncProcessBlock)processBlock {
     
-    GCDWebServerHandler* handler = [[GCDWebServerHandler alloc] initWithMatchBlock:matchBlock asyncProcessBlock:processBlock];
+    RSHandler* handler = [[RSHandler alloc] initWithMatchBlock:matchBlock asyncProcessBlock:processBlock];
     [_handlers insertObject:handler atIndex:0];
 }
 

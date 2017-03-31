@@ -13,8 +13,8 @@
 		4A83466E1DD91B5F008EFF41 /* NSData+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */; };
 		4A83466F1DD91B5F008EFF41 /* NSString+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */; };
 		4A8346701DD91B5F008EFF41 /* NSString+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A83466C1DD91B5F008EFF41 /* NSString+PCS.m */; };
-		4A96728C1E8E06B600783CD8 /* GCDWebServerHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A96728A1E8E06B600783CD8 /* GCDWebServerHandler.h */; };
-		4A96728D1E8E06B600783CD8 /* GCDWebServerHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A96728B1E8E06B600783CD8 /* GCDWebServerHandler.m */; };
+		4A96728C1E8E06B600783CD8 /* RSHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A96728A1E8E06B600783CD8 /* RSHandler.h */; };
+		4A96728D1E8E06B600783CD8 /* RSHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A96728B1E8E06B600783CD8 /* RSHandler.m */; };
 		4A96C55F1E843C9E002EB09E /* RFC822.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A96C55E1E843C9E002EB09E /* RFC822.m */; };
 		4A96C5611E843CBD002EB09E /* RFC822.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A96C5601E843CBD002EB09E /* RFC822.h */; };
 		4AAB26751D8A42A400401FD5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AAB266F1D8A42A400401FD5 /* main.m */; };
@@ -22,22 +22,22 @@
 		4AAB26771D8A42A400401FD5 /* zconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AAB26711D8A42A400401FD5 /* zconf.h */; };
 		4AAB26781D8A42A400401FD5 /* zlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AAB26721D8A42A400401FD5 /* zlib.h */; };
 		4AAB26791D8A42A400401FD5 /* LFCGzipUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AAB26731D8A42A400401FD5 /* LFCGzipUtility.h */; };
-		4ABAF47D1E7B8511003B3217 /* GCDWebServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF45F1E7B8511003B3217 /* GCDWebServer.h */; };
-		4ABAF47E1E7B8511003B3217 /* GCDWebServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4601E7B8511003B3217 /* GCDWebServer.m */; };
-		4ABAF47F1E7B8511003B3217 /* GCDWebServerConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4611E7B8511003B3217 /* GCDWebServerConnection.h */; };
-		4ABAF4801E7B8511003B3217 /* GCDWebServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4621E7B8511003B3217 /* GCDWebServerConnection.m */; };
-		4ABAF4851E7B8511003B3217 /* GCDWebServerRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4671E7B8511003B3217 /* GCDWebServerRequest.h */; };
-		4ABAF4861E7B8511003B3217 /* GCDWebServerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4681E7B8511003B3217 /* GCDWebServerRequest.m */; };
-		4ABAF4871E7B8511003B3217 /* GCDWebServerResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4691E7B8511003B3217 /* GCDWebServerResponse.h */; };
-		4ABAF4881E7B8511003B3217 /* GCDWebServerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF46A1E7B8511003B3217 /* GCDWebServerResponse.m */; };
-		4ABAF4911E7B8511003B3217 /* GCDWebServerDataResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4751E7B8511003B3217 /* GCDWebServerDataResponse.h */; };
-		4ABAF4921E7B8511003B3217 /* GCDWebServerDataResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4761E7B8511003B3217 /* GCDWebServerDataResponse.m */; };
-		4ABAF4931E7B8511003B3217 /* GCDWebServerErrorResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4771E7B8511003B3217 /* GCDWebServerErrorResponse.h */; };
-		4ABAF4941E7B8511003B3217 /* GCDWebServerErrorResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4781E7B8511003B3217 /* GCDWebServerErrorResponse.m */; };
-		4ABAF4951E7B8511003B3217 /* GCDWebServerFileResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4791E7B8511003B3217 /* GCDWebServerFileResponse.h */; };
-		4ABAF4961E7B8511003B3217 /* GCDWebServerFileResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF47A1E7B8511003B3217 /* GCDWebServerFileResponse.m */; };
-		4ABAF4971E7B8511003B3217 /* GCDWebServerStreamedResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF47B1E7B8511003B3217 /* GCDWebServerStreamedResponse.h */; };
-		4ABAF4981E7B8511003B3217 /* GCDWebServerStreamedResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF47C1E7B8511003B3217 /* GCDWebServerStreamedResponse.m */; };
+		4ABAF47D1E7B8511003B3217 /* RS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF45F1E7B8511003B3217 /* RS.h */; };
+		4ABAF47E1E7B8511003B3217 /* RS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4601E7B8511003B3217 /* RS.m */; };
+		4ABAF47F1E7B8511003B3217 /* RSConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4611E7B8511003B3217 /* RSConnection.h */; };
+		4ABAF4801E7B8511003B3217 /* RSConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4621E7B8511003B3217 /* RSConnection.m */; };
+		4ABAF4851E7B8511003B3217 /* RSRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4671E7B8511003B3217 /* RSRequest.h */; };
+		4ABAF4861E7B8511003B3217 /* RSRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4681E7B8511003B3217 /* RSRequest.m */; };
+		4ABAF4871E7B8511003B3217 /* RSResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4691E7B8511003B3217 /* RSResponse.h */; };
+		4ABAF4881E7B8511003B3217 /* RSResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF46A1E7B8511003B3217 /* RSResponse.m */; };
+		4ABAF4911E7B8511003B3217 /* RSDataResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4751E7B8511003B3217 /* RSDataResponse.h */; };
+		4ABAF4921E7B8511003B3217 /* RSDataResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4761E7B8511003B3217 /* RSDataResponse.m */; };
+		4ABAF4931E7B8511003B3217 /* RSErrorResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4771E7B8511003B3217 /* RSErrorResponse.h */; };
+		4ABAF4941E7B8511003B3217 /* RSErrorResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF4781E7B8511003B3217 /* RSErrorResponse.m */; };
+		4ABAF4951E7B8511003B3217 /* RSFileResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF4791E7B8511003B3217 /* RSFileResponse.h */; };
+		4ABAF4961E7B8511003B3217 /* RSFileResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF47A1E7B8511003B3217 /* RSFileResponse.m */; };
+		4ABAF4971E7B8511003B3217 /* RSStreamedResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABAF47B1E7B8511003B3217 /* RSStreamedResponse.h */; };
+		4ABAF4981E7B8511003B3217 /* RSStreamedResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABAF47C1E7B8511003B3217 /* RSStreamedResponse.m */; };
 		4AEF37871DC8D6C800CDA008 /* URLSessionDataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AEF37851DC8D6C800CDA008 /* URLSessionDataTask.h */; };
 		4AEF37881DC8D6C800CDA008 /* URLSessionDataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AEF37861DC8D6C800CDA008 /* URLSessionDataTask.m */; };
 /* End PBXBuildFile section */
@@ -63,8 +63,8 @@
 		4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+PCS.m"; path = "httpdicom/NSData+PCS.m"; sourceTree = SOURCE_ROOT; };
 		4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+PCS.h"; path = "httpdicom/NSString+PCS.h"; sourceTree = SOURCE_ROOT; };
 		4A83466C1DD91B5F008EFF41 /* NSString+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+PCS.m"; path = "httpdicom/NSString+PCS.m"; sourceTree = SOURCE_ROOT; };
-		4A96728A1E8E06B600783CD8 /* GCDWebServerHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerHandler.h; sourceTree = "<group>"; };
-		4A96728B1E8E06B600783CD8 /* GCDWebServerHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerHandler.m; sourceTree = "<group>"; };
+		4A96728A1E8E06B600783CD8 /* RSHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RSHandler.h; sourceTree = "<group>"; };
+		4A96728B1E8E06B600783CD8 /* RSHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RSHandler.m; sourceTree = "<group>"; };
 		4A96C55E1E843C9E002EB09E /* RFC822.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RFC822.m; path = httpdicom/RFC822.m; sourceTree = SOURCE_ROOT; };
 		4A96C5601E843CBD002EB09E /* RFC822.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RFC822.h; path = httpdicom/RFC822.h; sourceTree = SOURCE_ROOT; };
 		4AA28D2B1D94532300B223CA /* httpdicom_mini.postman_collection.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = httpdicom_mini.postman_collection.json; sourceTree = "<group>"; };
@@ -75,22 +75,22 @@
 		4AAB26711D8A42A400401FD5 /* zconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zconf.h; path = httpdicom/zconf.h; sourceTree = SOURCE_ROOT; };
 		4AAB26721D8A42A400401FD5 /* zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zlib.h; path = httpdicom/zlib.h; sourceTree = SOURCE_ROOT; };
 		4AAB26731D8A42A400401FD5 /* LFCGzipUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LFCGzipUtility.h; path = httpdicom/LFCGzipUtility.h; sourceTree = SOURCE_ROOT; };
-		4ABAF45F1E7B8511003B3217 /* GCDWebServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDWebServer.h; path = Core/GCDWebServer.h; sourceTree = "<group>"; };
-		4ABAF4601E7B8511003B3217 /* GCDWebServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDWebServer.m; path = Core/GCDWebServer.m; sourceTree = "<group>"; };
-		4ABAF4611E7B8511003B3217 /* GCDWebServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDWebServerConnection.h; path = Core/GCDWebServerConnection.h; sourceTree = "<group>"; };
-		4ABAF4621E7B8511003B3217 /* GCDWebServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerConnection.m; path = Core/GCDWebServerConnection.m; sourceTree = "<group>"; };
-		4ABAF4671E7B8511003B3217 /* GCDWebServerRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDWebServerRequest.h; path = Core/GCDWebServerRequest.h; sourceTree = "<group>"; };
-		4ABAF4681E7B8511003B3217 /* GCDWebServerRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerRequest.m; path = Core/GCDWebServerRequest.m; sourceTree = "<group>"; };
-		4ABAF4691E7B8511003B3217 /* GCDWebServerResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDWebServerResponse.h; path = Core/GCDWebServerResponse.h; sourceTree = "<group>"; };
-		4ABAF46A1E7B8511003B3217 /* GCDWebServerResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDWebServerResponse.m; path = Core/GCDWebServerResponse.m; sourceTree = "<group>"; };
-		4ABAF4751E7B8511003B3217 /* GCDWebServerDataResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerDataResponse.h; sourceTree = "<group>"; };
-		4ABAF4761E7B8511003B3217 /* GCDWebServerDataResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerDataResponse.m; sourceTree = "<group>"; };
-		4ABAF4771E7B8511003B3217 /* GCDWebServerErrorResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerErrorResponse.h; sourceTree = "<group>"; };
-		4ABAF4781E7B8511003B3217 /* GCDWebServerErrorResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerErrorResponse.m; sourceTree = "<group>"; };
-		4ABAF4791E7B8511003B3217 /* GCDWebServerFileResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerFileResponse.h; sourceTree = "<group>"; };
-		4ABAF47A1E7B8511003B3217 /* GCDWebServerFileResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerFileResponse.m; sourceTree = "<group>"; };
-		4ABAF47B1E7B8511003B3217 /* GCDWebServerStreamedResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerStreamedResponse.h; sourceTree = "<group>"; };
-		4ABAF47C1E7B8511003B3217 /* GCDWebServerStreamedResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerStreamedResponse.m; sourceTree = "<group>"; };
+		4ABAF45F1E7B8511003B3217 /* RS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RS.h; path = Core/RS.h; sourceTree = "<group>"; };
+		4ABAF4601E7B8511003B3217 /* RS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RS.m; path = Core/RS.m; sourceTree = "<group>"; };
+		4ABAF4611E7B8511003B3217 /* RSConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RSConnection.h; path = Core/RSConnection.h; sourceTree = "<group>"; };
+		4ABAF4621E7B8511003B3217 /* RSConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RSConnection.m; path = Core/RSConnection.m; sourceTree = "<group>"; };
+		4ABAF4671E7B8511003B3217 /* RSRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RSRequest.h; path = Core/RSRequest.h; sourceTree = "<group>"; };
+		4ABAF4681E7B8511003B3217 /* RSRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RSRequest.m; path = Core/RSRequest.m; sourceTree = "<group>"; };
+		4ABAF4691E7B8511003B3217 /* RSResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RSResponse.h; path = Core/RSResponse.h; sourceTree = "<group>"; };
+		4ABAF46A1E7B8511003B3217 /* RSResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RSResponse.m; path = Core/RSResponse.m; sourceTree = "<group>"; };
+		4ABAF4751E7B8511003B3217 /* RSDataResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RSDataResponse.h; sourceTree = "<group>"; };
+		4ABAF4761E7B8511003B3217 /* RSDataResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RSDataResponse.m; sourceTree = "<group>"; };
+		4ABAF4771E7B8511003B3217 /* RSErrorResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RSErrorResponse.h; sourceTree = "<group>"; };
+		4ABAF4781E7B8511003B3217 /* RSErrorResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RSErrorResponse.m; sourceTree = "<group>"; };
+		4ABAF4791E7B8511003B3217 /* RSFileResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RSFileResponse.h; sourceTree = "<group>"; };
+		4ABAF47A1E7B8511003B3217 /* RSFileResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RSFileResponse.m; sourceTree = "<group>"; };
+		4ABAF47B1E7B8511003B3217 /* RSStreamedResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RSStreamedResponse.h; sourceTree = "<group>"; };
+		4ABAF47C1E7B8511003B3217 /* RSStreamedResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RSStreamedResponse.m; sourceTree = "<group>"; };
 		4AEF37851DC8D6C800CDA008 /* URLSessionDataTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = URLSessionDataTask.h; path = httpdicom/URLSessionDataTask.h; sourceTree = SOURCE_ROOT; };
 		4AEF37861DC8D6C800CDA008 /* URLSessionDataTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = URLSessionDataTask.m; path = httpdicom/URLSessionDataTask.m; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -162,17 +162,17 @@
 		4ABAF45D1E7B8511003B3217 /* GCDWebServer */ = {
 			isa = PBXGroup;
 			children = (
-				4ABAF4671E7B8511003B3217 /* GCDWebServerRequest.h */,
-				4ABAF4681E7B8511003B3217 /* GCDWebServerRequest.m */,
-				4ABAF4691E7B8511003B3217 /* GCDWebServerResponse.h */,
-				4ABAF46A1E7B8511003B3217 /* GCDWebServerResponse.m */,
+				4ABAF4671E7B8511003B3217 /* RSRequest.h */,
+				4ABAF4681E7B8511003B3217 /* RSRequest.m */,
+				4ABAF4691E7B8511003B3217 /* RSResponse.h */,
+				4ABAF46A1E7B8511003B3217 /* RSResponse.m */,
 				4ABAF4741E7B8511003B3217 /* Responses */,
-				4A96728A1E8E06B600783CD8 /* GCDWebServerHandler.h */,
-				4A96728B1E8E06B600783CD8 /* GCDWebServerHandler.m */,
-				4ABAF45F1E7B8511003B3217 /* GCDWebServer.h */,
-				4ABAF4601E7B8511003B3217 /* GCDWebServer.m */,
-				4ABAF4611E7B8511003B3217 /* GCDWebServerConnection.h */,
-				4ABAF4621E7B8511003B3217 /* GCDWebServerConnection.m */,
+				4A96728A1E8E06B600783CD8 /* RSHandler.h */,
+				4A96728B1E8E06B600783CD8 /* RSHandler.m */,
+				4ABAF45F1E7B8511003B3217 /* RS.h */,
+				4ABAF4601E7B8511003B3217 /* RS.m */,
+				4ABAF4611E7B8511003B3217 /* RSConnection.h */,
+				4ABAF4621E7B8511003B3217 /* RSConnection.m */,
 			);
 			path = GCDWebServer;
 			sourceTree = "<group>";
@@ -180,14 +180,14 @@
 		4ABAF4741E7B8511003B3217 /* Responses */ = {
 			isa = PBXGroup;
 			children = (
-				4ABAF4751E7B8511003B3217 /* GCDWebServerDataResponse.h */,
-				4ABAF4761E7B8511003B3217 /* GCDWebServerDataResponse.m */,
-				4ABAF4771E7B8511003B3217 /* GCDWebServerErrorResponse.h */,
-				4ABAF4781E7B8511003B3217 /* GCDWebServerErrorResponse.m */,
-				4ABAF4791E7B8511003B3217 /* GCDWebServerFileResponse.h */,
-				4ABAF47A1E7B8511003B3217 /* GCDWebServerFileResponse.m */,
-				4ABAF47B1E7B8511003B3217 /* GCDWebServerStreamedResponse.h */,
-				4ABAF47C1E7B8511003B3217 /* GCDWebServerStreamedResponse.m */,
+				4ABAF4751E7B8511003B3217 /* RSDataResponse.h */,
+				4ABAF4761E7B8511003B3217 /* RSDataResponse.m */,
+				4ABAF4771E7B8511003B3217 /* RSErrorResponse.h */,
+				4ABAF4781E7B8511003B3217 /* RSErrorResponse.m */,
+				4ABAF4791E7B8511003B3217 /* RSFileResponse.h */,
+				4ABAF47A1E7B8511003B3217 /* RSFileResponse.m */,
+				4ABAF47B1E7B8511003B3217 /* RSStreamedResponse.h */,
+				4ABAF47C1E7B8511003B3217 /* RSStreamedResponse.m */,
 			);
 			path = Responses;
 			sourceTree = "<group>";
@@ -200,20 +200,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				4AAB26781D8A42A400401FD5 /* zlib.h in Headers */,
-				4ABAF47F1E7B8511003B3217 /* GCDWebServerConnection.h in Headers */,
-				4ABAF4911E7B8511003B3217 /* GCDWebServerDataResponse.h in Headers */,
+				4ABAF47F1E7B8511003B3217 /* RSConnection.h in Headers */,
+				4ABAF4911E7B8511003B3217 /* RSDataResponse.h in Headers */,
 				4A0E60441E81C01B005D7F2B /* ODLog.h in Headers */,
-				4A96728C1E8E06B600783CD8 /* GCDWebServerHandler.h in Headers */,
-				4ABAF4871E7B8511003B3217 /* GCDWebServerResponse.h in Headers */,
+				4A96728C1E8E06B600783CD8 /* RSHandler.h in Headers */,
+				4ABAF4871E7B8511003B3217 /* RSResponse.h in Headers */,
 				4A83466F1DD91B5F008EFF41 /* NSString+PCS.h in Headers */,
-				4ABAF4971E7B8511003B3217 /* GCDWebServerStreamedResponse.h in Headers */,
+				4ABAF4971E7B8511003B3217 /* RSStreamedResponse.h in Headers */,
 				4AAB26791D8A42A400401FD5 /* LFCGzipUtility.h in Headers */,
-				4ABAF4931E7B8511003B3217 /* GCDWebServerErrorResponse.h in Headers */,
-				4ABAF47D1E7B8511003B3217 /* GCDWebServer.h in Headers */,
-				4ABAF4851E7B8511003B3217 /* GCDWebServerRequest.h in Headers */,
+				4ABAF4931E7B8511003B3217 /* RSErrorResponse.h in Headers */,
+				4ABAF47D1E7B8511003B3217 /* RS.h in Headers */,
+				4ABAF4851E7B8511003B3217 /* RSRequest.h in Headers */,
 				4A96C5611E843CBD002EB09E /* RFC822.h in Headers */,
 				4A83466D1DD91B5F008EFF41 /* NSData+PCS.h in Headers */,
-				4ABAF4951E7B8511003B3217 /* GCDWebServerFileResponse.h in Headers */,
+				4ABAF4951E7B8511003B3217 /* RSFileResponse.h in Headers */,
 				4AEF37871DC8D6C800CDA008 /* URLSessionDataTask.h in Headers */,
 				4AAB26771D8A42A400401FD5 /* zconf.h in Headers */,
 			);
@@ -272,19 +272,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A8346701DD91B5F008EFF41 /* NSString+PCS.m in Sources */,
-				4ABAF4861E7B8511003B3217 /* GCDWebServerRequest.m in Sources */,
-				4ABAF4941E7B8511003B3217 /* GCDWebServerErrorResponse.m in Sources */,
-				4ABAF4801E7B8511003B3217 /* GCDWebServerConnection.m in Sources */,
+				4ABAF4861E7B8511003B3217 /* RSRequest.m in Sources */,
+				4ABAF4941E7B8511003B3217 /* RSErrorResponse.m in Sources */,
+				4ABAF4801E7B8511003B3217 /* RSConnection.m in Sources */,
 				4AEF37881DC8D6C800CDA008 /* URLSessionDataTask.m in Sources */,
-				4A96728D1E8E06B600783CD8 /* GCDWebServerHandler.m in Sources */,
-				4ABAF4981E7B8511003B3217 /* GCDWebServerStreamedResponse.m in Sources */,
-				4ABAF47E1E7B8511003B3217 /* GCDWebServer.m in Sources */,
+				4A96728D1E8E06B600783CD8 /* RSHandler.m in Sources */,
+				4ABAF4981E7B8511003B3217 /* RSStreamedResponse.m in Sources */,
+				4ABAF47E1E7B8511003B3217 /* RS.m in Sources */,
 				4AAB26751D8A42A400401FD5 /* main.m in Sources */,
 				4AAB26761D8A42A400401FD5 /* LFCGzipUtility.m in Sources */,
-				4ABAF4881E7B8511003B3217 /* GCDWebServerResponse.m in Sources */,
-				4ABAF4961E7B8511003B3217 /* GCDWebServerFileResponse.m in Sources */,
+				4ABAF4881E7B8511003B3217 /* RSResponse.m in Sources */,
+				4ABAF4961E7B8511003B3217 /* RSFileResponse.m in Sources */,
 				4A96C55F1E843C9E002EB09E /* RFC822.m in Sources */,
-				4ABAF4921E7B8511003B3217 /* GCDWebServerDataResponse.m in Sources */,
+				4ABAF4921E7B8511003B3217 /* RSDataResponse.m in Sources */,
 				4A83466E1DD91B5F008EFF41 /* NSData+PCS.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

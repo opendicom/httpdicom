@@ -2,11 +2,11 @@
 #import "ODLog.h"
 //look at the implementation of the function ODLog below
 
-#import "GCDWebServer.h"
-#import "GCDWebServerDataResponse.h"
-#import "GCDWebServerErrorResponse.h"
-#import "GCDWebServerFileResponse.h"
-#import "GCDWebServerStreamedResponse.h"
+#import "RS.h"
+#import "RSDataResponse.h"
+#import "RSErrorResponse.h"
+#import "RSFileResponse.h"
+#import "RSStreamedResponse.h"
 
 #import "LFCGzipUtility.h"
 
@@ -116,7 +116,7 @@ NSMutableArray *jsonMutableArray(NSString *scriptString, NSStringEncoding encodi
 
     NSMutableData *mutableData=[NSMutableData data];
     if (!task(@"/bin/bash",@[@"-s"],[scriptString dataUsingEncoding:NSUTF8StringEncoding],mutableData))
-    [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@",@"can not execute the script"];//NotFound
+    [RSErrorResponse responseWithClientError:404 message:@"%@",@"can not execute the script"];//NotFound
     NSString *string=[[NSString alloc]initWithData:mutableData encoding:encoding];//5=latinISO1 4=UTF8
     NSData *utf8Data=[string dataUsingEncoding:NSUTF8StringEncoding];
 
@@ -158,7 +158,7 @@ id qidoUrlProxy(NSString *qidoString,NSString *queryString, NSString *httpdicomS
     [dataTask resume];
     dispatch_semaphore_wait(__urlProxySemaphore, DISPATCH_TIME_FOREVER);
     //completionHandler of dataTask executed only once and before returning
-    return [GCDWebServerStreamedResponse responseWithContentType:@"application/json" asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock)
+    return [RSStreamedResponse responseWithContentType:@"application/json" asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
             {
                 if (__error) completionBlock(nil,__error);
                 if (__chunks)
@@ -214,7 +214,7 @@ id urlProxy(NSString *urlString,NSString *contentType)
     //completionHandler of dataTask executed only once and before returning
 
     
-    return [GCDWebServerStreamedResponse responseWithContentType:contentType asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock)
+    return [RSStreamedResponse responseWithContentType:contentType asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
             {
                 if (__error) completionBlock(nil,__error);
                 if (__chunks)
@@ -253,7 +253,7 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType)
     //completionHandler of dataTask executed only once and before returning
     
     
-    return [GCDWebServerStreamedResponse responseWithContentType:contentType asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock)
+    return [RSStreamedResponse responseWithContentType:contentType asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
             {
                 if (__error) completionBlock(nil,__error);
                 if (__chunks)
@@ -409,7 +409,7 @@ int main(int argc, const char* argv[]) {
         }
         LOG_VERBOSE(@"%@",[pacsTitlesDictionary description]);
         
-        GCDWebServer* httpdicomServer = [[GCDWebServer alloc] init];
+        RS* httpdicomServer = [[RS alloc] init];
         
         //sql configurations
         NSMutableDictionary *sql=[NSMutableDictionary dictionary];
@@ -431,10 +431,10 @@ int main(int argc, const char* argv[]) {
 
 #pragma mark no handler for GET
         [httpdicomServer addDefaultHandlerForMethod:@"GET" asyncProcessBlock:
-         ^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock)
+         ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(
-            ^GCDWebServerResponse* (GCDWebServerRequest* request)
-            {return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];}
+            ^RSResponse* (RSRequest* request)
+            {return [RSErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];}
 
                 (request)
           );}
@@ -443,10 +443,10 @@ int main(int argc, const char* argv[]) {
         
 #pragma mark echo
         [httpdicomServer addHandlerForMethod:@"GET" path:@"/echo" asyncProcessBlock:
-         ^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock)
+         ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(
-            ^GCDWebServerResponse* (GCDWebServerRequest* request)
-            {return [GCDWebServerDataResponse responseWithText:@"echo"];}
+            ^RSResponse* (RSRequest* request)
+            {return [RSDataResponse responseWithText:@"echo"];}
                           
                 (request)
          );}
@@ -459,51 +459,51 @@ int main(int argc, const char* argv[]) {
          addHandlerForMethod:@"GET"
          pathRegularExpression:[NSRegularExpression regularExpressionWithPattern:@"^/custodians/.*$" options:0 error:NULL]
          asyncProcessBlock:
-         ^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock)
+         ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(
-                          ^GCDWebServerResponse* (GCDWebServerRequest* request)
+                          ^RSResponse* (RSRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSUInteger pCount=[pComponents count];
              
-             if (pCount<3) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
+             if (pCount<3) return [RSErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
              
              if ([pComponents[2]isEqualToString:@"titles"])
              {
                  //custodian/titles
-                 if (pCount==3) return [GCDWebServerDataResponse responseWithData:custodianTitlesData contentType:@"application/json"];
+                 if (pCount==3) return [RSDataResponse responseWithData:custodianTitlesData contentType:@"application/json"];
                  
                  NSUInteger p3Length = [pComponents[3] length];
                  if (  (p3Length>16)
                      ||![SHRegex numberOfMatchesInString:pComponents[3] options:0 range:NSMakeRange(0,p3Length)])
-                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{title} datatype should be DICOM SH]",request.path];
+                     return [RSErrorResponse responseWithClientError:404 message:@"%@ [{title} datatype should be DICOM SH]",request.path];
                  
                  if (!custodiantitles[pComponents[3]])
-                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{title} not found]",request.path];
+                     return [RSErrorResponse responseWithClientError:404 message:@"%@ [{title} not found]",request.path];
                  
                  //custodian/titles/{TITLE}
-                 if (pCount==4) return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[NSArray arrayWithObject:custodiantitles[pComponents[3]]] options:0 error:nil] contentType:@"application/json"];
+                 if (pCount==4) return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[NSArray arrayWithObject:custodiantitles[pComponents[3]]] options:0 error:nil] contentType:@"application/json"];
                  
                  if (![pComponents[4]isEqualToString:@"aets"])
-                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{title} unique resource is 'aets']",request.path];
+                     return [RSErrorResponse responseWithClientError:404 message:@"%@ [{title} unique resource is 'aets']",request.path];
                  
                  //custodian/titles/{title}/aets
                  if (pCount==5)
-                     return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[custodianTitlesaets objectForKey:pComponents[3]] options:0 error:nil] contentType:@"application/json"];
+                     return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[custodianTitlesaets objectForKey:pComponents[3]] options:0 error:nil] contentType:@"application/json"];
 
                  NSUInteger p5Length = [pComponents[5]length];
                  if (  (p5Length>16)
                      ||![SHRegex numberOfMatchesInString:pComponents[5] options:0 range:NSMakeRange(0,p5Length)])
-                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{aet}datatype should be DICOM SH]",request.path];
+                     return [RSErrorResponse responseWithClientError:404 message:@"%@ [{aet}datatype should be DICOM SH]",request.path];
                  
                  NSUInteger aetIndex=[[custodianTitlesaets objectForKey:pComponents[3]] indexOfObject:pComponents[5]];
                  if (aetIndex==NSNotFound)
-                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{aet} not found]",request.path];
+                     return [RSErrorResponse responseWithClientError:404 message:@"%@ [{aet} not found]",request.path];
 
-                 if (pCount>6) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
+                 if (pCount>6) return [RSErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
 
                  //custodian/titles/{title}/aets/{aet}
-                     return [GCDWebServerDataResponse responseWithData:
+                     return [RSDataResponse responseWithData:
                              [NSJSONSerialization dataWithJSONObject:
                               [NSArray arrayWithObject:(custodianOIDsaeis[custodiantitles[pComponents[3]]])[aetIndex]]
                               options:0
@@ -517,41 +517,41 @@ int main(int argc, const char* argv[]) {
              if ([pComponents[2]isEqualToString:@"oids"])
              {
                  //custodian/oids
-                 if (pCount==3) return [GCDWebServerDataResponse responseWithData:custodianOIDsData contentType:@"application/json"];
+                 if (pCount==3) return [RSDataResponse responseWithData:custodianOIDsData contentType:@"application/json"];
                  
                  NSUInteger p3Length = [pComponents[3] length];
                  if (  (p3Length>64)
                      ||![UIRegex numberOfMatchesInString:pComponents[3] options:0 range:NSMakeRange(0,p3Length)]
                      )
-                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{OID} datatype should be DICOM UI]",request.path];
+                     return [RSErrorResponse responseWithClientError:404 message:@"%@ [{OID} datatype should be DICOM UI]",request.path];
                  
                  if (custodianoids[pComponents[3]])
-                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{OID} not found]",request.path];
+                     return [RSErrorResponse responseWithClientError:404 message:@"%@ [{OID} not found]",request.path];
                  
                  //custodian/oids/{OID}
-                 if (pCount==4) return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[NSArray arrayWithObject:custodianoids[pComponents[3]]] options:0 error:nil] contentType:@"application/json"];
+                 if (pCount==4) return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[NSArray arrayWithObject:custodianoids[pComponents[3]]] options:0 error:nil] contentType:@"application/json"];
                  
                  if (![pComponents[4]isEqualToString:@"aeis"])
-                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{OID} unique resource is 'aeis']",request.path];
+                     return [RSErrorResponse responseWithClientError:404 message:@"%@ [{OID} unique resource is 'aeis']",request.path];
                  
                  //custodian/oids/{OID}/aeis
                  if (pCount==5)
-                     return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[custodianOIDsaeis objectForKey:pComponents[3]] options:0 error:nil] contentType:@"application/json"];
+                     return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[custodianOIDsaeis objectForKey:pComponents[3]] options:0 error:nil] contentType:@"application/json"];
                  
                  NSUInteger p5Length = [pComponents[5]length];
                  if (  (p5Length>64)
                      ||![UIRegex numberOfMatchesInString:pComponents[5] options:0 range:NSMakeRange(0,p5Length)]
                      )
-                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{aei}datatype should be DICOM UI]",request.path];
+                     return [RSErrorResponse responseWithClientError:404 message:@"%@ [{aei}datatype should be DICOM UI]",request.path];
                  
                  NSUInteger aeiIndex=[[custodianOIDsaeis objectForKey:pComponents[3]] indexOfObject:pComponents[5]];
                  if (aeiIndex==NSNotFound)
-                     return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{aei} not found]",request.path];
+                     return [RSErrorResponse responseWithClientError:404 message:@"%@ [{aei} not found]",request.path];
                  
-                 if (pCount>6) return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
+                 if (pCount>6) return [RSErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
                  
                  //custodian/oids/{OID}/aeis/{aei}
-                 return [GCDWebServerDataResponse responseWithData:
+                 return [RSDataResponse responseWithData:
                          [NSJSONSerialization dataWithJSONObject:
                           [NSArray arrayWithObject:(pacsDictionaries[pComponents[5]])[@"dicomaet"]]
                                                          options:0
@@ -560,7 +560,7 @@ int main(int argc, const char* argv[]) {
                                                        contentType:@"application/json"
                          ];
              }
-             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [no handler]",request.path];
+             return [RSErrorResponse responseWithClientError:404 message:@"%@ [no handler]",request.path];
          }
                           
                           (request)
@@ -577,11 +577,11 @@ int main(int argc, const char* argv[]) {
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:qidoregex
-                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+                           asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
-             if (!pacsaei) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
+             if (!pacsaei) return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
 
              NSString *pcsuri=pacsaei[@"pcsuri"];
 
@@ -620,7 +620,7 @@ int main(int argc, const char* argv[]) {
              }
              
              
-             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [QIDO not available]",request.path];
+             return [RSErrorResponse responseWithClientError:404 message:@"%@ [QIDO not available]",request.path];
          }
                                                                                                                                           (request));}];
         
@@ -630,12 +630,12 @@ int main(int argc, const char* argv[]) {
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:wadouriregex
-asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
                                                                                                                {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              //NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
              NSDictionary *pacsaei=pacsDictionaries[(request.query)[@"custodianOID"]];
-             if (!pacsaei) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
+             if (!pacsaei) return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
              
              NSString *q=request.URL.query;//a same param may repeat
 
@@ -655,15 +655,15 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                  //paquetes entran y salen sin esperar el fin de la entrada...
                  NSData *responseData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadouriString]];
                  if (!responseData) return
-                     [GCDWebServerErrorResponse
+                     [RSErrorResponse
                       responseWithClientError:424
                       message:@"no reply"];//FailedDependency
                  
                  if (![responseData length]) return
-                     [GCDWebServerErrorResponse
+                     [RSErrorResponse
                       responseWithClientError:404
                       message:@"empty reply"];//NotFound
-                 return [GCDWebServerDataResponse
+                 return [RSDataResponse
                          responseWithData:responseData
                          contentType:@"application/dicom"
                          ];
@@ -684,7 +684,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                  return urlProxy(urlString,@"application/dicom+json");
              }
 
-             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [WADO-URI not available]",request.path];
+             return [RSErrorResponse responseWithClientError:404 message:@"%@ [WADO-URI not available]",request.path];
          }
 (request));}];
         
@@ -697,11 +697,11 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:wadorsregex
-                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+                           asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
-             if (!pacsaei) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
+             if (!pacsaei) return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
 
              NSString *wadorsBaseString=pacsaei[@"wadors"];
              if (![wadorsBaseString isEqualToString:@""])
@@ -711,7 +711,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                  if (pComponents.count==6) urlString=[NSString stringWithFormat:@"%@/studies/%@",wadorsBaseString,pComponents[5]];
                  else if (pComponents.count==8) urlString=[NSString stringWithFormat:@"%@/studies/%@/series/%@", wadorsBaseString,pComponents[5],pComponents[7]];
                  else if (pComponents.count==10) urlString=[NSString stringWithFormat:@"%@/studies/%@/series/%@/instances/%@", wadorsBaseString,pComponents[5],pComponents[7],pComponents[9]];
-                 else return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [WADO-RS studies and studies/series only]",request.path];
+                 else return [RSErrorResponse responseWithClientError:404 message:@"%@ [WADO-RS studies and studies/series only]",request.path];
                  LOG_INFO(@"[WADO-RS] %@",urlString);
                  return urlProxy(urlString,@"multipart/related;type=application/dicom");
              }
@@ -732,7 +732,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                  LOG_INFO(@"[WADO-RS] %@",urlString);
                  return urlProxy(urlString,@"multipart/related;type=application/dicom");
              }
-             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [WADO-RS not available]",request.path];
+             return [RSErrorResponse responseWithClientError:404 message:@"%@ [WADO-RS not available]",request.path];
          }
                                                                                                                                           (request));}];
         
@@ -742,15 +742,15 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:dcmzipregex
-                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+                           asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
         {
             LOG_INFO(@"osirix");
             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
             NSDictionary *destPacs=pacsDictionaries[pComponents[2]];
-            if (!destPacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
+            if (!destPacs) return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
 
             //buscar SERIES wadors URIs
-            if (!destPacs[@"qido"]) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [qido not available]",request.path];
+            if (!destPacs[@"qido"]) return [RSErrorResponse responseWithClientError:404 message:@"%@ [qido not available]",request.path];
             NSArray *seriesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@/series?%@",destPacs[@"qido"],request.URL.query]]] options:0 error:nil];
 
             
@@ -775,7 +775,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
             __block NSRange boundaryRange=NSMakeRange(0,0);
 
             /**
-             *  The GCDWebServerAsyncStreamBlock works like the GCDWebServerStreamBlock
+             *  The RSAsyncStreamBlock works like the RSStreamBlock
              *  except the streamed data can be returned at a later time allowing for
              *  truly asynchronous generation of the data.
              *
@@ -785,7 +785,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              *  The block cannot call "completionBlock" more than once per invocation.
              */
             
-            GCDWebServerStreamedResponse* response = [GCDWebServerStreamedResponse responseWithContentType:@"application/octet-stream" asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock)
+            RSStreamedResponse* response = [RSStreamedResponse responseWithContentType:@"application/octet-stream" asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
             {
                 if (wadorsRange.length<1000)
                 {
@@ -907,18 +907,18 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
          
          [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:applicableregex
-                            asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+                            asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *destPacs=pacsDictionaries[pComponents[2]];
-             if (!destPacs) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
+             if (!destPacs) return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
              
              //buscar SERIES wadors URIs
-             if (!destPacs[@"qido"]) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [qido not available]",request.path];
+             if (!destPacs[@"qido"]) return [RSErrorResponse responseWithClientError:404 message:@"%@ [qido not available]",request.path];
 
              //AccessionNumber
              NSString *q=request.URL.query;
-             if (q.length>32 || ![q hasPrefix:@"AccessionNumber="]) [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [lacks parameter AccessionNumber]",request.path];
+             if (q.length>32 || ![q hasPrefix:@"AccessionNumber="]) [RSErrorResponse responseWithClientError:404 message:@"%@ [lacks parameter AccessionNumber]",request.path];
              NSString *accessionNumber=[q substringWithRange:NSMakeRange(16,q.length-16)];
              
              NSString *modality;
@@ -939,11 +939,11 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              //applicable, latest doc
              //6.7.1.2.3.2 JSON Results
              //If there are no matching results,the JSON message is empty.
-             if (!instanceQidoData || ![instanceQidoData length]) [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [not found]",request.path];
+             if (!instanceQidoData || ![instanceQidoData length]) [RSErrorResponse responseWithClientError:404 message:@"%@ [not found]",request.path];
              
              NSArray *instanceArray=[NSJSONSerialization JSONObjectWithData:instanceQidoData options:0 error:nil];
              NSUInteger instanceArrayCount=[instanceArray count];
-             if (instanceArrayCount==0) [GCDWebServerErrorResponse responseWithClientError:404 message:@"dev0 /applicable not found"];//NotFound
+             if (instanceArrayCount==0) [RSErrorResponse responseWithClientError:404 message:@"dev0 /applicable not found"];//NotFound
              
              NSDictionary *instance;
              NSInteger i=0;
@@ -972,7 +972,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              LOG_INFO(@"applicable wadors %@",wadoRsString);
              
              NSData *applicableData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadoRsString]];
-             if (!applicableData || ![applicableData length]) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"applicable %@ notFound",request.URL.path];
+             if (!applicableData || ![applicableData length]) return [RSErrorResponse responseWithClientError:404 message:@"applicable %@ notFound",request.URL.path];
 
              NSUInteger applicableDataLength=[applicableData length];
 
@@ -1002,13 +1002,13 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                  {
                      NSRange CDAClosingTagRange=[encapsulatedData rangeOfData:CDAClosingTag options:0 range:NSMakeRange(0, encapsulatedData.length)];
                      NSData *cdaData=[encapsulatedData subdataWithRange:NSMakeRange(CDAOpeningTagRange.location, CDAClosingTagRange.location+CDAClosingTagRange.length-CDAOpeningTagRange.location)];
-                     return [GCDWebServerDataResponse
+                     return [RSDataResponse
                              responseWithData:cdaData
                              contentType:ctString];
                  }
              }
              
-             return [GCDWebServerDataResponse
+             return [RSDataResponse
                     responseWithData:encapsulatedData
                     contentType:ctString];
          }
@@ -1021,7 +1021,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
         NSRegularExpression *mwstudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:mwstudiesregex
-                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+                           asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              //request parts logging
              NSURL *requestURL=request.URL;
@@ -1034,7 +1034,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
 
              NSDictionary *destPacs=pacsDictionaries[q[@"custodianOID"]];
              NSDictionary *destSql=sql[destPacs[@"sql"]];
-             if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
+             if (!destSql) return [RSErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
 
              NSString *sqlString;
              NSString *AccessionNumber=request.query[@"AccessionNumber"];
@@ -1043,7 +1043,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              {
                  NSString *StudyInstanceUID=request.query[@"StudyInstanceUID"];
                  if (StudyInstanceUID)sqlString=[NSString stringWithFormat:destSql[@"manifestWeasisStudyStudyInstanceUID"],StudyInstanceUID];
-                 else return [GCDWebServerErrorResponse responseWithClientError:404 message:
+                 else return [RSErrorResponse responseWithClientError:404 message:
                               @"parameter AccessionNumber or StudyInstanceUID required in %@%@?%@",b,p,q];
              }
              //SQL for studies
@@ -1162,7 +1162,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                      }
                      [weasisManifest appendString:@"</Patient>\r"];
                  }
-                 return [GCDWebServerDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/xml"];
+                 return [RSDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/xml"];
          }
                                                                                                                                           (request));}];
         
@@ -1172,7 +1172,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
         NSRegularExpression *mwseriesregex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*/series/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*" options:NSRegularExpressionCaseInsensitive error:NULL];
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:mwseriesregex
-                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+                           asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              //request parts logging
              NSURL *requestURL=request.URL;
@@ -1188,7 +1188,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              NSDictionary *q=request.query;
              NSDictionary *destPacs=pacsDictionaries[q[@"custodianOID"]];
              NSDictionary *destSql=sql[destPacs[@"sql"]];
-             if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
+             if (!destSql) return [RSErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
 
              NSString *sqlString=[NSString stringWithFormat:destSql[@"manifestWeasisSeriesStudyInstanceUIDSeriesInstanceUID"],StudyInstanceUID,SeriesInstanceUID];
  
@@ -1202,7 +1202,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                                     seriesData
                                     );
              NSMutableArray *seriesArray=[NSJSONSerialization JSONObjectWithData:seriesData options:0 error:nil];
-             if (![seriesArray count]) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"0 record for %@%@?%@",b,p,q];
+             if (![seriesArray count]) return [RSErrorResponse responseWithClientError:404 message:@"0 record for %@%@?%@",b,p,q];
              /*
               [0] SeriesInstanceUID,
               [1] SeriesDescription,
@@ -1317,7 +1317,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                  }
                  [weasisManifest appendString:@"</Patient>\r"];
              }
-             return [GCDWebServerDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
+             return [RSDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
          }
                                                                                                                                           (request));}];
         
@@ -1332,7 +1332,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:patientRegex
-         asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+         asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              //get query part
              NSURLComponents *urlComponents = [NSURLComponents componentsWithString:request.URL.query];
@@ -1389,10 +1389,10 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              if (!hasPacsQueryItem) [pacsOidsQueried addObjectsFromArray:pacsOids];
              
              //error if bad pacs query item
-             if ([pacsOids count]==0)   return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [/patient? requires a valid pacs queryItem or no pacs queryItem to propagate the query to all the known pacs]",request.path];
+             if ([pacsOids count]==0)   return [RSErrorResponse responseWithClientError:404 message:@"%@ [/patient? requires a valid pacs queryItem or no pacs queryItem to propagate the query to all the known pacs]",request.path];
              
              //error if no patient query item
-             if ([otherQueryItems count]==0)  return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [/patient? requires at least one filter]",request.path];
+             if ([otherQueryItems count]==0)  return [RSErrorResponse responseWithClientError:404 message:@"%@ [/patient? requires at least one filter]",request.path];
 
              NSMutableDictionary *sqlsPatient = [NSMutableDictionary dictionary];
              NSMutableDictionary *sqlsStudy = [NSMutableDictionary dictionary];
@@ -1467,7 +1467,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              //reply
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
-             if (!pacsaei) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
+             if (!pacsaei) return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
              
              NSString *pcsuri=pacsaei[@"pcsuri"];
              
@@ -1506,7 +1506,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              }
              
              
-             return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [QIDO not available]",request.path];
+             return [RSErrorResponse responseWithClientError:404 message:@"%@ [QIDO not available]",request.path];
          }
 (request));}];
          */
@@ -1522,11 +1522,11 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
          */
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/datatables/studies"
-                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+                           asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSDictionary *q=request.query;
              NSString *session=q[@"session"];
-             if (!session || [session isEqualToString:@""]) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
+             if (!session || [session isEqualToString:@""]) return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
              
              NSDictionary *r=Req[session];
              int recordsTotal;
@@ -1539,7 +1539,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              NSString *qModality;
              if ([q[@"columns[6][search][value]"]isEqualToString:@"ALL"]) qModality=@"%%";
              else qModality=q[@"columns[6][search][value]"];
-             if (!qModality) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'columns[6][search][value]' (modality) parameter"] contentType:@"application/dicom+json"];
+             if (!qModality) return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'columns[6][search][value]' (modality) parameter"] contentType:@"application/dicom+json"];
              
              NSString *qStudyDescription=q[@"columns[7][search][value]"];
              
@@ -1598,7 +1598,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                  NSDictionary *destPacs=pacsDictionaries[destOID];
                  
                  NSDictionary *destSql=sql[destPacs[@"sql"]];
-                 if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
+                 if (!destSql) return [RSErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
                  
                  //local ... simulation qido through database access
                  
@@ -1789,15 +1789,15 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                  LOG_DEBUG(@"%@",sqlCountQuery);
                  NSMutableData *countData=[NSMutableData data];
                  if (task(@"/bin/bash",@[@"-s"],[sqlCountQuery dataUsingEncoding:NSUTF8StringEncoding],countData))
-                     [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@",@"can not access the db"];//NotFound
+                     [RSErrorResponse responseWithClientError:404 message:@"%@",@"can not access the db"];//NotFound
                  NSString *countString=[[NSString alloc]initWithData:countData encoding:NSUTF8StringEncoding];
                  // max (max records filtered para evitar que filtros insuficientes devuelvan casi todos los registros... lo que devolvería un resultado inútil.
                  recordsTotal=[countString intValue];
                  int maxCount=[q[@"max"]intValue];
                  LOG_INFO(@"total:%d, max:%d",recordsTotal,maxCount);
-                 if (recordsTotal > maxCount) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %d matches. %d matches were found",maxCount, recordsTotal]] contentType:@"application/dicom+json"];
+                 if (recordsTotal > maxCount) return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %d matches. %d matches were found",maxCount, recordsTotal]] contentType:@"application/dicom+json"];
 
-                 if (!recordsTotal) return [GCDWebServerDataResponse
+                 if (!recordsTotal) return [RSDataResponse
                                             responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:@{
                                                       @"draw":q[@"draw"],
                                                       @"recordsTotal":@0,
@@ -1961,7 +1961,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              [resp setObject:[NSNumber numberWithInt:recordsTotal] forKey:@"recordsTotal"];
              [resp setObject:[NSNumber numberWithUnsignedInteger:recordsFiltered] forKey:@"recordsFiltered"];
              
-             if (!recordsFiltered)  return [GCDWebServerDataResponse
+             if (!recordsFiltered)  return [RSDataResponse
                                             responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:@{@"draw":q[@"draw"],@"recordsTotal":@0,@"recordsFiltered":@0,@"data":@[]}]
                                             contentType:@"application/dicom+json"
                                             ];
@@ -1980,7 +1980,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                  [resp setObject:page forKey:@"data"];
              }
              
-             return [GCDWebServerDataResponse
+             return [RSDataResponse
                      responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:resp]
                      contentType:@"application/dicom+json"
                      ];
@@ -1995,15 +1995,15 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
         
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/datatables/patient"
-                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+                           asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSDictionary *q=request.query;
              //LOG_INFO(@"%@",[q description]);
              
              NSString *session=q[@"session"];
-             if (!session || [session isEqualToString:@""]) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
+             if (!session || [session isEqualToString:@""]) return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
              
-             if (!q[@"PatientID"]) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"studies of patient query without required 'patientID' parameter"] contentType:@"application/dicom+json"];
+             if (!q[@"PatientID"]) return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"studies of patient query without required 'patientID' parameter"] contentType:@"application/dicom+json"];
              
              //WHERE study.rejection_state!=2    (or  1=1)
              //following filters use formats like " AND a like 'b'"
@@ -2013,7 +2013,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              NSDictionary *destPacs=pacsDictionaries[destOID];
              
              NSDictionary *destSql=sql[destPacs[@"sql"]];
-             if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
+             if (!destSql) return [RSErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
              
              NSMutableString *studiesWhere=[NSMutableString stringWithString:destSql[@"studiesWhere"]];
              [studiesWhere appendString:
@@ -2052,7 +2052,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              [resp setObject:count forKey:@"recordsTotal"];
              [resp setObject:count forKey:@"recordsFiltered"];
              [resp setObject:studiesArray forKey:@"data"];
-             return [GCDWebServerDataResponse
+             return [RSDataResponse
                      responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:resp]
                      contentType:@"application/dicom+json"
                      ];
@@ -2064,11 +2064,11 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
         //"datatables/series?AccessionNumber=22&IssuerOfAccessionNumber.UniversalEntityID=NULL&StudyIUID=2.16.858.2.10000675.72769.20160411084701.1.100&session=1"
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/datatables/series"
-                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+                           asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSDictionary *q=request.query;
              NSString *session=q[@"session"];
-             if (!session || [session isEqualToString:@""]) return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
+             if (!session || [session isEqualToString:@""]) return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
              
              
              //find dest
@@ -2076,7 +2076,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              NSDictionary *destPacs=pacsDictionaries[destOID];
              
              NSDictionary *destSql=sql[destPacs[@"sql"]];
-             if (!destSql) return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
+             if (!destSql) return [RSErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",request.path];
              NSString *where;
              NSString *AccessionNumber=q[@"AccessionNumber"];
              NSString *StudyInstanceUID=q[@"StudyInstanceUID"];
@@ -2092,7 +2092,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              }
              else if (StudyInstanceUID && ![StudyInstanceUID isEqualToString:@"NULL"])
                  where=[NSString stringWithFormat:@"%@ AND %@='%@'",destSql[@"seriesWhere"],destSql[@"StudyInstanceUID"],StudyInstanceUID];
-             else return [GCDWebServerDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'AccessionNumber' or 'StudyInstanceUID' parameter"] contentType:@"application/dicom+json"];
+             else return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'AccessionNumber' or 'StudyInstanceUID' parameter"] contentType:@"application/dicom+json"];
              
              
              LOG_INFO(@"WHERE %@",[where substringFromIndex:38]);
@@ -2111,7 +2111,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
              [resp setObject:count forKey:@"recordsTotal"];
              [resp setObject:count forKey:@"recordsFiltered"];
              [resp setObject:seriesArray forKey:@"data"];
-             return [GCDWebServerDataResponse
+             return [RSDataResponse
                      responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:resp]
                      contentType:@"application/dicom+json"
                      ];
@@ -2124,7 +2124,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
         
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/IHEInvokeImageDisplay"
-                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+                           asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSDictionary *q=request.query;
              
@@ -2144,19 +2144,19 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                  (  [requestType isEqualToString:@"STUDY"]
                   ||[requestType isEqualToString:@"SERIES"]
                   )
-                 ) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing requestType param in %@%@?%@",b,p,requestURL.query]];
+                 ) return [RSDataResponse responseWithText:[NSString stringWithFormat:@"missing requestType param in %@%@?%@",b,p,requestURL.query]];
              
              //session
-             if (!q[@"session"]) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing session param in %@%@?%@",b,p,requestURL.query]];
+             if (!q[@"session"]) return [RSDataResponse responseWithText:[NSString stringWithFormat:@"missing session param in %@%@?%@",b,p,requestURL.query]];
              
              
              //custodianURI
              
-             if (!q[@"custodianOID"]) return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"missing custodianOID param in %@%@?%@",b,p,requestURL.query]];
+             if (!q[@"custodianOID"]) return [RSDataResponse responseWithText:[NSString stringWithFormat:@"missing custodianOID param in %@%@?%@",b,p,requestURL.query]];
              NSString *custodianURI;
              if ((pacsDictionaries[q[@"custodianOID"]])[@"islocalhosted"])custodianURI=[NSString stringWithFormat:@"http://localhost:%lld",port];
              else custodianURI=(pacsDictionaries[q[@"custodianOID"]])[@"publicuri"];
-             if (!@"custodianURI") return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"invalid custodianOID param in %@%@?%@",b,p,requestURL.query]];
+             if (!@"custodianURI") return [RSDataResponse responseWithText:[NSString stringWithFormat:@"invalid custodianOID param in %@%@?%@",b,p,requestURL.query]];
              
              
              //proxyURI
@@ -2187,19 +2187,19 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                  {
                      if (q[@"accessionNumber"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies?AccessionNumber=%@&custodianOID=%@",custodianURI,q[@"accessionNumber"],q[@"custodianOID"]];
                      else if (q[@"studyUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies?StudyInstanceUID=%@&custodianOID=%@",custodianURI,q[@"studyUID"],q[@"custodianOID"]];
-                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
+                     else return [RSDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
                  }
                  else
                  {
                      //SERIES
                      if (q[@"studyUID"] && q[@"seriesUID"]) manifestWeasisURI=[NSString stringWithFormat:@"%@/manifest/weasis/studies/%@/series/%@?custodianOID=%@",custodianURI,q[@"studyUID"],q[@"seriesUID"],q[@"custodianOID"]];
-                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
+                     else return [RSDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
                  }
                  LOG_INFO(@"%@",manifestWeasisURI);
                  [manifest appendFormat:@"%@\r</wado_query>\r",[NSString stringWithContentsOfURL:[NSURL URLWithString:manifestWeasisURI] encoding:NSUTF8StringEncoding error:nil]];
                  LOG_INFO(@"%@",manifest);
                  
-                 if ([manifest length]<350) [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"zero objects for %@%@?%@",b,p,requestURL.query]];
+                 if ([manifest length]<350) [RSDataResponse responseWithText:[NSString stringWithFormat:@"zero objects for %@%@?%@",b,p,requestURL.query]];
                  
                  
                  if (![custodianURI isEqualToString:@"http://localhost"])
@@ -2216,7 +2216,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                          
                      }
                  }
-                 GCDWebServerDataResponse *response=[GCDWebServerDataResponse responseWithData:[[[LFCGzipUtility gzipData:[manifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
+                 RSDataResponse *response=[RSDataResponse responseWithData:[[[LFCGzipUtility gzipData:[manifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
                  [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
                  
                  return response;
@@ -2232,13 +2232,13 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                  {
                      if (q[@"accessionNumber"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?AccessionNumber=%@",(pacsDictionaries[q[@"custodianOID"]])[@"qido"],q[@"accessionNumber"]];
                      else if (q[@"studyUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@",(pacsDictionaries[q[@"custodianOID"]])[@"qido"],q[@"studyUID"]];
-                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
+                     else return [RSDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
                  }
                  else
                  {
                      //SERIES
                      if (q[@"studyUID"] && q[@"seriesUID"]) qidoSeriesString=[NSString stringWithFormat:@"%@/series?StudyInstanceUID=%@&SeriesInstanceUID=%@",(pacsDictionaries[q[@"custodianOID"]])[@"qido"],q[@"studyUID"],q[@"seriesUID"]];
-                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
+                     else return [RSDataResponse responseWithText:[NSString stringWithFormat:@"requestType=SERIES requires params studyUID and seriesUID in %@%@?%@",b,p,requestURL.query]];
                  }
                  //LOG_INFO(@"%@",qidoSeriesString);
                  
@@ -2314,7 +2314,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                      }
                  }
                  //LOG_INFO(@"%@",[cornerstone description]);
-                 return [GCDWebServerDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:cornerstone options:0 error:nil] contentType:@"application/json"];
+                 return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:cornerstone options:0 error:nil] contentType:@"application/json"];
              }
              else if ([viewerType isEqualToString:@"MHD-I"])
              {
@@ -2331,7 +2331,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                      {
                          
                      }
-                     else return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
+                     else return [RSDataResponse responseWithText:[NSString stringWithFormat:@"requestType=STUDY requires param accessionNumber or studyUID in %@%@?%@",b,p,requestURL.query]];
                      
                  }
                  else
@@ -2339,7 +2339,7 @@ asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock co
                      //SERIES
                  }
              }
-             return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"unknown viewerType in %@%@?%@",b,p,requestURL.query]];
+             return [RSDataResponse responseWithText:[NSString stringWithFormat:@"unknown viewerType in %@%@?%@",b,p,requestURL.query]];
          }
                                                                                                                                           (request));}];
         

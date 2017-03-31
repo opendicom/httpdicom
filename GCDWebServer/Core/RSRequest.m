@@ -1,4 +1,4 @@
-#import "GCDWebServerRequest.h"
+#import "RSRequest.h"
 
 #import <zlib.h>
 #import "ODLog.h"
@@ -33,28 +33,28 @@
  */
 
 
-NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerRequestAttribute_RegexCaptures";
+NSString* const RSRequestAttribute_RegexCaptures = @"RSRequestAttribute_RegexCaptures";
 
 #define kZlibErrorDomain @"ZlibErrorDomain"
 #define kGZipInitialBufferSize (256 * 1024)
 
-@interface GCDWebServerBodyDecoder : NSObject <GCDWebServerBodyWriter>
-- (id)initWithRequest:(GCDWebServerRequest*)request writer:(id<GCDWebServerBodyWriter>)writer;
+@interface RSBodyDecoder : NSObject <RSBodyWriter>
+- (id)initWithRequest:(RSRequest*)request writer:(id<RSBodyWriter>)writer;
 @end
 
-@interface GCDWebServerGZipDecoder : GCDWebServerBodyDecoder
+@interface RSGZipDecoder : RSBodyDecoder
 @end
 
-@interface GCDWebServerBodyDecoder () {
+@interface RSBodyDecoder () {
 @private
-  GCDWebServerRequest* __unsafe_unretained _request;
-  id<GCDWebServerBodyWriter> __unsafe_unretained _writer;
+  RSRequest* __unsafe_unretained _request;
+  id<RSBodyWriter> __unsafe_unretained _writer;
 }
 @end
 
-@implementation GCDWebServerBodyDecoder
+@implementation RSBodyDecoder
 
-- (id)initWithRequest:(GCDWebServerRequest*)request writer:(id<GCDWebServerBodyWriter>)writer {
+- (id)initWithRequest:(RSRequest*)request writer:(id<RSBodyWriter>)writer {
   if ((self = [super init])) {
     _request = request;
     _writer = writer;
@@ -76,14 +76,14 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
 
 @end
 
-@interface GCDWebServerGZipDecoder () {
+@interface RSGZipDecoder () {
 @private
   z_stream _stream;
   BOOL _finished;
 }
 @end
 
-@implementation GCDWebServerGZipDecoder
+@implementation RSGZipDecoder
 
 - (BOOL)open:(NSError**)error {
   int result = inflateInit2(&_stream, 15 + 16);
@@ -140,7 +140,7 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
 
 @end
 
-@interface GCDWebServerRequest () {
+@interface RSRequest () {
 @private
   NSString* _method;
   NSURL* _url;
@@ -160,11 +160,11 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
   BOOL _opened;
   NSMutableArray* _decoders;
   NSMutableDictionary* _attributes;
-  id<GCDWebServerBodyWriter> __unsafe_unretained _writer;
+  id<RSBodyWriter> __unsafe_unretained _writer;
 }
 @end
 
-@implementation GCDWebServerRequest : NSObject
+@implementation RSRequest : NSObject
 
 @synthesize method=_method, URL=_url, headers=_headers, path=_path, query=_query, contentType=_type, contentLength=_length, ifModifiedSince=_modifiedSince, ifNoneMatch=_noneMatch,
             byteRange=_range, acceptsGzipContentEncoding=_gzipAccepted, usesChunkedTransferEncoding=_chunked, localAddressData=_localAddress, remoteAddressData=_remoteAddress;
@@ -274,7 +274,7 @@ NSString* const GCDWebServerRequestAttribute_RegexCaptures = @"GCDWebServerReque
 - (void)prepareForWriting {
   _writer = self;
   if ([[[self.headers objectForKey:@"Content-Encoding"] normalizeHeaderValue] isEqualToString:@"gzip"]) {
-    GCDWebServerGZipDecoder* decoder = [[GCDWebServerGZipDecoder alloc] initWithRequest:self writer:_writer];
+    RSGZipDecoder* decoder = [[RSGZipDecoder alloc] initWithRequest:self writer:_writer];
     [_decoders addObject:decoder];
     _writer = decoder;
   }

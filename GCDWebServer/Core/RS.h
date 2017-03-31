@@ -1,4 +1,4 @@
-#import "GCDWebServerHandler.h"
+#import "RSHandler.h"
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
  All rights reserved.
@@ -30,17 +30,17 @@
 
 
 /**
- *  The GCDWebServer class listens for incoming HTTP requests on a given port,
+ *  The RS class listens for incoming HTTP requests on a given port,
  *  then passes each one to a "handler" capable of generating an HTTP response
  *  for it, which is then sent back to the client.
  *
- *  GCDWebServer instances can be created and used from any thread but it's
+ *  RS instances can be created and used from any thread but it's
  *  recommended to have the main thread's runloop be running so internal callbacks
  *  can be handled e.g. for Bonjour registration.
  *
- *  See the README.md file for more information about the architecture of GCDWebServer.
+ *  See the README.md file for more information about the architecture of RS.
  */
-@interface GCDWebServer : NSObject
+@interface RS : NSObject
 {
     @private
     dispatch_queue_t _syncQueue;
@@ -71,22 +71,22 @@
 #pragma mark asynchronous
 
 - (void)addDefaultHandlerForMethod:(NSString*)method
-                 asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
+                 asyncProcessBlock:(RSAsyncProcessBlock)block;
 
 
 - (void)addHandlerForMethod:(NSString*)method
                        path:(NSString*)path
-          asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
+          asyncProcessBlock:(RSAsyncProcessBlock)block;
 
 
 - (void)addHandlerForMethod:(NSString*)method
-      pathRegularExpression:(NSRegularExpression*)pathRegularExpression asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
+      pathRegularExpression:(NSRegularExpression*)pathRegularExpression asyncProcessBlock:(RSAsyncProcessBlock)block;
 
 
 #pragma mark root method invoked by asynchronous
 
-- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock
-               asyncProcessBlock:(GCDWebServerAsyncProcessBlock)processBlock;
+- (void)addHandlerWithMatchBlock:(RSMatchBlock)matchBlock
+               asyncProcessBlock:(RSAsyncProcessBlock)processBlock;
 
 @end
 

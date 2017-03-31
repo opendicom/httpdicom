@@ -1,4 +1,4 @@
-#import "GCDWebServerConnection.h"
+#import "RSConnection.h"
 
 #import <netdb.h>
 #import "RFC822.h"
@@ -48,9 +48,9 @@ static NSData* _CRLFCRLFData = nil;
 static NSData* _continueData = nil;
 static NSData* _lastChunkData = nil;
 
-@interface GCDWebServerConnection () {
+@interface RSConnection () {
 @private
-  GCDWebServer* _server;
+  RS* _server;
   NSData* _localAddress;
   NSData* _remoteAddress;
   CFSocketNativeHandle _socket;
@@ -58,15 +58,15 @@ static NSData* _lastChunkData = nil;
   NSUInteger _bytesWritten;
   
   CFHTTPMessageRef _requestMessage;
-  GCDWebServerRequest* _request;
-  GCDWebServerHandler* _handler;
+  RSRequest* _request;
+  RSHandler* _handler;
   CFHTTPMessageRef _responseMessage;
-  GCDWebServerResponse* _response;
+  RSResponse* _response;
   NSInteger _statusCode;
 }
 @end
 
-@implementation GCDWebServerConnection (Read)
+@implementation RSConnection (Read)
 
 - (void)_readData:(NSMutableData*)data withLength:(NSUInteger)length completionBlock:(ReadDataCompletionBlock)block {
   dispatch_read(_socket, length, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(dispatch_data_t buffer, int error) {
@@ -222,7 +222,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 
 @end
 
-@implementation GCDWebServerConnection (Write)
+@implementation RSConnection (Write)
 
 - (void)_writeData:(NSData*)data withCompletionBlock:(WriteDataCompletionBlock)block {
   dispatch_data_t buffer = dispatch_data_create(data.bytes, data.length, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -305,7 +305,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 
 @end
 
-@implementation GCDWebServerConnection
+@implementation RSConnection
 
 @synthesize server=_server, localAddressData=_localAddress, remoteAddressData=_remoteAddress, totalBytesRead=_bytesRead, totalBytesWritten=_bytesWritten;
 
@@ -334,7 +334,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
     @try {
           _handler.asyncProcessBlock(
             _request,
-            [^(GCDWebServerResponse* processResponse){[self _finishProcessingRequest:processResponse];} copy]
+            [^(RSResponse* processResponse){[self _finishProcessingRequest:processResponse];} copy]
           );
     }
     @catch (NSException* exception) {
@@ -343,7 +343,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
  }
 
 // http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-- (void)_finishProcessingRequest:(GCDWebServerResponse*)response {
+- (void)_finishProcessingRequest:(RSResponse*)response {
   BOOL hasBody = NO;
   
   if (response) {
@@ -580,7 +580,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
             [self _startProcessingRequest];
           }
         } else {
-          _request = [[GCDWebServerRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:requestPath query:requestQuery];
+          _request = [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:requestPath query:requestQuery];
           [self abortRequest:_request withStatusCode:405];//MethodNotAllowed
         }
       } else {
@@ -593,7 +593,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
   }];
 }
 
-- (id)initWithServer:(GCDWebServer*)server localAddress:(NSData*)localAddress remoteAddress:(NSData*)remoteAddress socket:(CFSocketNativeHandle)socket {
+- (id)initWithServer:(RS*)server localAddress:(NSData*)localAddress remoteAddress:(NSData*)remoteAddress socket:(CFSocketNativeHandle)socket {
   if ((self = [super init])) {
     _server = server;
     _localAddress = localAddress;
@@ -613,7 +613,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
     return [NSString stringFromSockAddr:_remoteAddress.bytes includeService:YES];
 }
 
-- (void)abortRequest:(GCDWebServerRequest*)request withStatusCode:(NSInteger)statusCode
+- (void)abortRequest:(RSRequest*)request withStatusCode:(NSInteger)statusCode
 {
     _statusCode = _response.statusCode;
     _responseMessage = CFHTTPMessageCreateResponse(kCFAllocatorDefault, _statusCode, NULL, kCFHTTPVersion1_1);

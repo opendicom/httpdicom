@@ -1,4 +1,4 @@
-#import "GCDWebServerErrorResponse.h"
+#import "RSErrorResponse.h"
 #import "ODLog.h"
 
 /*
@@ -29,40 +29,40 @@
  */
 
 
-@interface GCDWebServerErrorResponse ()
+@interface RSErrorResponse ()
 - (instancetype)initWithStatusCode:(NSInteger)statusCode underlyingError:(NSError*)underlyingError messageFormat:(NSString*)format arguments:(va_list)arguments;
 @end
 
-@implementation GCDWebServerErrorResponse
+@implementation RSErrorResponse
 
-+ (instancetype)responseWithClientError:(GCDWebServerClientErrorHTTPStatusCode)errorCode message:(NSString*)format, ... {
++ (instancetype)responseWithClientError:(RSClientErrorHTTPStatusCode)errorCode message:(NSString*)format, ... {
   va_list arguments;
   va_start(arguments, format);
-  GCDWebServerErrorResponse* response = [[self alloc] initWithStatusCode:errorCode underlyingError:nil messageFormat:format arguments:arguments];
+  RSErrorResponse* response = [[self alloc] initWithStatusCode:errorCode underlyingError:nil messageFormat:format arguments:arguments];
   va_end(arguments);
   return response;
 }
 
-+ (instancetype)responseWithServerError:(GCDWebServerServerErrorHTTPStatusCode)errorCode message:(NSString*)format, ... {
++ (instancetype)responseWithServerError:(RSServerErrorHTTPStatusCode)errorCode message:(NSString*)format, ... {
   va_list arguments;
   va_start(arguments, format);
-  GCDWebServerErrorResponse* response = [[self alloc] initWithStatusCode:errorCode underlyingError:nil messageFormat:format arguments:arguments];
+  RSErrorResponse* response = [[self alloc] initWithStatusCode:errorCode underlyingError:nil messageFormat:format arguments:arguments];
   va_end(arguments);
   return response;
 }
 
-+ (instancetype)responseWithClientError:(GCDWebServerClientErrorHTTPStatusCode)errorCode underlyingError:(NSError*)underlyingError message:(NSString*)format, ... {
++ (instancetype)responseWithClientError:(RSClientErrorHTTPStatusCode)errorCode underlyingError:(NSError*)underlyingError message:(NSString*)format, ... {
   va_list arguments;
   va_start(arguments, format);
-  GCDWebServerErrorResponse* response = [[self alloc] initWithStatusCode:errorCode underlyingError:underlyingError messageFormat:format arguments:arguments];
+  RSErrorResponse* response = [[self alloc] initWithStatusCode:errorCode underlyingError:underlyingError messageFormat:format arguments:arguments];
   va_end(arguments);
   return response;
 }
 
-+ (instancetype)responseWithServerError:(GCDWebServerServerErrorHTTPStatusCode)errorCode underlyingError:(NSError*)underlyingError message:(NSString*)format, ... {
++ (instancetype)responseWithServerError:(RSServerErrorHTTPStatusCode)errorCode underlyingError:(NSError*)underlyingError message:(NSString*)format, ... {
   va_list arguments;
   va_start(arguments, format);
-  GCDWebServerErrorResponse* response = [[self alloc] initWithStatusCode:errorCode underlyingError:underlyingError messageFormat:format arguments:arguments];
+  RSErrorResponse* response = [[self alloc] initWithStatusCode:errorCode underlyingError:underlyingError messageFormat:format arguments:arguments];
   va_end(arguments);
   return response;
 }
@@ -83,7 +83,7 @@ static inline NSString* _EscapeHTMLString(NSString* string) {
   return self;
 }
 
-- (instancetype)initWithClientError:(GCDWebServerClientErrorHTTPStatusCode)errorCode message:(NSString*)format, ... {
+- (instancetype)initWithClientError:(RSClientErrorHTTPStatusCode)errorCode message:(NSString*)format, ... {
   va_list arguments;
   va_start(arguments, format);
   self = [self initWithStatusCode:errorCode underlyingError:nil messageFormat:format arguments:arguments];
@@ -91,7 +91,7 @@ static inline NSString* _EscapeHTMLString(NSString* string) {
   return self;
 }
 
-- (instancetype)initWithServerError:(GCDWebServerServerErrorHTTPStatusCode)errorCode message:(NSString*)format, ... {
+- (instancetype)initWithServerError:(RSServerErrorHTTPStatusCode)errorCode message:(NSString*)format, ... {
   va_list arguments;
   va_start(arguments, format);
   self = [self initWithStatusCode:errorCode underlyingError:nil messageFormat:format arguments:arguments];
@@ -99,7 +99,7 @@ static inline NSString* _EscapeHTMLString(NSString* string) {
   return self;
 }
 
-- (instancetype)initWithClientError:(GCDWebServerClientErrorHTTPStatusCode)errorCode underlyingError:(NSError*)underlyingError message:(NSString*)format, ... {
+- (instancetype)initWithClientError:(RSClientErrorHTTPStatusCode)errorCode underlyingError:(NSError*)underlyingError message:(NSString*)format, ... {
   va_list arguments;
   va_start(arguments, format);
   self = [self initWithStatusCode:errorCode underlyingError:underlyingError messageFormat:format arguments:arguments];
@@ -107,7 +107,7 @@ static inline NSString* _EscapeHTMLString(NSString* string) {
   return self;
 }
 
-- (instancetype)initWithServerError:(GCDWebServerServerErrorHTTPStatusCode)errorCode underlyingError:(NSError*)underlyingError message:(NSString*)format, ... {
+- (instancetype)initWithServerError:(RSServerErrorHTTPStatusCode)errorCode underlyingError:(NSError*)underlyingError message:(NSString*)format, ... {
   va_list arguments;
   va_start(arguments, format);
   self = [self initWithStatusCode:errorCode underlyingError:underlyingError messageFormat:format arguments:arguments];

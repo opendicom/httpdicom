@@ -1,4 +1,4 @@
-#import "GCDWebServerResponse.h"
+#import "RSResponse.h"
 
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
@@ -29,14 +29,14 @@
 
 
 /**
- *  The GCDWebServerFileResponse subclass of GCDWebServerResponse reads the body
+ *  The RSFileResponse subclass of RSResponse reads the body
  *  of the HTTP response from a file on disk.
  *
  *  It will automatically set the contentType, lastModifiedDate and eTag
- *  properties of the GCDWebServerResponse according to the file extension and
+ *  properties of the RSResponse according to the file extension and
  *  metadata.
  */
-@interface GCDWebServerFileResponse : GCDWebServerResponse
+@interface RSFileResponse : RSResponse
 
 /**
  *  Creates a response with the contents of a file.
@@ -85,7 +85,7 @@
  *  actual size of the file.
  *
  *  This argument would typically be set to the value of the byteRange property
- *  of the current GCDWebServerRequest.
+ *  of the current RSRequest.
  */
 - (instancetype)initWithFile:(NSString*)path byteRange:(NSRange)range;
 

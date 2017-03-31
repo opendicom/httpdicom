@@ -1,4 +1,4 @@
-#import "GCDWebServerStreamedResponse.h"
+#import "RSStreamedResponse.h"
 #import "ODLog.h"
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
@@ -28,24 +28,24 @@
  */
 
 
-@interface GCDWebServerStreamedResponse () {
+@interface RSStreamedResponse () {
 @private
-  GCDWebServerAsyncStreamBlock _block;
+  RSAsyncStreamBlock _block;
 }
 @end
 
-@implementation GCDWebServerStreamedResponse
+@implementation RSStreamedResponse
 
-+ (instancetype)responseWithContentType:(NSString*)type streamBlock:(GCDWebServerStreamBlock)block {
++ (instancetype)responseWithContentType:(NSString*)type streamBlock:(RSStreamBlock)block {
   return [[[self class] alloc] initWithContentType:type streamBlock:block];
 }
 
-+ (instancetype)responseWithContentType:(NSString*)type asyncStreamBlock:(GCDWebServerAsyncStreamBlock)block {
++ (instancetype)responseWithContentType:(NSString*)type asyncStreamBlock:(RSAsyncStreamBlock)block {
   return [[[self class] alloc] initWithContentType:type asyncStreamBlock:block];
 }
 
-- (instancetype)initWithContentType:(NSString*)type streamBlock:(GCDWebServerStreamBlock)block {
-  return [self initWithContentType:type asyncStreamBlock:^(GCDWebServerBodyReaderCompletionBlock completionBlock) {
+- (instancetype)initWithContentType:(NSString*)type streamBlock:(RSStreamBlock)block {
+  return [self initWithContentType:type asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock) {
     
     NSError* error = nil;
     NSData* data = block(&error);
@@ -54,7 +54,7 @@
   }];
 }
 
-- (instancetype)initWithContentType:(NSString*)type asyncStreamBlock:(GCDWebServerAsyncStreamBlock)block {
+- (instancetype)initWithContentType:(NSString*)type asyncStreamBlock:(RSAsyncStreamBlock)block {
   if ((self = [super init])) {
     _block = [block copy];
     
@@ -63,7 +63,7 @@
   return self;
 }
 
-- (void)asyncReadDataWithCompletion:(GCDWebServerBodyReaderCompletionBlock)block {
+- (void)asyncReadDataWithCompletion:(RSBodyReaderCompletionBlock)block {
   _block(block);
 }
 

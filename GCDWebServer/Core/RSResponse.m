@@ -1,4 +1,4 @@
-#import "GCDWebServerResponse.h"
+#import "RSResponse.h"
 
 #import <zlib.h>
 #import "ODLog.h"
@@ -34,23 +34,23 @@
 #define kZlibErrorDomain @"ZlibErrorDomain"
 #define kGZipInitialBufferSize (256 * 1024)
 
-@interface GCDWebServerBodyEncoder : NSObject <GCDWebServerBodyReader>
-- (id)initWithResponse:(GCDWebServerResponse*)response reader:(id<GCDWebServerBodyReader>)reader;
+@interface RSBodyEncoder : NSObject <RSBodyReader>
+- (id)initWithResponse:(RSResponse*)response reader:(id<RSBodyReader>)reader;
 @end
 
-@interface GCDWebServerGZipEncoder : GCDWebServerBodyEncoder
+@interface RSGZipEncoder : RSBodyEncoder
 @end
 
-@interface GCDWebServerBodyEncoder () {
+@interface RSBodyEncoder () {
 @private
-  GCDWebServerResponse* __unsafe_unretained _response;
-  id<GCDWebServerBodyReader> __unsafe_unretained _reader;
+  RSResponse* __unsafe_unretained _response;
+  id<RSBodyReader> __unsafe_unretained _reader;
 }
 @end
 
-@implementation GCDWebServerBodyEncoder
+@implementation RSBodyEncoder
 
-- (id)initWithResponse:(GCDWebServerResponse*)response reader:(id<GCDWebServerBodyReader>)reader {
+- (id)initWithResponse:(RSResponse*)response reader:(id<RSBodyReader>)reader {
   if ((self = [super init])) {
     _response = response;
     _reader = reader;
@@ -72,16 +72,16 @@
 
 @end
 
-@interface GCDWebServerGZipEncoder () {
+@interface RSGZipEncoder () {
 @private
   z_stream _stream;
   BOOL _finished;
 }
 @end
 
-@implementation GCDWebServerGZipEncoder
+@implementation RSGZipEncoder
 
-- (id)initWithResponse:(GCDWebServerResponse*)response reader:(id<GCDWebServerBodyReader>)reader {
+- (id)initWithResponse:(RSResponse*)response reader:(id<RSBodyReader>)reader {
   if ((self = [super initWithResponse:response reader:reader])) {
     response.contentLength = NSUIntegerMax;  // Make sure "Content-Length" header is not set since we don't know it
     [response setValue:@"gzip" forAdditionalHeader:@"Content-Encoding"];
@@ -153,7 +153,7 @@
 
 @end
 
-@interface GCDWebServerResponse () {
+@interface RSResponse () {
 @private
   NSString* _type;
   NSUInteger _length;
@@ -167,11 +167,11 @@
   
   BOOL _opened;
   NSMutableArray* _encoders;
-  id<GCDWebServerBodyReader> __unsafe_unretained _reader;
+  id<RSBodyReader> __unsafe_unretained _reader;
 }
 @end
 
-@implementation GCDWebServerResponse
+@implementation RSResponse
 
 @synthesize contentType=_type, contentLength=_length, statusCode=_status, cacheControlMaxAge=_maxAge, lastModifiedDate=_lastModified, eTag=_eTag,
             gzipContentEncodingEnabled=_gzipped, additionalHeaders=_headers;
@@ -219,7 +219,7 @@
 - (void)prepareForReading {
   _reader = self;
   if (_gzipped) {
-    GCDWebServerGZipEncoder* encoder = [[GCDWebServerGZipEncoder alloc] initWithResponse:self reader:_reader];
+    RSGZipEncoder* encoder = [[RSGZipEncoder alloc] initWithResponse:self reader:_reader];
     [_encoders addObject:encoder];
     _reader = encoder;
   }
@@ -233,7 +233,7 @@
   return [_reader open:error];
 }
 
-- (void)performReadDataWithCompletion:(GCDWebServerBodyReaderCompletionBlock)block {
+- (void)performReadDataWithCompletion:(RSBodyReaderCompletionBlock)block {
   if ([_reader respondsToSelector:@selector(asyncReadDataWithCompletion:)]) {
     [_reader asyncReadDataWithCompletion:[block copy]];
   } else {
@@ -273,7 +273,7 @@
 
 @end
 
-@implementation GCDWebServerResponse (Extensions)
+@implementation RSResponse (Extensions)
 
 + (instancetype)responseWithStatusCode:(NSInteger)statusCode {
   return [[self alloc] initWithStatusCode:statusCode];
