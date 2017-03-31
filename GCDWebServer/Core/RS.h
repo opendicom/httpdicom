@@ -23,25 +23,25 @@
 //Returns NO if the server failed to start and sets "error" argument if not NULL.
 - (BOOL)startWithPort:(NSUInteger)port maxPendingConnections:(NSUInteger)maxPendingConnections error:(NSError**)error;
 
-#pragma mark asynchronous
 
-- (void)addDefaultHandlerForMethod:(NSString*)method
-                 asyncProcessBlock:(RSAsyncProcessBlock)block;
-
-
-- (void)addHandlerForMethod:(NSString*)method
-                       path:(NSString*)path
-          asyncProcessBlock:(RSAsyncProcessBlock)block;
+- (void)addDefaultHandler:(NSString*)method
+                    block:(RSAsyncProcessBlock)block;
 
 
-- (void)addHandlerForMethod:(NSString*)method
-      pathRegularExpression:(NSRegularExpression*)pathRegularExpression asyncProcessBlock:(RSAsyncProcessBlock)block;
+- (void)addHandler:(NSString*)method
+              path:(NSString*)path
+             block:(RSAsyncProcessBlock)block;
+
+
+- (void)addHandler:(NSString*)method
+             regex:(NSRegularExpression*)pathRegularExpression
+             block:(RSAsyncProcessBlock)block;
 
 
 #pragma mark root method invoked by asynchronous
 
 - (void)addHandlerWithMatchBlock:(RSMatchBlock)matchBlock
-               asyncProcessBlock:(RSAsyncProcessBlock)processBlock;
+                           block:(RSAsyncProcessBlock)processBlock;
 
 @end
 

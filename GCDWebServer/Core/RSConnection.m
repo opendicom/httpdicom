@@ -42,7 +42,7 @@ static NSData* _lastChunkData = nil;
 - (void)_startProcessingRequest {
     // https://tools.ietf.org/html/rfc2617
     
-    LOG_DEBUG(@"Connection on socket %i processing request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);
+    LOG_VERBOSE(@"Connection on socket %i processing request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);
     @try {
           _handler.asyncProcessBlock(
             _request,
@@ -247,13 +247,17 @@ static NSData* _lastChunkData = nil;
         
 //JF where the blocks in main are called from Connection
       if (requestMethod && requestURL && requestHeaders && requestPath && requestQuery) {
+          
+        LOG_DEBUG(@"requestHeaders: %@", [requestHeaders description]);
+        LOG_DEBUG(@"request: %@ %@\r\n%@", requestMethod, requestURL,[requestQuery description]);
+         
         for (_handler in _server.handlers) {
            _request = _handler.matchBlock(requestMethod, requestURL, requestHeaders, requestPath, requestQuery);
-          if (_request) {
-            break;
-          }
+          if (_request) break;
+            LOG_DEBUG(@"matchBlock NO");
         }
         if (_request) {
+          LOG_DEBUG(@"matchBlock YES");
           _request.localAddressData = self.localAddressData;
           _request.remoteAddressData = self.remoteAddressData;
           if ([_request hasBody]) {

@@ -142,8 +142,8 @@
 }
 
 
-- (void)addDefaultHandlerForMethod:(NSString*)method
-                 asyncProcessBlock:(RSAsyncProcessBlock)block {
+- (void)addDefaultHandler:(NSString*)method
+                    block:(RSAsyncProcessBlock)block {
     
     [self addHandlerWithMatchBlock:^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
         if (![requestMethod isEqualToString:method]) return nil;
@@ -152,9 +152,9 @@
                  asyncProcessBlock:block];
 }
 
-- (void)addHandlerForMethod:(NSString*)method
-                       path:(NSString*)path
-          asyncProcessBlock:(RSAsyncProcessBlock)block {
+- (void)addHandler:(NSString*)method
+              path:(NSString*)path
+             block:(RSAsyncProcessBlock)block {
     
     [self addHandlerWithMatchBlock:^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
         
@@ -170,9 +170,9 @@
      ];
 }
 
-- (void)addHandlerForMethod:(NSString*)method
-      pathRegularExpression:(NSRegularExpression*)pathRegularExpression
-          asyncProcessBlock:(RSAsyncProcessBlock)block {
+- (void)addHandler:(NSString*)method
+             regex:(NSRegularExpression*)pathRegularExpression
+             block:(RSAsyncProcessBlock)block {
     
     [self addHandlerWithMatchBlock:^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
         
