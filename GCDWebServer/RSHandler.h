@@ -1,9 +1,6 @@
 #import "RSRequest.h"
 #import "RSResponse.h"
 
-typedef void (^RSCompletionBlock)(RSResponse* response);
-typedef void (^RSAsyncProcessBlock)(RSRequest* request, RSCompletionBlock completionBlock);
-
 /*
  The RSMatchBlock is called for every handler added to the RS whenever a new HTTP request has started. The block is passed the basic info for the request and must decide if it wants to handle it or not.
  If the handler can handle the request, the block must return a new RSRequest instance created with the same basic info.
@@ -11,8 +8,10 @@ typedef void (^RSAsyncProcessBlock)(RSRequest* request, RSCompletionBlock comple
  */
 typedef RSRequest* (^RSMatchBlock)(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery);
 
+typedef void (^RSCompletionBlock)(RSResponse* response);
+
 /**
- *  The RSProcessBlock is called after the HTTP request has been fully
+ *  The RSAsyncProcessBlock is called after the HTTP request has been fully
  *  received (i.e. the entire HTTP body has been read). The block is passed the
  *  RSRequest created at the previous step by the RSMatchBlock.
  *
@@ -21,7 +20,9 @@ typedef RSRequest* (^RSMatchBlock)(NSString* requestMethod, NSURL* requestURL, N
  *  recommended to return a RSErrorResponse on error so more useful
  *  information can be returned to the client.
  */
-typedef RSResponse* (^RSProcessBlock)(RSRequest* request);
+typedef void (^RSAsyncProcessBlock)(RSRequest* request, RSCompletionBlock completionBlock);
+
+
 
 
 @interface RSHandler : NSObject
