@@ -41,7 +41,7 @@
 #pragma mark root method invoked by asynchronous
 
 - (void)addHandlerWithMatchBlock:(RSMatchBlock)matchBlock
-                           block:(RSAsyncProcessBlock)processBlock;
+                    processBlock:(RSAsyncProcessBlock)processBlock;
 
 @end
 

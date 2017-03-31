@@ -197,7 +197,8 @@ static NSData* _lastChunkData = nil;
       NSString* requestMethod = CFBridgingRelease(CFHTTPMessageCopyRequestMethod(_requestMessage));  // Method verbs are case-sensitive and uppercase
       NSDictionary* requestHeaders = CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_requestMessage));  // Header names are case-insensitive but CFHTTPMessageCopyAllHeaderFields() will standardize the common ones
       NSURL* requestURL = CFBridgingRelease(CFHTTPMessageCopyRequestURL(_requestMessage));
-      NSString* requestPath = [[requestURL absoluteString] stringByRemovingPercentEncoding];  // Don't use -[NSURL path] which strips the ending slash
+//JF path (strips the ending slash) instead of absoluteString (which keeps host and port)
+      NSString* requestPath = [[requestURL path] stringByRemovingPercentEncoding];
       NSString* queryString = requestURL ? CFBridgingRelease(CFURLCopyQueryString((CFURLRef)requestURL, NULL)) : nil;  // Don't use -[NSURL query] to make sure query is not unescaped;
         
         /**
@@ -249,15 +250,12 @@ static NSData* _lastChunkData = nil;
       if (requestMethod && requestURL && requestHeaders && requestPath && requestQuery) {
           
         LOG_DEBUG(@"requestHeaders: %@", [requestHeaders description]);
-        LOG_DEBUG(@"request: %@ %@\r\n%@", requestMethod, requestURL,[requestQuery description]);
          
         for (_handler in _server.handlers) {
-           _request = _handler.matchBlock(requestMethod, requestURL, requestHeaders, requestPath, requestQuery);
+            _request = _handler.matchBlock(requestMethod, requestURL, requestHeaders, requestPath, requestQuery);
           if (_request) break;
-            LOG_DEBUG(@"matchBlock NO");
         }
         if (_request) {
-          LOG_DEBUG(@"matchBlock YES");
           _request.localAddressData = self.localAddressData;
           _request.remoteAddressData = self.remoteAddressData;
           if ([_request hasBody]) {

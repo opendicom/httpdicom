@@ -36,6 +36,6 @@ typedef void (^RSAsyncProcessBlock)(RSRequest* request, RSCompletionBlock comple
 @property(nonatomic, readonly) RSAsyncProcessBlock asyncProcessBlock;
 
 - (id)initWithMatchBlock:(RSMatchBlock)matchBlock
-       asyncProcessBlock:(RSAsyncProcessBlock)processBlock;
+            processBlock:(RSAsyncProcessBlock)processBlock;
 
 @end

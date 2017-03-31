@@ -145,19 +145,22 @@
 - (void)addDefaultHandler:(NSString*)method
                     block:(RSAsyncProcessBlock)block {
     
-    [self addHandlerWithMatchBlock:^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
+    [self addHandlerWithMatchBlock:
+     ^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery)
+    {
         if (![requestMethod isEqualToString:method]) return nil;
         return [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
     }
-                 asyncProcessBlock:block];
+                      processBlock:block];
 }
 
 - (void)addHandler:(NSString*)method
               path:(NSString*)path
              block:(RSAsyncProcessBlock)block {
     
-    [self addHandlerWithMatchBlock:^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
-        
+    [self addHandlerWithMatchBlock:
+     ^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery)
+    {
         if (![requestMethod isEqualToString:method]) {
             return nil;
         }
@@ -166,7 +169,8 @@
         }
         return [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
         
-    } asyncProcessBlock:block
+    }
+                      processBlock:block
      ];
 }
 
@@ -174,7 +178,9 @@
              regex:(NSRegularExpression*)pathRegularExpression
              block:(RSAsyncProcessBlock)block {
     
-    [self addHandlerWithMatchBlock:^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery) {
+    [self addHandlerWithMatchBlock:
+     ^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery)
+    {
         
         if (![requestMethod isEqualToString:method]) {
             return nil;
@@ -206,16 +212,18 @@
         [request setAttribute:captures forKey:@"RSRequestAttribute_RegexCaptures"];
         return request;
         
-    } asyncProcessBlock:block];
+    }
+                      processBlock:block];
 }
 
 
 #pragma mark root handler with matchBlock and asyncProcessBlock
 
 - (void)addHandlerWithMatchBlock:(RSMatchBlock)matchBlock
-               asyncProcessBlock:(RSAsyncProcessBlock)processBlock {
+                    processBlock:(RSAsyncProcessBlock)processBlock {
     
-    RSHandler* handler = [[RSHandler alloc] initWithMatchBlock:matchBlock asyncProcessBlock:processBlock];
+    RSHandler* handler = [[RSHandler alloc] initWithMatchBlock:matchBlock
+                                                  processBlock:processBlock];
     [_handlers insertObject:handler atIndex:0];
 }
 
