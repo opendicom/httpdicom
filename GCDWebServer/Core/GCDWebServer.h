@@ -1,5 +1,4 @@
-#import "GCDWebServerRequest.h"
-#import "GCDWebServerResponse.h"
+#import "GCDWebServerHandler.h"
 /*
  Copyright (c) 2012-2015, Pierre-Olivier Latour
  All rights reserved.
@@ -28,42 +27,6 @@
  */
 
 
-/**
- *  The GCDWebServerMatchBlock is called for every handler added to the
- *  GCDWebServer whenever a new HTTP request has started (i.e. HTTP headers have
- *  been received). The block is passed the basic info for the request (HTTP method,
- *  URL, headers...) and must decide if it wants to handle it or not.
- *
- *  If the handler can handle the request, the block must return a new
- *  GCDWebServerRequest instance created with the same basic info.
- *  Otherwise, it simply returns nil.
- */
-typedef GCDWebServerRequest* (^GCDWebServerMatchBlock)(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery);
-
-/**
- *  The GCDWebServerProcessBlock is called after the HTTP request has been fully
- *  received (i.e. the entire HTTP body has been read). The block is passed the
- *  GCDWebServerRequest created at the previous step by the GCDWebServerMatchBlock.
- *
- *  The block must return a GCDWebServerResponse or nil on error, which will
- *  result in a 500 HTTP status code returned to the client. It's however
- *  recommended to return a GCDWebServerErrorResponse on error so more useful
- *  information can be returned to the client.
- */
-typedef GCDWebServerResponse* (^GCDWebServerProcessBlock)(__kindof GCDWebServerRequest* request);
-
-/**
- *  The GCDWebServerAsynchronousProcessBlock works like the GCDWebServerProcessBlock
- *  except the GCDWebServerResponse can be returned to the server at a later time
- *  allowing for asynchronous generation of the response.
- *
- *  The block must eventually call "completionBlock" passing a GCDWebServerResponse
- *  or nil on error, which will result in a 500 HTTP status code returned to the client.
- *  It's however recommended to return a GCDWebServerErrorResponse on error so more
- *  useful information can be returned to the client.
- */
-typedef void (^GCDWebServerCompletionBlock)(GCDWebServerResponse* response);
-typedef void (^GCDWebServerAsyncProcessBlock)(__kindof GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock);
 
 
 /**
@@ -78,67 +41,52 @@ typedef void (^GCDWebServerAsyncProcessBlock)(__kindof GCDWebServerRequest* requ
  *  See the README.md file for more information about the architecture of GCDWebServer.
  */
 @interface GCDWebServer : NSObject
+{
+    @private
+    dispatch_queue_t _syncQueue;
+    dispatch_group_t _sourceGroup;
+    NSMutableArray* _handlers;
+    NSInteger _activeConnections;  // Accessed through _syncQueue only
+    BOOL _connected;  // Accessed on main thread only
+    
+    NSDictionary* _options;
+    NSString* _serverName;
+    NSString* _authenticationRealm;
+    NSMutableDictionary* _authenticationBasicAccounts;
+    NSMutableDictionary* _authenticationDigestAccounts;
+    Class _connectionClass;
+    NSUInteger _port;
+    dispatch_source_t _source4;
+    dispatch_source_t _source6;
+}
+
 @property(nonatomic, readonly) NSUInteger port;
+@property(nonatomic, readonly) NSArray* handlers;
+@property(nonatomic, readonly) NSString* serverName;
 
 - (instancetype)init;//designated initializer
 //Returns NO if the server failed to start and sets "error" argument if not NULL.
 - (BOOL)startWithPort:(NSUInteger)port maxPendingConnections:(NSUInteger)maxPendingConnections error:(NSError**)error;
-@end
-
-@interface GCDWebServer ()
-@property(nonatomic, readonly) NSArray* handlers;
-@property(nonatomic, readonly) NSString* serverName;
-@property(nonatomic, readonly) NSString* authenticationRealm;
-@property(nonatomic, readonly) NSDictionary* authenticationBasicAccounts;
-@property(nonatomic, readonly) NSDictionary* authenticationDigestAccounts;
-@end
-
-@interface GCDWebServer (Handlers)
-
-#pragma mark synchronous
-- (void)addDefaultHandlerForMethod:(NSString*)method processBlock:(GCDWebServerProcessBlock)processBlock;
-//specific case-insensitive path
-- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path processBlock:(GCDWebServerProcessBlock)processBlock;
-/**
- * NSRegularExpression* pathRegularExpression = [NSRegularExpression regularExpressionWithPattern:regex options:NSRegularExpressionCaseInsensitive error:NULL];
- * may be initiated only once for every aplication of the pattern
- */
-- (void)addHandlerForMethod:(NSString*)method pathRegularExpression:(NSRegularExpression*)pathRegularExpression processBlock:(GCDWebServerProcessBlock)processBlock;
-
 
 #pragma mark asynchronous
-- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock asyncProcessBlock:(GCDWebServerAsyncProcessBlock)processBlock;
-- (void)addDefaultHandlerForMethod:(NSString*)method asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
-//specific case-insensitive path
-- (void)addHandlerForMethod:(NSString*)method path:(NSString*)path asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
-/**
- * NSRegularExpression* pathRegularExpression = [NSRegularExpression regularExpressionWithPattern:regex options:NSRegularExpressionCaseInsensitive error:NULL];
- * may be initiated only once por every aplication of the pattern
- */
-- (void)addHandlerForMethod:(NSString*)method pathRegularExpression:(NSRegularExpression*)pathRegularExpression asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
+
+- (void)addDefaultHandlerForMethod:(NSString*)method
+                 asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
 
 
-- (void)removeAllHandlers;
+- (void)addHandlerForMethod:(NSString*)method
+                       path:(NSString*)path
+          asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
 
-@end
 
-@interface GCDWebServer (GETHandlers)
+- (void)addHandlerForMethod:(NSString*)method
+      pathRegularExpression:(NSRegularExpression*)pathRegularExpression asyncProcessBlock:(GCDWebServerAsyncProcessBlock)block;
 
-/**
- *  Adds a handler to the server to respond to incoming "GET" HTTP requests
- *  with a specific case-insensitive path with in-memory data.
- */
-- (void)addGETHandlerForPath:(NSString*)path staticData:(NSData*)staticData contentType:(NSString*)contentType cacheAge:(NSUInteger)cacheAge;
 
-/**
- *  Adds a handler to the server to respond to incoming "GET" HTTP requests
- *  with a specific case-insensitive path with a file.
- */
-- (void)addGETHandlerForPath:(NSString*)path filePath:(NSString*)filePath isAttachment:(BOOL)isAttachment cacheAge:(NSUInteger)cacheAge allowRangeRequests:(BOOL)allowRangeRequests;
+#pragma mark root method invoked by asynchronous
+
+- (void)addHandlerWithMatchBlock:(GCDWebServerMatchBlock)matchBlock
+               asyncProcessBlock:(GCDWebServerAsyncProcessBlock)processBlock;
 
 @end
 
-@interface GCDWebServerHandler : NSObject
-@property(nonatomic, readonly) GCDWebServerMatchBlock matchBlock;
-@property(nonatomic, readonly) GCDWebServerAsyncProcessBlock asyncProcessBlock;
-@end

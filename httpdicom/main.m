@@ -430,36 +430,27 @@ int main(int argc, const char* argv[]) {
         }
 
 #pragma mark no handler for GET
-        [httpdicomServer addDefaultHandlerForMethod:@"GET"
-processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             //request parts logging
-             NSURL *requestURL=request.URL;
-             NSString *bSlash=requestURL.baseURL.absoluteString;
-             NSString *b=[bSlash substringToIndex:[bSlash length]-1];
-             NSString *p=requestURL.path;
-             //NSString *q=requestURL.query;
-             NSDictionary *q=request.query;
-             LOG_WARNING(@"%@",requestURL);
-             LOG_WARNING(@"%@%@?%@ [no handler]",b,p,q);
-             return [GCDWebServerErrorResponse
-                     responseWithClientError:400
-                     message:@"%@ [no handler]",request.path];
-         }];
+        [httpdicomServer addDefaultHandlerForMethod:@"GET" asyncProcessBlock:
+         ^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock)
+         {completionBlock(
+            ^GCDWebServerResponse* (GCDWebServerRequest* request)
+            {return [GCDWebServerErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];}
+
+                (request)
+          );}
+        ];
 
         
 #pragma mark echo
-        /*
-         pathRegularExpression:[NSRegularExpression regularExpressionWithPattern:@"^/echo$" options:0 error:NULL]
-         */
-        [httpdicomServer
-         addHandlerForMethod:@"GET"
-         path:@"/"
-         processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
-             return [GCDWebServerDataResponse responseWithText:@"echo"];
-         }];
-        
+        [httpdicomServer addHandlerForMethod:@"GET" path:@"/echo" asyncProcessBlock:
+         ^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock)
+         {completionBlock(
+            ^GCDWebServerResponse* (GCDWebServerRequest* request)
+            {return [GCDWebServerDataResponse responseWithText:@"echo"];}
+                          
+                (request)
+         );}
+        ];
 
 
 #pragma mark custodians
@@ -467,7 +458,10 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         [httpdicomServer
          addHandlerForMethod:@"GET"
          pathRegularExpression:[NSRegularExpression regularExpressionWithPattern:@"^/custodians/.*$" options:0 error:NULL]
-         processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         asyncProcessBlock:
+         ^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock)
+         {completionBlock(
+                          ^GCDWebServerResponse* (GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSUInteger pCount=[pComponents count];
@@ -568,6 +562,10 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
              }
              return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [no handler]",request.path];
          }
+                          
+                          (request)
+                          );}
+
          ];
         
 
@@ -579,7 +577,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:qidoregex
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
@@ -623,7 +621,8 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
              
              
              return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [QIDO not available]",request.path];
-         }];
+         }
+                                                                                                                                          (request));}];
         
         
 #pragma mark WADO-URI
@@ -631,8 +630,8 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:wadouriregex
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
-         {
+asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
+                                                                                                               {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              //NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
              NSDictionary *pacsaei=pacsDictionaries[(request.query)[@"custodianOID"]];
@@ -686,8 +685,8 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
              }
 
              return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [WADO-URI not available]",request.path];
-         }];
-        
+         }
+(request));}];
         
 #pragma mark WADO-RS
         // /pacs/{OID}/studies/{StudyInstanceUID}
@@ -698,7 +697,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:wadorsregex
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
@@ -734,8 +733,8 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
                  return urlProxy(urlString,@"multipart/related;type=application/dicom");
              }
              return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [WADO-RS not available]",request.path];
-         }];
-
+         }
+                                                                                                                                          (request));}];
         
 #pragma mark dcm.zip
         //servicio de segundo nivel que llama a WADO-RS para su realización
@@ -743,7 +742,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:dcmzipregex
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
         {
             LOG_INFO(@"osirix");
             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
@@ -893,8 +892,8 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
             }];
 
             return response;
-        }];
-
+        }
+(request));}];
         
 
         
@@ -908,7 +907,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          
          [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:applicableregex
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+                            asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *destPacs=pacsDictionaries[pComponents[2]];
@@ -1013,7 +1012,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
                     responseWithData:encapsulatedData
                     contentType:ctString];
          }
-         ];
+                                                                                                                                           (request));}];
 
         
         
@@ -1022,7 +1021,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         NSRegularExpression *mwstudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:mwstudiesregex
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
          {
              //request parts logging
              NSURL *requestURL=request.URL;
@@ -1165,7 +1164,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
                  }
                  return [GCDWebServerDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/xml"];
          }
-         ];
+                                                                                                                                          (request));}];
         
         
 #pragma mark /manifest/weasis/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
@@ -1173,7 +1172,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         NSRegularExpression *mwseriesregex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*/series/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*" options:NSRegularExpressionCaseInsensitive error:NULL];
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:mwseriesregex
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
          {
              //request parts logging
              NSURL *requestURL=request.URL;
@@ -1320,7 +1319,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
              }
              return [GCDWebServerDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
          }
-         ];
+                                                                                                                                          (request));}];
         
         
 #pragma mark patient
@@ -1333,8 +1332,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:patientRegex
-                                requestClass:[GCDWebServerRequest class]
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+         asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
          {
              //get query part
              NSURLComponents *urlComponents = [NSURLComponents componentsWithString:request.URL.query];
@@ -1509,8 +1507,9 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
              
              
              return [GCDWebServerErrorResponse responseWithClientError:404 message:@"%@ [QIDO not available]",request.path];
-         }];
-*/
+         }
+(request));}];
+         */
 #pragma mark -
 #pragma mark datatables/studies
         /*
@@ -1523,7 +1522,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
          */
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/datatables/studies"
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
          {
              NSDictionary *q=request.query;
              NSString *session=q[@"session"];
@@ -1985,7 +1984,8 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
                      responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:resp]
                      contentType:@"application/dicom+json"
                      ];
-         }];
+         }
+                                                                                                                                          (request));}];
         
 #pragma mark datatables/patient
         /*
@@ -1995,7 +1995,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/datatables/patient"
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
          {
              NSDictionary *q=request.query;
              //LOG_INFO(@"%@",[q description]);
@@ -2057,14 +2057,14 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
                      contentType:@"application/dicom+json"
                      ];
          }
-         ];
+                                                                                                                                          (request));}];
         
         
 #pragma mark datatables/series
         //"datatables/series?AccessionNumber=22&IssuerOfAccessionNumber.UniversalEntityID=NULL&StudyIUID=2.16.858.2.10000675.72769.20160411084701.1.100&session=1"
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/datatables/series"
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
          {
              NSDictionary *q=request.query;
              NSString *session=q[@"session"];
@@ -2116,7 +2116,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
                      contentType:@"application/dicom+json"
                      ];
          }
-         ];
+                                                                                                                                          (request));}];
 
         
 #pragma mark IHEInvokeImageDisplay
@@ -2124,7 +2124,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
         
         [httpdicomServer addHandlerForMethod:@"GET"
                                         path:@"/IHEInvokeImageDisplay"
-                                processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
+                           asyncProcessBlock:^(GCDWebServerRequest* request, GCDWebServerCompletionBlock completionBlock){completionBlock(^GCDWebServerResponse* (GCDWebServerRequest* request)
          {
              NSDictionary *q=request.query;
              
@@ -2341,7 +2341,7 @@ processBlock:^GCDWebServerResponse *(GCDWebServerRequest* request)
              }
              return [GCDWebServerDataResponse responseWithText:[NSString stringWithFormat:@"unknown viewerType in %@%@?%@",b,p,requestURL.query]];
          }
-         ];
+                                                                                                                                          (request));}];
         
 
 #pragma mark run

@@ -13,6 +13,8 @@
 		4A83466E1DD91B5F008EFF41 /* NSData+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */; };
 		4A83466F1DD91B5F008EFF41 /* NSString+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */; };
 		4A8346701DD91B5F008EFF41 /* NSString+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A83466C1DD91B5F008EFF41 /* NSString+PCS.m */; };
+		4A96728C1E8E06B600783CD8 /* GCDWebServerHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A96728A1E8E06B600783CD8 /* GCDWebServerHandler.h */; };
+		4A96728D1E8E06B600783CD8 /* GCDWebServerHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A96728B1E8E06B600783CD8 /* GCDWebServerHandler.m */; };
 		4A96C55F1E843C9E002EB09E /* RFC822.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A96C55E1E843C9E002EB09E /* RFC822.m */; };
 		4A96C5611E843CBD002EB09E /* RFC822.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A96C5601E843CBD002EB09E /* RFC822.h */; };
 		4AAB26751D8A42A400401FD5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AAB266F1D8A42A400401FD5 /* main.m */; };
@@ -61,6 +63,8 @@
 		4A83466A1DD91B5F008EFF41 /* NSData+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+PCS.m"; path = "httpdicom/NSData+PCS.m"; sourceTree = SOURCE_ROOT; };
 		4A83466B1DD91B5F008EFF41 /* NSString+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+PCS.h"; path = "httpdicom/NSString+PCS.h"; sourceTree = SOURCE_ROOT; };
 		4A83466C1DD91B5F008EFF41 /* NSString+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+PCS.m"; path = "httpdicom/NSString+PCS.m"; sourceTree = SOURCE_ROOT; };
+		4A96728A1E8E06B600783CD8 /* GCDWebServerHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWebServerHandler.h; sourceTree = "<group>"; };
+		4A96728B1E8E06B600783CD8 /* GCDWebServerHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWebServerHandler.m; sourceTree = "<group>"; };
 		4A96C55E1E843C9E002EB09E /* RFC822.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RFC822.m; path = httpdicom/RFC822.m; sourceTree = SOURCE_ROOT; };
 		4A96C5601E843CBD002EB09E /* RFC822.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RFC822.h; path = httpdicom/RFC822.h; sourceTree = SOURCE_ROOT; };
 		4AA28D2B1D94532300B223CA /* httpdicom_mini.postman_collection.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = httpdicom_mini.postman_collection.json; sourceTree = "<group>"; };
@@ -163,6 +167,8 @@
 				4ABAF4691E7B8511003B3217 /* GCDWebServerResponse.h */,
 				4ABAF46A1E7B8511003B3217 /* GCDWebServerResponse.m */,
 				4ABAF4741E7B8511003B3217 /* Responses */,
+				4A96728A1E8E06B600783CD8 /* GCDWebServerHandler.h */,
+				4A96728B1E8E06B600783CD8 /* GCDWebServerHandler.m */,
 				4ABAF45F1E7B8511003B3217 /* GCDWebServer.h */,
 				4ABAF4601E7B8511003B3217 /* GCDWebServer.m */,
 				4ABAF4611E7B8511003B3217 /* GCDWebServerConnection.h */,
@@ -197,6 +203,7 @@
 				4ABAF47F1E7B8511003B3217 /* GCDWebServerConnection.h in Headers */,
 				4ABAF4911E7B8511003B3217 /* GCDWebServerDataResponse.h in Headers */,
 				4A0E60441E81C01B005D7F2B /* ODLog.h in Headers */,
+				4A96728C1E8E06B600783CD8 /* GCDWebServerHandler.h in Headers */,
 				4ABAF4871E7B8511003B3217 /* GCDWebServerResponse.h in Headers */,
 				4A83466F1DD91B5F008EFF41 /* NSString+PCS.h in Headers */,
 				4ABAF4971E7B8511003B3217 /* GCDWebServerStreamedResponse.h in Headers */,
@@ -269,6 +276,7 @@
 				4ABAF4941E7B8511003B3217 /* GCDWebServerErrorResponse.m in Sources */,
 				4ABAF4801E7B8511003B3217 /* GCDWebServerConnection.m in Sources */,
 				4AEF37881DC8D6C800CDA008 /* URLSessionDataTask.m in Sources */,
+				4A96728D1E8E06B600783CD8 /* GCDWebServerHandler.m in Sources */,
 				4ABAF4981E7B8511003B3217 /* GCDWebServerStreamedResponse.m in Sources */,
 				4ABAF47E1E7B8511003B3217 /* GCDWebServer.m in Sources */,
 				4AAB26751D8A42A400401FD5 /* main.m in Sources */,
