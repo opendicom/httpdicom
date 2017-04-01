@@ -430,8 +430,10 @@ int main(int argc, const char* argv[]) {
         }
 
 #pragma mark no handler for GET
-        [httpdicomServer addDefaultHandler:@"GET"
-                                     block:
+        [httpdicomServer addHandler:@"GET"
+                              regex:[NSRegularExpression regularExpressionWithPattern:@".*"
+                                  options:0 error:NULL]
+                              block:
          ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(
             ^RSResponse* (RSRequest* request)
@@ -444,7 +446,8 @@ int main(int argc, const char* argv[]) {
         
 #pragma mark echo
         [httpdicomServer addHandler:@"GET"
-                               path:@"/echo"
+                              regex:[NSRegularExpression regularExpressionWithPattern:@"/echo"
+                                   options:0 error:NULL]
                               block:
          ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(
@@ -1523,7 +1526,8 @@ int main(int argc, const char* argv[]) {
          s=subselection from caché
          */
         [httpdicomServer addHandler:@"GET"
-                               path:@"/datatables/studies"
+                              regex:[NSRegularExpression regularExpressionWithPattern:@"/datatables/studies"
+                                  options:0 error:NULL]
                               block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSDictionary *q=request.query;
@@ -1996,7 +2000,8 @@ int main(int argc, const char* argv[]) {
          */
         
         [httpdicomServer addHandler:@"GET"
-                               path:@"/datatables/patient"
+                              regex:[NSRegularExpression regularExpressionWithPattern:@"/datatables/patient"
+                                                                              options:0 error:NULL]
                               block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSDictionary *q=request.query;
@@ -2065,7 +2070,8 @@ int main(int argc, const char* argv[]) {
 #pragma mark datatables/series
         //"datatables/series?AccessionNumber=22&IssuerOfAccessionNumber.UniversalEntityID=NULL&StudyIUID=2.16.858.2.10000675.72769.20160411084701.1.100&session=1"
         [httpdicomServer addHandler:@"GET"
-                               path:@"/datatables/series"
+                              regex:[NSRegularExpression regularExpressionWithPattern:@"/datatables/series"
+                                                                              options:0 error:NULL]
                               block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSDictionary *q=request.query;
@@ -2125,7 +2131,8 @@ int main(int argc, const char* argv[]) {
         // IHEInvokeImageDisplay?requestType=STUDY&accessionNumber=1&viewerType=IHE_BIR&diagnosticQuality=true&keyImagesOnly=false&custodianOID=xxx&proxyURI=yyy
         
         [httpdicomServer addHandler:@"GET"
-                               path:@"/IHEInvokeImageDisplay"
+                              regex:[NSRegularExpression regularExpressionWithPattern:@"/IHEInvokeImageDisplay"
+                                                                              options:0 error:NULL]
                               block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSDictionary *q=request.query;

@@ -23,16 +23,6 @@
 //Returns NO if the server failed to start and sets "error" argument if not NULL.
 - (BOOL)startWithPort:(NSUInteger)port maxPendingConnections:(NSUInteger)maxPendingConnections error:(NSError**)error;
 
-
-- (void)addDefaultHandler:(NSString*)method
-                    block:(RSAsyncProcessBlock)block;
-
-
-- (void)addHandler:(NSString*)method
-              path:(NSString*)path
-             block:(RSAsyncProcessBlock)block;
-
-
 - (void)addHandler:(NSString*)method
              regex:(NSRegularExpression*)pathRegularExpression
              block:(RSAsyncProcessBlock)block;

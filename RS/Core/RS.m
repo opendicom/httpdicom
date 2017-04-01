@@ -141,39 +141,6 @@
     return YES;
 }
 
-
-- (void)addDefaultHandler:(NSString*)method
-                    block:(RSAsyncProcessBlock)block {
-    
-    [self addHandlerWithMatchBlock:
-     ^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery)
-    {
-        if (![requestMethod isEqualToString:method]) return nil;
-        return [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
-    }
-                      processBlock:block];
-}
-
-- (void)addHandler:(NSString*)method
-              path:(NSString*)path
-             block:(RSAsyncProcessBlock)block {
-    
-    [self addHandlerWithMatchBlock:
-     ^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery)
-    {
-        if (![requestMethod isEqualToString:method]) {
-            return nil;
-        }
-        if ([urlPath caseInsensitiveCompare:path] != NSOrderedSame) {
-            return nil;
-        }
-        return [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
-        
-    }
-                      processBlock:block
-     ];
-}
-
 - (void)addHandler:(NSString*)method
              regex:(NSRegularExpression*)pathRegularExpression
              block:(RSAsyncProcessBlock)block {

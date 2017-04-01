@@ -1,8 +1,8 @@
 # httpdicom
 
-Reverse proxy rest which accepts a subset of DICOMWEB services (and some additional ones) and forwards them to
- - a DICOMWEB PACS using HTTP,
- - a DICOM PACS using WADO and SQL,
+Reverse proxy rest which provides a subset of DICOMWEB services (and some additional ones) and forwards queries to
+ - DICOMWEB PACS using HTTP,
+ - DICOM PACS using WADO and SQL,
  - or another instance of httpdicom using HTTPS
  
 ## subset DICOMWEB
@@ -16,7 +16,7 @@ Reverse proxy rest which accepts a subset of DICOMWEB services (and some additio
 ## additions
  - encapsulated (returns the contents of attribute 00420010 with corresponding content-type)
  - zipped/wadors (returns the dicom instances zipped, instead of a multipart/related)
- - djangors/qido (returns a django-rest framework conformant JSON)
+ - datatables/studies, patient, series (returns data source consummed by datatables without modification)
  - wado-rs content-type multipart/related; type="application/dicom" /export
  - wado-uri /export
 
