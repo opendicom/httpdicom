@@ -19,19 +19,15 @@
 
 @property(nonatomic, readonly) NSArray* handlers;
 
-- (instancetype)init;//designated initializer
-//Returns NO if the server failed to start and sets "error" argument if not NULL.
+- (instancetype)init;
 - (BOOL)startWithPort:(NSUInteger)port maxPendingConnections:(NSUInteger)maxPendingConnections error:(NSError**)error;
 
 - (void)addHandler:(NSString*)method
-             regex:(NSRegularExpression*)pathRegularExpression
-             block:(RSAsyncProcessBlock)block;
-
-
-#pragma mark root method invoked by asynchronous
+             regex:(NSRegularExpression*)regex
+      processBlock:(RSProcessBlock)processBlock;
 
 - (void)addHandlerWithMatchBlock:(RSMatchBlock)matchBlock
-                    processBlock:(RSAsyncProcessBlock)processBlock;
+                    processBlock:(RSProcessBlock)processBlock;
 
 @end
 

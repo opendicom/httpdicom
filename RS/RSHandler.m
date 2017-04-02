@@ -5,7 +5,7 @@
 @synthesize matchBlock=_matchBlock, asyncProcessBlock=_asyncProcessBlock;
 
 - (id)initWithMatchBlock:(RSMatchBlock)matchBlock
-            processBlock:(RSAsyncProcessBlock)processBlock {
+            processBlock:(RSProcessBlock)processBlock {
     if ((self = [super init])) {
         _matchBlock = [matchBlock copy];
         _asyncProcessBlock = [processBlock copy];

@@ -61,24 +61,13 @@
   return -1;
 }
 
-#pragma mark starts listening and calling RSConnection for each new connection
 - (dispatch_source_t)_createDispatchSourceWithListeningSocket:(int)listeningSocket isIPv6:(BOOL)isIPv6 {
-  dispatch_group_enter(_sourceGroup);
-  dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
-  dispatch_source_set_cancel_handler(source, ^{
-    
-    @autoreleasepool {
-      int result = close(listeningSocket);
-      if (result != 0) {
-        LOG_ERROR(@"Failed closing %s listening socket: %s (%i)", isIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
-      } else {
-        LOG_DEBUG(@"Did close %s listening socket %i", isIPv6 ? "IPv6" : "IPv4", listeningSocket);
-      }
-    }
-    dispatch_group_leave(_sourceGroup);
-    
-  });
-  dispatch_source_set_event_handler(source, ^{
+
+    dispatch_group_enter(_sourceGroup);
+
+    dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
+
+    dispatch_source_set_event_handler(source, ^{
     
     @autoreleasepool {
       struct sockaddr_storage remoteSockAddr;
@@ -142,10 +131,10 @@
 }
 
 - (void)addHandler:(NSString*)method
-             regex:(NSRegularExpression*)pathRegularExpression
-             block:(RSAsyncProcessBlock)block {
-    
-    [self addHandlerWithMatchBlock:
+             regex:(NSRegularExpression*)regex
+      processBlock:(RSProcessBlock)processBlock
+{[self addHandlerWithMatchBlock:
+  
      ^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery)
     {
         
@@ -153,7 +142,7 @@
             return nil;
         }
         
-        NSArray* matches = [pathRegularExpression matchesInString:urlPath options:0 range:NSMakeRange(0, urlPath.length)];
+        NSArray* matches = [regex matchesInString:urlPath options:0 range:NSMakeRange(0, urlPath.length)];
         if (matches.count == 0) {
             return nil;
         }
@@ -178,16 +167,14 @@
          */
         [request setAttribute:captures forKey:@"RSRequestAttribute_RegexCaptures"];
         return request;
-        
     }
-                      processBlock:block];
-}
+  
+    processBlock:processBlock
+];}
 
-
-#pragma mark root handler with matchBlock and asyncProcessBlock
 
 - (void)addHandlerWithMatchBlock:(RSMatchBlock)matchBlock
-                    processBlock:(RSAsyncProcessBlock)processBlock {
+                    processBlock:(RSProcessBlock)processBlock {
     
     RSHandler* handler = [[RSHandler alloc] initWithMatchBlock:matchBlock
                                                   processBlock:processBlock];

@@ -20,7 +20,7 @@ typedef void (^RSCompletionBlock)(RSResponse* response);
  *  recommended to return a RSErrorResponse on error so more useful
  *  information can be returned to the client.
  */
-typedef void (^RSAsyncProcessBlock)(RSRequest* request, RSCompletionBlock completionBlock);
+typedef void (^RSProcessBlock)(RSRequest* request, RSCompletionBlock completionBlock);
 
 
 
@@ -29,13 +29,13 @@ typedef void (^RSAsyncProcessBlock)(RSRequest* request, RSCompletionBlock comple
 {
     @private
     RSMatchBlock _matchBlock;
-    RSAsyncProcessBlock _asyncProcessBlock;
+    RSProcessBlock _asyncProcessBlock;
 }
 
 @property(nonatomic, readonly) RSMatchBlock matchBlock;
-@property(nonatomic, readonly) RSAsyncProcessBlock asyncProcessBlock;
+@property(nonatomic, readonly) RSProcessBlock asyncProcessBlock;
 
 - (id)initWithMatchBlock:(RSMatchBlock)matchBlock
-            processBlock:(RSAsyncProcessBlock)processBlock;
+            processBlock:(RSProcessBlock)processBlock;
 
 @end

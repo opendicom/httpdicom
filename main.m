@@ -429,26 +429,61 @@ int main(int argc, const char* argv[]) {
              ];
         }
 
-#pragma mark no handler for GET
-        [httpdicomServer addHandler:@"GET"
-                              regex:[NSRegularExpression regularExpressionWithPattern:@".*"
-                                  options:0 error:NULL]
-                              block:
-         ^(RSRequest* request, RSCompletionBlock completionBlock)
-         {completionBlock(
-            ^RSResponse* (RSRequest* request)
-            {return [RSErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];}
+#pragma mark -
+#pragma mark routing regex LIFO list
+        
+        NSRegularExpression *anyRegex = [NSRegularExpression regularExpressionWithPattern:@".*" options:0 error:NULL];
 
-                (request)
-          );}
+        NSRegularExpression *echoRegex = [NSRegularExpression regularExpressionWithPattern:@"/echo" options:0 error:NULL];
+        
+        NSRegularExpression *custodiansRegex = [NSRegularExpression regularExpressionWithPattern:@"^/custodians/.*$" options:0 error:NULL];
+        
+        NSRegularExpression *qidoRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/rs\\/(studies|series|instances)$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        NSRegularExpression *wadouriRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        NSRegularExpression *wadorsRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/rs\\/studies\\/" options:NSRegularExpressionCaseInsensitive error:NULL];
+
+        NSRegularExpression *dcmzipRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/dcm.zip$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        NSRegularExpression *encapsulatedRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/(ot|doc|cda)$" options:NSRegularExpressionCaseInsensitive error:NULL];
+
+        NSRegularExpression *mwstudiesRegex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
+
+        NSRegularExpression *mwseriesRegex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*/series/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*" options:NSRegularExpressionCaseInsensitive error:NULL];
+
+        NSRegularExpression *patientRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/patient$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
+        NSRegularExpression *dtstudiesRegex = [NSRegularExpression regularExpressionWithPattern:@"/datatables/studies" options:0 error:NULL];
+        
+        NSRegularExpression *dtpatientRegex = [NSRegularExpression regularExpressionWithPattern:@"/datatables/patient" options:0 error:NULL];
+        
+        NSRegularExpression *dtseriesRegex = [NSRegularExpression regularExpressionWithPattern:@"/datatables/series" options:0 error:NULL];
+        
+        NSRegularExpression *iheiidRegex = [NSRegularExpression regularExpressionWithPattern:@"/IHEInvokeImageDisplay" options:0 error:NULL];
+        
+#pragma mark any
+        [
+         httpdicomServer addHandler:@"GET" regex:anyRegex processBlock:
+         ^(RSRequest* request, RSCompletionBlock completionBlock)
+         {
+          completionBlock
+          (
+
+           ^RSResponse* (RSRequest* request)
+           {
+            return [RSErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
+           }
+
+           (request)
+
+          );
+         }
         ];
 
         
 #pragma mark echo
-        [httpdicomServer addHandler:@"GET"
-                              regex:[NSRegularExpression regularExpressionWithPattern:@"/echo"
-                                   options:0 error:NULL]
-                              block:
+        [httpdicomServer addHandler:@"GET" regex:echoRegex processBlock:
          ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(
             ^RSResponse* (RSRequest* request)
@@ -461,9 +496,7 @@ int main(int argc, const char* argv[]) {
 
 #pragma mark custodians
         
-        [httpdicomServer addHandler:@"GET"
-                              regex:[NSRegularExpression regularExpressionWithPattern:@"^/custodians/.*$" options:0 error:NULL]
-                              block:
+        [httpdicomServer addHandler:@"GET" regex:custodiansRegex processBlock:
          ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(
                           ^RSResponse* (RSRequest* request)
@@ -573,16 +606,10 @@ int main(int argc, const char* argv[]) {
 
          ];
         
-
-#pragma mark -
-        
 #pragma mark QIDO
         // /pacs/{oid}/rs/( studies | series | instances )?
-        NSRegularExpression *qidoregex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/rs\\/(studies|series|instances)$" options:NSRegularExpressionCaseInsensitive error:NULL];
-        
-        [httpdicomServer addHandler:@"GET"
-                              regex:qidoregex
-                              block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+        [httpdicomServer addHandler:@"GET" regex:qidoRegex processBlock:
+         ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
@@ -631,11 +658,9 @@ int main(int argc, const char* argv[]) {
         
         
 #pragma mark WADO-URI
-        NSRegularExpression *wadouriregex = [NSRegularExpression regularExpressionWithPattern:@"^\\/$" options:NSRegularExpressionCaseInsensitive error:NULL];
         
-        [httpdicomServer addHandler:@"GET"
-                              regex:wadouriregex
-                              block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+        [httpdicomServer addHandler:@"GET" regex:wadouriRegex processBlock:
+         ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
                                                                                                                {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              //NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
@@ -698,11 +723,9 @@ int main(int argc, const char* argv[]) {
         // /pacs/{OID}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
         // /pacs/{OID}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}
         //Accept: multipart/related;type="application/dicom"
-        NSRegularExpression *wadorsregex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/rs\\/studies\\/" options:NSRegularExpressionCaseInsensitive error:NULL];
         
-        [httpdicomServer addHandler:@"GET"
-                              regex:wadorsregex
-                              block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+        [httpdicomServer addHandler:@"GET" regex:wadorsRegex processBlock:
+         ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
@@ -743,11 +766,9 @@ int main(int argc, const char* argv[]) {
         
 #pragma mark dcm.zip
         //servicio de segundo nivel que llama a WADO-RS para su realización
-        NSRegularExpression *dcmzipregex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/dcm.zip$" options:NSRegularExpressionCaseInsensitive error:NULL];
         
-        [httpdicomServer addHandler:@"GET"
-                              regex:dcmzipregex
-                              block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+        [httpdicomServer addHandler:@"GET" regex:dcmzipRegex processBlock:
+         ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
         {
             LOG_INFO(@"osirix");
             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
@@ -908,11 +929,9 @@ int main(int argc, const char* argv[]) {
         {proxy}/doc?
         {proxy}/cda?
          */
-        NSRegularExpression *applicableregex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/(ot|doc|cda)$" options:NSRegularExpressionCaseInsensitive error:NULL];
-         
-         [httpdicomServer addHandler:@"GET"
-                               regex:applicableregex
-                               block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+        
+         [httpdicomServer addHandler:@"GET" regex:encapsulatedRegex processBlock:
+          ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *destPacs=pacsDictionaries[pComponents[2]];
@@ -1023,11 +1042,10 @@ int main(int argc, const char* argv[]) {
         
 #pragma mark /manifest/weasis/studies?
         
-        NSRegularExpression *mwstudiesregex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies" options:NSRegularExpressionCaseInsensitive error:NULL];
-        [httpdicomServer addHandler:@"GET"
-                              regex:mwstudiesregex
-                              block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
-         {
+        [httpdicomServer addHandler:@"GET" regex:mwstudiesRegex processBlock:
+         ^(RSRequest* request, RSCompletionBlock completionBlock)
+         {completionBlock(^RSResponse* (RSRequest* request)
+             {
              //request parts logging
              NSURL *requestURL=request.URL;
              NSString *bSlash=requestURL.baseURL.absoluteString;
@@ -1174,10 +1192,8 @@ int main(int argc, const char* argv[]) {
         
 #pragma mark /manifest/weasis/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
         
-        NSRegularExpression *mwseriesregex = [NSRegularExpression regularExpressionWithPattern:@"^/manifest/weasis/studies/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*/series/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*" options:NSRegularExpressionCaseInsensitive error:NULL];
-        [httpdicomServer addHandler:@"GET"
-                              regex:mwseriesregex
-                              block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+        [httpdicomServer addHandler:@"GET" regex:mwseriesRegex processBlock:
+         ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              //request parts logging
              NSURL *requestURL=request.URL;
@@ -1333,7 +1349,7 @@ int main(int argc, const char* argv[]) {
          -> array of object patient (which include pacs, issuer data table patient, first and last study, number of studies, modalities found)
          */
         /*
-        NSRegularExpression *patientRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/patient$" options:NSRegularExpressionCaseInsensitive error:NULL];
+        
         
         [httpdicomServer addHandlerForMethod:@"GET"
                        pathRegularExpression:patientRegex
@@ -1515,7 +1531,7 @@ int main(int argc, const char* argv[]) {
          }
 (request));}];
          */
-#pragma mark -
+
 #pragma mark datatables/studies
         /*
          query ajax with params:
@@ -1525,10 +1541,8 @@ int main(int argc, const char* argv[]) {
          r=Req=request sql
          s=subselection from caché
          */
-        [httpdicomServer addHandler:@"GET"
-                              regex:[NSRegularExpression regularExpressionWithPattern:@"/datatables/studies"
-                                  options:0 error:NULL]
-                              block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+        [httpdicomServer addHandler:@"GET" regex:dtstudiesRegex processBlock:
+         ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSDictionary *q=request.query;
              NSString *session=q[@"session"];
@@ -1999,10 +2013,8 @@ int main(int argc, const char* argv[]) {
          "datatables/patient?PatientID=33333333&IssuerOfPatientID.UniversalEntityID=NULL&session=1"
          */
         
-        [httpdicomServer addHandler:@"GET"
-                              regex:[NSRegularExpression regularExpressionWithPattern:@"/datatables/patient"
-                                                                              options:0 error:NULL]
-                              block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+        [httpdicomServer addHandler:@"GET" regex:dtpatientRegex processBlock:
+         ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSDictionary *q=request.query;
              //LOG_INFO(@"%@",[q description]);
@@ -2069,10 +2081,8 @@ int main(int argc, const char* argv[]) {
         
 #pragma mark datatables/series
         //"datatables/series?AccessionNumber=22&IssuerOfAccessionNumber.UniversalEntityID=NULL&StudyIUID=2.16.858.2.10000675.72769.20160411084701.1.100&session=1"
-        [httpdicomServer addHandler:@"GET"
-                              regex:[NSRegularExpression regularExpressionWithPattern:@"/datatables/series"
-                                                                              options:0 error:NULL]
-                              block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+        [httpdicomServer addHandler:@"GET" regex:dtseriesRegex processBlock:
+         ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSDictionary *q=request.query;
              NSString *session=q[@"session"];
@@ -2130,10 +2140,8 @@ int main(int argc, const char* argv[]) {
 #pragma mark IHEInvokeImageDisplay
         // IHEInvokeImageDisplay?requestType=STUDY&accessionNumber=1&viewerType=IHE_BIR&diagnosticQuality=true&keyImagesOnly=false&custodianOID=xxx&proxyURI=yyy
         
-        [httpdicomServer addHandler:@"GET"
-                              regex:[NSRegularExpression regularExpressionWithPattern:@"/IHEInvokeImageDisplay"
-                                                                              options:0 error:NULL]
-                              block:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+        [httpdicomServer addHandler:@"GET" regex:iheiidRegex processBlock:
+         ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
              NSDictionary *q=request.query;
              
@@ -2352,7 +2360,7 @@ int main(int argc, const char* argv[]) {
          }
                                                                                                                                           (request));}];
         
-
+#pragma mark -
 #pragma mark run
         NSError *error=nil;
         [httpdicomServer startWithPort:port maxPendingConnections:16 error:&error];
