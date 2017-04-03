@@ -466,20 +466,12 @@ int main(int argc, const char* argv[]) {
         [
          httpdicomServer addHandler:@"GET" regex:anyRegex processBlock:
          ^(RSRequest* request, RSCompletionBlock completionBlock)
-         {
-          completionBlock
-          (
-
-           ^RSResponse* (RSRequest* request)
-           {
+         {completionBlock(^RSResponse* (RSRequest* request){
+            
+            LOG_INFO(@"anyRegex %@",request.path);
             return [RSErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
-           }
-
-           (request)
-
-          );
-         }
-        ];
+        
+        }(request));}];
 
         
 #pragma mark echo
@@ -487,7 +479,9 @@ int main(int argc, const char* argv[]) {
          ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(^RSResponse* (RSRequest* request){
             
-            return [RSDataResponse responseWithText:[NSString stringWithFormat:@"user IP:port [%@]",request.remoteAddressString]];
+            NSString *echo=[NSString stringWithFormat:@"user IP:port [%@]",request.remoteAddressString];
+            LOG_INFO(@"echoRegex %@",echo);
+            return [RSDataResponse responseWithText:echo];
             
         }(request));}];
         
@@ -1366,6 +1360,8 @@ int main(int argc, const char* argv[]) {
                  BOOL hasPatientName=false;
                  BOOL hasPatientBirthDate=false;
                  BOOL hasPatientSex=false;
+                 NSLog(@"%@=%@",qi.name,qi.value);
+             
                  for (NSURLQueryItem *qi in queryItems) {
                      NSLog(@"%@=%@",qi.name,qi.value);
                      if ([qi.name isEqualToString:@"pacs"])
