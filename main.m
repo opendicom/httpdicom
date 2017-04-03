@@ -1360,7 +1360,7 @@ int main(int argc, const char* argv[]) {
                  BOOL hasPatientName=false;
                  BOOL hasPatientBirthDate=false;
                  BOOL hasPatientSex=false;
-                 NSLog(@"%@=%@",qi.name,qi.value);
+                 NSLog(@"queryItems: %@",[queryItems description]);
              
                  for (NSURLQueryItem *qi in queryItems) {
                      NSLog(@"%@=%@",qi.name,qi.value);
