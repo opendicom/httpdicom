@@ -434,9 +434,9 @@ int main(int argc, const char* argv[]) {
         
         NSRegularExpression *anyRegex = [NSRegularExpression regularExpressionWithPattern:@".*" options:0 error:NULL];
 
-        NSRegularExpression *echoRegex = [NSRegularExpression regularExpressionWithPattern:@"/echo" options:0 error:NULL];
+        NSRegularExpression *echoRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/echo$" options:0 error:NULL];
         
-        NSRegularExpression *custodiansRegex = [NSRegularExpression regularExpressionWithPattern:@"^/custodians/.*$" options:0 error:NULL];
+        NSRegularExpression *custodiansRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/custodians/.*$" options:0 error:NULL];
         
         NSRegularExpression *qidoRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*\\/rs\\/(studies|series|instances)$" options:NSRegularExpressionCaseInsensitive error:NULL];
         
@@ -490,9 +490,8 @@ int main(int argc, const char* argv[]) {
         
         [httpdicomServer addHandler:@"GET" regex:custodiansRegex processBlock:
          ^(RSRequest* request, RSCompletionBlock completionBlock)
-         {completionBlock(
-                          ^RSResponse* (RSRequest* request)
-         {
+         {completionBlock(^RSResponse* (RSRequest* request){
+            
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSUInteger pCount=[pComponents count];
              
