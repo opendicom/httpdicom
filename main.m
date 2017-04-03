@@ -1352,7 +1352,7 @@ int main(int argc, const char* argv[]) {
           {completionBlock(^RSResponse* (RSRequest* request){
              
                  //get query part
-                 NSURLComponents *urlComponents = [NSURLComponents componentsWithString:request.URL.query];
+             NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
                  NSArray *queryItems=[urlComponents queryItems];
                  
                  //filter queryItems to find the once with name pacs
@@ -1367,6 +1367,7 @@ int main(int argc, const char* argv[]) {
                  BOOL hasPatientBirthDate=false;
                  BOOL hasPatientSex=false;
                  for (NSURLQueryItem *qi in queryItems) {
+                     NSLog(@"%@=%@",qi.name,qi.value);
                      if ([qi.name isEqualToString:@"pacs"])
                      {
                          hasPacsQueryItem=true;
