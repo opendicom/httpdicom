@@ -12,14 +12,17 @@ static NSData* _CRLFData = nil;
 static NSData* _CRLFCRLFData = nil;
 static NSData* _continueData = nil;
 static NSData* _lastChunkData = nil;
+static NSArray *_handlers = nil;
 
 @implementation RSConnection
 
-@synthesize server=_server;
+//@synthesize server=_server;
 @synthesize localAddressData=_localAddress;
 @synthesize remoteAddressData=_remoteAddress;
-@synthesize totalBytesRead=_bytesRead;
-@synthesize totalBytesWritten=_bytesWritten;
+//@synthesize totalBytesRead=_bytesRead;
+//@synthesize totalBytesWritten=_bytesWritten;
+
+#pragma mark -
 
 + (void)initialize {
   if (_CRLFData == nil) {
@@ -38,13 +41,19 @@ static NSData* _lastChunkData = nil;
   }
 }
 
++ (void)setHandlers:(NSArray*)handlers
+{
+    _handlers=handlers;
+}
+
+#pragma mark -
 
 - (void)_startProcessingRequest {
     // https://tools.ietf.org/html/rfc2617
     
     LOG_VERBOSE(@"Connection on socket %i processing request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);
     @try {
-          _handler.asyncProcessBlock(
+          _handler.processBlock(
             _request,
             [^(RSResponse* processResponse){[self _finishProcessingRequest:processResponse];} copy]
           );
@@ -124,6 +133,45 @@ static NSData* _lastChunkData = nil;
   
 }
 
+
+- (void)abortRequest:(RSRequest*)request withStatusCode:(NSInteger)statusCode
+{
+    _statusCode = _response.statusCode;
+    _responseMessage = CFHTTPMessageCreateResponse(kCFAllocatorDefault, _statusCode, NULL, kCFHTTPVersion1_1);
+    CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Connection"), CFSTR("Close"));
+    CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Server"), CFSTR("httpdicom"));
+    CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Date"), (__bridge CFStringRef)[RFC822 stringFromDate:[NSDate date]]);
+    
+    [self _writeHeadersWithCompletionBlock:^(BOOL success) {
+        ;  // Nothing more to do
+    }];
+    LOG_DEBUG(@"Connection aborted with status code %i on socket %i", (int)statusCode, _socket);
+}
+
+- (void)dealloc {
+    int result = close(_socket);
+    if (result != 0) {
+        LOG_ERROR(@"Failed closing socket %i for connection: %s (%i)", _socket, strerror(errno), errno);
+    } else {
+        LOG_DEBUG(@"Did close connection on socket %i", _socket);
+    }
+    if (_request) {
+        LOG_VERBOSE(@"[%@] %@ %i \"%@ %@\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, _request.method, _request.path, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
+    } else {
+        LOG_VERBOSE(@"[%@] %@ %i \"(invalid request)\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
+    }
+    
+    if (_requestMessage) {
+        CFRelease(_requestMessage);
+    }
+    
+    if (_responseMessage) {
+        CFRelease(_responseMessage);
+    }
+}
+
+#pragma mark -
+
 - (void)_readBodyWithLength:(NSUInteger)length initialData:(NSData*)initialData {
   NSError* error = nil;
   if (![_request performOpen:&error]) {
@@ -189,6 +237,7 @@ static NSData* _lastChunkData = nil;
 }
 
 - (void)_readRequestHeaders {
+
   _requestMessage = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true);
   NSMutableData* headersData = [[NSMutableData alloc] initWithCapacity:kHeadersReadCapacity];
   [self _readHeaders:headersData withCompletionBlock:^(NSData* extraData) {
@@ -247,17 +296,12 @@ static NSData* _lastChunkData = nil;
 
         
 //JF where the blocks in main are called from Connection
-      if (requestMethod && requestURL && requestHeaders && requestPath && requestQuery) {
-          
-        LOG_DEBUG(@"requestHeaders: %@", [requestHeaders description]);
-         
-        for (_handler in _server.handlers) {
-            _request = _handler.matchBlock(requestMethod, requestURL, requestHeaders, requestPath, requestQuery);
+      if (requestMethod && requestURL && requestHeaders && requestPath && requestQuery && self.localAddressString && self.remoteAddressString){
+        for (_handler in _handlers) {
+            _request = _handler.matchBlock(requestMethod, requestURL, requestHeaders, requestPath, requestQuery, self.localAddressString, self.remoteAddressString);
           if (_request) break;
         }
         if (_request) {
-          _request.localAddressData = self.localAddressData;
-          _request.remoteAddressData = self.remoteAddressData;
           if ([_request hasBody]) {
             [_request prepareForWriting];
             if (_request.usesChunkedTransferEncoding || (extraData.length <= _request.contentLength)) {
@@ -294,7 +338,15 @@ static NSData* _lastChunkData = nil;
             [self _startProcessingRequest];
           }
         } else {
-          _request = [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:requestPath query:requestQuery];
+
+          _request = [[RSRequest alloc] initWithMethod:requestMethod
+                                                   url:requestURL
+                                               headers:requestHeaders
+                                                  path:requestPath
+                                                 query:requestQuery
+                                                 local:self.localAddressString
+                                                remote:self.remoteAddressString
+                      ];
           [self abortRequest:_request withStatusCode:405];//MethodNotAllowed
         }
       } else {
@@ -307,9 +359,11 @@ static NSData* _lastChunkData = nil;
   }];
 }
 
-- (id)initWithServer:(RS*)server localAddress:(NSData*)localAddress remoteAddress:(NSData*)remoteAddress socket:(CFSocketNativeHandle)socket {
+- (id)initWithLocalAddress:(NSData*)localAddress
+             remoteAddress:(NSData*)remoteAddress
+                    socket:(CFSocketNativeHandle)socket
+{
   if ((self = [super init])) {
-    _server = server;
     _localAddress = localAddress;
     _remoteAddress = remoteAddress;
     _socket = socket;
@@ -327,43 +381,7 @@ static NSData* _lastChunkData = nil;
     return [NSString stringFromSockAddr:_remoteAddress.bytes includeService:YES];
 }
 
-- (void)abortRequest:(RSRequest*)request withStatusCode:(NSInteger)statusCode
-{
-    _statusCode = _response.statusCode;
-    _responseMessage = CFHTTPMessageCreateResponse(kCFAllocatorDefault, _statusCode, NULL, kCFHTTPVersion1_1);
-    CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Connection"), CFSTR("Close"));
-    CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Server"), CFSTR("httpdicom"));
-    CFHTTPMessageSetHeaderFieldValue(_responseMessage, CFSTR("Date"), (__bridge CFStringRef)[RFC822 stringFromDate:[NSDate date]]);
-    
-    [self _writeHeadersWithCompletionBlock:^(BOOL success) {
-        ;  // Nothing more to do
-    }];
-    LOG_DEBUG(@"Connection aborted with status code %i on socket %i", (int)statusCode, _socket);
-}
-
-- (void)dealloc {
-  int result = close(_socket);
-  if (result != 0) {
-    LOG_ERROR(@"Failed closing socket %i for connection: %s (%i)", _socket, strerror(errno), errno);
-  } else {
-    LOG_DEBUG(@"Did close connection on socket %i", _socket);
-  }
-    if (_request) {
-        LOG_VERBOSE(@"[%@] %@ %i \"%@ %@\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, _request.method, _request.path, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
-    } else {
-        LOG_VERBOSE(@"[%@] %@ %i \"(invalid request)\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
-    }
-    
-  if (_requestMessage) {
-    CFRelease(_requestMessage);
-  }
-  
-  if (_responseMessage) {
-    CFRelease(_responseMessage);
-  }
-}
-
-
+#pragma mark -
 
 - (void)_readData:(NSMutableData*)data withLength:(NSUInteger)length completionBlock:(ReadDataCompletionBlock)block {
     dispatch_read(_socket, length, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(dispatch_data_t buffer, int error) {
@@ -516,6 +534,8 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
         
     }];
 }
+
+#pragma mark - 
 
 - (void)_writeData:(NSData*)data withCompletionBlock:(WriteDataCompletionBlock)block {
     dispatch_data_t buffer = dispatch_data_create(data.bytes, data.length, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{

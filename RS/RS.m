@@ -1,19 +1,16 @@
-#import <netinet/in.h>
-
-#import "RSConnection.h"
-
 #import "RS.h"
-#import "RSErrorResponse.h"
-#import "RSFileResponse.h"
-
-#import "NSString+PCS.h"
 
 #import "ODLog.h"
+#import <netinet/in.h>
+
+
+#import "RSConnection.h"
 
 
 @implementation RS
 
 @synthesize handlers=_handlers;
+
 - (instancetype)init {
   if ((self = [super init])) {
     _syncQueue = dispatch_queue_create([NSStringFromClass([self class]) UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -22,6 +19,53 @@
   }
   return self;
 }
+
+- (void)addHandler:(NSString*)method
+             regex:(NSRegularExpression*)regex
+      processBlock:(RSProcessBlock)processBlock
+{
+    RSHandler* handler = [[RSHandler alloc] initWithMatchBlock:
+                          ^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery, NSString* local, NSString* remote)
+                          {
+                              
+                              if (![requestMethod isEqualToString:method]) {
+                                  return nil;
+                              }
+                              
+                              NSArray* matches = [regex matchesInString:urlPath options:0 range:NSMakeRange(0, urlPath.length)];
+                              if (matches.count == 0) {
+                                  return nil;
+                              }
+                              
+                              NSMutableArray* captures = [NSMutableArray array];
+                              for (NSTextCheckingResult* result in matches) {
+                                  // Start at 1; index 0 is the whole string
+                                  for (NSUInteger i = 1; i < result.numberOfRanges; i++) {
+                                      NSRange range = [result rangeAtIndex:i];
+                                      // range is {NSNotFound, 0} "if one of the capture groups did not participate in this particular match"
+                                      // see discussion in -[NSRegularExpression firstMatchInString:options:range:]
+                                      if (range.location != NSNotFound) {
+                                          [captures addObject:[urlPath substringWithRange:range]];
+                                      }
+                                  }
+                              }
+                              
+                              RSRequest* request = [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery local:local remote:remote];
+                              /**
+                               *  Attribute key asociated to an NSArray containing NSStrings from a RSRequest with the contents of any regular expression captures done on the request path.
+                               @warning This attribute will only be set on the request if adding a handler using  -addHandlerForMethod:pathRegex:requestClass:processBlock:.
+                               */
+                              [request setAttribute:captures forKey:@"RSRequestAttribute_RegexCaptures"];
+                              return request;
+                          }
+                          
+                                                  processBlock:processBlock
+                          ];
+    
+    [_handlers insertObject:handler atIndex:0];
+}
+
+#pragma mark -
 
 - (int)_createListeningSocket:(BOOL)useIPv6
                  localAddress:(const void*)address
@@ -85,8 +129,7 @@
         int noSigPipe = 1;
         setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));  // Make sure this socket cannot generate SIG_PIPE
         
-        RSConnection* connection = [[RSConnection alloc] initWithServer:self localAddress:localAddress remoteAddress:remoteAddress socket:socket];  // Connection will automatically retain itself while opened
-        [connection self];  // Prevent compiler from complaining about unused variable / useless statement
+          [[[RSConnection alloc] initWithLocalAddress:localAddress remoteAddress:remoteAddress socket:socket]self];  // Connection will automatically retain
       } else {
         LOG_ERROR(@"Failed accepting %s socket: %s (%i)", isIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
       }
@@ -125,60 +168,10 @@
     _source6 = [self _createDispatchSourceWithListeningSocket:listeningSocket6 isIPv6:YES];
     dispatch_resume(_source4);
     dispatch_resume(_source6);
-    LOG_INFO(@"httpdicom started on port %i", (int)port);
+    [RSConnection setHandlers:self.handlers];
+    LOG_INFO(@"httpdicom started on port %i for %lu handlers", (int)port,(unsigned long)self.handlers.count );
     
     return YES;
-}
-
-- (void)addHandler:(NSString*)method
-             regex:(NSRegularExpression*)regex
-      processBlock:(RSProcessBlock)processBlock
-{[self addHandlerWithMatchBlock:
-  
-     ^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery)
-    {
-        
-        if (![requestMethod isEqualToString:method]) {
-            return nil;
-        }
-        
-        NSArray* matches = [regex matchesInString:urlPath options:0 range:NSMakeRange(0, urlPath.length)];
-        if (matches.count == 0) {
-            return nil;
-        }
-        
-        NSMutableArray* captures = [NSMutableArray array];
-        for (NSTextCheckingResult* result in matches) {
-            // Start at 1; index 0 is the whole string
-            for (NSUInteger i = 1; i < result.numberOfRanges; i++) {
-                NSRange range = [result rangeAtIndex:i];
-                // range is {NSNotFound, 0} "if one of the capture groups did not participate in this particular match"
-                // see discussion in -[NSRegularExpression firstMatchInString:options:range:]
-                if (range.location != NSNotFound) {
-                    [captures addObject:[urlPath substringWithRange:range]];
-                }
-            }
-        }
-        
-        RSRequest* request = [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery];
-        /**
-         *  Attribute key asociated to an NSArray containing NSStrings from a RSRequest with the contents of any regular expression captures done on the request path.
-         @warning This attribute will only be set on the request if adding a handler using  -addHandlerForMethod:pathRegex:requestClass:processBlock:.
-         */
-        [request setAttribute:captures forKey:@"RSRequestAttribute_RegexCaptures"];
-        return request;
-    }
-  
-    processBlock:processBlock
-];}
-
-
-- (void)addHandlerWithMatchBlock:(RSMatchBlock)matchBlock
-                    processBlock:(RSProcessBlock)processBlock {
-    
-    RSHandler* handler = [[RSHandler alloc] initWithMatchBlock:matchBlock
-                                                  processBlock:processBlock];
-    [_handlers insertObject:handler atIndex:0];
 }
 
 @end

@@ -20,14 +20,12 @@
 @property(nonatomic, readonly) NSArray* handlers;
 
 - (instancetype)init;
-- (BOOL)startWithPort:(NSUInteger)port maxPendingConnections:(NSUInteger)maxPendingConnections error:(NSError**)error;
 
 - (void)addHandler:(NSString*)method
              regex:(NSRegularExpression*)regex
       processBlock:(RSProcessBlock)processBlock;
 
-- (void)addHandlerWithMatchBlock:(RSMatchBlock)matchBlock
-                    processBlock:(RSProcessBlock)processBlock;
+- (BOOL)startWithPort:(NSUInteger)port maxPendingConnections:(NSUInteger)maxPendingConnections error:(NSError**)error;
 
 @end
 

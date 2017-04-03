@@ -2,13 +2,14 @@
 
 @implementation RSHandler
 
-@synthesize matchBlock=_matchBlock, asyncProcessBlock=_asyncProcessBlock;
+@synthesize matchBlock=_matchBlock;
+@synthesize processBlock=_processBlock;
 
 - (id)initWithMatchBlock:(RSMatchBlock)matchBlock
             processBlock:(RSProcessBlock)processBlock {
     if ((self = [super init])) {
-        _matchBlock = [matchBlock copy];
-        _asyncProcessBlock = [processBlock copy];
+        _matchBlock = matchBlock;//JF [matchBlock copy];
+        _processBlock = processBlock;//JF[processBlock copy];
     }
     return self;
 }

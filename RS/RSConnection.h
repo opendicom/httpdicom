@@ -16,7 +16,6 @@ typedef void (^WriteBodyCompletionBlock)(BOOL success);
 @interface RSConnection : NSObject
 
 {
-    RS* _server;
     NSData* _localAddress;
     NSData* _remoteAddress;
     CFSocketNativeHandle _socket;
@@ -31,25 +30,24 @@ typedef void (^WriteBodyCompletionBlock)(BOOL success);
     NSInteger _statusCode;
 }
 
-@property(nonatomic, readonly) RS* server;
+@property(nonatomic, readonly) NSData* localAddressData;//server  raw "struct sockaddr"
+@property(nonatomic, readonly) NSString* localAddressString;//server address string
 
-@property(nonatomic, readonly) NSData* localAddressData;//server address as a raw "struct sockaddr"
-@property(nonatomic, readonly) NSString* localAddressString;//server address as a string
+@property(nonatomic, readonly) NSData* remoteAddressData;//client raw "struct sockaddr"
+@property(nonatomic, readonly) NSString* remoteAddressString;//client address string
 
-@property(nonatomic, readonly) NSData* remoteAddressData;//client address as a raw "struct sockaddr"
-@property(nonatomic, readonly) NSString* remoteAddressString;//client address as a string
+@property(nonatomic, readonly) NSUInteger totalBytesRead;//received from client so far
+@property(nonatomic, readonly) NSUInteger totalBytesWritten;//sent to client so far
 
-@property(nonatomic, readonly) NSUInteger totalBytesRead;//received from the client so far
-@property(nonatomic, readonly) NSUInteger totalBytesWritten;//sent to the client so far
+//used once by RS before serving responses
++ (void)setHandlers:(NSArray*)handlers;
 
-- (id)initWithServer:(RS*)server localAddress:(NSData*)localAddress remoteAddress:(NSData*)remoteAddress socket:(CFSocketNativeHandle)socket;
+//called by RS for any new connection
+- (id)initWithLocalAddress:(NSData*)localAddress
+             remoteAddress:(NSData*)remoteAddress
+                    socket:(CFSocketNativeHandle)socket;
 
-//called if any error happens while
-//  validing or processing the request
-//  or if no RSResponse was generated during processing.
-
-//@warning If the request was invalid (e.g. the HTTP headers were malformed),
-//  the "request" argument will be nil.
+//called by RSConnection if any error happens while validing or processing the request or if no RSResponse was generated during processing. If the request was invalid (e.g. the HTTP headers were malformed), the "request" argument will be nil.
 - (void)abortRequest:(RSRequest*)request withStatusCode:(NSInteger)statusCode;
 
 @end

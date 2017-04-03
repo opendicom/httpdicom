@@ -1,153 +1,43 @@
 #import "RSRequest.h"
-
-#import <zlib.h>
+#import "RSGZipDecoder.h"
 #import "ODLog.h"
 #import "RFC822.h"
 #import "NSString+PCS.h"
 
-
-#define kZlibErrorDomain @"ZlibErrorDomain"
-#define kGZipInitialBufferSize (256 * 1024)
-
-@interface RSBodyDecoder : NSObject <RSBodyWriter>
-- (id)initWithRequest:(RSRequest*)request writer:(id<RSBodyWriter>)writer;
-@end
-
-@interface RSGZipDecoder : RSBodyDecoder
-@end
-
-@interface RSBodyDecoder () {
-@private
-  RSRequest* __unsafe_unretained _request;
-  id<RSBodyWriter> __unsafe_unretained _writer;
-}
-@end
-
-@implementation RSBodyDecoder
-
-- (id)initWithRequest:(RSRequest*)request writer:(id<RSBodyWriter>)writer {
-  if ((self = [super init])) {
-    _request = request;
-    _writer = writer;
-  }
-  return self;
-}
-
-- (BOOL)open:(NSError**)error {
-  return [_writer open:error];
-}
-
-- (BOOL)writeData:(NSData*)data error:(NSError**)error {
-  return [_writer writeData:data error:error];
-}
-
-- (BOOL)close:(NSError**)error {
-  return [_writer close:error];
-}
-
-@end
-
-@interface RSGZipDecoder () {
-@private
-  z_stream _stream;
-  BOOL _finished;
-}
-@end
-
-@implementation RSGZipDecoder
-
-- (BOOL)open:(NSError**)error {
-  int result = inflateInit2(&_stream, 15 + 16);
-  if (result != Z_OK) {
-    if (error) {
-      *error = [NSError errorWithDomain:kZlibErrorDomain code:result userInfo:nil];
-    }
-    return NO;
-  }
-  if (![super open:error]) {
-    deflateEnd(&_stream);
-    return NO;
-  }
-  return YES;
-}
-
-- (BOOL)writeData:(NSData*)data error:(NSError**)error {
-  _stream.next_in = (Bytef*)data.bytes;
-  _stream.avail_in = (uInt)data.length;
-  NSMutableData* decodedData = [[NSMutableData alloc] initWithLength:kGZipInitialBufferSize];
-  if (decodedData == nil) {
-    return NO;
-  }
-  NSUInteger length = 0;
-  while (1) {
-    NSUInteger maxLength = decodedData.length - length;
-    _stream.next_out = (Bytef*)((char*)decodedData.mutableBytes + length);
-    _stream.avail_out = (uInt)maxLength;
-    int result = inflate(&_stream, Z_NO_FLUSH);
-    if ((result != Z_OK) && (result != Z_STREAM_END)) {
-      if (error) {
-        *error = [NSError errorWithDomain:kZlibErrorDomain code:result userInfo:nil];
-      }
-      return NO;
-    }
-    length += maxLength - _stream.avail_out;
-    if (_stream.avail_out > 0) {
-      if (result == Z_STREAM_END) {
-        _finished = YES;
-      }
-      break;
-    }
-    decodedData.length = 2 * decodedData.length;  // zlib has used all the output buffer so resize it and try again in case more data is available
-  }
-  decodedData.length = length;
-  BOOL success = length ? [super writeData:decodedData error:error] : YES;  // No need to call writer if we have no data yet
-  return success;
-}
-
-- (BOOL)close:(NSError**)error {
-  inflateEnd(&_stream);
-  return [super close:error];
-}
-
-@end
-
-@interface RSRequest () {
-@private
-  NSString* _method;
-  NSURL* _url;
-  NSDictionary* _headers;
-  NSString* _path;
-  NSDictionary* _query;
-  NSString* _type;
-  BOOL _chunked;
-  NSUInteger _length;
-  NSDate* _modifiedSince;
-  NSString* _noneMatch;
-  NSRange _range;
-  BOOL _gzipAccepted;
-  NSData* _localAddress;
-  NSData* _remoteAddress;
-  
-  BOOL _opened;
-  NSMutableArray* _decoders;
-  NSMutableDictionary* _attributes;
-  id<RSBodyWriter> __unsafe_unretained _writer;
-}
-@end
-
 @implementation RSRequest : NSObject
 
-@synthesize method=_method, URL=_url, headers=_headers, path=_path, query=_query, contentType=_type, contentLength=_length, ifModifiedSince=_modifiedSince, ifNoneMatch=_noneMatch,
-            byteRange=_range, acceptsGzipContentEncoding=_gzipAccepted, usesChunkedTransferEncoding=_chunked, localAddressData=_localAddress, remoteAddressData=_remoteAddress;
+@synthesize method=_method;
+@synthesize URL=_url;
+@synthesize headers=_headers;
+@synthesize path=_path;
+@synthesize query=_query;
+@synthesize contentType=_type;
+@synthesize contentLength=_length;
+@synthesize ifModifiedSince=_modifiedSince;
+@synthesize ifNoneMatch=_noneMatch;
+@synthesize byteRange=_range;
+@synthesize acceptsGzipContentEncoding=_gzipAccepted;
+@synthesize usesChunkedTransferEncoding=_chunked;
+@synthesize localAddressString=_localAddressString;
+@synthesize remoteAddressString=_remoteAddressString;
 
-- (instancetype)initWithMethod:(NSString*)method url:(NSURL*)url headers:(NSDictionary*)headers path:(NSString*)path query:(NSDictionary*)query {
+- (instancetype)initWithMethod:(NSString*)method
+                           url:(NSURL*)url
+                       headers:(NSDictionary*)headers
+                          path:(NSString*)path
+                         query:(NSDictionary*)query
+                         local:(NSString*)localAddressString
+                        remote:(NSString*)remoteAddressString;
+{
   if ((self = [super init])) {
     _method = [method copy];
     _url = url;
     _headers = headers;
     _path = [path copy];
     _query = query;
-    
+    _localAddressString = localAddressString;
+    _remoteAddressString = remoteAddressString;
+      
     _type = [[_headers objectForKey:@"Content-Type"] normalizeHeaderValue];
     _chunked = [[[_headers objectForKey:@"Transfer-Encoding"] normalizeHeaderValue] isEqualToString:@"chunked"];
     NSString* lengthHeader = [_headers objectForKey:@"Content-Length"];
@@ -270,15 +160,15 @@
 - (void)setAttribute:(id)attribute forKey:(NSString*)key {
   [_attributes setValue:attribute forKey:key];
 }
-
+/*
 - (NSString*)localAddressString {
-    return [NSString stringFromSockAddr:_localAddress.bytes includeService:YES];
+    return _localAddressString;
 }
 
 - (NSString*)remoteAddressString {
-    return [NSString stringFromSockAddr:_remoteAddress.bytes includeService:YES];
+    return _localAddressString;
 }
-
+*/
 - (NSString*)description {
   NSMutableString* description = [NSMutableString stringWithFormat:@"%@ %@", _method, _path];
   for (NSString* argument in [[_query allKeys] sortedArrayUsingSelector:@selector(compare:)]) {

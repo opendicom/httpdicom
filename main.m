@@ -487,7 +487,7 @@ int main(int argc, const char* argv[]) {
          ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(
             ^RSResponse* (RSRequest* request)
-            {return [RSDataResponse responseWithText:@"echo"];}
+                          {return [RSDataResponse responseWithText:[NSString stringWithFormat:@"echo [%@]",request.remoteAddressString]];}
                           
                 (request)
          );}
@@ -2363,6 +2363,7 @@ int main(int argc, const char* argv[]) {
 #pragma mark -
 #pragma mark run
         NSError *error=nil;
+        
         [httpdicomServer startWithPort:port maxPendingConnections:16 error:&error];
         while (true) {
             CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, true);

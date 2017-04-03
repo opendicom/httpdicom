@@ -1,8 +1,5 @@
 #import "RSBodyEncoder.h"
 
-@interface RSBodyEncoder () 
-@end
-
 @implementation RSBodyEncoder
 
 - (id)initWithResponse:(RSResponse*)response reader:(id<RSBodyReader>)reader {

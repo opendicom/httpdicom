@@ -6,12 +6,24 @@
  If the handler can handle the request, the block must return a new RSRequest instance created with the same basic info.
  Otherwise, it simply returns nil.
  */
-typedef RSRequest* (^RSMatchBlock)(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery);
+typedef RSRequest*
+            (^RSMatchBlock)
+                (
+                    NSString* requestMethod,
+                    NSURL* requestURL,
+                    NSDictionary* requestHeaders,
+                    NSString* urlPath,
+                    NSDictionary* urlQuery,
+                    NSString* local,
+                    NSString* remote
+);
 
-typedef void (^RSCompletionBlock)(RSResponse* response);
+typedef void
+            (^RSCompletionBlock)
+                (RSResponse* response);
 
 /**
- *  The RSAsyncProcessBlock is called after the HTTP request has been fully
+ *  The processBlock is called after the HTTP request has been fully
  *  received (i.e. the entire HTTP body has been read). The block is passed the
  *  RSRequest created at the previous step by the RSMatchBlock.
  *
@@ -20,7 +32,9 @@ typedef void (^RSCompletionBlock)(RSResponse* response);
  *  recommended to return a RSErrorResponse on error so more useful
  *  information can be returned to the client.
  */
-typedef void (^RSProcessBlock)(RSRequest* request, RSCompletionBlock completionBlock);
+typedef void
+            (^RSProcessBlock)
+                (RSRequest* request, RSCompletionBlock completionBlock);
 
 
 
@@ -29,11 +43,11 @@ typedef void (^RSProcessBlock)(RSRequest* request, RSCompletionBlock completionB
 {
     @private
     RSMatchBlock _matchBlock;
-    RSProcessBlock _asyncProcessBlock;
+    RSProcessBlock _processBlock;
 }
 
 @property(nonatomic, readonly) RSMatchBlock matchBlock;
-@property(nonatomic, readonly) RSProcessBlock asyncProcessBlock;
+@property(nonatomic, readonly) RSProcessBlock processBlock;
 
 - (id)initWithMatchBlock:(RSMatchBlock)matchBlock
             processBlock:(RSProcessBlock)processBlock;
