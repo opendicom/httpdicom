@@ -485,14 +485,12 @@ int main(int argc, const char* argv[]) {
 #pragma mark echo
         [httpdicomServer addHandler:@"GET" regex:echoRegex processBlock:
          ^(RSRequest* request, RSCompletionBlock completionBlock)
-         {completionBlock(
-            ^RSResponse* (RSRequest* request)
-                          {return [RSDataResponse responseWithText:[NSString stringWithFormat:@"echo [%@]",request.remoteAddressString]];}
-                          
-                (request)
-         );}
-        ];
-
+         {completionBlock(^RSResponse* (RSRequest* request){
+            
+            return [RSDataResponse responseWithText:[NSString stringWithFormat:@"user IP:port [%@]",request.remoteAddressString]];
+            
+        }(request));}];
+        
 
 #pragma mark custodians
         
@@ -1348,189 +1346,192 @@ int main(int argc, const char* argv[]) {
          patient?{PatientID, IssuerOfPatientID, PatientName(family^given^middle^prefix^suffix), PatientBirthDate, PatientSex} [&pacs="oid" [...]]
          -> array of object patient (which include pacs, issuer data table patient, first and last study, number of studies, modalities found)
          */
-        /*
         
-        
-        [httpdicomServer addHandlerForMethod:@"GET"
-                       pathRegularExpression:patientRegex
-         asyncProcessBlock:^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
-         {
-             //get query part
-             NSURLComponents *urlComponents = [NSURLComponents componentsWithString:request.URL.query];
-             NSArray *queryItems=[urlComponents queryItems];
+         [httpdicomServer addHandler:@"GET" regex:patientRegex processBlock:
+          ^(RSRequest* request, RSCompletionBlock completionBlock)
+          {completionBlock(^RSResponse* (RSRequest* request){
              
-             //filter queryItems to find the once with name pacs
-             //create duplicate of pacs array or subselection of it based on selection(eventually multiple
-             NSMutableArray *pacsOidsQueried = [NSMutableArray array];
-             NSMutableDictionary *otherQueryItems = [NSMutableDictionary dictionary];
-             NSMutableSet *sqlConnectionSet = [NSMutableSet set];
-             BOOL hasPacsQueryItem=false;
-             BOOL hasPatientID=false;
-             BOOL hasIssuerOfPatientID=false;
-             BOOL hasPatientName=false;
-             BOOL hasPatientBirthDate=false;
-             BOOL hasPatientSex=false;
-             for (NSURLQueryItem *qi in queryItems) {
-                 if ([qi.name isEqualToString:@"pacs"])
-                 {
-                     hasPacsQueryItem=true;
-                     NSString *sqlConnection=(pacsDictionaries[qi.value])[sql];
-                     if ([pacsOids containsObject:qi.value] && ![sqlConnection isEqualToString:@""])
+                 //get query part
+                 NSURLComponents *urlComponents = [NSURLComponents componentsWithString:request.URL.query];
+                 NSArray *queryItems=[urlComponents queryItems];
+                 
+                 //filter queryItems to find the once with name pacs
+                 //create duplicate of pacs array or subselection of it based on selection(eventually multiple
+                 NSMutableArray *pacsOidsQueried = [NSMutableArray array];
+                 NSMutableDictionary *otherQueryItems = [NSMutableDictionary dictionary];
+                 NSMutableSet *sqlConnectionSet = [NSMutableSet set];
+                 BOOL hasPacsQueryItem=false;
+                 BOOL hasPatientID=false;
+                 BOOL hasIssuerOfPatientID=false;
+                 BOOL hasPatientName=false;
+                 BOOL hasPatientBirthDate=false;
+                 BOOL hasPatientSex=false;
+                 for (NSURLQueryItem *qi in queryItems) {
+                     if ([qi.name isEqualToString:@"pacs"])
                      {
-                         [pacsOidsQueried addObject:qi.value];
-                         [sqlConnectionSet addObject:sqlConnection];
+                         hasPacsQueryItem=true;
+                         NSString *sqlConnection=(pacsDictionaries[qi.value])[sql];
+                         if ([pacsOids containsObject:qi.value] && ![sqlConnection isEqualToString:@""])
+                         {
+                             [pacsOidsQueried addObject:qi.value];
+                             [sqlConnectionSet addObject:sqlConnection];
+                         }
+                     }
+                     else if (!hasPatientID && [qi.name isEqualToString:@"PatientID"])
+                     {
+                         [otherQueryItems setObject:qi.value forKey:qi.name];
+                         hasPatientID=true;
+                     }
+                     else if (!hasIssuerOfPatientID && [qi.name isEqualToString:@"IssuerOfPatientID"])
+                     {
+                         [otherQueryItems setObject:qi.value forKey:qi.name];
+                         hasIssuerOfPatientID=true;
+                     }
+                     else if (!hasPatientName && [qi.name isEqualToString:@"PatientName"])
+                     {
+                         [otherQueryItems setObject:qi.value forKey:qi.name];
+                         hasPatientName=true;
+                     }
+                     else if (!hasPatientBirthDate && [qi.name isEqualToString:@"PatientBirthDate"])
+                     {
+                         [otherQueryItems setObject:qi.value forKey:qi.name];
+                         hasPatientBirthDate=true;
+                     }
+                     else if (!hasPatientSex && [qi.name isEqualToString:@"PatientSex"])
+                     {
+                         [otherQueryItems setObject:qi.value forKey:qi.name];
+                         hasPatientSex=true;
                      }
                  }
-                 else if (!hasPatientID && [qi.name isEqualToString:@"PatientID"])
+                 if (!hasPacsQueryItem) [pacsOidsQueried addObjectsFromArray:pacsOids];
+                 
+                 //error if bad pacs query item
+                 if ([pacsOids count]==0)   return [RSErrorResponse responseWithClientError:404 message:@"%@ [/patient? requires a valid pacs queryItem or no pacs queryItem to propagate the query to all the known pacs]",request.path];
+                 
+                 //error if no patient query item
+                 if ([otherQueryItems count]==0)  return [RSErrorResponse responseWithClientError:404 message:@"%@ [/patient? requires at least one filter]",request.path];
+                 
+                 NSMutableDictionary *sqlsPatient = [NSMutableDictionary dictionary];
+                 NSMutableDictionary *sqlsStudy = [NSMutableDictionary dictionary];
+                 for (NSString *sqlConnectionPath in sqlConnectionSet)
                  {
-                     [otherQueryItems setObject:qi.value forKey:qi.name];
-                     hasPatientID=true;
+                     NSDictionary *sqlDict = sql[sqlConnectionPath];
+                     //create sql patient query based on otherQueryItems
+                     NSMutableString *patientWhere=[NSMutableString stringWithString:sqlDict[@"patientWhere"]];
+                     if (hasPatientID)
+                         [patientWhere appendString:
+                          [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
+                                           fieldString:sqlDict[@"PatientID"]
+                                           valueString:otherQueryItems[@"PatientID"]
+                           ]
+                          ];
+                     if (hasIssuerOfPatientID)
+                         [patientWhere appendString:
+                          [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
+                                           fieldString:sqlDict[@"IssuerOfPatientID"]
+                                           valueString:otherQueryItems[@"IssuerOfPatientID"]
+                           ]
+                          ];
+                     //for now, only first name
+                     if (hasPatientName)
+                         [patientWhere appendString:
+                          [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
+                                           fieldString:(sqlDict[@"PatientName"])[0]
+                                           valueString:otherQueryItems[@"PatientName"]
+                           ]
+                          ];
+                     if (hasPatientBirthDate)
+                         [patientWhere appendString:
+                          [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
+                                           fieldString:sqlDict[@"PatientBirthDate"]
+                                           valueString:otherQueryItems[@"PatientBirthDate"]
+                           ]
+                          ];
+                     if (hasPatientSex)
+                         [patientWhere appendString:
+                          [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
+                                           fieldString:sqlDict[@"PatientSex"]
+                                           valueString:otherQueryItems[@"PatientSex"]
+                           ]
+                          ];
+                     
+                     LOG_INFO(@"WHERE %@",patientWhere);
+                     
+                     /*
+                     
+                     NSString *sqlDataQuery=
+                     [[sqlDict[@"patientProlog"]
+                       stringByAppendingString:patientWhere]
+                      stringByAppendingFormat:sqlDict[@"patientEpilog"],session,session];
+                     
+                     NSMutableArray *studiesArray=jsonMutableArray(sqlDataQuery, [destSql[@"stringEncoding"]unsignedIntegerValue]);
+                     
+                     //sorted study date (5) desc
+                     [studiesArray sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
+                         return [obj2[5] caseInsensitiveCompare:obj1[5]];
+                     }];
+                     
+                     
+                     //create sql study based on pk patient
                  }
-                 else if (!hasIssuerOfPatientID && [qi.name isEqualToString:@"IssuerOfPatientID"])
+                 //apply to pacs patient sql and for each result the corresponding sql query and for any merge the corresponding sql study. Keep the results in a big json
+                 for (NSString *pacsOid in pacsOids)
                  {
-                     [otherQueryItems setObject:qi.value forKey:qi.name];
-                     hasIssuerOfPatientID=true;
+                     
                  }
-                 else if (!hasPatientName && [qi.name isEqualToString:@"PatientName"])
+                 
+                 
+                 //reply
+                 NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
+                 NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
+                 if (!pacsaei) return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
+                 
+                 NSString *pcsuri=pacsaei[@"pcsuri"];
+                 
+                 NSString *q=request.URL.query;//a same param may repeat
+                 
+                 NSString *qidoBaseString=pacsaei[@"qido"];
+                 if (![qidoBaseString isEqualToString:@""])
                  {
-                     [otherQueryItems setObject:qi.value forKey:qi.name];
-                     hasPatientName=true;
+                     return qidoUrlProxy(
+                                         [NSString stringWithFormat:@"%@/%@",qidoBaseString,pComponents.lastObject],
+                                         q,
+                                         [pcsuri stringByAppendingString:request.path]
+                                         );//application/dicom+json not accepted
                  }
-                 else if (!hasPatientBirthDate && [qi.name isEqualToString:@"PatientBirthDate"])
+                 
+                 NSString *sql=pacsaei[@"sql"];
+                 if (sql)
                  {
-                     [otherQueryItems setObject:qi.value forKey:qi.name];
-                     hasPatientBirthDate=true;
-                 }
-                 else if (!hasPatientSex && [qi.name isEqualToString:@"PatientSex"])
-                 {
-                     [otherQueryItems setObject:qi.value forKey:qi.name];
-                     hasPatientSex=true;
-                 }
-             }
-             if (!hasPacsQueryItem) [pacsOidsQueried addObjectsFromArray:pacsOids];
-             
-             //error if bad pacs query item
-             if ([pacsOids count]==0)   return [RSErrorResponse responseWithClientError:404 message:@"%@ [/patient? requires a valid pacs queryItem or no pacs queryItem to propagate the query to all the known pacs]",request.path];
-             
-             //error if no patient query item
-             if ([otherQueryItems count]==0)  return [RSErrorResponse responseWithClientError:404 message:@"%@ [/patient? requires at least one filter]",request.path];
-
-             NSMutableDictionary *sqlsPatient = [NSMutableDictionary dictionary];
-             NSMutableDictionary *sqlsStudy = [NSMutableDictionary dictionary];
-             for (NSString *sqlConnectionPath in sqlConnectionSet)
-             {
-                 NSDictionary *sqlDict = sql[sqlConnectionPath];
-                 //create sql patient query based on otherQueryItems
-                 NSMutableString *patientWhere=[NSMutableString stringWithString:sqlDict[@"patientWhere"]];
-                 if (hasPatientID)
-                     [patientWhere appendString:
-                      [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
-                                       fieldString:sqlDict[@"PatientID"]
-                                       valueString:otherQueryItems[@"PatientID"]
-                       ]
-                      ];
-                 if (hasIssuerOfPatientID)
-                     [patientWhere appendString:
-                      [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
-                                       fieldString:sqlDict[@"IssuerOfPatientID"]
-                                       valueString:otherQueryItems[@"IssuerOfPatientID"]
-                       ]
-                      ];
-                 //for now, only first name
-                 if (hasPatientName)
-                     [patientWhere appendString:
-                      [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
-                                       fieldString:(sqlDict[@"PatientName"])[0]
-                                       valueString:otherQueryItems[@"PatientName"]
-                       ]
-                      ];
-                 if (hasPatientBirthDate)
-                     [patientWhere appendString:
-                      [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
-                                       fieldString:sqlDict[@"PatientBirthDate"]
-                                       valueString:otherQueryItems[@"PatientBirthDate"]
-                       ]
-                      ];
-                 if (hasPatientSex)
-                     [patientWhere appendString:
-                      [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
-                                       fieldString:sqlDict[@"PatientSex"]
-                                       valueString:otherQueryItems[@"PatientSex"]
-                       ]
-                      ];
-                 
-                 LOG_INFO(@"WHERE %@",patientWhere);
-                 
-                 
-                 
-                 NSString *sqlDataQuery=
-                 [[sqlDict[@"patientProlog"]
-                   stringByAppendingString:patientWhere]
-                  stringByAppendingFormat:sqlDict[@"patientEpilog"],session,session];
-                 
-                 NSMutableArray *studiesArray=jsonMutableArray(sqlDataQuery, [destSql[@"stringEncoding"]unsignedIntegerValue]);
-                 
-                 //sorted study date (5) desc
-                 [studiesArray sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
-                     return [obj2[5] caseInsensitiveCompare:obj1[5]];
-                 }];
-                 
-             
-                 //create sql study based on pk patient
-             }
-             //apply to pacs patient sql and for each result the corresponding sql query and for any merge the corresponding sql study. Keep the results in a big json
-             for (NSString *pacsOid in pacsOids)
-             {
-                 
-             }
-
-             
-             //reply
-             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
-             NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
-             if (!pacsaei) return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
-             
-             NSString *pcsuri=pacsaei[@"pcsuri"];
-             
-             NSString *q=request.URL.query;//a same param may repeat
-             
-             NSString *qidoBaseString=pacsaei[@"qido"];
-             if (![qidoBaseString isEqualToString:@""])
-             {
-                 return qidoUrlProxy(
-                                     [NSString stringWithFormat:@"%@/%@",qidoBaseString,pComponents.lastObject],
-                                     q,
-                                     [pcsuri stringByAppendingString:request.path]
-                                     );//application/dicom+json not accepted
-             }
-             
-             NSString *sql=pacsaei[@"sql"];
-             if (sql)
-             {
-                 //local ... simulation qido through database access
+                     //local ... simulation qido through database access
 #pragma mark TODO QIDO SQL
-             }
+                 }
+                 
+                 if (pcsuri)
+                 {
+                     //remote... access through another PCS
+                     NSString *urlString;
+                     if (q) urlString=[NSString stringWithFormat:@"%@/%@?%@",
+                                       pcsuri,
+                                       request.path,
+                                       q];
+                     else    urlString=[NSString stringWithFormat:@"%@/%@?",
+                                        pcsuri,
+                                        request.path];
+                     LOG_INFO(@"[QIDO] %@",urlString);
+                     return urlProxy(urlString,@"application/dicom+json");
+                 }
+                 
+                 
+                 return [RSErrorResponse responseWithClientError:404 message:@"%@ [QIDO not available]",request.path];
+             */
              
-             if (pcsuri)
-             {
-                 //remote... access through another PCS
-                 NSString *urlString;
-                 if (q) urlString=[NSString stringWithFormat:@"%@/%@?%@",
-                                   pcsuri,
-                                   request.path,
-                                   q];
-                 else    urlString=[NSString stringWithFormat:@"%@/%@?",
-                                    pcsuri,
-                                    request.path];
-                 LOG_INFO(@"[QIDO] %@",urlString);
-                 return urlProxy(urlString,@"application/dicom+json");
-             }
-             
-             
-             return [RSErrorResponse responseWithClientError:404 message:@"%@ [QIDO not available]",request.path];
          }
-(request));}];
-         */
+             
+             //mockup return
+             return [RSDataResponse responseWithText:[NSString stringWithFormat:@"user IP:port [%@]",request.remoteAddressString]];
+
+         }(request));}];
 
 #pragma mark datatables/studies
         /*
