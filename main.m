@@ -468,8 +468,8 @@ int main(int argc, const char* argv[]) {
          ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(^RSResponse* (RSRequest* request){
             
-            LOG_INFO(@"anyRegex %@",request.path);
-            return [RSErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
+            LOG_INFO(@"%@ no handler for path: %@",request.remoteAddressString,request.path);
+            return [RSErrorResponse responseWithClientError:400 message:@"no handler for path: %@",request.path];
         
         }(request));}];
 
@@ -479,9 +479,8 @@ int main(int argc, const char* argv[]) {
          ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(^RSResponse* (RSRequest* request){
             
-            NSString *echo=[NSString stringWithFormat:@"user IP:port [%@]",request.remoteAddressString];
-            LOG_INFO(@"echoRegex %@",echo);
-            return [RSDataResponse responseWithText:echo];
+            LOG_INFO(@"%@ echo",request.remoteAddressString);
+            return [RSDataResponse responseWithText:request.remoteAddressString];
             
         }(request));}];
         
@@ -492,7 +491,8 @@ int main(int argc, const char* argv[]) {
          ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(^RSResponse* (RSRequest* request){
             
-             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
+            LOG_INFO(@"%@ custodians",request.remoteAddressString);
+            NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSUInteger pCount=[pComponents count];
              
              if (pCount<3) return [RSErrorResponse responseWithClientError:400 message:@"%@ [no handler]",request.path];
