@@ -590,18 +590,16 @@ int main(int argc, const char* argv[]) {
                          ];
              }
              return [RSErrorResponse responseWithClientError:404 message:@"%@ [no handler]",request.path];
-         }
-                          
-                          (request)
-                          );}
 
-         ];
+        }(request));}];
         
 #pragma mark QIDO
         // /pacs/{oid}/rs/( studies | series | instances )?
         [httpdicomServer addHandler:@"GET" regex:qidoRegex processBlock:
          ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
+
+             LOG_INFO(@"%@ qido",request.remoteAddressString);
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
              if (!pacsaei) return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
@@ -644,15 +642,17 @@ int main(int argc, const char* argv[]) {
              
              
              return [RSErrorResponse responseWithClientError:404 message:@"%@ [QIDO not available]",request.path];
-         }
-                                                                                                                                          (request));}];
+             
+         }(request));}];
         
         
 #pragma mark WADO-URI
         
         [httpdicomServer addHandler:@"GET" regex:wadouriRegex processBlock:
          ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
-                                                                                                               {
+         {
+             
+             LOG_INFO(@"%@ wado-uri",request.remoteAddressString);
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              //NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
              NSDictionary *pacsaei=pacsDictionaries[(request.query)[@"custodianOID"]];
@@ -706,8 +706,8 @@ int main(int argc, const char* argv[]) {
              }
 
              return [RSErrorResponse responseWithClientError:404 message:@"%@ [WADO-URI not available]",request.path];
-         }
-(request));}];
+                                                                                                                   
+         }(request));}];
         
 #pragma mark WADO-RS
         // /pacs/{OID}/studies/{StudyInstanceUID}
@@ -718,6 +718,8 @@ int main(int argc, const char* argv[]) {
         [httpdicomServer addHandler:@"GET" regex:wadorsRegex processBlock:
          ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
+             
+             LOG_INFO(@"%@ wado-rs",request.remoteAddressString);
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *pacsaei=pacsDictionaries[pComponents[2]];
              if (!pacsaei) return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
@@ -752,8 +754,8 @@ int main(int argc, const char* argv[]) {
                  return urlProxy(urlString,@"multipart/related;type=application/dicom");
              }
              return [RSErrorResponse responseWithClientError:404 message:@"%@ [WADO-RS not available]",request.path];
-         }
-                                                                                                                                          (request));}];
+             
+         }(request));}];
         
 #pragma mark dcm.zip
         //servicio de segundo nivel que llama a WADO-RS para su realización
@@ -761,7 +763,8 @@ int main(int argc, const char* argv[]) {
         [httpdicomServer addHandler:@"GET" regex:dcmzipRegex processBlock:
          ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
         {
-            LOG_INFO(@"osirix");
+
+            LOG_INFO(@"%@ dcm.zip",request.remoteAddressString);
             NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
             NSDictionary *destPacs=pacsDictionaries[pComponents[2]];
             if (!destPacs) return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
@@ -909,8 +912,8 @@ int main(int argc, const char* argv[]) {
             }];
 
             return response;
-        }
-(request));}];
+            
+        }(request));}];
         
 
         
@@ -924,6 +927,8 @@ int main(int argc, const char* argv[]) {
          [httpdicomServer addHandler:@"GET" regex:encapsulatedRegex processBlock:
           ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
+             
+             LOG_INFO(@"%@ {proxy}/ot|doc|cda",request.remoteAddressString);
              NSArray *pComponents=[request.path componentsSeparatedByString:@"/"];
              NSDictionary *destPacs=pacsDictionaries[pComponents[2]];
              if (!destPacs) return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} not found]",request.path];
@@ -1026,8 +1031,8 @@ int main(int argc, const char* argv[]) {
              return [RSDataResponse
                     responseWithData:encapsulatedData
                     contentType:ctString];
-         }
-                                                                                                                                           (request));}];
+             
+         }(request));}];
 
         
         
@@ -1036,7 +1041,9 @@ int main(int argc, const char* argv[]) {
         [httpdicomServer addHandler:@"GET" regex:mwstudiesRegex processBlock:
          ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(^RSResponse* (RSRequest* request)
-             {
+         {
+             LOG_INFO(@"%@ /manifest/weasis studies",request.remoteAddressString);
+             
              //request parts logging
              NSURL *requestURL=request.URL;
              NSString *bSlash=requestURL.baseURL.absoluteString;
@@ -1177,15 +1184,18 @@ int main(int argc, const char* argv[]) {
                      [weasisManifest appendString:@"</Patient>\r"];
                  }
                  return [RSDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/xml"];
-         }
-                                                                                                                                          (request));}];
+             
+         }(request));}];
         
         
 #pragma mark /manifest/weasis/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}
         
         [httpdicomServer addHandler:@"GET" regex:mwseriesRegex processBlock:
-         ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+         ^(RSRequest* request, RSCompletionBlock completionBlock)
+         {completionBlock(^RSResponse* (RSRequest* request)
          {
+             LOG_INFO(@"%@ /manifest/weasis series",request.remoteAddressString);
+
              //request parts logging
              NSURL *requestURL=request.URL;
              NSString *bSlash=requestURL.baseURL.absoluteString;
@@ -1330,8 +1340,8 @@ int main(int argc, const char* argv[]) {
                  [weasisManifest appendString:@"</Patient>\r"];
              }
              return [RSDataResponse responseWithData:[weasisManifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
-         }
-                                                                                                                                          (request));}];
+             
+         }(request));}];
         
         
 #pragma mark patient
@@ -1342,10 +1352,13 @@ int main(int argc, const char* argv[]) {
         
          [httpdicomServer addHandler:@"GET" regex:patientRegex processBlock:
           ^(RSRequest* request, RSCompletionBlock completionBlock)
-          {completionBlock(^RSResponse* (RSRequest* request){
+          {completionBlock(^RSResponse* (RSRequest* request)
+          {
              
-                 //get query part
-             NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
+              LOG_INFO(@"%@ patient",request.remoteAddressString);
+
+              //get query part
+              NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
                  NSArray *queryItems=[urlComponents queryItems];
                  
                  //filter queryItems to find the once with name pacs
@@ -1362,7 +1375,6 @@ int main(int argc, const char* argv[]) {
                  NSLog(@"queryItems: %@",[queryItems description]);
              
                  for (NSURLQueryItem *qi in queryItems) {
-                     NSLog(@"%@=%@",qi.name,qi.value);
                      if ([qi.name isEqualToString:@"pacs"])
                      {
                          hasPacsQueryItem=true;
@@ -1399,6 +1411,7 @@ int main(int argc, const char* argv[]) {
                          hasPatientSex=true;
                      }
                  }
+                 //if no specific then all
                  if (!hasPacsQueryItem) [pacsOidsQueried addObjectsFromArray:pacsOids];
                  
                  //error if bad pacs query item
@@ -1452,7 +1465,7 @@ int main(int argc, const char* argv[]) {
                           ];
                      
                      LOG_INFO(@"WHERE %@",patientWhere);
-                     
+                 }
                      /*
                      
                      NSString *sqlDataQuery=
@@ -1522,7 +1535,6 @@ int main(int argc, const char* argv[]) {
                  return [RSErrorResponse responseWithClientError:404 message:@"%@ [QIDO not available]",request.path];
              */
              
-         }
              
              //mockup return
              return [RSDataResponse responseWithText:[NSString stringWithFormat:@"user IP:port [%@]",request.remoteAddressString]];
@@ -1541,6 +1553,8 @@ int main(int argc, const char* argv[]) {
         [httpdicomServer addHandler:@"GET" regex:dtstudiesRegex processBlock:
          ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
+
+             LOG_INFO(@"%@ datatables/studies",request.remoteAddressString);
              NSDictionary *q=request.query;
              NSString *session=q[@"session"];
              if (!session || [session isEqualToString:@""]) return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
