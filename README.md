@@ -1,9 +1,8 @@
 # httpdicom
 
-Reverse proxy rest which provides a subset of DICOMWEB services (and some additional ones) and forwards queries to
- - DICOMWEB PACS using HTTP,
- - DICOM PACS using WADO and SQL,
- - or another instance of httpdicom using HTTPS
+Custodian bridging http internet with DICOM local network devices.
+Provides to the world rest service which it forwards to devices in local DICOM networks by means of dicomweb, dicom and/or sql and filesystem protocols.
+Accesorily, it can forward the http call to another httpdicom in the world for remote execution.
  
 ## subset DICOMWEB
  - qido studies, series, instances (content-type application/dicom+json)
@@ -19,4 +18,3 @@ Reverse proxy rest which provides a subset of DICOMWEB services (and some additi
  - datatables/studies, patient, series (returns data source consummed by datatables without modification)
  - wado-rs content-type multipart/related; type="application/dicom" /export
  - wado-uri /export
-
