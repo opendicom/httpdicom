@@ -1,0 +1,405 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2018"><meta name="DC.rights.owner" content="(C) Copyright 2018"><meta name="DC.Type" content="topic"><meta name="DC.Format" content="XHTML"><meta name="DC.Identifier" content="topic_ckn_z5q_tdb"><link rel="stylesheet" type="text/css" href="commonltr.css"><title>HTTPDICOM: API del servicio de MWL</title></head><body id="topic_ckn_z5q_tdb"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+    <h1 class="title topictitle1" id="ariaid-title1">HTTPDICOM: API del servicio de MWL </h1>
+    <div class="body">
+        <p class="p">Httpdicom y html5dicom incluyen funciones de Modality Worklist (MWL) que permiten la
+            integración con los sistemas informáticos pre-existentes.</p>
+        <p class="p"> </p>
+        <section class="section" id="topic_ckn_z5q_tdb__section_iyd_tvq_tdb"><h2 class="title sectiontitle">Proceso inicial de la creación de un estudio imagenológico</h2>
+            
+            <p class="p">Para garantizar una buena identificación del paciente, y simplificar el trabajo de
+                los técnicos y médicos, es importante que comience la creación de estudio
+                imagenológico con la recolección de datos durante la recepción del paciente. Este
+                proceso ya está informatizado en muchas instituciones, por ejemplo cuando ya existe
+                un programa con base de datos de los pacientes que sea la raíz para verificar
+                identidades, derechos a servicios de salud y permita gestionar los eventuales pagos
+                correspondientes a los servicios. A este tipo de programa se le denomina,
+                frecuentemente, como RIS (Radiology Information System). Permite realizar las
+                verificaciones ya mencionadas cuando el paciente se presenta a la puerta de la
+                clínica para el estudio imagenológico. A veces, este programa incluye también
+                funciones de agenda, pero lo principal para nosotros es que permita el ingreso de la
+                orden de servicio. Es desde este punto que el RIS preexistente puede colaborar con
+                nuestro PACS WEB.</p>
+            <p class="p">Si la clínica carece de un RIS, proveemos una página que puede ser usada desde
+                cualquier navegador web para iniciar este trámite de recepción del paciente.</p>
+            <p class="p">Una vez informado de la recepción del paciente, nuestro sistema crea una tarea en la
+                MWL DICOM que puede ser consultada por el técnico desde el equipo de adquisición de
+                imágenes. La ventaja de esta práctica es que garantiza que las imágenes estarán
+                identificadas sin error de información mal copiada o con error de tipeo.</p>
+            <p class="p"></p>
+        </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_v4y_gbr_tdb"><h2 class="title sectiontitle">Comunicar los datos del proceso de recepción</h2>
+            
+            <p class="p">Aceptamos tres formatos:</p>
+            <div class="p">
+                <ul class="ul" id="topic_ckn_z5q_tdb__ul_hhp_lbr_tdb">
+                    <li class="li">HTTP(S) POST application/json (usa el body del request para mandar un(os)
+                        objeto(s) json que pueden contener archivos pdf codificados base64)</li>
+                    <li class="li">HTTP(S) POST multipart/form-data (envío desde un formulario web html5.
+                        Permite adjuntar un archivo pdf.)</li>
+                    <li class="li">HTTP(S) POST application/x-www-form-urlencoded (envío desde un formulario
+                        web html5. No permite adjuntar un archivo pdf.)</li>
+                </ul>
+            </div>
+            <p class="p">Los dos últimos formatos permiten usar nuestra solución sin tener a disposición un
+                RIS.</p>
+            <p class="p">Si la clínica tiene un RIS, puede usar cualquiera de los tres formatos.</p>
+            <p class="p">En caso de RIS que no pueda consumir un servicio web rest por ninguno de estos 3
+                formatos, brindamos una opción mirthConnect, que recibe datos de recepción desde
+                mensaje hl7 ORM u otro canal, incluyendo búsqueda proactiva dentro de una base de
+                datos. Estas opciones no vienen con el producto base y son objeto de una cotización
+                aparte.</p>
+            <p class="p"></p>
+        </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_yd2_b4r_tdb"><h2 class="title sectiontitle">Datos esperados en la etapa de la recepción</h2>
+            
+            <p class="p">Lista en formato json:  </p>
+            <p class="p">{</p>
+            <p class="p"> "pacs":"", "sala":"", "modalidad":"", </p>
+            <p class="p"></p>
+            <p class="p"> "apellido1":"", "apellido2":"", "nombres":"", "PatientID":"", "PatientIDCountry":"",
+                "PatientIDType":"", "clave":"", "PatientBirthDate":"", "PatientSex":"",</p>
+            <p class="p"></p>
+            <p class="p">"AccessionNumber":"", "issuerLocal":"", "issuerUniversal":"", "issuerTipo":"",
+                "StudyDescription":"", "Priority":"", "NameofPhysicianReadingStudy":"",</p>
+            <p class="p"></p>
+            <p class="p"> "ReferringPhysiciansName":"", "enclosureTextarea":"", "enclosurePdf":"" </p>
+            <p class="p">}</p>
+            <p class="p">Los parámetros que empiezan con una mayúscula corresponden exactamente con un
+                atributo DICOM. Una búsqueda en internet con este nombre brinda información
+                detallada sobre el parámetro.</p>
+            <p class="p">Los parámetros que empiezan con una minúscula nos permite crear atributos DICOM.</p>
+            <p class="p">Separamos los parámetros en cuatro lineas. La primera acción requiere solamente los
+                datos de la primera linea y permite verificar los datos del PACS/RIS que publicará
+                la tarea de MWL. La segunda acción require los datos de las dos primeras lineas para
+                crear o verificar los datos del paciente en el PACS/RIS. La tercer acción crea el
+                item de MWL y copia la información de descripción de estudio y datos del radiólogo
+                previsto para escribir el diagnóstico. La última acción crea el documento DICOM de
+                solicitud (llamado también orden de servicio) que precisa la codificación y publica
+                un eventual documento pdf y eventualmente texto de acompañamiento.</p>
+            <p class="p">Detallamos a continuación el formato de cada uno de los parámetros.</p>
+        </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_yvs_m4r_tdb"><h2 class="title sectiontitle">pacs, modalidad, sala</h2>
+            
+            <p class="p"><strong class="ph b">pacs</strong> es opcional cuando el pedido de creación de item de MWL es local. Sino,
+                contiene el OID (máximo 64 caracteres) del PACS.</p>
+            <p class="p">En el archivo de configuación pacs.plist de httpdicom, cada PACS tiene asociado una
+                lista de servicios, también llamados <strong class="ph b">sala</strong>, que pueden usar la MWL. </p>
+            <p class="p">Por defecto, estos servicios tienen mismo nombre que la modalidad DICOM (por ejemplo
+                CT, CR, US, XA, MG, etc...), pero también pueden tener nombre específico. </p>
+            <p class="p">El equipo  DICOM de una sala permite a veces la creación de objetos DICOM de varias
+                modalidades, en este caso conviene completar la información de la sala por la de la
+                modalidad. Si la sala se usa para una sola modalidad, con indicar el nombre de la
+                sala, la información ya es suficiente.</p>
+            <p class="p">Alternativamente, en caso de no indicar el nombre de la sala se puede indicar una
+                modalidad DICOM. Por ejemplo:</p>
+            <div class="p"><ul class="ul" id="topic_ckn_z5q_tdb__ul_snn_25w_tdb">
+                    <li class="li">CT (tomografía)</li>
+                    <li class="li">CR (rayos X)</li>
+                    <li class="li">MG (mamografía)</li>
+                    <li class="li">US (ultrasonido)</li>
+                    <li class="li">MR (resonancia)</li>
+                </ul> La lista completa se encuentra en <a class="xref" href="http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1.1" target="_blank">http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1.1</a></div>
+            <p class="p"></p>
+            <p class="p">En resumen :</p>
+            <div class="p">
+                <ul class="ul" id="topic_ckn_z5q_tdb__ul_xjl_vqr_tdb">
+                    <li class="li">Cuando el pedido de creación de MWL es local, el dato <strong class="ph b">pacs</strong> es
+                        opcional</li>
+                    <li class="li"><strong class="ph b">sala</strong> o <strong class="ph b">modalidad</strong> es obligatorio</li>
+                    <li class="li">en caso que a una sala correspondan varias modalidades, ambos <strong class="ph b">sala</strong> y
+                            <strong class="ph b">modalidad</strong> son obligatorios</li>
+                </ul>
+            </div>
+            <p class="p"></p>
+        </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_o4y_drr_tdb"><h2 class="title sectiontitle">AccessionNumber, issuerLocal, issuerUniversal, issuerTipo</h2>
+            
+            <p class="p">El número de acceso es el vínculo entre el RIS y nuestro PACS WEB. Es único para cada
+                estudio nuevo. Este número permite que el RIS acceda a toda la información del
+                estudio en cualquier momento. Puede ser un número interno o un número externo (por
+                ejemplo el número de orden del seguro de salud que autorizó el estudio).
+                Formalmente, contiene un máximo de 16 letras y cifras, sin espacio.</p>
+            <p class="p">Para diferenciar si el AccessionNumber es interno o externo se indica el dominio
+                dónde fue creado. Existen dos formas de precisar el dominio. </p>
+            <p class="p">En sistemas de salud con poca organización informática, se usa un issuerLocal. Por
+                ejemplo, la clínica ABC realiza estudios para sus pacientes y para una aseguradora
+                externa DEF. ABC y DEF serían los valores a indicar en el parámetro issuerLocal. </p>
+            <p class="p">En sistmas de salud organizados en redes informáticas, cada unidad ejecutora está
+                identificada por un identificador de tipo :</p>
+            <div class="p">
+                <ul class="ul" id="topic_ckn_z5q_tdb__ul_tg1_lsw_tdb">
+                    <li class="li">DNS (nombres de internet unidos por puntos. En ASCII o enteros)</li>
+                    <li class="li">EUI64 (IEEE Extended Unique Identifier)</li>
+                    <li class="li">ISO (OID, es decir enteros unidos por puntos)</li>
+                    <li class="li">URI</li>
+                    <li class="li">UUID</li>
+                    <li class="li">X400</li>
+                    <li class="li">X500</li>
+                </ul>
+            </div>
+            <p class="p">En este caso se complementa el AccessionNumber con el parámetro issuerUniversal y el
+                issuerTipo que corresponde.</p>
+            <p class="p"></p>
+        </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_x4k_1tw_tdb"><h2 class="title sectiontitle">StudyDescription</h2>
+            
+            <p class="p">La descripción del estudio es un texto libre. Puede ser fuente de codificación
+                automática en base a vocabulario estándar. </p>
+            <p class="p">Un archivo de configuración "procedure" asociado a cada pacs contiene la lista
+                exhaustiva de los procedimientos codificados. Cuando la descripcion del estudio
+                corresponde unívocamente con una entrada de esta lista, entonces el PACS WEB
+                registra la codificación correspondiente en la metadata del estudio por medio del
+                CDA de solicitud.</p>
+            <p class="p">El titulo del estudio puede corresponder a más de un código. Por ejemplo tomografía
+                cadera, tórax y cuello puede corresponder a un código para cada región. Eso está
+                definido en el archivo de configuración "procedure".</p>
+            <p class="p"></p>
+        </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_ftx_kzw_tdb"><h2 class="title sectiontitle">apellido1, apellido2, nombres</h2>
+            
+            <p class="p">La separación de los componentes del nombre es lo correcto y es un requerimiento
+                normal para la creación del documento de informe médico. En caso de tener a
+                disposición solo el conjunto de nombres sin separación clara entre sus componentes,
+                ponerlo en apellido1, pero no es ideal.</p>
+            <p class="p"></p>
+        </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_qxx_l1x_tdb"><h2 class="title sectiontitle">PatientID, PatientIDCountry, PatientIDType</h2>
+            
+            <p class="p">PatientID no puede contener espacio ni superar 16 caracteres.</p>
+            <p class="p">PatientIDCountry es uno de los códigos del país tal definido en ISO 3166. El servidor
+                acepta cualquiera de las variantes definidas en el ISO (dos letras, tres letras,
+                número, etc). <a class="xref" href="https://en.wikipedia.org/wiki/ISO_3166-1" target="_blank">https://en.wikipedia.org/wiki/ISO_3166-1</a></p>
+            <p class="p">PatientIDType recibe el número de documento tal definido por ICAO:</p>
+            <div class="p">
+                <table class="table" id="topic_ckn_z5q_tdb__table_gxh_vdx_tdb"><caption></caption><colgroup><col style="width:100px"><col></colgroup><tbody class="tbody">
+                            <tr class="row">
+                                <td class="entry">69020</td>
+                                <td class="entry">CARNE DE ASISTENCIA DE SALUD PRIVADA</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69019</td>
+                                <td class="entry">CARNE DE ASISTENCIA DE SALUD PUBLICA</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69018</td>
+                                <td class="entry">CARNE DE ASISTENCIA SOCIAL</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68932</td>
+                                <td class="entry">CARNE DE PRACTICO (ICAO - CP)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69017</td>
+                                <td class="entry">CARNE MILITAR</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69096</td>
+                                <td class="entry">CARNE O DOCUMENTO FRONTERIZO</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69015</td>
+                                <td class="entry">CARNE O REGISTRO PROFESIONAL</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69016</td>
+                                <td class="entry">CARNE POLICIAL</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68909</td>
+                                <td class="entry">CEDULA DE IDENTIDAD (ICAO - ID)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68944</td>
+                                <td class="entry">CREDENCIAL CIVICA (ICAO - CC)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68946</td>
+                                <td class="entry">CREW MEMBER CERTIFICATE (ICAO - AC)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68939</td>
+                                <td class="entry">DOC. VIAJE - UN 1951 - (ICAO - UN)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68910</td>
+                                <td class="entry">DOCUMENTO DE IDENTIDAD (ICAO - DN) </td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68927</td>
+                                <td class="entry">LAISSEZ PASSER UN (ICAO - LP)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68918</td>
+                                <td class="entry">LIBRETA CIVICA (ICAO - LC)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68933</td>
+                                <td class="entry">LIBRETA DE BAQUEANO (ICAO - LB)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69012</td>
+                                <td class="entry">LIBRETA DE CONDUCIR EXTRANJERA</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69011</td>
+                                <td class="entry">LIBRETA DE CONDUCIR NACIONAL</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68916</td>
+                                <td class="entry">LIBRETA DE ENROLAMIENTO (ICAO - LE)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69014</td>
+                                <td class="entry">LIBRETA DE PROPIEDAD VEHICULAR EXTRANJERA</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69013</td>
+                                <td class="entry">LIBRETA DE PROPIEDAD VEHICULAR NACIONAL</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69025</td>
+                                <td class="entry">LIBRETA DE TRIPULANTE (ICAO - LT)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69024</td>
+                                <td class="entry">OTRO DOCUMENTO DE IDENTIFICACION PERSONAL</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68912</td>
+                                <td class="entry">PASAPORTE (ICAO - P)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68928</td>
+                                <td class="entry">PASAPORTE CEE (ICAO - EE)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68929</td>
+                                <td class="entry">PASAPORTE DE EMERGENCIA (ICAO EM)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68919</td>
+                                <td class="entry">PASAPORTE DE SERVICIO (ICAO - PS)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68915</td>
+                                <td class="entry">PASAPORTE DIPLOMATICO (ICAO - PD)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68922</td>
+                                <td class="entry">PASAPORTE ESPECIAL (ICAO - PE)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68926</td>
+                                <td class="entry">PASAPORTE OEA (ICAO - PT)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68920</td>
+                                <td class="entry">PASAPORTE OFICIAL (ICAO - PO)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68947</td>
+                                <td class="entry">PASAPORTE PROVISORIO (ICAO - PP)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69097</td>
+                                <td class="entry">PASE LIBRE FRONTERIZO</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68943</td>
+                                <td class="entry">SALVOCONDUCTO (ICAO - SC)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68936</td>
+                                <td class="entry">SALVOCONDUCTO ONU ASILADO (ICAO - SU)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68937</td>
+                                <td class="entry">SALVOCONDUCTO ONU FUNCIONARIO (ICAO - PU)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68945</td>
+                                <td class="entry">SIN DOCUMENTO (ICAO - SD)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69021</td>
+                                <td class="entry">TARJETA DE CREDITO</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69022</td>
+                                <td class="entry">TARJETA DE DEBITO</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68930</td>
+                                <td class="entry">TARJETA DE IDENTIDAD (ICAO - I)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">69023</td>
+                                <td class="entry">TARJETA DE USO DE TRANSPORTE DE PASAJEROS</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68923</td>
+                                <td class="entry">TITULO DE IDENTIDAD Y VIAJE (ICAO - PX)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68941</td>
+                                <td class="entry">TITULO DE V. CRUZ ROJA (ICAO - CR)</td>
+                            </tr>
+                            <tr class="row">
+                                <td class="entry">68924</td>
+                                <td class="entry">VALIDO DE VIAJE CONSULAR (ICAO - VC)</td>
+                            </tr>
+                        </tbody></table>
+            </div>
+        </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_oss_zdx_tdb"><h2 class="title sectiontitle">clave</h2>
+            
+            <p class="p">Opcional. Si está, se crea un usuario identificado por número de documento y clave en
+                htlm5dicom para que el paciente tenga acceso a su estudio.</p>
+            <p class="p"></p>
+        </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_imv_g2x_tdb"><h2 class="title sectiontitle">PatientBirthDate, PatientSex</h2>
+            
+            <p class="p">PatientBirthDate tiene formato aaaammdd. Año 4 cifras, mes (2 cifras) eventualente
+                empezando con cero, día (2 cifras) eventualmetne empezando con cero.</p>
+            <p class="p">PatientSex es o F (Femenino) o M (Masculino) o O (otro, no especificado).</p>
+            <p class="p"></p>
+        </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_jbl_khx_tdb"><h2 class="title sectiontitle">Priority</h2>
+            
+            <p class="p">Opcional. Acepta los valores MEDIUM o HIGH.</p>
+        </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_h4n_r2x_tdb"><h2 class="title sectiontitle">ReferringPhysiciansName, NameofPhysicianReadingStudy</h2>
+            
+            <p class="p">ReferringPhysiciansName y NameofPhysicianReadingStudy ambos siguen el formato
+                identificadorDeInstitución^nombreDeServicio^nombreDelUsuarioMedico.  El
+                identificador de la institución puede ser el nombre corto o su OID. El servicio
+                puede ser el nombre por defecto del servico, o sea la modalidad de imágenes DICOM
+                producidas en el servicio.</p>
+            <p class="p">Es posible indicar solo institución y servicio, o solamente institución.</p>
+            <p class="p">El archivo de configuración de PACS permite asociar un código a
+                ReferringPhysiciansName o NameofPhysicianReadingStudy. Por ejemplo,
+                HospitalA^CT^doctor1 puede corresponder al código 1.</p>
+            <p class="p">En el archivo de configuración del PACS existe un seteo titulado
+                "readingAsReferring". Cuando se activa esta opción, distorsiona la información
+                provista en la MWL, indicando NameofPhysicianReadingStudy en lugar de
+                ReferringPhysiciansName. El interés de está distorsión consiste en que
+                ReferringPhysiciansName es  modificable desde la consola del equipo DICOM. Hace
+                posible definir qué radiólogo será responsable de informar el estudio una vez que se
+                adquieren las imágenes, antes de mandarlas al PACS WEB. Al recibir las imágenes el
+                PACS WEB repone las informaciones donde van en la metadata DICOM,
+                ReferringPhysiciansName dentro de ReferringPhysiciansName y
+                NameofPhysicianReadingStudy dentro de NameofPhysicianReadingStudy.</p>
+        </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_xvy_k3x_tdb"><h2 class="title sectiontitle">enclosureTextarea, enclosurePdf</h2>
+            
+            <p class="p">Estos parámetros son opcionales.</p>
+            <p class="p">enclosureTextarea permite ingresar texto con elemento de datos clínicos, indicaciones
+                o demás informaciones necesarias para la realización del informe por el
+                radiólogo.</p>
+            <p class="p">enclosurePdf permite adjuntar un documento pdf codificado base64 para el mismo
+                propósito. </p>
+        </section>
+    </div>
+</article></main></body></html>
