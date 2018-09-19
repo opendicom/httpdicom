@@ -461,12 +461,17 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
 #pragma mark - NO
         
 #pragma mark patient in pacs ?
-        NSDictionary *patientDict=[NSURLSessionDataTask existsInPacs:pacs pid:PatientID1 issuer:IssuerOfPatientID1 returnAttributes:true];
-        if (patientDict)
+        NSArray *patients=[NSURLSessionDataTask existsInPacs:pacs pid:PatientID1 issuer:IssuerOfPatientID1 returnAttributes:true];
+        if (patients)
         {
-            PatientName1=(((patientDict[@"00100010"])[@"Value"])[0])[@"Alphabetic"];
-            PatientBirthdate1=((patientDict[@"00100030"])[@"Value"])[0];
-            PatientSexValue1=((patientDict[@"00100040"])[@"Value"])[0];
+            if ([patients count]>1)
+            {
+                LOG_WARNING(@"[pdf]<request> <-404:  there is more than one patient with pid:%@ and issuer:%@",PatientID1,IssuerOfPatientID1);
+                return [RSErrorResponse responseWithClientError:404 message:@"[pdf] <request> <-404:  there is more than one patient with pid:%@ and issuer:%@",PatientID1,IssuerOfPatientID1];
+            }
+            PatientName1=((((patients[0])[@"00100010"])[@"Value"])[0])[@"Alphabetic"];
+            PatientBirthdate1=(((patients[0])[@"00100030"])[@"Value"])[0];
+            PatientSexValue1=(((patients[0])[@"00100040"])[@"Value"])[0];
         }
         else
         {
@@ -561,7 +566,11 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
                 return [RSErrorResponse responseWithClientError:404 message:@"[pdf] can not PUT patient %@. Error: %@",PatientName1,[error description]];
             }
             //check patient created and get the metadata
-            patientDict=[NSURLSessionDataTask existsInPacs:pacs pid:PatientID1 issuer:IssuerOfPatientID1 returnAttributes:true][0];
+            if (![NSURLSessionDataTask existsInPacs:pacs pid:PatientID1 issuer:IssuerOfPatientID1 returnAttributes:false])
+            {
+                LOG_WARNING(@"[pdf]<request> <-404:  could not create in pacs patient with pid:%@ and issuer:%@",PatientID1,IssuerOfPatientID1);
+                return [RSErrorResponse responseWithClientError:404 message:@"[pdf] <request> <-404:  could not create in pacs patient with pid:%@ and issuer:%@",PatientID1,IssuerOfPatientID1];
+            }
         }
         
 #pragma mark create a new study with the report

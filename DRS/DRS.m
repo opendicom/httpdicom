@@ -12,6 +12,14 @@
 #import "DRS+pacs.h"
 #import "DRS+mwl.h"
 #import "DRS+pdf.h"
+#import "DRS+qido.h"
+#import "DRS+APath.h"
+#import "DRS+wadors.h"
+#import "DRS+zipped.h"
+#import "DRS+encapsulated.h"
+#import "DRS+weasis.h"
+#import "DRS+datatables.h"
+#import "DRS+iheiid.h"
 
 #import "DICMTypes.h"
 
@@ -196,12 +204,42 @@ static NSDictionary        *_custodianDictionary=nil;
 
 #pragma mark /mwlitem
         [self addMWLHandler];
-        LOG_DEBUG(@"added handler /mwlitem");        
+        LOG_DEBUG(@"added handler /mwlitem");
         LOG_DEBUG(@"-------------");
 
 #pragma mark /pdf
         [self addPDFHandler];
         LOG_DEBUG(@"added handler /pdf /report /informe");
+        LOG_DEBUG(@"-------------");
+         
+        
+#pragma mark /(studies|series|instances)
+        //wadors regex should be evaluated before qido regex
+        //[self addQidoHandler];
+
+#pragma mark /weasis
+        //        [self addWeasisStudiesHandler];
+        //        [self addWeasisSeriesHandler];
+        //        [self addIheiidHandler];
+        
+# pragma mark /datatables
+        //        [self addDatatablesStudiesHandler];
+        //        [self addDatatablesPatientHandler];
+        //        [self addDatatablesSeriesHandler];
+# pragma mark /fidji
+        [self addFidjiHandler];
+        LOG_DEBUG(@"added handler /fidji");
+
+        
+        
+#pragma mark /studies/{UID}
+#pragma mark /studies/{UID}/series/{uid}
+#pragma mark /dcm.zip
+//        [self addWadorsHandler];//includes dcm.zip
+
+# pragma mark /(pacs{oid}/)?(ot|doc|cda|sr|OT|DOC|CDA|SR)
+//        [self addEncapsulatedHandler];
+        
         LOG_DEBUG(@"-------------");
     }
     return self;

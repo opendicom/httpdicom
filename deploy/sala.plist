@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist
+     xmlns="http://www.opendicom.com/xsd/plist/sala.xsd"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.opendicom.com/xsd/plist/sala.xsd 
+     file:sala.xsd"
+    >
+    <dict>
+        <key>Sala0</key>
+        <dict>
+            <key>StationAETitle</key>
+            <string id="StationAETitle">AET</string>
+            <key>Modality</key>
+            <array>
+                <string id="StationAETitle">CT</string>
+            </array>
+            <key>readingAsReferring</key>
+            <true/>           
+         </dict>
+    </dict>
+</plist>

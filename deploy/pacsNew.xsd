@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.opendicom.com/xsd/plist/pacs.xsd"
+    xmlns="http://www.opendicom.com/xsd/plist/pacs.xsd" 
+    elementFormDefault="qualified"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" 
+    vc:minVersion="1.1"
+    >
+
+    <xs:element name="plist">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="dict">
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded">
+                            
+
+                            <xs:element name="key">
+                                <xs:annotation>
+                                    <xs:documentation>oid de device local o del custodian al cual están conectados los devices locales</xs:documentation>
+                                </xs:annotation>
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:pattern value="[1-2](\d)*(\.0|\.[1-9](\d)*)*"/>
+                                    </xs:restriction>
+                                </xs:simpleType>                                
+                            </xs:element>
+                            <xs:element name="dict">
+                                <xs:annotation>
+                                    <xs:documentation>propiedades del device (o del custodian)</xs:documentation>
+                                </xs:annotation>
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:group ref="preferredstudyidentificator"/>
+                                        <xs:group ref="TimezoneOffsetFromUTC"/>
+                                        <xs:group ref="pacstitle"/>
+                                        <xs:group ref="custodiantitle"/>
+                                        <xs:group ref="custodianoid"/>
+                                        <xs:group ref="custodianglobaluri"/>
+                                        <!-- ====================================== -->
+                                        <!-- device (mandatory if local) -->                                   
+                                        <xs:sequence minOccurs="0">
+                                            <!--sql-->
+                                            <xs:group ref="sqlprolog"/>
+                                            <xs:group ref="sqlstringencoding"/>
+                                            <xs:group ref="sqlmap"/>
+                                            <xs:group ref="filesystemlocaluri"/>
+                                            <xs:group ref="wadolocaluri"/>
+                                            <xs:group ref="wadoadditionalparameters"/>
+                                            <!--dcm4chee-arc rest proprietary, dicomweb and dimse services-->
+                                            <xs:group ref="dcm4cheelocaluri"/>
+                                            <xs:group ref="dcm4cheedimseproxytitle"/>
+                                            <xs:group ref="cachepolicy"/>
+                                            <xs:group ref="timeoutinterval"/>
+                                            <xs:group ref="services" minOccurs="0"/>
+                                        </xs:sequence>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="version" fixed="1.0"/>
+        </xs:complexType>
+    </xs:element>    
+
+<!-- groups -->
+    
+    <xs:group name="preferredstudyidentificator">
+        <xs:sequence>
+            <xs:element name="key" fixed="preferredstudyidentificator">
+                <xs:annotation>
+                    <xs:documentation>StudyInstanceUID o AccessionNumber</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="preferredstudyidentificator" />
+        </xs:sequence>
+    </xs:group>
+
+
+    <xs:group name="TimezoneOffsetFromUTC">
+        <xs:sequence>
+            <xs:element name="key" fixed="TimezoneOffsetFromUTC">
+                <xs:annotation>
+                    <xs:documentation>+/-HHMM</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="TimezoneOffsetFromUTC" />
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="pacstitle">
+        <xs:sequence>
+            <xs:element name="key" fixed="pacstitle">
+                <xs:annotation>
+                    <xs:documentation>nombre corto (máx 16 chars) del device</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="pacstitle"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="custodiantitle">
+        <xs:sequence>
+            <xs:element name="key" fixed="custodiantitle">
+                <xs:annotation>
+                    <xs:documentation>nombre corto (máx 16 chars) del PCS custodian</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="custodiantitle"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="custodianoid">
+        <xs:sequence>
+            <xs:element name="key" fixed="custodianoid">
+                <xs:annotation>
+                    <xs:documentation>oid del custodian (representa en internet el conjunto de los aets locales vinculados al custodian)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="custodianoid"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="custodianglobaluri">
+        <xs:sequence>
+            <xs:element name="key" fixed="custodianglobaluri">
+                <xs:annotation>
+                    <xs:documentation>public url del PCS custodian</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="custodianglobaluri"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="sqlprolog">
+        <xs:sequence>
+            <xs:element name="key" fixed="sqlprolog">
+                <xs:annotation>
+                    <xs:documentation>conexión al sql</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="sqlprolog"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="sqlstringencoding">
+        <xs:sequence>
+            <xs:element name="key" fixed="sqlstringencoding">
+                <xs:annotation>
+                    <xs:documentation>(4=UTF-8, 5=latin1)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="sqlstringencoding"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="sqlmap">
+        <xs:sequence>
+            <xs:element name="key" fixed="sqlmap">
+                <xs:annotation>
+                    <xs:documentation>path al diccionario que lista las traducciones en lenguaje sql de los queries usados por httpdicom</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="sqlmap"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="filesystemlocaluri">
+        <xs:sequence>
+            <xs:element name="key" fixed="filesystemlocaluri">
+                <xs:annotation>
+                    <xs:documentation>acceso por sistema de archivos a los dicoms del device</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="filesystemlocaluri"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="wadolocaluri">
+        <xs:sequence>
+            <xs:element name="key" fixed="wadolocaluri">
+                <xs:annotation>
+                    <xs:documentation>uri del servicio en caso que el device local soporte esta funcionalidad</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="wadolocaluri"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="wadoadditionalparameters">
+        <xs:sequence>
+            <xs:element name="key" fixed="wadoadditionalparameters">
+                <xs:annotation>
+                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="wadoadditionalparameters"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="dcm4cheelocaluri">
+        <xs:sequence>
+            <xs:element name="key" fixed="dcm4cheelocaluri">
+                <xs:annotation>
+                    <xs:documentation>uri de dcm4chee-arc-light en caso que se use como intermediario</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="dcm4cheelocaluri"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="dcm4cheedimseproxytitle">
+        <xs:sequence>
+            <xs:element name="key" fixed="dcm4cheedimseproxytitle">
+                <xs:annotation>
+                    <xs:documentation>nombre corto (máx 16 chars) del PCS custodian</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="dcm4cheedimseproxytitle"/>            
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="cachepolicy">
+        <xs:sequence>
+            <xs:element name="key" fixed="cachepolicy">
+                <xs:annotation>
+                    <xs:documentation>https://developer.apple.com/documentation/foundation/nsurlrequest.cachepolicy</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="cachepolicy"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="timeoutinterval">
+        <xs:sequence>
+            <xs:element name="key" fixed="timeoutinterval">
+                <xs:annotation>
+                    <xs:documentation>en seconds (default 60)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="timeoutinterval"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="services">
+        <xs:sequence>
+            <xs:element name="key" fixed="services"/>
+            <xs:element name="dict">
+                <xs:complexType>
+                    <xs:sequence maxOccurs="unbounded">
+                        <xs:element name="key"/><!-- service name -->
+                        <xs:element name="dict">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:group ref="html5dicomuserserviceuri"/>
+                                    <xs:group ref="StationAETitle"/>                                                                    
+                                    <xs:group ref="modalities"/>                                                                    
+                                    <xs:group ref="readingAsReferring"/>                                                                    
+                                    <xs:group ref="referring" minOccurs="0"/>
+                                </xs:sequence>                                    
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:group>
+    
+    
+    <xs:group name="html5dicomuserserviceuri">
+        <xs:sequence>
+            <xs:element name="key" fixed="html5dicomuserserviceuri">
+                <xs:annotation>
+                    <xs:documentation>uri de dcm4chee-arc-light en caso que se use como intermediario</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="html5dicomuserserviceuri"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="StationAETitle">
+        <xs:sequence>
+            <xs:element name="key" fixed="StationAETitle">
+                <xs:annotation>
+                    <xs:documentation>nombre corto (máx 16 chars) del device</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="StationAETitle"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="modalities">
+        <xs:sequence>
+            <xs:element name="key" fixed="modalities">
+                <xs:annotation>
+                    <xs:documentation>nombre corto (máx 16 chars) del PCS custodian</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="array">
+                <xs:complexType>
+                    <xs:sequence maxOccurs="unbounded">
+                        <xs:element ref="string" id="modalities"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="readingAsReferring">
+        <xs:sequence>
+            <xs:element name="key" fixed="readingAsReferring">
+                <xs:annotation>
+                    <xs:documentation>in order to be able to input NameOfPhysicianReading</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:choice>
+                <xs:element ref="true"/>
+                <xs:element ref="false"/>
+            </xs:choice>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="referring">
+        <xs:sequence >
+            <xs:element name="key" fixed="referring"/>
+            <xs:element name="dict">
+                <xs:annotation>
+                    <xs:documentation>mapeo número PN</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence maxOccurs="unbounded">
+                        <xs:element name="key">
+                            <xs:annotation>
+                                <xs:documentation>número del profesional</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element ref="string" id="pn"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:group>
+    
+<!-- syntaxis -->
+    <xs:element name="string" type="idstring">
+        <xs:alternative test="@id = 'preferredstudyidentificator'" type="studyidentificatoridstring"/>
+        <xs:alternative test="@id = 'TimezoneOffsetFromUTC'"       type="timezonestring"/>
+        <xs:alternative test="@id = 'pacstitle'"                   type="titleidstring"/>
+        <xs:alternative test="@id = 'custodiantitle'"              type="titleidstring"/>
+        <xs:alternative test="@id = 'custodianoid'"                type="oididstring"/>
+        <xs:alternative test="@id = 'sqlstringencoding'"           type="stringencodingidstring"/>
+        <xs:alternative test="@id = 'wadolocaluri'"                type="httpidstring"/>
+        <xs:alternative test="@id = 'dcm4cheelocaluri'"            type="httpidstring"/>
+        <xs:alternative test="@id = 'cachepolicy'"                 type="cachepolicy"/>
+        <xs:alternative test="@id = 'timeoutinterval'"             type="timeoutinterval"/>
+        <xs:alternative test="@id = 'html5dicomuserserviceuri'"    type="httpidstring"/>
+        <xs:alternative test="@id = 'pn'"                          type="pn"/>
+    </xs:element>
+    
+    <xs:complexType name="idstring">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="id" use="required"/>                
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="titleidstring">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:minLength value="1"/>
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="oididstring">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:pattern value="[1-2](\d)*(\.0|\.[1-9](\d)*)*"/>
+                <xs:maxLength value="64"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <xs:complexType name="timezonestring">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:pattern value="(-11|-10|-09|-08|-07|-06|-05|-04|-03|-02|-01|\+00|\+01|\+02|\+03|\+04|\+05|\+06|\+07|\+08|\+09|\+10|\+11|\+12)[0-5][0-9]"/>
+                <xs:maxLength value="64"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <xs:complexType name="httpidstring">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:pattern value="()|(https?://.*)"/>
+                <xs:whiteSpace value="collapse"></xs:whiteSpace>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    
+    <xs:complexType name="studyidentificatoridstring">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:enumeration value="StudyInstanceUID"/>
+                <xs:enumeration value="AccessionNumber"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    
+    <xs:complexType name="stringencodingidstring">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:enumeration value="4"/><!--UTF-8-->
+                <xs:enumeration value="5"/><!--latin1-->
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+
+    <xs:complexType name="cachepolicy">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:enumeration value="0"/><!--useProtocolCachePolicy-->
+                <xs:enumeration value="1"/><!--reloadIgnoringLocalCacheData . Mandatory for HTTP or HTTPS byte-range requests-->
+                <xs:enumeration value="2"/><!--returnCacheDataElseLoad . regardless of its age or expiration date-->
+                <xs:enumeration value="3"/><!--returnCacheDataDontLoad . offline-->
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    
+    <xs:complexType name="timeoutinterval">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:pattern value="[1-9](\d){1,2}"/>
+                <xs:maxLength value="64"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="pn">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:pattern value=".*^.*^.*"/>
+                <xs:maxLength value="64"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <xs:element name="true">
+        <xs:complexType mixed="false"/>
+    </xs:element>
+    
+    <xs:element name="false">
+        <xs:complexType mixed="false"/>
+    </xs:element>
+    
+    
+</xs:schema>
