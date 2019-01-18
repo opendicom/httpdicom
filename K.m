@@ -3,11 +3,6 @@
 
 @implementation K
 
-static NSRegularExpression *_DARegex=nil;
-static NSRegularExpression *_SHRegex=nil;
-static NSRegularExpression *_UIRegex=nil;
-static NSRegularExpression *_TZRegex=nil;
-
 static NSArray             *_levels;
 
 static NSArray             *_key;
@@ -35,10 +30,6 @@ static NSDictionary        *_personidtype=nil;//icaa documents
     _codeindexes=[NSMutableDictionary dictionary];
     _procedure=[NSMutableDictionary dictionary];
     _procedureindexes=[NSMutableDictionary dictionary];
-    _TZRegex = [NSRegularExpression regularExpressionWithPattern:@"^[+-][0-2][0-9][0-5][0-9]$" options:0 error:NULL];
-    _UIRegex = [NSRegularExpression regularExpressionWithPattern:@"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:0 error:NULL];
-    _SHRegex = [NSRegularExpression regularExpressionWithPattern:@"^(?:\\s*)([^\\r\\n\\f\\t]*[^\\r\\n\\f\\t\\s])(?:\\s*)$" options:0 error:NULL];
-    _DARegex = [NSRegularExpression regularExpressionWithPattern:@"^(19|20)\\d\\d(01|02|03|04|05|06|07|08|09|10|11|12)(01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)$" options:0 error:NULL];
     
     _modalities=@[@"CR",@"CT",@"MR",@"PT",@"XA",@"US",@"MG",@"RF",@"DX",@"EPS"];
     
@@ -300,11 +291,6 @@ static NSDictionary        *_personidtype=nil;//icaa documents
 
 
 #pragma mark - getters
-
-+(NSRegularExpression*)DARegex       { return _DARegex;}
-+(NSRegularExpression*)SHRegex       { return _SHRegex;}
-+(NSRegularExpression*)UIRegex       { return _UIRegex;}
-+(NSRegularExpression*)TZRegex       { return _TZRegex;}
 
 +(NSArray*)levels                    { return _levels;}
 +(NSString*)defaultTimezone          { return _defaultTimezone;}

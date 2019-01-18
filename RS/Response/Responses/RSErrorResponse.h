@@ -91,53 +91,41 @@ typedef NS_ENUM(NSInteger, RSServerErrorHTTPStatusCode) {
 
 
 /**
- *  The RSDataResponse subclass of RSDataResponse generates
+ *  The RSErrorResponse subclass of RSDataResponse generates
  *  an HTML body from an HTTP status code and an error message.
  */
 @interface RSErrorResponse : RSDataResponse
 
-/**
- *  Creates a client error response with the corresponding HTTP status code.
- */
-+ (instancetype)responseWithClientError:(RSClientErrorHTTPStatusCode)errorCode message:(NSString*)format, ... NS_FORMAT_FUNCTION(2,3);
+//Creates a client error response
++ (instancetype)responseWithClientError:(RSClientErrorHTTPStatusCode)errorCode
+                                message:(NSString*)format, ... NS_FORMAT_FUNCTION(2,3);
 
-/**
- *  Creates a server error response with the corresponding HTTP status code.
- */
-+ (instancetype)responseWithServerError:(RSServerErrorHTTPStatusCode)errorCode message:(NSString*)format, ... NS_FORMAT_FUNCTION(2,3);
+- (instancetype)initWithClientError:(RSClientErrorHTTPStatusCode)errorCode
+                            message:(NSString*)format, ... NS_FORMAT_FUNCTION(2,3);
 
-/**
- *  Creates a client error response with the corresponding HTTP status code
- *  and an underlying NSError.
- */
-+ (instancetype)responseWithClientError:(RSClientErrorHTTPStatusCode)errorCode underlyingError:(NSError*)underlyingError message:(NSString*)format, ... NS_FORMAT_FUNCTION(3,4);
++ (instancetype)responseWithClientError:(RSClientErrorHTTPStatusCode)errorCode
+                        underlyingError:(NSError*)underlyingError
+                                message:(NSString*)format, ... NS_FORMAT_FUNCTION(3,4);
 
-/**
- *  Creates a server error response with the corresponding HTTP status code
- *  and an underlying NSError.
- */
-+ (instancetype)responseWithServerError:(RSServerErrorHTTPStatusCode)errorCode underlyingError:(NSError*)underlyingError message:(NSString*)format, ... NS_FORMAT_FUNCTION(3,4);
+- (instancetype)initWithClientError:(RSClientErrorHTTPStatusCode)errorCode
+                    underlyingError:(NSError*)underlyingError
+                            message:(NSString*)format, ... NS_FORMAT_FUNCTION(3,4);
 
-/**
- *  Initializes a client error response with the corresponding HTTP status code.
- */
-- (instancetype)initWithClientError:(RSClientErrorHTTPStatusCode)errorCode message:(NSString*)format, ... NS_FORMAT_FUNCTION(2,3);
 
-/**
- *  Initializes a server error response with the corresponding HTTP status code.
- */
-- (instancetype)initWithServerError:(RSServerErrorHTTPStatusCode)errorCode message:(NSString*)format, ... NS_FORMAT_FUNCTION(2,3);
+//Creates a server error response
 
-/**
- *  Initializes a client error response with the corresponding HTTP status code
- *  and an underlying NSError.
- */
-- (instancetype)initWithClientError:(RSClientErrorHTTPStatusCode)errorCode underlyingError:(NSError*)underlyingError message:(NSString*)format, ... NS_FORMAT_FUNCTION(3,4);
++ (instancetype)responseWithServerError:(RSServerErrorHTTPStatusCode)errorCode
+                                message:(NSString*)format, ... NS_FORMAT_FUNCTION(2,3);
 
-/**
- *  Initializes a server error response with the corresponding HTTP status code
- *  and an underlying NSError.
- */
-- (instancetype)initWithServerError:(RSServerErrorHTTPStatusCode)errorCode underlyingError:(NSError*)underlyingError message:(NSString*)format, ... NS_FORMAT_FUNCTION(3,4);
+- (instancetype)initWithServerError:(RSServerErrorHTTPStatusCode)errorCode
+                            message:(NSString*)format, ... NS_FORMAT_FUNCTION(2,3);
+
++ (instancetype)responseWithServerError:(RSServerErrorHTTPStatusCode)errorCode
+                        underlyingError:(NSError*)underlyingError
+                                message:(NSString*)format, ... NS_FORMAT_FUNCTION(3,4);
+
+- (instancetype)initWithServerError:(RSServerErrorHTTPStatusCode)errorCode
+                    underlyingError:(NSError*)underlyingError
+                            message:(NSString*)format, ... NS_FORMAT_FUNCTION(3,4);
 
 @end

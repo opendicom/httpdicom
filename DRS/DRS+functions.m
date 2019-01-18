@@ -116,39 +116,6 @@ int bash(NSData *writeData, NSMutableData *readData)
     return task(@"/bin/bash",@[@"-s"], writeData, readData);
 }
 
-int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
-{
-    NSTask *task=[[NSTask alloc]init];
-    [task setLaunchPath:launchPath];
-    [task setArguments:launchArgs];
-    //LOG_INFO(@"%@",[task arguments]);
-    NSPipe *writePipe = [NSPipe pipe];
-    NSFileHandle *writeHandle = [writePipe fileHandleForWriting];
-    [task setStandardInput:writePipe];
-    
-    NSPipe* readPipe = [NSPipe pipe];
-    NSFileHandle *readingFileHandle=[readPipe fileHandleForReading];
-    [task setStandardOutput:readPipe];
-    [task setStandardError:readPipe];
-    
-    [task launch];
-    [writeHandle writeData:writeData];
-    [writeHandle closeFile];
-    
-    NSData *dataPiped = nil;
-    while((dataPiped = [readingFileHandle availableData]) && [dataPiped length])
-    {
-        [readData appendData:dataPiped];
-    }
-    //while( [task isRunning]) [NSThread sleepForTimeInterval: 0.1];
-    //[task waitUntilExit];        // <- This is VERY DANGEROUS : the main runloop is continuing...
-    //[aTask interrupt];
-    
-    [task waitUntilExit];
-    int terminationStatus = [task terminationStatus];
-    if (terminationStatus!=0) NSLog(@"ERROR task terminationStatus: %d",terminationStatus);
-    return terminationStatus;
-}
 
 #pragma mark -
 #pragma mark charset

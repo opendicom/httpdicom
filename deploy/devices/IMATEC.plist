@@ -1,0 +1,777 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist
+    xmlns="http://www.opendicom.com/xsd/plist/devices.xsd"
+    
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opendicom.com/xsd/plist/devices.xsd devices.xsd"
+    
+    version="1.0"
+    >
+    <dict><!-- IMATEC -->
+        <key>1.3.6.1.4.1.23650.152.0.2.737765846967</key><!-- todos los centros -->
+        <dict>
+            <key>deviceaet</key>
+            <string id="deviceaet">IMATEC</string>
+            <key>local</key>
+            <true/>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>TimezoneOffsetFromUTC</key>
+            <string id="TimezoneOffsetFromUTC"></string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">IMATEC</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri"></string>
+
+            <key>select</key>
+            <string id="select">qido</string>
+            
+            <key>sqlprolog</key>
+            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e &quot;</string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dal55mysql.plist</string>
+            <key>filesystembaseuri</key>
+            <string id="filesystembaseuri"></string>
+
+            <key>dimseip</key>
+            <string id="dimseip">127.0.0.1</string>
+            <key>dimseport</key>
+            <string id="dimseport">11113</string>
+            
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">30</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC/wado</string>
+            <key>wadoadditionalparameters</key>
+            <string id="wadoadditionalparameters">transferSyntax=1.2.840.10008.1.2.4.90</string>
+            <key>wadors</key>
+            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC/rs</string>
+            <key>qido</key>
+            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC/rs</string>
+            <key>stow</key>
+            <string id="stow"></string>
+
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC</string>
+            <key>headavailable</key>
+            <false/>
+            <key>dcm4cheedimseproxytitle</key>
+            <string id="dcm4cheedimseproxytitle"></string>
+            <key>html5dicomuserserviceuri</key>
+            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <key>html5dicomuseractive</key>
+            <false/>           
+        </dict>
+
+        <key>1.3.6.1.4.1.23650.152.0.2.737765846967.4</key><!-- historico -->
+        <dict>
+            <key>deviceaet</key>
+            <string id="deviceaet">IMATEC_HISTORICO</string>
+            <key>local</key>
+            <true/>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>TimezoneOffsetFromUTC</key>
+            <string id="TimezoneOffsetFromUTC"></string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">IMATEC</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri"></string>
+
+            <key>select</key>
+            <string id="select">sql</string>
+
+            <key>sqlprolog</key>
+            <string id="sqlprolog">export MYSQL_PWD=pacsweb;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsweb -h 192.168.4.15 -b pacsdb -e &quot;</string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dcm4chee2170mysql.plist</string>
+            <key>filesystembaseuri</key>
+            <string id="filesystembaseuri"></string>
+
+            <key>dimseip</key>
+            <string id="dimseip">192.168.4.15</string>
+            <key>dimseport</key>
+            <string id="dimseport">11112</string>
+
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">30</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://192.168.4.15:8080/wado</string>
+            <key>wadoadditionalparameters</key>
+            <string id="wadoadditionalparameters"></string>
+            <key>wadors</key>
+            <string id="wadors"></string>
+            <key>qido</key>
+            <string id="qido"></string>
+            <key>stow</key>
+            <string id="stow"></string>
+            
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri"></string>
+            <key>headavailable</key>
+            <false/>
+            <key>dcm4cheedimseproxytitle</key>
+            <string id="dcm4cheedimseproxytitle"></string>
+            <key>html5dicomuserserviceuri</key>
+            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <key>html5dicomuseractive</key>
+            <false/>
+        </dict>
+        
+        <key>1.3.6.1.4.1.23650.152.0.2.737765846967.1</key><!-- La Serena -->
+        <dict>
+            <key>deviceaet</key>
+            <string id="deviceaet">IMATEC_LASERENA</string>
+            <key>local</key>
+            <true/>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>TimezoneOffsetFromUTC</key>
+            <string id="TimezoneOffsetFromUTC"></string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">IMATEC</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri"></string>
+
+            <key>select</key>
+            <string id="select">qido</string>
+
+            <key>sqlprolog</key>
+            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e &quot;</string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dal55mysql.plist</string>
+            <key>filesystembaseuri</key>
+            <string id="filesystembaseuri"></string>
+            <key>dimseip</key>
+            <string id="dimseip">127.0.0.1</string>
+            <key>dimseport</key>
+            <string id="dimseport">11113</string>
+            
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">30</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_LASERENA/wado</string>
+            <key>wadoadditionalparameters</key>
+            <string id="wadoadditionalparameters">transferSyntax=1.2.840.10008.1.2.4.90</string>            
+            <key>wadors</key>
+            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_LASERENA/rs</string>
+            <key>qido</key>
+            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_LASERENA/rs</string>
+            <key>stow</key>
+            <string id="stow"></string>
+            
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_LASERENA</string>
+            <key>headavailable</key>
+            <false/>
+            <key>dcm4cheedimseproxytitle</key>
+            <string id="dcm4cheedimseproxytitle"></string>
+            <key>html5dicomuserserviceuri</key>
+            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <key>html5dicomuseractive</key>
+            <false/>
+            
+            <key>services</key>
+            <dict>
+                <key>MR</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">MR</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>CT</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle">N</string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">CT</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>US</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">US</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>MG</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">MG</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>DX</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">DX</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>CR</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">CR</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+            </dict>
+        </dict>
+        
+        <key>1.3.6.1.4.1.23650.152.0.2.737765846967.2</key><!-- Ovalle -->
+        <dict>
+            <key>deviceaet</key>
+            <string id="deviceaet">IMATEC_OVALLE</string>
+            <key>local</key>
+            <true/>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>TimezoneOffsetFromUTC</key>
+            <string id="TimezoneOffsetFromUTC"></string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">IMATEC</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri"></string>
+
+            <key>select</key>
+            <string id="select">qido</string>
+
+            <key>sqlprolog</key>
+            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e &quot;</string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dal55mysql.plist</string>
+            <key>filesystembaseuri</key>
+            <string id="filesystembaseuri"></string>
+
+            <key>dimseip</key>
+            <string id="dimseip">127.0.0.1</string>
+            <key>dimseport</key>
+            <string id="dimseport">11113</string>
+
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">30</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_OVALLE/wado</string>
+            <key>wadoadditionalparameters</key>
+            <string id="wadoadditionalparameters">transferSyntax=1.2.840.10008.1.2.4.90</string>
+            <key>wadors</key>
+            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_OVALLE/rs</string>
+            <key>qido</key>
+            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_OVALLE/rs</string>
+            <key>stow</key>
+            <string id="stow"></string>
+            
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_OVALLE</string>
+            <key>headavailable</key>
+            <false/>
+            <key>dcm4cheedimseproxytitle</key>
+            <string id="dcm4cheedimseproxytitle"></string>
+            <key>html5dicomuserserviceuri</key>
+            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <key>html5dicomuseractive</key>
+            <false/>
+            
+            <key>services</key>
+            <dict>
+                <key>MR</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">MR</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>CT</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle">N</string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">CT</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>US</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">US</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>MG</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">MG</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>DX</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">DX</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>CR</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">CR</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+            </dict>
+        </dict>
+        
+        <key>1.3.6.1.4.1.23650.152.0.2.737765846967.3</key><!-- Vallenar -->
+        <dict>
+            <key>deviceaet</key>
+            <string id="deviceaet">IMATEC_VALLENAR</string>
+            <key>local</key>
+            <true/>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>TimezoneOffsetFromUTC</key>
+            <string id="TimezoneOffsetFromUTC"></string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">IMATEC</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri"></string>
+
+            <key>select</key>
+            <string id="select">qido</string>
+
+            <key>sqlprolog</key>
+            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e &quot;</string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dal55mysql.plist</string>
+            <key>filesystembaseuri</key>
+            <string id="filesystembaseuri"></string>
+
+            <key>dimseip</key>
+            <string id="dimseip">127.0.0.1</string>
+            <key>dimseport</key>
+            <string id="dimseport">11113</string>
+
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">30</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/wado</string>
+            <key>wadoadditionalparameters</key>
+            <string id="wadoadditionalparameters">transferSyntax=1.2.840.10008.1.2.4.90</string>
+            <key>wadors</key>
+            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/rs</string>
+            <key>qido</key>
+            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/rs</string>
+            <key>stow</key>
+            <string id="stow"></string>
+            
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_VALLENAR</string>
+            <key>headavailable</key>
+            <false/>
+            <key>dcm4cheedimseproxytitle</key>
+            <string id="dcm4cheedimseproxytitle"></string>
+            <key>html5dicomuserserviceuri</key>
+            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <key>html5dicomuseractive</key>
+            <false/>
+            
+            <key>services</key>
+            <dict>
+                <key>MR</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">MR</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>CT</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle">N</string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">CT</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>US</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">US</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>MG</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">MG</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>DX</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">DX</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+                <key>CR</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname"></string>
+                    <key>description</key>
+                    <string id="description"></string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>StationAETitle</key>
+                    <string id="StationAETitle"></string>
+                    <key>ip</key>
+                    <string id="ip"></string>
+                    <key>port</key>
+                    <string id="port"></string>
+                    <key>modalities</key>
+                    <array>
+                        <string id="modalities">CR</string>
+                    </array>
+                    <key>readingAsReferring</key>
+                    <false/>
+                </dict>
+            </dict>
+        </dict>
+    </dict>
+</plist>

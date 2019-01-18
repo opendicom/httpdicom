@@ -8,6 +8,8 @@
 
 #import "sql.h"
 
+#import "ODLog.h"
+
 @implementation sql
 @dynamic devices;
 @dynamic drsport;

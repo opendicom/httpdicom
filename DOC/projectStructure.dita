@@ -3,79 +3,118 @@
 <topic id="topic_hhd_hng_ndb">
     <title>Structure of httpdicom project</title>
     <body>
-        <p>httpdicom is a specialization of GCD httpserver for DICOM web distributed operations. In swift, it will use <xref href="https://forums.swift.org/c/development/server" format="html" scope="external"/></p>
-        <p>In Objective-C it uses a basic restfull asynchronical simplified version of <xref href="https://github.com/swisspol/GCDWebServer" format="html" scope="external"/>.</p>
+        <p>httpdicom is a specialization of GCD httpserver for DICOM web distributed operations.</p>
+        <p>In Objective-C, it uses "RS", a basic restfull asynchronical simplified version of <xref href="https://github.com/swisspol/GCDWebServer" format="html" scope="external"/>.</p>
         <ul id="ul_wh3_hkl_ndb">
-            <li>RS code is found in /RS. </li>
+            <li>RS code is found within the project in /RS. </li>
             <li>/DRS (Dicom Restfull Server) contains the specialization. </li>
             <li>Inits and service handler loading process is found in /DRS/DRS.h</li>
             <li>handlers code is subdivided in corresponing categories /DRS/DRS+...</li>
-            <li>For each service, httpdicom works as a proxy multiplexer, requesting infromation
-                from one or more of many PACS and consolidating the results when they come from more than a source, To do so, services work asynchronously, and rely on an operation queue which dispatch queries concurrently on many PACS. We use a generic subclass of NSOperation (/DRS/DRSOperations/DRSOperation) and subclass it with all the specifics of each operation (found in /DRS/DRSOperations/DRSOperation/...). The service<ul id="ul_vj4_k4l_ndb">
-                    <li>parses and validates parameters</li>
-                    <li>lists the sources of information to be queried</li>
-                    <li>loops the list to:
-                        <ul id="ul_c2z_3hn_ndb">
-                            <li>add an initialized operation in the NSOperationQueue</li>
-                            <li>resume it</li>
-                        </ul>
-                    </li>
-                    <li>monitors the operation queue
-                       <ul id="ul_ujb_hkn_ndb">
-                            <li>ask for results</li>
-                            <li>cancels when all results were received (neither http nor bash return chunked responses for now. So it only gets the result and
-                                inmediately afterwards cancels the operation.</li>
-                        </ul>
-                    </li>
-                    <li>classify responses</li>
-                    <li>format consolidated response</li>
-                </ul>
-            </li>
-            <li>The NSOperation formats the task specifically for the pacs and then starts the
-                asynchronous operation. there are two types of them http operations and bash/sql
-                operations. The operation always keeps all the context necessary so that it can
-                return a complete answer from the pacs when it is asked for the results.
-                <ul
-                    id="ul_cpl_m3n_ndb">
-                    <li>An asynchronous http operation uses objective-c framework NSURLSession
-                        dataTaskWithRequest:completionHandler: This allows for different cache
-                        policy and timeout depending on the operation type and source of
-                        information. The completion handler finalizes NSData NSURLResponse and
-                        NSError objects. A delegate can be set up in further version for handling
-                        authentication challenges. </li>
-                    <li>A bash/sql operation is synchronous in nature, but performed from a task
-                        framework, which allows to control it.</li>
-                </ul>
-            </li>
         </ul>
         <section id="section_a3p_v5l_ndb">
             <title>Services</title>
+            <p>Some services are local. They don't inclue the parameter pacs in the request.</p>
             <p>
                 <ul id="ul_prw_x5l_ndb">
-                    <li>echo: verification of accesibility</li>
-                    <li>pacs: introspection of configuration files (known sources of
-                        information)</li>
-                    <li>mwl: creation of DICOM CDA orders and modality worklist items</li>
-                    <li>APath (sql): list of APath modules
-                       <ul id="ul_ew4_kvl_ndb">
-                            <li>qido</li>
-                            <li>datatables</li>
-                            <li>weasis</li>
-                            <li>cornerstone</li>
-                        </ul>
-                    </li>
-                    <li>wadors / dicom.zip</li>
-                    <li>wado</li>
-                    <li>stow</li>
-                    <li>capsule
-                       <ul id="ul_twq_yvl_ndb">
-                            <li>CDA encapsulated</li>
-                            <li>PDF encapsulated</li>
-                       </ul>
-                    </li>
+                   <li>badpath</li>
+                   <li>trace</li>
+                   <li>/echo: verification of accesibility</li>
+                   <li>/custodian/pacs/acl</li>
+                   <li>/pacs/service/workitem (asociado a cero o más code)</li>
+                   <li>/pacs/procedure/scheme+code</li>
+                   <li>/scheme/code</li>
+                   <li>/mwlitem: creation of DICOM CDA orders and modality worklist items</li>
                 </ul>
             </p>
         </section>
         <p/>
+        <section id="section_bds_gtw_hfb">
+            <p>Other services are based on filters on specific attributes of instances. These
+                services  run local and reenter into the APath service, which scope is the complete
+                federation of pacs. That is, the request to the APath service of a node of the
+                federation may be forwarded to the APath of  another node for execution. Selection
+                services include:</p>
+            <p>
+                <ul id="ul_cds_gtw_hfb">
+                    <li>/qido</li>
+                    <li>/datatables</li>
+                    <li>/weasis </li>
+                    <li>/cornerstone</li>
+                </ul>
+            </p>
+        </section>
+        <section id="section_xs2_lvf_3fb">
+            <title>APath</title>
+            <p>Manages an NSOperationQueue, to obtain in parallel the information coming from pcs
+                and local pacs.</p>
+        </section>
+        <section id="section_bk5_gtw_hfb">
+            <p>Some services can reach any of the pacs of the federation throughout a pcs or an
+                intercomunication of two pcs. This is not like a distributed task to various pcs.
+                The task is received by one pcs and executed by one pcs. The first pcs acts as a
+                smart proxy, using the parameter pacs to reach the other one.</p>
+            <p>
+                <ul id="ul_ck5_gtw_hfb">
+                    <li>wado</li>
+                    <li>wadors / dicom.zip</li>
+                    <li>/capsule <ul id="ul_ek5_gtw_hfb">
+                            <li>CDA encapsulated</li>
+                            <li>PDF encapsulated</li>
+                            <li>...</li>
+                        </ul></li>
+                    <li>stow</li>
+                    <li>pdf (enclose pdf reports)</li>
+                </ul>
+            </p>
+        </section>
+        <section id="section_bfp_jkw_hfb">
+            <title>to integrate later</title>
+            <p/>
+            <p>
+                <ul>
+                    <li>For each service, httpdicom works as a proxy multiplexer, requesting
+                        information from one or more of many PACS and consolidating the results when
+                        they come from more than a source. To do so, services work asynchronously,
+                        and rely on an operation queue which dispatches queries concurrently on many
+                        PACS. We use a generic subclass of NSOperation
+                        (/DRS/DRSOperations/DRSOperation) and subclass it with all the specifics of
+                        each operation (found in /DRS/DRSOperations/DRSOperation/...). Each
+                            service:<ul id="ul_vj4_k4l_ndb">
+                            <li>parses and validates parameters</li>
+                            <li>lists the sources of information to be queried</li>
+                            <li>opens an NSOperationQueue</li>
+                            <li>loops the list to: <ul id="ul_c2z_3hn_ndb">
+                                    <li>add and initialize an operation in the NSOperationQueue</li>
+                                    <li>resume it</li>
+                                </ul>
+                            </li>
+                            <li>monitors the operation queue <ul id="ul_ujb_hkn_ndb">
+                                    <li>asks for results</li>
+                                    <li>cancels when all results were received (that is when neither
+                                        http nor bash return chunked responses).</li>
+                                </ul>
+                            </li>
+                            <li>classifies responses</li>
+                            <li>formats consolidated response</li>
+                            <li>closes the NSOperationQueue</li>
+                        </ul>
+                    </li>
+                    <li>The NSOperation formats the task specifically for the pacs and then starts
+                        the operation. There are two possible formats: (a) asynchronous http
+                        operations and (b) bash/sql operations. Each operation always keeps all the
+                        context necessary so that it can return asynchronously a complete answer
+                        from the pacs when it is asked for the results. <ul id="ul_cpl_m3n_ndb">
+                            <li>An asynchronous http operation uses objective-c framework
+                                NSURLSession dataTaskWithRequest:completionHandler: This allows for
+                                different cache policy and timeout depending on the operation type
+                                and source of information. The completion handler finalizes NSData,
+                                NSURLResponse and NSError objects. A delegate can be set up in
+                                further version for handling authentication challenges. </li>
+                            <li>A bash/sql operation is synchronous in nature, but performed from a
+                                task framework, which allows to control it.</li>
+                        </ul></li>
+                </ul>
+            </p>
+        </section>
     </body>
 </topic>

@@ -110,11 +110,6 @@
 
 @property (class, nonatomic, readonly) NSArray               *levels;
 
-@property (class, nonatomic, readonly) NSRegularExpression   *DARegex;
-@property (class, nonatomic, readonly) NSRegularExpression   *SHRegex;
-@property (class, nonatomic, readonly) NSRegularExpression   *UIRegex;
-@property (class, nonatomic, readonly) NSRegularExpression   *TZRegex;
-
 @property (class, nonatomic, readonly) NSString              *defaultTimezone;
 
 @property (class, nonatomic, readonly) NSDictionary          *scheme;

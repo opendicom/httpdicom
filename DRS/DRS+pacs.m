@@ -8,6 +8,7 @@
 
 #import "DRS+pacs.h"
 #import "K.h"
+#import "DICMTypes.h"
 
 @implementation DRS (pacs)
 
@@ -34,7 +35,7 @@
             
             NSUInteger p3Length = [pComponents[3] length];
             if (  (p3Length>16)
-                ||![K.SHRegex numberOfMatchesInString:pComponents[3] options:0 range:NSMakeRange(0,p3Length)])
+                ||![DICMTypes.SHRegex numberOfMatchesInString:pComponents[3] options:0 range:NSMakeRange(0,p3Length)])
                 return [RSErrorResponse responseWithClientError:404 message:@"%@ [{title} datatype should be DICOM SH]",urlComponents.path];
             
             if (!DRS.titles[pComponents[3]])
@@ -52,7 +53,7 @@
             
             NSUInteger p5Length = [pComponents[5]length];
             if (  (p5Length>16)
-                ||![K.SHRegex numberOfMatchesInString:pComponents[5] options:0 range:NSMakeRange(0,p5Length)])
+                ||![DICMTypes.SHRegex numberOfMatchesInString:pComponents[5] options:0 range:NSMakeRange(0,p5Length)])
                 return [RSErrorResponse responseWithClientError:404 message:@"%@ [{aet}datatype should be DICOM SH]",urlComponents.path];
             
             NSUInteger aetIndex=[[DRS.titlesaets objectForKey:pComponents[3]] indexOfObject:pComponents[5]];
@@ -80,7 +81,7 @@
             
             NSUInteger p3Length = [pComponents[3] length];
             if (  (p3Length>64)
-                ||![K.UIRegex numberOfMatchesInString:pComponents[3] options:0 range:NSMakeRange(0,p3Length)]
+                ||![DICMTypes.UIRegex numberOfMatchesInString:pComponents[3] options:0 range:NSMakeRange(0,p3Length)]
                 )
                 return [RSErrorResponse responseWithClientError:404 message:@"%@ [{OID} datatype should be DICOM UI]",urlComponents.path];
             
@@ -99,7 +100,7 @@
             
             NSUInteger p5Length = [pComponents[5]length];
             if (  (p5Length>64)
-                ||![K.UIRegex numberOfMatchesInString:pComponents[5] options:0 range:NSMakeRange(0,p5Length)]
+                ||![DICMTypes.UIRegex numberOfMatchesInString:pComponents[5] options:0 range:NSMakeRange(0,p5Length)]
                 )
                 return [RSErrorResponse responseWithClientError:404 message:@"%@ [{aei}datatype should be DICOM UI]",urlComponents.path];
             

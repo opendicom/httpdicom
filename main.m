@@ -175,10 +175,10 @@ else [K loadPersonIDTypes:personIDTypes];
         
         
 // /pacs (also called device)
-NSDictionary *pacs=[NSDictionary dictionaryWithContentsOfFile:[deployPath stringByAppendingPathComponent:@"pacs.plist"]];
+NSDictionary *pacs=[NSDictionary dictionaryWithContentsOfFile:[deployPath stringByAppendingPathComponent:@"devices/devices.plist"]];
 if (!pacs)
 {
-    NSLog(@"could not get contents of pacs.plist");
+    NSLog(@"could not get contents of devices/devices.plist");
     return 1;
 }
 

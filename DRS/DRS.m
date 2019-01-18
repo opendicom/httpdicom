@@ -10,16 +10,12 @@
 
 #import "DRS+wado.h"
 #import "DRS+pacs.h"
-#import "DRS+mwl.h"
-#import "DRS+pdf.h"
-#import "DRS+qido.h"
-#import "DRS+APath.h"
+//#import "DRS+qido.h"
 #import "DRS+wadors.h"
 #import "DRS+zipped.h"
-#import "DRS+encapsulated.h"
-#import "DRS+weasis.h"
-#import "DRS+datatables.h"
-#import "DRS+iheiid.h"
+
+#import "DRS+mwl.h"
+#import "DRS+pdf.h"
 
 #import "DICMTypes.h"
 
@@ -37,10 +33,44 @@ static NSData              *_titlesdata=nil;
 static NSDictionary        *_oidsaeis=nil;
 static NSDictionary        *_titlesaets=nil;
 static NSDictionary        *_titlesaetsstrings=nil;
-static NSDictionary        *_pacsTitlesDictionary=nil;
+static NSDictionary        *_deviceaetDictionary=nil;
 static NSArray             *_localoids=nil;
 static NSDictionary        *_custodianDictionary=nil;
 
+
+int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
+{
+   NSTask *task=[[NSTask alloc]init];
+   [task setLaunchPath:launchPath];
+   [task setArguments:launchArgs];
+   //LOG_INFO(@"%@",[task arguments]);
+   NSPipe *writePipe = [NSPipe pipe];
+   NSFileHandle *writeHandle = [writePipe fileHandleForWriting];
+   [task setStandardInput:writePipe];
+   
+   NSPipe* readPipe = [NSPipe pipe];
+   NSFileHandle *readingFileHandle=[readPipe fileHandleForReading];
+   [task setStandardOutput:readPipe];
+   [task setStandardError:readPipe];
+   
+   [task launch];
+   [writeHandle writeData:writeData];
+   [writeHandle closeFile];
+   
+   NSData *dataPiped = nil;
+   while((dataPiped = [readingFileHandle availableData]) && [dataPiped length])
+   {
+      [readData appendData:dataPiped];
+   }
+   //while( [task isRunning]) [NSThread sleepForTimeInterval: 0.1];
+   //[task waitUntilExit];      // <- This is VERY DANGEROUS : the main runloop is continuing...
+   //[aTask interrupt];
+   
+   [task waitUntilExit];
+   int terminationStatus = [task terminationStatus];
+   if (terminationStatus!=0) LOG_INFO(@"ERROR task terminationStatus: %d",terminationStatus);
+   return terminationStatus;
+}
 
 
 -(id)init{
@@ -71,7 +101,7 @@ static NSDictionary        *_custodianDictionary=nil;
             if (
                 !newtitle
                 || ![newtitle length]
-                || ![K.SHRegex numberOfMatchesInString:newtitle options:0 range:NSMakeRange(0,[newtitle length])]
+                || ![DICMTypes.SHRegex numberOfMatchesInString:newtitle options:0 range:NSMakeRange(0,[newtitle length])]
                 )
             {
                 NSLog(@"bad custodiantitle");
@@ -82,7 +112,7 @@ static NSDictionary        *_custodianDictionary=nil;
             if (
                 !newoid
                 || ![newoid length]
-                || ![K.UIRegex numberOfMatchesInString:newoid options:0 range:NSMakeRange(0,[newoid length])]
+                || ![DICMTypes.UIRegex numberOfMatchesInString:newoid options:0 range:NSMakeRange(0,[newoid length])]
                 )
             {
                 NSLog(@"bad custodianoid");
@@ -147,10 +177,10 @@ static NSDictionary        *_custodianDictionary=nil;
                 NSDictionary *d=[pacs objectForKey:k];
                 if ([[d objectForKey:@"custodiantitle"]isEqualToString:title])
                 {
-                    [titleaets addObject:[d objectForKey:@"pacstitle"]];
+                    [titleaets addObject:[d objectForKey:@"deviceaet"]];
                     if ([s isEqualToString:@"("])
-                        [s appendFormat:@"'%@'",[d objectForKey:@"pacstitle"]];
-                    else [s appendFormat:@",'%@'",[d objectForKey:@"pacstitle"]];
+                        [s appendFormat:@"'%@'",[d objectForKey:@"deviceaet"]];
+                    else [s appendFormat:@",'%@'",[d objectForKey:@"deviceaet"]];
                 }
             }
             [titlesaets setObject:titleaets forKey:title];
@@ -160,12 +190,12 @@ static NSDictionary        *_custodianDictionary=nil;
         NSLog(@"\r\nknown pacs aet classified by corresponding custodian title:\r\n%@",[titlesaets description]);
         
         
-        NSMutableDictionary *pacsTitlesDictionary=[NSMutableDictionary dictionary];
+        NSMutableDictionary *deviceaetDictionary=[NSMutableDictionary dictionary];
         NSMutableArray      *localOIDs=[NSMutableArray array];
         NSMutableDictionary *custodianDictionary=nil;
         for (NSString *key in [pacs allKeys])
         {
-            [pacsTitlesDictionary setObject:key forKey:[(pacs[key])[@"custodiantitle"] stringByAppendingPathExtension:(pacs[key])[@"pacstitle"]]];
+            [deviceaetDictionary setObject:key forKey:[(pacs[key])[@"custodiantitle"] stringByAppendingPathExtension:(pacs[key])[@"deviceaet"]]];
             
             if ([(pacs[key])[@"sqlprolog"] length]||[(pacs[key])[@"dcm4cheelocaluri"] length])
             {
@@ -179,7 +209,7 @@ static NSDictionary        *_custodianDictionary=nil;
         _oidsaeis=[NSDictionary dictionaryWithDictionary:oidsaeis];
         _titlesaets=[NSDictionary dictionaryWithDictionary:titlesaets];
         _titlesaetsstrings=[NSDictionary dictionaryWithDictionary:titlesaetsStrings];
-        _pacsTitlesDictionary=[NSDictionary dictionaryWithDictionary:_pacsTitlesDictionary];
+        _deviceaetDictionary=[NSDictionary dictionaryWithDictionary:_deviceaetDictionary];
         _localoids=[NSArray arrayWithArray:localOIDs];
         _custodianDictionary=[NSDictionary dictionaryWithDictionary:custodianDictionary];
 
@@ -187,60 +217,39 @@ static NSDictionary        *_custodianDictionary=nil;
 #pragma mark handlers
 #pragma mark -
         
-#pragma mark /
-//        [self addWadoHandler];//(default handler)
+#pragma mark / =wado-uri
+        [self addWadoHandler];//(default handler)
+       LOG_DEBUG(@"/ =wado-uri");
 
-        
 #pragma mark /echo
         [self addHandler:@"GET" path:@"/echo" processBlock:
          ^(RSRequest* request, RSCompletionBlock completionBlock)
          {completionBlock(^RSResponse* (RSRequest* request){
-            return [RSDataResponse responseWithText:[NSString stringWithFormat:@"echo time:%@ to:%@", [DICMTypes DTStringFromDate:[NSDate date]], request.remoteAddressString]];
+            return [RSDataResponse responseWithText:@"echo"];
         }(request));}];
+       //            return [RSDataResponse responseWithText:[NSString stringWithFormat:@"echo time:%@ to:%@", [DICMTypes DTStringFromDate:[NSDate date]], request.remoteAddressString]];
+
         LOG_DEBUG(@"added handler /echo");
+       
 #pragma mark /(custodians|pacs/titles|pacs/oids)
         [self addCustodiansHandler];//
         LOG_DEBUG(@"added handler /custodians");
+       
+#pragma mark /qido
+       //[self addMWLHandler];
+       //LOG_DEBUG(@"added handler /mwlitem");
+
+#pragma mark /wado-rs
+       [self addWadorsHandler];//
+       LOG_DEBUG(@"added handler /custodians");
 
 #pragma mark /mwlitem
         [self addMWLHandler];
-        LOG_DEBUG(@"added handler /mwlitem");
-        LOG_DEBUG(@"-------------");
+        LOG_DEBUG(@"added handler /mwlitem");        
 
 #pragma mark /pdf
         [self addPDFHandler];
         LOG_DEBUG(@"added handler /pdf /report /informe");
-        LOG_DEBUG(@"-------------");
-         
-        
-#pragma mark /(studies|series|instances)
-        //wadors regex should be evaluated before qido regex
-        //[self addQidoHandler];
-
-#pragma mark /weasis
-        //        [self addWeasisStudiesHandler];
-        //        [self addWeasisSeriesHandler];
-        //        [self addIheiidHandler];
-        
-# pragma mark /datatables
-        //        [self addDatatablesStudiesHandler];
-        //        [self addDatatablesPatientHandler];
-        //        [self addDatatablesSeriesHandler];
-# pragma mark /fidji
-        [self addFidjiHandler];
-        LOG_DEBUG(@"added handler /fidji");
-
-        
-        
-#pragma mark /studies/{UID}
-#pragma mark /studies/{UID}/series/{uid}
-#pragma mark /dcm.zip
-//        [self addWadorsHandler];//includes dcm.zip
-
-# pragma mark /(pacs{oid}/)?(ot|doc|cda|sr|OT|DOC|CDA|SR)
-//        [self addEncapsulatedHandler];
-        
-        LOG_DEBUG(@"-------------");
     }
     return self;
 }
@@ -261,7 +270,7 @@ static NSDictionary        *_custodianDictionary=nil;
 +(NSDictionary*)oidsaeis             { return _oidsaeis;}
 +(NSDictionary*)titlesaets           { return _titlesaets;}
 +(NSDictionary*)titlesaetsstrings    { return _titlesaetsstrings;}
-+(NSDictionary*)pacsTitlesDictionary { return _pacsTitlesDictionary;}
++(NSDictionary*)deviceaetDictionary  { return _deviceaetDictionary;}
 +(NSArray*)localoids                 { return _localoids;}
 +(NSDictionary*)custodianDictionary  { return _custodianDictionary;}
 

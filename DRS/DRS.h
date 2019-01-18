@@ -48,10 +48,11 @@ mwl
 @property (class, nonatomic, readonly) NSDictionary          *oidsaeis;
 @property (class, nonatomic, readonly) NSDictionary          *titlesaets;
 @property (class, nonatomic, readonly) NSDictionary          *titlesaetsstrings;
-@property (class, nonatomic, readonly) NSDictionary          *pacsTitlesDictionary;
+@property (class, nonatomic, readonly) NSDictionary          *deviceaetDictionary;
 @property (class, nonatomic, readonly) NSArray               *localoids;
 @property (class, nonatomic, readonly) NSDictionary          *custodianDictionary;
 
+int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData);
 
 -(id)initWithSqls:(NSDictionary*)sqls
              pacs:(NSDictionary*)pacs
@@ -157,12 +158,12 @@ mwl
  }
  LOG_VERBOSE(@"known pacs aet classified by corresponding custodian title:\r\n%@",[custodianTitlesaets description]);
  
- NSMutableDictionary *pacsTitlesDictionary=[NSMutableDictionary dictionary];
+ NSMutableDictionary *deviceaetDictionary=[NSMutableDictionary dictionary];
  NSMutableArray *localOIDs=[NSMutableArray array];
  NSDictionary *custodianDictionary=nil;
  for (NSString *key in [pacs allKeys])
  {
- [pacsTitlesDictionary setObject:key forKey:[(pacs[key])[@"custodiantitle"] stringByAppendingPathExtension:(pacs[key])[@"dicomaet"]]];
+ [deviceaetDictionary setObject:key forKey:[(pacs[key])[@"custodiantitle"] stringByAppendingPathExtension:(pacs[key])[@"dicomaet"]]];
  
  if ([(pacs[key])[@"local"] boolValue])
  {

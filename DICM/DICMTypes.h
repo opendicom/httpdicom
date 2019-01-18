@@ -36,6 +36,12 @@
 @import Foundation;
 
 @interface DICMTypes : NSObject
+
+@property (class, nonatomic, readonly) NSRegularExpression   *DARegex;
+@property (class, nonatomic, readonly) NSRegularExpression   *SHRegex;
+@property (class, nonatomic, readonly) NSRegularExpression   *UIRegex;
+@property (class, nonatomic, readonly) NSRegularExpression   *TZRegex;
+
 +(NSDate*)dateFromDAString:(NSString*)string;
 +(NSString*)DAStringFromDate:(NSDate*)date;
 +(NSDate*)dateFromTMString:(NSString*)string;

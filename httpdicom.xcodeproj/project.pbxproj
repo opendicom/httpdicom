@@ -64,6 +64,10 @@
 		4A7C0D2A2151E7BE005B9DD7 /* NSMutableURLRequest+patient.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7C0D222151E7BE005B9DD7 /* NSMutableURLRequest+patient.h */; };
 		4A7C0D2B2151E7BE005B9DD7 /* NSMutableURLRequest+patient.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7C0D232151E7BE005B9DD7 /* NSMutableURLRequest+patient.m */; };
 		4A7C0D2C2151E7BE005B9DD7 /* NSMutableURLRequest+instance.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7C0D242151E7BE005B9DD7 /* NSMutableURLRequest+instance.m */; };
+		4A7C0D33215379CA005B9DD7 /* DRS+custodians.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7C0D31215379CA005B9DD7 /* DRS+custodians.m */; };
+		4A7C0D34215379CA005B9DD7 /* DRS+custodians.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7C0D32215379CA005B9DD7 /* DRS+custodians.h */; };
+		4A7C0D3A215E5FF8005B9DD7 /* operationQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7C0D38215E5FF8005B9DD7 /* operationQueue.h */; };
+		4A7C0D3B215E5FF8005B9DD7 /* operationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7C0D39215E5FF8005B9DD7 /* operationQueue.m */; };
 		4A94BE97208649290009C4AB /* DRS+APath.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94BE95208649290009C4AB /* DRS+APath.m */; };
 		4A94BE98208649290009C4AB /* DRS+APath.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A94BE96208649290009C4AB /* DRS+APath.h */; };
 		4A94BE9B208661060009C4AB /* APathSqlOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A94BE99208661060009C4AB /* APathSqlOperation.h */; };
@@ -74,8 +78,8 @@
 		4A94BEA5209228E10009C4AB /* NSDictionary+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94BEA3209228E10009C4AB /* NSDictionary+PCS.m */; };
 		4A96C55F1E843C9E002EB09E /* RFC822.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A96C55E1E843C9E002EB09E /* RFC822.m */; };
 		4A96C5611E843CBD002EB09E /* RFC822.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A96C5601E843CBD002EB09E /* RFC822.h */; };
-		4A98F8CE205C4A7B00F61F18 /* DRSOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A98F8CC205C4A7B00F61F18 /* DRSOperation.h */; };
-		4A98F8CF205C4A7B00F61F18 /* DRSOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A98F8CD205C4A7B00F61F18 /* DRSOperation.m */; };
+		4A98F8CE205C4A7B00F61F18 /* operation.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A98F8CC205C4A7B00F61F18 /* operation.h */; };
+		4A98F8CF205C4A7B00F61F18 /* operation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A98F8CD205C4A7B00F61F18 /* operation.m */; };
 		4A98F8D2205C4A9D00F61F18 /* APathRestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A98F8D0205C4A9D00F61F18 /* APathRestOperation.h */; };
 		4A98F8D3205C4A9D00F61F18 /* APathRestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A98F8D1205C4A9D00F61F18 /* APathRestOperation.m */; };
 		4ABF11CC1FE5C100000B8DE6 /* LFCGzipUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11C61FE5C0FF000B8DE6 /* LFCGzipUtility.m */; };
@@ -211,6 +215,10 @@
 		4A7C0D242151E7BE005B9DD7 /* NSMutableURLRequest+instance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableURLRequest+instance.m"; sourceTree = "<group>"; };
 		4A7C0D2E2151E8DA005B9DD7 /* TEST */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TEST; sourceTree = "<group>"; };
 		4A7C0D2F2151EDCF005B9DD7 /* DOC */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DOC; sourceTree = "<group>"; };
+		4A7C0D31215379CA005B9DD7 /* DRS+custodians.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+custodians.m"; sourceTree = "<group>"; };
+		4A7C0D32215379CA005B9DD7 /* DRS+custodians.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+custodians.h"; sourceTree = "<group>"; };
+		4A7C0D38215E5FF8005B9DD7 /* operationQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = operationQueue.h; sourceTree = "<group>"; };
+		4A7C0D39215E5FF8005B9DD7 /* operationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = operationQueue.m; sourceTree = "<group>"; };
 		4A94BE95208649290009C4AB /* DRS+APath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+APath.m"; sourceTree = "<group>"; };
 		4A94BE96208649290009C4AB /* DRS+APath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+APath.h"; sourceTree = "<group>"; };
 		4A94BE99208661060009C4AB /* APathSqlOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APathSqlOperation.h; sourceTree = "<group>"; };
@@ -221,11 +229,10 @@
 		4A94BEA3209228E10009C4AB /* NSDictionary+PCS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+PCS.m"; sourceTree = "<group>"; };
 		4A96C55E1E843C9E002EB09E /* RFC822.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RFC822.m; path = RS/RFC822.m; sourceTree = SOURCE_ROOT; };
 		4A96C5601E843CBD002EB09E /* RFC822.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RFC822.h; path = RS/RFC822.h; sourceTree = SOURCE_ROOT; };
-		4A98F8CC205C4A7B00F61F18 /* DRSOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DRSOperation.h; sourceTree = "<group>"; };
-		4A98F8CD205C4A7B00F61F18 /* DRSOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DRSOperation.m; sourceTree = "<group>"; };
+		4A98F8CC205C4A7B00F61F18 /* operation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = operation.h; sourceTree = "<group>"; };
+		4A98F8CD205C4A7B00F61F18 /* operation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = operation.m; sourceTree = "<group>"; };
 		4A98F8D0205C4A9D00F61F18 /* APathRestOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = APathRestOperation.h; sourceTree = "<group>"; };
 		4A98F8D1205C4A9D00F61F18 /* APathRestOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = APathRestOperation.m; sourceTree = "<group>"; };
-		4AA28D2C1D94569400B223CA /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		4AA28D2D1D94569400B223CA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4ABF11C61FE5C0FF000B8DE6 /* LFCGzipUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFCGzipUtility.m; sourceTree = "<group>"; };
 		4ABF11C71FE5C0FF000B8DE6 /* NSData+ZIP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+ZIP.h"; sourceTree = "<group>"; };
@@ -300,7 +307,6 @@
 		2A31F5D91C87295A00A78C7C = {
 			isa = PBXGroup;
 			children = (
-				4AA28D2C1D94569400B223CA /* LICENSE */,
 				4AA28D2D1D94569400B223CA /* README.md */,
 				4A7C0D2F2151EDCF005B9DD7 /* DOC */,
 				4A0FDF1F1E904E5C001E3426 /* main.m */,
@@ -308,6 +314,7 @@
 				4AE49DE52009D11800B8F321 /* ODLog.m */,
 				4AD38B302062D47200CA1ECC /* K.h */,
 				4AD38B312062D47200CA1ECC /* K.m */,
+				4A98F8C9205C49DA00F61F18 /* operations */,
 				4AE49DEF2009E3F200B8F321 /* DRS */,
 				4ABF11FA1FE6875B000B8DE6 /* DSCD */,
 				4ABF11C51FE5BD88000B8DE6 /* ZIP */,
@@ -426,6 +433,48 @@
 			path = SQL;
 			sourceTree = "<group>";
 		};
+		4A7C0D35215692D9005B9DD7 /* Apath */ = {
+			isa = PBXGroup;
+			children = (
+				4A7C0D012151E792005B9DD7 /* DRS+datatables.h */,
+				4A7C0D042151E792005B9DD7 /* DRS+datatables.m */,
+				4A7C0CFD2151E792005B9DD7 /* DRS+iheiid.h */,
+				4A7C0D052151E792005B9DD7 /* DRS+iheiid.m */,
+				4AE49E1420121B4100B8F321 /* DRS+qido.h */,
+				4AE49E1520121B4100B8F321 /* DRS+qido.m */,
+				4A7C0CFE2151E792005B9DD7 /* DRS+weasis.h */,
+				4A7C0D082151E793005B9DD7 /* DRS+weasis.m */,
+			);
+			path = Apath;
+			sourceTree = "<group>";
+		};
+		4A7C0D362156938B005B9DD7 /* GET */ = {
+			isa = PBXGroup;
+			children = (
+				4A7C0D032151E792005B9DD7 /* DRS+encapsulated.h */,
+				4A7C0D0C2151E793005B9DD7 /* DRS+encapsulated.m */,
+				4A7C0D092151E793005B9DD7 /* DRS+wado.h */,
+				4A7C0D0A2151E793005B9DD7 /* DRS+wado.m */,
+				4A7C0D072151E792005B9DD7 /* DRS+wadors.h */,
+				4A7C0CFC2151E792005B9DD7 /* DRS+wadors.m */,
+				4A7C0D022151E792005B9DD7 /* DRS+zipped.h */,
+				4A7C0CFF2151E792005B9DD7 /* DRS+zipped.m */,
+			);
+			path = GET;
+			sourceTree = "<group>";
+		};
+		4A7C0D37215693B2005B9DD7 /* POST */ = {
+			isa = PBXGroup;
+			children = (
+				4A7C0D0B2151E793005B9DD7 /* DRS+mwl.dita */,
+				4A94BE9D208691310009C4AB /* DRS+mwl.h */,
+				4A94BE9E208691320009C4AB /* DRS+mwl.m */,
+				4A7C0D062151E792005B9DD7 /* DRS+pdf.h */,
+				4A7C0D002151E792005B9DD7 /* DRS+pdf.m */,
+			);
+			path = POST;
+			sourceTree = "<group>";
+		};
 		4A94BE94208627AD0009C4AB /* URLRequest */ = {
 			isa = PBXGroup;
 			children = (
@@ -455,14 +504,16 @@
 			path = URLRequest;
 			sourceTree = "<group>";
 		};
-		4A98F8C9205C49DA00F61F18 /* DRSOperations */ = {
+		4A98F8C9205C49DA00F61F18 /* operations */ = {
 			isa = PBXGroup;
 			children = (
-				4A98F8CC205C4A7B00F61F18 /* DRSOperation.h */,
-				4A98F8CD205C4A7B00F61F18 /* DRSOperation.m */,
+				4A7C0D38215E5FF8005B9DD7 /* operationQueue.h */,
+				4A7C0D39215E5FF8005B9DD7 /* operationQueue.m */,
+				4A98F8CC205C4A7B00F61F18 /* operation.h */,
+				4A98F8CD205C4A7B00F61F18 /* operation.m */,
 				4AD38B2F206024D000CA1ECC /* APath */,
 			);
-			path = DRSOperations;
+			path = operations;
 			sourceTree = "<group>";
 		};
 		4ABF11C31FE5BD14000B8DE6 /* DICM */ = {
@@ -538,37 +589,20 @@
 		4AE49DEF2009E3F200B8F321 /* DRS */ = {
 			isa = PBXGroup;
 			children = (
-				4A7C0D012151E792005B9DD7 /* DRS+datatables.h */,
-				4A7C0D042151E792005B9DD7 /* DRS+datatables.m */,
-				4A7C0D032151E792005B9DD7 /* DRS+encapsulated.h */,
-				4A7C0D0C2151E793005B9DD7 /* DRS+encapsulated.m */,
-				4A7C0CFD2151E792005B9DD7 /* DRS+iheiid.h */,
-				4A7C0D052151E792005B9DD7 /* DRS+iheiid.m */,
-				4A7C0D0B2151E793005B9DD7 /* DRS+mwl.dita */,
-				4A7C0D062151E792005B9DD7 /* DRS+pdf.h */,
-				4A7C0D002151E792005B9DD7 /* DRS+pdf.m */,
-				4A7C0D092151E793005B9DD7 /* DRS+wado.h */,
-				4A7C0D0A2151E793005B9DD7 /* DRS+wado.m */,
-				4A7C0D072151E792005B9DD7 /* DRS+wadors.h */,
-				4A7C0CFC2151E792005B9DD7 /* DRS+wadors.m */,
-				4A7C0CFE2151E792005B9DD7 /* DRS+weasis.h */,
-				4A7C0D082151E793005B9DD7 /* DRS+weasis.m */,
-				4A7C0D022151E792005B9DD7 /* DRS+zipped.h */,
-				4A7C0CFF2151E792005B9DD7 /* DRS+zipped.m */,
-				4AE49DD92008F1F600B8F321 /* DRS.h */,
-				4AE49DDA2008F1F600B8F321 /* DRS.m */,
-				4A94BE94208627AD0009C4AB /* URLRequest */,
-				4A98F8C9205C49DA00F61F18 /* DRSOperations */,
 				4AE49DE12009987800B8F321 /* DRS+functions.h */,
 				4AE49DE22009987800B8F321 /* DRS+functions.m */,
+				4A94BE94208627AD0009C4AB /* URLRequest */,
+				4AE49DD92008F1F600B8F321 /* DRS.h */,
+				4AE49DDA2008F1F600B8F321 /* DRS.m */,
+				4A7C0D32215379CA005B9DD7 /* DRS+custodians.h */,
+				4A7C0D31215379CA005B9DD7 /* DRS+custodians.m */,
 				4AE49DF0200D153000B8F321 /* DRS+pacs.h */,
 				4AE49DF1200D153000B8F321 /* DRS+pacs.m */,
 				4A94BE96208649290009C4AB /* DRS+APath.h */,
 				4A94BE95208649290009C4AB /* DRS+APath.m */,
-				4AE49E1420121B4100B8F321 /* DRS+qido.h */,
-				4AE49E1520121B4100B8F321 /* DRS+qido.m */,
-				4A94BE9D208691310009C4AB /* DRS+mwl.h */,
-				4A94BE9E208691320009C4AB /* DRS+mwl.m */,
+				4A7C0D35215692D9005B9DD7 /* Apath */,
+				4A7C0D362156938B005B9DD7 /* GET */,
+				4A7C0D37215693B2005B9DD7 /* POST */,
 			);
 			path = DRS;
 			sourceTree = "<group>";
@@ -592,6 +626,7 @@
 				4A7C0D0F2151E793005B9DD7 /* DRS+weasis.h in Headers */,
 				4A0FDF471E91078C001E3426 /* RSResponse.h in Headers */,
 				4AE49DDB2008F1F600B8F321 /* DRS.h in Headers */,
+				4A7C0D3A215E5FF8005B9DD7 /* operationQueue.h in Headers */,
 				4A0E60441E81C01B005D7F2B /* ODLog.h in Headers */,
 				4ABF11F81FE5C13B000B8DE6 /* NSMutableDictionary+DICM.h in Headers */,
 				4A0FDF491E91078C001E3426 /* RSDataResponse.h in Headers */,
@@ -603,6 +638,7 @@
 				4A7C0CFA2151E748005B9DD7 /* sql.h in Headers */,
 				4ABF11E01FE5C11C000B8DE6 /* NSMutableURLRequest+DCM4CHEE.h in Headers */,
 				4AE49DC72007D06400B8F321 /* NSMutableURLRequest+WADORS.h in Headers */,
+				4A7C0D34215379CA005B9DD7 /* DRS+custodians.h in Headers */,
 				4ABF11DF1FE5C11C000B8DE6 /* NSString+PCS.h in Headers */,
 				4A96C5611E843CBD002EB09E /* RFC822.h in Headers */,
 				4A0FDF4F1E91078C001E3426 /* RSStreamedResponse.h in Headers */,
@@ -615,7 +651,7 @@
 				4A7C0D252151E7BE005B9DD7 /* NSMutableURLRequest+enclosed.h in Headers */,
 				4ABF120F1FED8599000B8DE6 /* NSMutableData+SQL.h in Headers */,
 				4ABF11F51FE5C13B000B8DE6 /* NSUUID+DICM.h in Headers */,
-				4A98F8CE205C4A7B00F61F18 /* DRSOperation.h in Headers */,
+				4A98F8CE205C4A7B00F61F18 /* operation.h in Headers */,
 				4A0FDF511E91078C001E3426 /* RS.h in Headers */,
 				4A0FDF531E91078C001E3426 /* RSConnection.h in Headers */,
 				4A0FDF621E910C1D001E3426 /* RSBodyDecoder.h in Headers */,
@@ -708,6 +744,7 @@
 				4A0FDF4C1E91078C001E3426 /* RSErrorResponse.m in Sources */,
 				4A0FDF4A1E91078C001E3426 /* RSDataResponse.m in Sources */,
 				4AE49DC52007D06400B8F321 /* NSMutableURLRequest+STOW.m in Sources */,
+				4A7C0D33215379CA005B9DD7 /* DRS+custodians.m in Sources */,
 				4A0FDF4E1E91078C001E3426 /* RSFileResponse.m in Sources */,
 				4ABF11F71FE5C13B000B8DE6 /* DICMTypes.m in Sources */,
 				4A7C0D112151E793005B9DD7 /* DRS+pdf.m in Sources */,
@@ -717,6 +754,7 @@
 				4ABF12031FE89413000B8DE6 /* Const.m in Sources */,
 				4A0FDF521E91078C001E3426 /* RS.m in Sources */,
 				4A0FDF501E91078C001E3426 /* RSStreamedResponse.m in Sources */,
+				4A7C0D3B215E5FF8005B9DD7 /* operationQueue.m in Sources */,
 				4A0FDF481E91078C001E3426 /* RSResponse.m in Sources */,
 				4A7C0D1C2151E793005B9DD7 /* DRS+encapsulated.m in Sources */,
 				4A94BE9C208661060009C4AB /* APathSqlOperation.m in Sources */,
@@ -755,7 +793,7 @@
 				4AE49DDC2008F1F600B8F321 /* DRS.m in Sources */,
 				4A94BEA5209228E10009C4AB /* NSDictionary+PCS.m in Sources */,
 				4A7C0D102151E793005B9DD7 /* DRS+zipped.m in Sources */,
-				4A98F8CF205C4A7B00F61F18 /* DRSOperation.m in Sources */,
+				4A98F8CF205C4A7B00F61F18 /* operation.m in Sources */,
 				4AE49DC32007D06400B8F321 /* NSMutableURLRequest+DATATABLES.m in Sources */,
 				4ABF11E31FE5C11C000B8DE6 /* NSURLSessionDataTask+PCS.m in Sources */,
 				4ABF11F11FE5C13B000B8DE6 /* NSUUID+DICM.m in Sources */,

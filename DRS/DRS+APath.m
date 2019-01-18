@@ -17,31 +17,231 @@
 
 @implementation DRS (APath)
 
-
--(NSUInteger)countSqlProlog:(NSString*)prolog from:(NSString*)from leftjoin:(NSString*)leftjoin where:(NSString*)where
-{
-    NSString *sqlCount=[NSString stringWithFormat:@"%@\r\nSELECT COUNT(*)\r\n%@\r\n%@\r\n%@",
-                        prolog,
-                        from,
-                        leftjoin,
-                        where
-                        ];
-    
-    
-    //execute sql select
-    NSMutableData *mutableData=[NSMutableData countTask:sqlCount ];
-    if (!mutableData) [RSErrorResponse responseWithClientError:404 message:@"[fidji] no answer to sql count"];
-    NSString *utf8String=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
-    NSLog(@"%@",utf8String);
-    return (NSUInteger)[utf8String integerValue];
-}
+static NSArray             *_levels;
+static NSArray             *_key;
+static NSArray             *_tag;
+static NSArray             *_vr;
++(NSArray*)levels { return _levels;}
++(NSArray*)key { return _key;}
++(NSArray*)tag { return _tag;}
++(NSArray*)vr  { return _vr;}
 
 //-(NSUInteger)countPatientsQidoUrl
 
 -(void)addAPathHandler
 {
-    NSArray *pathSuffixTopFilterNumber=@[@patientTopFilterNumber,@studyTopFilterNumber,@seriesTopFilterNumber,@instanceTopFilterNumber];
+   
+   _levels=@[@"/patients",@"/studies",@"/series",@"/instances"];
+   
+   _key=@[
+          @"IssuerOfPatientID",//0
+          @"IssuerOfPatientIDQualifiersSequence.LocalNamespaceEntityID",//1
+          @"IssuerOfPatientIDQualifiersSequence.UniversalEntityID",//2
+          @"IssuerOfPatientIDQualifiersSequence.UniversalEntityIDType",//3
+          @"PatientID",//4
+          @"PatientName",//5
+          @"PatientBirthDate",//6
+          @"PatientSex",//7
+          @"",//8
+          @"",//9
+          @"",//10
+          @"",//11
+          @"",//12
+          @"",//13
+          @"",//14
+          @"",//15
+          @"",//16
+          @"ProcedureCodeSequence.CodeValue",//17
+          @"ProcedureCodeSequence.CodingSchemeDesignator",//18
+          @"ProcedureCodeSequence.CodeMeaning",//19
+          @"StudyInstanceUID",//20
+          @"StudyDescription",//21
+          @"StudyDate",//22
+          @"StudyTime",//23
+          @"StudyID",//24
+          @"",//25
+          @"",//26
+          @"",//27
+          @"",//28
+          @"AccessionNumber",//29
+          @"IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",//30
+          @"IssuerOfAccessionNumberSequence.UniversalEntityID",//31
+          @"IssuerOfAccessionNumberSequence.UniversalEntityIDType",//32
+          @"ReferringPhysicianName",//33
+          @"NameofPhysiciansrStudy",//34
+          @"ModalitiesInStudy",//35
+          @"NumberOfStudyRelatedSeries",//36
+          @"NumberOfStudyRelatedInstances",//37
+          @"",//38
+          @"",//39
+          @"SeriesInstanceUID",//40
+          @"Modality",//41
+          @"SeriesDescription",//42
+          @"SeriesNumber",//43
+          @"BodyPartExamined",//44
+          @"",//45
+          @"",//46
+          @"StationName",//47
+          @"InstitutionalDepartmentName",//48
+          @"InstitutionName",//49
+          @"Performing​Physician​Name",//50
+          @"",//51
+          @"InstitutionCodeSequence.CodeValue",//52
+          @"InstitutionCodeSequence.schemeDesignator",//53
+          @"",//54
+          @"PerformedProcedureStepStartDate",//55
+          @"PerformedProcedureStepStartTime",//56
+          @"RequestAttributeSequence.ScheduledProcedureStepID",//57
+          @"RequestAttributeSequence.RequestedProcedureID",//58
+          @"NumberOfSeriesRelatedInstances",//59
+          @"SOPInstanceUID",//60
+          @"SOPClassUID",//61
+          @"InstanceNumber",//62
+          @"HL7InstanceIdentifier",//63
+          @""//64
+          ];
+   _tag=@[
+          @"00100021",//0
+          @"00100024.00400031",//1
+          @"00100024.00400032",//2
+          @"00100024.00400033",//3
+          @"00100020",//4
+          @"00100010",//5
+          @"00100030",//6
+          @"00100040",//7
+          @"",//8
+          @"",//9
+          @"",//10
+          @"",//11
+          @"",//12
+          @"",//13
+          @"",//14
+          @"",//15
+          @"",//16
+          @"00081032.00080100",//17
+          @"00081032.00080102",//18
+          @"00081032.00080104",//19
+          @"0020000D",//20
+          @"00081030",//21
+          @"00080020",//22
+          @"00080030",//23
+          @"00200010",//24
+          @"",//25
+          @"",//26
+          @"",//27
+          @"",//28
+          @"00080050",//29
+          @"00080051.00400031",//30
+          @"00080051.00400032",//31
+          @"00080051.00400033",//32
+          @"00080090",//33
+          @"00081060",//34
+          @"00080061",//35
+          @"00201206",//36
+          @"00201208",//37
+          @"",//38
+          @"",//39
+          @"0020000E",//40
+          @"00080060",//41
+          @"0008103E",//42
+          @"00200011",//43
+          @"00180015",//44
+          @"",//45
+          @"",//46
+          @"00081010",//47
+          @"00081040",//48
+          @"00080080",//49
+          @"00081050",//50
+          @"",//51
+          @"00080082.00080100",//52
+          @"00080082.00080102",//53
+          @"",//54
+          @"00400244",//55
+          @"00400245",//56
+          @"00400275.00400009",//57
+          @"00400275.00401001",//58
+          @"00201209",//59
+          @"00080018",//60
+          @"00080016",//61
+          @"00200013",//62
+          @"0040E001",//63
+          @""//64
+          ];
+   _vr=@[
+         @"LO",//0
+         @"UT",//1
+         @"UT",//2
+         @"CS",//3
+         @"LO",//4
+         @"PN",//5
+         @"DA",//6
+         @"CS",//7
+         @"",//8
+         @"",//9
+         @"",//10
+         @"",//11
+         @"",//12
+         @"",//13
+         @"",//14
+         @"",//15
+         @"",//16
+         @"SH",//17
+         @"SH",//18
+         @"LO",//19
+         @"UI",//20
+         @"LO",//21
+         @"DA",//22
+         @"TM",//23
+         @"SH",//24
+         @"",//25
+         @"",//26
+         @"",//27
+         @"",//28
+         @"SH",//29
+         @"UT",//30
+         @"UT",//31
+         @"CS",//32
+         @"PN",//33
+         @"PN",//34
+         @"CS",//35
+         @"IS",//36
+         @"IS",//37
+         @"",//38
+         @"",//39
+         @"UI",//40
+         @"CS",//41
+         @"LO",//42
+         @"IS",//43
+         @"CS",//44
+         @"",//45
+         @"",//46
+         @"SH",//47
+         @"LO",//48
+         @"LO",//49
+         @"PN",//50
+         @"",//51
+         @"SH",//52
+         @"SH",//53
+         @"",//54
+         @"DA",//55
+         @"TM",//56
+         @"SH",//57
+         @"SH",//58
+         @"IS",//59
+         @"UI",//60
+         @"UI",//61
+         @"IS",//62
+         @"ST",//63
+         @""//64
+         ];
+
+    NSArray *pathSuffixBottomFilterNumber=@[@patientBottomFilterNumber,@studyBottomFilterNumber,@seriesBottomFilterNumber,@instanceBottomFilterNumber];
     NSCharacterSet *weakCharacters=[NSCharacterSet characterSetWithCharactersInString:@" ^<>-_$%&@*.;:,+¿?!¡[](){}'\"\\#"];
+   
+   
+   
+   
+   
     NSRegularExpression *APathRegex = [NSRegularExpression regularExpressionWithPattern:@"\\/attributes\\/?" options:NSRegularExpressionCaseInsensitive error:NULL];
     [self addHandler:@"GET" regex:APathRegex processBlock:
      ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
@@ -50,10 +250,13 @@
             
             //input URL
              NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
-            //fragment, host, password, path, port, query, queryItems, scheme, user
+            //URL, fragment, host, password, path, port, query, queryItems, scheme, user
             
             //init URL-analysis variables
-             NSMutableArray *pacsToBeQueried=[NSMutableArray array];//NSString OID
+             NSMutableArray *pacsToQuery=[NSMutableArray array];//NSString OID
+             NSMutableArray *modulesToReturn=[NSMutableArray array];//NSString name
+             NSMutableArray *attributesToReturn=[NSMutableArray array];//atribute list
+             NSMutableArray *otherParamsToEcho=[NSMutableArray array];//NSString OID
              NSUInteger level=NSNotFound;
              NSMutableDictionary *filters=[NSMutableDictionary dictionary];
              BOOL hasSpecificFilter=false;
@@ -64,99 +267,43 @@
              NSUInteger offset=0;
              NSUInteger limit=LLONG_MAX;
 
-#pragma mark 0 parsing parameters
-            
-            //path
-            /*
-             /studies/attributes?
-             /series/attributes?
-             /instances/attributes?
+#pragma mark 1 parsing parameters
 
-             /studies/{StudyInstanceUID}/series/attributes?
-             /studies/{StudyInstanceUID}/instances/attributes?
-
-             /studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/attributes?
-             */
-            NSArray *pathComponents=[urlComponents.path pathComponents];
-            switch ([pathComponents count]) {
-               case 2://nivel in component 0
-                  level=[K.levels indexOfObject:pathComponents[0]];
-                  break;
-               case 4://study/series or study/instance
-                  if (![pathComponents[0] isEqualToString:@"studies"])
+            for (NSURLQueryItem *item in urlComponents.queryItems)
+            {
+               if ([item.name isEqualToString:@"pacs"] && DRS.oids[item.value])
+               {
+                  [pacsToQuery addObjectsFromArray:[item.value componentsSeparatedByString:@","]];
+               }
+               else if ([item.name isEqualToString:@"list"])
+               {
+                  [attributesToReturn addObjectsFromArray:[item.value componentsSeparatedByString:@","]];
+               }
+               else if ([item.name isEqualToString:@"module"])
+               {
+                  [modulesToReturn addObjectsFromArray:[item.value componentsSeparatedByString:@","]];
+               }
+               else if ([item.name isEqualToString:@"orderby"])
+               {
+                  if (orderbyIndex==NSNotFound) orderbyIndex=[K indexOfAttribute:item.value];
+               }
+               else if ([item.name isEqualToString:@"offset"])
+               {
+                  long long result=[item.value longLongValue];
+                  if ((result>-1)&&(result<LLONG_MAX)) offset=(NSUInteger)result;
+               }
+               else if ([item.name isEqualToString:@"limit"])
+               {
+                  long long result=[item.value longLongValue];
+                  if ((result>0)&&(result<LLONG_MAX)) limit=(NSUInteger)result;
+               }
+               else //filters
+               {
+                  NSUInteger index=[DRS.key indexOfObject:item.name];//key
+                  if (index==NSNotFound)index=[DRS.tag indexOfObject:item.name];//or tag
+                  if (index==NSNotFound) [otherParamsToEcho addObject:item];
+                  else
                   {
-                     LOG_WARNING(@"[APath] incorrect path %@",urlComponents.path);
-                     return [RSErrorResponse responseWithClientError:404 message:@"[APath] incorrect path %@",urlComponents.path];
-                  }
-                  if (![K.UIRegex numberOfMatchesInString:pathComponents[1] options:0 range:NSMakeRange(0,[pathComponents[1] length])])
-                  {
-                     LOG_WARNING(@"[APath] badly formed studyUID %@",pathComponents[1]);
-                     return [RSErrorResponse responseWithClientError:404 message:@"[APath] badly formed studyUID %@",pathComponents[1]];
-                  }
-                  //check where studyID exists
-                  
-                  
-                  
-                  level=[K.levels indexOfObject:pathComponents[0]];
-                  break;
-
-               default:
-                  break;
-            }
-            
-            NSUInteger maxFilterNumber=[pathSuffixTopFilterNumber[level]unsignedIntegerValue];
-            
-            //no se aceptan filtros de nivel más bajo que el del request
-
-            
-            
-             for (NSURLQueryItem *item in urlComponents.queryItems)
-             {
-                 if ([item.name isEqualToString:@"pacs"] && DRS.oids[item.value])
-                 {
-                     //A pacs
-                     [pacsToBeQueried addObject:item.value];
-                 }
-                 else if ([item.name isEqualToString:@"includefield"])
-                 {
-                     //C includefield
-                     if ([item.value isEqualToString:@"all"]) includefieldall=true;
-                     else
-                     {
-                          NSUInteger index=[K indexOfAttribute:item.value];
-                         if (index==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"[fidji] unknown includefield=%@",item.value];
-                         if ( maxFilterNumber < index) return [RSErrorResponse responseWithClientError:404 message:@"[fidji] %@ includefield not available at level %@",item.value,urlComponents.path];
-                         [includefieldSet addObject:[NSNumber numberWithUnsignedInteger:index]];
-                     }
-                 }
-                 else if ([item.name isEqualToString:@"orderby"])
-                 {
-                     //D orderby
-                     if (orderbyIndex==NSNotFound)
-                     {
-                         orderbyIndex=[K indexOfAttribute:item.value];
-                         if (orderbyIndex==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"[fidji] unknown orderby= '%@'",item.value];
-                         if (!includefieldall) [includefieldSet addObject:[NSNumber numberWithUnsignedInteger:orderbyIndex]];
-                     }
-                     else  return [RSErrorResponse responseWithClientError:404 message:@"[fidji] orderby= is allowed only once"];
-                 }
-                 else if ([item.name isEqualToString:@"offset"])
-                 {
-                     //E offset
-                     long long result=[item.value longLongValue];
-                     if ((result>-1)&&(result<LLONG_MAX)) offset=(NSUInteger)result;
-                 }
-                 else if ([item.name isEqualToString:@"limit"])
-                 {
-                     //F limit
-                     long long result=[item.value longLongValue];
-                     if ((result>0)&&(result<LLONG_MAX)) limit=(NSUInteger)result;
-                 }
-                 else //G filters
-                 {
-                     NSUInteger index=[K.key indexOfObject:item.name];//key
-                     if (index==NSNotFound)index=[K.tag indexOfObject:item.name];//or tag
-                     if (index==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"[fidji] bad matching key '%@'",item.name];
                      NSUInteger l=[item.value length];
                      if (l==0) return [RSErrorResponse responseWithClientError:404 message:@"[fidji] empty matching key '%@' not taken into account",item.name];
                      NSUInteger w=[[item.value componentsSeparatedByCharactersInSet:weakCharacters]count];
@@ -165,31 +312,73 @@
                      if (filters[@(index)]) return [RSErrorResponse responseWithClientError:404 message:@"[fidji] matching key '%@' found more than once",item.name];
                      if ([K.vr[index] isEqualToString:@"DA"])
                      {
-                         NSArray *interval=[item.value componentsSeparatedByString:@"-"];
-                         if (
-                               [interval count]==2
-                             &&(  ![interval[0]length]
-                                ||![interval[1]length]
-                                ||([interval[1]intValue]-[interval[0]intValue]>8)
-                                )
-                             ) hasGenericFilter=hasGenericFilter || ((genericfilterbitmap >> index) && 1);//bitwise check
-                         else hasSpecificFilter=hasSpecificFilter || ((specificfilterbitmap >> index) && 1);//bitwise check
+                        NSArray *interval=[item.value componentsSeparatedByString:@"-"];
+                        if (
+                            [interval count]==2
+                            &&(  ![interval[0]length]
+                               ||![interval[1]length]
+                               ||([interval[1]intValue]-[interval[0]intValue]>8)
+                               )
+                            ) hasGenericFilter=hasGenericFilter || ((genericFilterBitmap >> index) && 1);//bitwise check
+                        else hasSpecificFilter=hasSpecificFilter || ((specificFilterBitmap >> index) && 1);//bitwise check
                      }
                      else
                      {
-                         hasSpecificFilter=hasSpecificFilter || ((specificfilterbitmap >> index) && 1);//bitwise check
-                         hasGenericFilter=hasGenericFilter || ((genericfilterbitmap >> index) && 1);//bitwise check;
+                        hasSpecificFilter=hasSpecificFilter || ((specificFilterBitmap >> index) && 1);//bitwise check
+                        hasGenericFilter=hasGenericFilter || ((genericFilterBitmap >> index) && 1);//bitwise check;
                      }
                      [filters setObject:item.value forKey:@(index)];
-                 }
-             }//fin parameter parsing
+                  }
+               }
+            }//fin parameter parsing
+
+            
+#pragma mark 2 parsing path
+            
+            NSArray *pathComponents=[urlComponents.path pathComponents];
+            switch ([pathComponents count]) {
+               case 2:// /attributes?
+                  level=0;
+               case 3://  /studies/attributes?  /series/attributes?  /instances/attributes?
+                  level=[DRS.levels indexOfObject:pathComponents[1]];
+                  break;
+               case 4:// /studies/*/series? or /studies/*/instance?
+                  if (![pathComponents[0] isEqualToString:@"studies"])
+                  {
+                     LOG_WARNING(@"[APath] incorrect path %@",urlComponents.path);
+                     return [RSErrorResponse responseWithClientError:404 message:@"[APath] incorrect path %@",urlComponents.path];
+                  }
+                  if (![DRS.UIRegex numberOfMatchesInString:pathComponents[1] options:0 range:NSMakeRange(0,[pathComponents[1] length])])
+                  {
+                     LOG_WARNING(@"[APath] badly formed studyUID %@",pathComponents[1]);
+                     return [RSErrorResponse responseWithClientError:404 message:@"[APath] badly formed studyUID %@",pathComponents[1]];
+                  }
+                  //check where studyID exists
+                  
+                  
+                  
+                  level=[DRS.levels indexOfObject:pathComponents[3]];
+                  break;
+
+               default:
+                  LOG_WARNING(@"[APath] incorrect path %@",urlComponents.path);
+                  return [RSErrorResponse responseWithClientError:404 message:@"[APath] incorrect path %@",urlComponents.path];
+                  break;
+            }
+            
+            NSUInteger maxFilterNumber=[pathSuffixBottomFilterNumber[level]unsignedIntegerValue];
+            
+            //no se aceptan filtros de nivel más bajo que el del request
+
+            
+            
             
          
 //errors which imply early return
-             if (![pacsToBeQueried count])
+             if (![pacsToQuery count])
              {
-                 [pacsToBeQueried addObjectsFromArray:DRS.localoids];
-                 if (![pacsToBeQueried count])
+                 [pacsToQuery addObjectsFromArray:DRS.localoids];
+                 if (![pacsToQuery count])
                      return [RSErrorResponse responseWithClientError:404 message:@"[fidji] no pacs defined in %@",[request.URL absoluteString]];
              }
 
@@ -281,10 +470,10 @@
                  
 #pragma mark 1 NSOperationQueue
              NSOperationQueue *fidjiQueue= [[NSOperationQueue alloc] init];
-             [fidjiQueue setMaxConcurrentOperationCount:fidjiqueueconcurrency];
+             [fidjiQueue setMaxConcurrentOperationCount:queueconcurrency];
 
 #pragma mark 1.1 pacs loop
-             for (NSString *oid in pacsToBeQueried)
+             for (NSString *oid in pacsToQuery)
              {
                  NSDictionary *loopPacs=DRS.pacs[oid];
                  //sql available
@@ -520,14 +709,14 @@
                      
                      //includes provision for iocm when it does exist
                      switch (level) {
-                         case levelPatient:
+                         case patientLevel:
                              //case of patient VIP
                              break;
-                         case levelStudy:
+                         case studyLevel:
                              [FROM appendFormat:@"FROM %@ ",sqlmap[@"STUDYtable"]];
                              [WHERE appendString:sqlmap[@"iocmWhereStudy"]];
                              break;
-                         case levelSeries:
+                         case seriesLevel:
                              [FROM appendFormat:@"FROM %@ ",sqlmap[@"SERIEStable"]];
                              [LEFTJOIN appendFormat:
                               @"LEFT OUTER JOIN %@ ON %@.%@=%@.%@ ",
@@ -539,7 +728,7 @@
                               ];
                              [WHERE appendString:sqlmap[@"iocmWhereSeries"]];
                              break;
-                         case levelInstance:
+                         case instanceLevel:
                              [FROM appendFormat:@"FROM %@ ",sqlmap[@"INSTANCEtable"]];
                              [LEFTJOIN appendFormat:
                               @"LEFT OUTER JOIN %@ ON %@.%@=%@.%@ ",
@@ -637,13 +826,13 @@
                  NSUInteger level=[pathSuffixMaxFilterNumber indexOfObject:urlComponents.path];
                  NSMutableString *whereString = [NSMutableString string];
                  switch (level) {
-                     case levelStudy:
+                     case studyLevel:
                          [whereString appendFormat:@" %@ ",(sqlmap[@"where"])[@"study"]];
                          break;
-                     case levelSeries:
+                     case seriesLevel:
                          [whereString appendFormat:@" %@ ",(sqlmap[@"where"])[@"series"]];
                          break;
-                     case levelInstance:
+                     case instanceLevel:
                          [whereString appendFormat:@" %@ ",(sqlmap[@"where"])[@"instance"]];
                          break;
                      default:
@@ -822,7 +1011,7 @@
               {
               return qidoUrlProxy(
               
-              [NSString stringWithFormat:@"%@/%@",qidoBaseString,pComponents.lastObject],
+              [NSString stringWithFormat:@"%@/%@",qidoBaseString,urlPathComp.lastObject],
               =qidolocaluri + urlComponents.path
               ==qidoString
               ===pacsUri
@@ -838,7 +1027,7 @@
               ==httpdicomString
               ===httpDicomUri
               );
-              //pComponents.lastObject = ( studies | series | instances )
+              //urlPathComp.lastObject = ( studies | series | instances )
               //application/dicom+json not accepted
               }
               */
@@ -865,7 +1054,7 @@
                                                                                //acumulators
                                                                                NSUInteger total=0;
                                                                                
-                                                                               for (NSString *oid in pacsToBeQueried)
+                                                                               for (NSString *oid in pacsToQuery)
                                                                                {
                                                                                NSDictionary *loopPacs=DRS.devices[oid];
                                                                                //sql available

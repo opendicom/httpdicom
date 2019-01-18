@@ -51,6 +51,11 @@ static NSRegularExpression *DARegex=nil;
 
 @implementation DICMTypes
 
+static NSRegularExpression *_DARegex=nil;
+static NSRegularExpression *_SHRegex=nil;
+static NSRegularExpression *_UIRegex=nil;
+static NSRegularExpression *_TZRegex=nil;
+
 + (void) initialize {
     ISO8601yyyyMMdd=[[NSISO8601DateFormatter alloc]init];
     ISO8601yyyyMMdd.formatOptions=NSISO8601DateFormatWithFullDate;
@@ -71,11 +76,10 @@ static NSRegularExpression *DARegex=nil;
     TMFormatter = [[NSDateFormatter alloc] init];
     [TMFormatter setDateFormat:@"HHmmss"];
 
-    UIRegex = [NSRegularExpression regularExpressionWithPattern:@"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:0 error:NULL];
-    SHRegex = [NSRegularExpression regularExpressionWithPattern:@"^(?:\\s*)([^\\r\\n\\f\\t]*[^\\r\\n\\f\\t\\s])(?:\\s*)$" options:0 error:NULL];
-    DARegex = [NSRegularExpression regularExpressionWithPattern:@"^(19|20)\\d\\d(01|02|03|04|05|06|07|08|09|10|11|12)(01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)$" options:0 error:NULL];
-
-
+   _TZRegex = [NSRegularExpression regularExpressionWithPattern:@"^[+-][0-2][0-9][0-5][0-9]$" options:0 error:NULL];
+   _UIRegex = [NSRegularExpression regularExpressionWithPattern:@"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:0 error:NULL];
+   _SHRegex = [NSRegularExpression regularExpressionWithPattern:@"^(?:\\s*)([^\\r\\n\\f\\t]*[^\\r\\n\\f\\t\\s])(?:\\s*)$" options:0 error:NULL];
+   _DARegex = [NSRegularExpression regularExpressionWithPattern:@"^(19|20)\\d\\d(01|02|03|04|05|06|07|08|09|10|11|12)(01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)$" options:0 error:NULL];
 }
 
 +(NSDate*)dateFromDAString:(NSString*)string
@@ -132,4 +136,12 @@ static NSRegularExpression *DARegex=nil;
     if (!sinceDate || !untilDate) return @"????";
     return [DICMTypes ASSinceDate:sinceDate untilDate:untilDate];
 }
+
+#pragma mark - getters
+
++(NSRegularExpression*)DARegex       { return _DARegex;}
++(NSRegularExpression*)SHRegex       { return _SHRegex;}
++(NSRegularExpression*)UIRegex       { return _UIRegex;}
++(NSRegularExpression*)TZRegex       { return _TZRegex;}
+
 @end
