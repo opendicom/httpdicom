@@ -158,7 +158,6 @@
 		4A2D905021802EDC00371484 /* TEST */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TEST; sourceTree = "<group>"; };
 		4A2D9051218030A200371484 /* deploy */ = {isa = PBXFileReference; lastKnownFileType = folder; path = deploy; sourceTree = "<group>"; };
 		4A2D90522180335600371484 /* DOC */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DOC; sourceTree = "<group>"; };
-		4A2D90532180335600371484 /* launch */ = {isa = PBXFileReference; lastKnownFileType = folder; path = launch; sourceTree = "<group>"; };
 		4A2D90562181E37C00371484 /* DRS+wado.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+wado.m"; sourceTree = "<group>"; };
 		4A2D90572181E37C00371484 /* DRS+iheiid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+iheiid.m"; sourceTree = "<group>"; };
 		4A2D90582181E37C00371484 /* DRS+datatables.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+datatables.m"; sourceTree = "<group>"; };
@@ -246,7 +245,6 @@
 			isa = PBXGroup;
 			children = (
 				4A2D90522180335600371484 /* DOC */,
-				4A2D90532180335600371484 /* launch */,
 				4A2D9051218030A200371484 /* deploy */,
 				4A0FDF1F1E904E5C001E3426 /* main.m */,
 				4A0E60431E81C01B005D7F2B /* ODLog.h */,

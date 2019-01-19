@@ -27,3 +27,5 @@ httpdicom.xcodeproj/xcuserdata/claudiobaeza.xcuserdatad/xcschemes/xcschememanage
 *.xcbkptlist
 
 httpdicom.xcodeproj/xcuserdata/opendicom.xcuserdatad/xcschemes/xcschememanagement.plist
+.DS_Store
+deploy/.DS_Store
