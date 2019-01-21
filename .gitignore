@@ -4,3 +4,5 @@ httpdicom.xcodeproj/xcuserdata/*
 *.log
 *.xcbkptlist
 *.DS_Store
+
+.DS_Store
