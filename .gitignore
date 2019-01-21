@@ -6,3 +6,5 @@ httpdicom.xcodeproj/xcuserdata/*
 *.DS_Store
 
 .DS_Store
+
+deploy/.DS_Store
