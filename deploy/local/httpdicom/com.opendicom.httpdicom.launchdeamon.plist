@@ -11,9 +11,10 @@
 	<key>ProgramArguments</key>
 	<array>
 		<string>/Users/Shared/httpdicom/bin/httpdicom</string>
-		<string>INFO</string>
-		<string>11114</string>
-		<string>/Users/Shared/httpdicom/conf/IRP.plist</string>
+		<string>1.3.6.1.4.1.23650.152.0.2.737765846967</string>
+		<string>11124</string>
+		<string>DEBUG</string>
+		<string>+0300</string>
 	</array>
 	<key>KeepAlive</key>
 	<true/>
