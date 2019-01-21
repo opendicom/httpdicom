@@ -38,7 +38,7 @@
                 <li><b>custodiantitle</b></li>
                 <li><b>cutodianoid</b> (HomeCommunityID, attribute DICOM (0040,E031))</li>
                 <li><b>custodianglobaluri</b></li>
-                <li><b>deviceaet</b> (nombre de 16 caracteres máx usado localmente en las
+                <li><b>pacsaet</b> (nombre de 16 caracteres máx usado localmente en las
                     transacciones con protocolo DICOM DIMSE)</li>
             </ul>
         </section>

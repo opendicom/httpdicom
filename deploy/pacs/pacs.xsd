@@ -2,8 +2,8 @@
 
 <xs:schema 
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://www.opendicom.com/xsd/plist/devices.xsd"
-    xmlns="http://www.opendicom.com/xsd/plist/devices.xsd" 
+    targetNamespace="http://www.opendicom.com/xsd/plist/pacs.xsd"
+    xmlns="http://www.opendicom.com/xsd/plist/pacs.xsd" 
     elementFormDefault="qualified"
     xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" 
     vc:minVersion="1.1"
@@ -33,7 +33,7 @@
                                 </xs:annotation>
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:group ref="deviceaet"/>
+                                        <xs:group ref="pacsaet"/>
                                         <xs:group ref="local"/>
                                         <xs:group ref="preferredstudyidentificator"/>
                                         <xs:group ref="TimezoneOffsetFromUTC"/>
@@ -85,14 +85,14 @@
 
 <!-- groups -->
     
-    <xs:group name="deviceaet">
+    <xs:group name="pacsaet">
         <xs:sequence>
-            <xs:element name="key" fixed="deviceaet">
+            <xs:element name="key" fixed="pacsaet">
                 <xs:annotation>
                     <xs:documentation>nombre corto (máx 16 chars) del device</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="deviceaet"/>
+            <xs:element ref="string" id="pacsaet"/>
         </xs:sequence>
     </xs:group>
     
@@ -544,7 +544,7 @@
         <xs:alternative test="@id = 'wadors'"                      type="httpidstring"/>
         <xs:alternative test="@id = 'stow'"                        type="httpidstring"/>
 
-        <xs:alternative test="@id = 'deviceaet'"                    type="titleidstring"/>
+        <xs:alternative test="@id = 'pacsaet'"                    type="titleidstring"/>
         <xs:alternative test="@id = 'dimseip'"                     type="ipidstring"/>
         <xs:alternative test="@id = 'dimsepuerto'"                 type="portidstring"/>
     </xs:element>

@@ -10,8 +10,8 @@
     <dict><!-- IMATEC -->
         <key>1.3.6.1.4.1.23650.152.0.2.737765846967</key><!-- todos los centros -->
         <dict>
-            <key>deviceaet</key>
-            <string id="deviceaet">IMATEC</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">IMATEC</string>
             <key>local</key>
             <true/>
             <key>preferredstudyidentificator</key>
@@ -71,8 +71,8 @@
 
         <key>1.3.6.1.4.1.23650.152.0.2.737765846967.4</key><!-- historico -->
         <dict>
-            <key>deviceaet</key>
-            <string id="deviceaet">IMATEC_HISTORICO</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">IMATEC_HISTORICO</string>
             <key>local</key>
             <true/>
             <key>preferredstudyidentificator</key>
@@ -132,8 +132,8 @@
         
         <key>1.3.6.1.4.1.23650.152.0.2.737765846967.1</key><!-- La Serena -->
         <dict>
-            <key>deviceaet</key>
-            <string id="deviceaet">IMATEC_LASERENA</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">IMATEC_LASERENA</string>
             <key>local</key>
             <true/>
             <key>preferredstudyidentificator</key>
@@ -346,8 +346,8 @@
         
         <key>1.3.6.1.4.1.23650.152.0.2.737765846967.2</key><!-- Ovalle -->
         <dict>
-            <key>deviceaet</key>
-            <string id="deviceaet">IMATEC_OVALLE</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">IMATEC_OVALLE</string>
             <key>local</key>
             <true/>
             <key>preferredstudyidentificator</key>
@@ -561,8 +561,8 @@
         
         <key>1.3.6.1.4.1.23650.152.0.2.737765846967.3</key><!-- Vallenar -->
         <dict>
-            <key>deviceaet</key>
-            <string id="deviceaet">IMATEC_VALLENAR</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">IMATEC_VALLENAR</string>
             <key>local</key>
             <true/>
             <key>preferredstudyidentificator</key>

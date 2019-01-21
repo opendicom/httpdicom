@@ -60,8 +60,8 @@
     }
     else
     {
-        pacsUID1=DRS.drspacs;
-        pacs=DRS.pacs[DRS.drspacs];
+        pacsUID1=DRS.defaultpacsoid;
+        pacs=DRS.pacs[DRS.defaultpacsoid];
         LOG_INFO(@"[mwlitem] <pacs> %@ (default)",pacsUID1);
     }
 
@@ -584,7 +584,7 @@
      modality:@"OT"
      accessionNumber:AccessionNumber1
      accessionIssuer:pacsUID1
-     ANLocal:pacs[@"deviceaet"]
+     ANLocal:pacs[@"pacsaet"]
      studyDescription:StudyDescription1
      procedureCodes:[NSArray arrayWithArray:mutableArray]
      referring:ReferringPhysiciansName1

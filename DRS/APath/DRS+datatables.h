@@ -105,7 +105,7 @@
  #pragma mark --different context
  #pragma mark reemplazar org por custodianTitle e institucion por aet
  //find dest
- NSString *destOID=DRS.deviceaetDictionary[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
+ NSString *destOID=DRS.pacsaetDictionary[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
  NSDictionary *entityDict=pacs[destOID];
  
  NSDictionary *sqlobjectmodel=DRS.sqls[entityDict[@"sqlobjectmodel"]];
@@ -519,7 +519,7 @@
  //following filters use formats like " AND a like 'b'"
  
  //find dest
- NSString *destOID=DRS.deviceaetDictionary[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
+ NSString *destOID=DRS.pacsaetDictionary[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
  NSDictionary *entityDict=pacs[destOID];
  
  NSDictionary *sqlobjectmodel=DRS.sqls[entityDict[@"sqlobjectmodel"]];
@@ -595,7 +595,7 @@
  
  
  //find dest
- NSString *destOID=DRS.deviceaetDictionary[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
+ NSString *destOID=DRS.pacsaetDictionary[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
  NSDictionary *entityDict=pacs[destOID];
  
  NSDictionary *sqlobjectmodel=DRS.sqls[entityDict[@"sqlobjectmodel"]];

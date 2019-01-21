@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plist
-    xmlns="http://www.opendicom.com/xsd/plist/devices.xsd"
+    xmlns="http://www.opendicom.com/xsd/plist/pacs.xsd"
     
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.opendicom.com/xsd/plist/devices.xsd devices.xsd"
+    xsi:schemaLocation="http://www.opendicom.com/xsd/plist/pacs.xsd pacs.xsd"
     
     version="1.0"
     >
     <dict><!-- CDS -->
         <key>1.3.6.1.4.1.23650.152.0.2.676883</key>
         <dict>
-            <key>deviceaet</key>
-            <string id="deviceaet">CDS</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">CDS</string>
             <key>local</key>
             <true/>
             <key>preferredstudyidentificator</key>

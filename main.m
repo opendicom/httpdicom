@@ -1,46 +1,16 @@
 /*
  syntax:
- [0] mwldicom
- [1] deploypath
+ [0] htmldicom
+ [1] defaultPacsOID (which is also the name of the file in deploy/device)
  [2] httpdicomport
  [3] loglevel [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION]
  [4] defaultTimezone
- [5] defaultPacs
  */
 
 //
 //  Created by jacquesfauquex on 2017-03-20.
 //  Copyright © 2018 opendicom.com. All rights reserved.
 //
-
-/*
- Copyright:  Copyright (c) 2017 jacques.fauquex@opendicom.com All Rights Reserved.
- 
- This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
- If a copy of the MPL was not distributed with this file, You can obtain one at
- http://mozilla.org/MPL/2.0/
- 
- Covered Software is provided under this License on an “as is” basis, without warranty of
- any kind, either expressed, implied, or statutory, including, without limitation,
- warranties that the Covered Software is free of defects, merchantable, fit for a particular
- purpose or non-infringing. The entire risk as to the quality and performance of the Covered
- Software is with You. Should any Covered Software prove defective in any respect, You (not
- any Contributor) assume the cost of any necessary servicing, repair, or correction. This
- disclaimer of warranty constitutes an essential part of this License. No use of any Covered
- Software is authorized under this License except under this disclaimer.
- 
- Under no circumstances and under no legal theory, whether tort (including negligence),
- contract, or otherwise, shall any Contributor, or anyone who distributes Covered Software
- as permitted above, be liable to You for any direct, indirect, special, incidental, or
- consequential damages of any character including, without limitation, damages for lost
- profits, loss of goodwill, work stoppage, computer failure or malfunction, or any and all
- other commercial damages or losses, even if such party shall have been informed of the
- possibility of such damages. This limitation of liability shall not apply to liability for
- death or personal injury resulting from such party’s negligence to the extent applicable
- law prohibits such limitation. Some jurisdictions do not allow the exclusion or limitation
- of incidental or consequential damages, so this exclusion and limitation may not apply to
- You.
- */
 
 #import <Foundation/Foundation.h>
 #import "K.h" //constants
@@ -56,15 +26,15 @@ int main(int argc, const char* argv[])
         
 
 NSArray *args=[[NSProcessInfo processInfo] arguments];
-if ([args count]!=6)
+if ([args count]!=5)
 {
-    NSLog(@"syntax: httpdicom deploypath httpdicomport loglevel defaultTimezone defaultPacs");
+    NSLog(@"syntax: httpdicom defaultpacsoid httpdicomport loglevel defaultTimezone");
     return 1;
 }
         
         
 //arg [1] deploypath
-NSString *deployPath=[args[1]stringByExpandingTildeInPath];
+NSString *deployPath=@"/Users/Shared/GitHub/httpdicom/deploy";
 BOOL isDirectory=FALSE;
 if (![[NSFileManager defaultManager]fileExistsAtPath:deployPath isDirectory:&isDirectory] || !isDirectory)
 {
@@ -143,10 +113,6 @@ else
 
     }
 }
-        
-
-
-        
 
         
 // /voc/country (iso3166)
@@ -172,27 +138,28 @@ else [K loadPersonIDTypes:personIDTypes];
 
         
 #pragma mark DRS params
-        
-        
+       
+//arg [1] defaultpacsoid
+NSString *defaultpacsoid=args[1];
 // /pacs (also called device)
-NSDictionary *pacs=[NSDictionary dictionaryWithContentsOfFile:[deployPath stringByAppendingPathComponent:@"devices/devices.plist"]];
+NSDictionary *pacs=[NSDictionary dictionaryWithContentsOfFile:
+                    [[[deployPath
+                       stringByAppendingPathComponent:@"pacs"]
+                      stringByAppendingPathComponent:defaultpacsoid]
+                     stringByAppendingPathExtension:@"pacsplist"]
+                    ];
+
 if (!pacs)
 {
-    NSLog(@"could not get contents of devices/devices.plist");
-    return 1;
+   NSLog(@"could not get contents of pacs/%@.pacsplist",defaultpacsoid);
+   return 1;
 }
-
-        
-        
-//arg [5] defaultpacs
-NSString *drspacs=args[5];
-if (!pacs[args[5]])
+       
+if (!pacs[defaultpacsoid])
 {
-    NSLog(@"defaultpacs OID not in pacs dictionary");
-            return 1;
+   NSLog(@"defaultpacsoid not defined in pacs dictionary");
+   return 1;
 }
-        
-
 
         
 // /sql/map
@@ -227,7 +194,7 @@ for (NSString *sqlname in sqlset)
         DRS *drs=[[DRS alloc] initWithSqls:sqls
                                       pacs:pacs
                                    drsport:port
-                                   drspacs:drspacs
+                            defaultpacsoid:defaultpacsoid
                   ];
 
 

@@ -81,8 +81,8 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
     }
     else
     {
-        pacsUID1=DRS.drspacs;
-        pacs=DRS.pacs[DRS.drspacs];
+        pacsUID1=DRS.defaultpacsoid;
+        pacs=DRS.pacs[DRS.defaultpacsoid];
         LOG_INFO(@"[pdf]<pacs> %@ (default)",pacsUID1);
     }
 
@@ -391,7 +391,7 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
              TM:[DICMTypes TMStringFromDate:now]
              TZ:K.defaultTimezone
              AN:AccessionNumber1
-             ANLocal:pacs[@"deviceaet"]
+             ANLocal:pacs[@"pacsaet"]
              ANUniversal:pacs[@"custodianoid"]
              ANUniversalType:@"ISO"
              modality:@"DOC"
@@ -427,7 +427,7 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
              TM:[DICMTypes TMStringFromDate:now]
              TZ:K.defaultTimezone
              AN:AccessionNumber1
-             ANLocal:pacs[@"deviceaet"]
+             ANLocal:pacs[@"pacsaet"]
              ANUniversal:pacs[@"custodianoid"]
              ANUniversalType:@"ISO"
              modality:@"OT"
@@ -777,7 +777,7 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
          TM:[DICMTypes TMStringFromDate:now]
          TZ:K.defaultTimezone
          AN:AccessionNumber1
-         ANLocal:pacs[@"deviceaet"]
+         ANLocal:pacs[@"pacsaet"]
          ANUniversal:pacs[@"custodianoid"]
          ANUniversalType:@"ISO"
          modality:@"DOC"
@@ -813,7 +813,7 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
          TM:[DICMTypes TMStringFromDate:now]
          TZ:K.defaultTimezone
          AN:AccessionNumber1
-         ANLocal:pacs[@"deviceaet"]
+         ANLocal:pacs[@"pacsaet"]
          ANUniversal:pacs[@"custodianoid"]
          ANUniversalType:@"ISO"
          modality:@"OT"

@@ -24,7 +24,7 @@
 static NSDictionary        *_sqls=nil;
 static NSDictionary        *_pacs=nil;
 static long long           _drsport;
-static NSString            *_drspacs;
+static NSString            *_defaultpacsoid;
 
 static NSDictionary        *_oids=nil;
 static NSDictionary        *_titles=nil;
@@ -33,7 +33,7 @@ static NSData              *_titlesdata=nil;
 static NSDictionary        *_oidsaeis=nil;
 static NSDictionary        *_titlesaets=nil;
 static NSDictionary        *_titlesaetsstrings=nil;
-static NSDictionary        *_deviceaetDictionary=nil;
+static NSDictionary        *_pacsaetDictionary=nil;
 static NSArray             *_localoids=nil;
 static NSDictionary        *_custodianDictionary=nil;
 
@@ -80,14 +80,14 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 -(id)initWithSqls:(NSDictionary*)sqls
              pacs:(NSDictionary*)pacs
           drsport:(long long)drsport
-          drspacs:(NSString*)drspacs
+          defaultpacsoid:(NSString*)defaultpacsoid
 {
     self = [super init];
     if(self) {
         _sqls=sqls;
         _pacs=pacs;
         _drsport=drsport;
-        _drspacs=drspacs;
+        _defaultpacsoid=defaultpacsoid;
 
 #pragma mark pacs
 
@@ -177,10 +177,10 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
                 NSDictionary *d=[pacs objectForKey:k];
                 if ([[d objectForKey:@"custodiantitle"]isEqualToString:title])
                 {
-                    [titleaets addObject:[d objectForKey:@"deviceaet"]];
+                    [titleaets addObject:[d objectForKey:@"pacsaet"]];
                     if ([s isEqualToString:@"("])
-                        [s appendFormat:@"'%@'",[d objectForKey:@"deviceaet"]];
-                    else [s appendFormat:@",'%@'",[d objectForKey:@"deviceaet"]];
+                        [s appendFormat:@"'%@'",[d objectForKey:@"pacsaet"]];
+                    else [s appendFormat:@",'%@'",[d objectForKey:@"pacsaet"]];
                 }
             }
             [titlesaets setObject:titleaets forKey:title];
@@ -190,12 +190,12 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         NSLog(@"\r\nknown pacs aet classified by corresponding custodian title:\r\n%@",[titlesaets description]);
         
         
-        NSMutableDictionary *deviceaetDictionary=[NSMutableDictionary dictionary];
+        NSMutableDictionary *pacsaetDictionary=[NSMutableDictionary dictionary];
         NSMutableArray      *localOIDs=[NSMutableArray array];
         NSMutableDictionary *custodianDictionary=nil;
         for (NSString *key in [pacs allKeys])
         {
-            [deviceaetDictionary setObject:key forKey:[(pacs[key])[@"custodiantitle"] stringByAppendingPathExtension:(pacs[key])[@"deviceaet"]]];
+            [pacsaetDictionary setObject:key forKey:[(pacs[key])[@"custodiantitle"] stringByAppendingPathExtension:(pacs[key])[@"pacsaet"]]];
             
             if ([(pacs[key])[@"sqlprolog"] length]||[(pacs[key])[@"dcm4cheelocaluri"] length])
             {
@@ -209,7 +209,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         _oidsaeis=[NSDictionary dictionaryWithDictionary:oidsaeis];
         _titlesaets=[NSDictionary dictionaryWithDictionary:titlesaets];
         _titlesaetsstrings=[NSDictionary dictionaryWithDictionary:titlesaetsStrings];
-        _deviceaetDictionary=[NSDictionary dictionaryWithDictionary:_deviceaetDictionary];
+        _pacsaetDictionary=[NSDictionary dictionaryWithDictionary:_pacsaetDictionary];
         _localoids=[NSArray arrayWithArray:localOIDs];
         _custodianDictionary=[NSDictionary dictionaryWithDictionary:custodianDictionary];
 
@@ -261,7 +261,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 +(NSDictionary*)sqls                 { return _sqls;}
 +(NSDictionary*)pacs                 { return _pacs;}
 +(long long)drsport                  { return _drsport;}
-+(NSString*)drspacs                  { return _drspacs;}
++(NSString*)defaultpacsoid                  { return _defaultpacsoid;}
 
 +(NSDictionary*)oids                 { return _oids;}
 +(NSDictionary*)titles               { return _titles;}
@@ -270,7 +270,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 +(NSDictionary*)oidsaeis             { return _oidsaeis;}
 +(NSDictionary*)titlesaets           { return _titlesaets;}
 +(NSDictionary*)titlesaetsstrings    { return _titlesaetsstrings;}
-+(NSDictionary*)deviceaetDictionary  { return _deviceaetDictionary;}
++(NSDictionary*)pacsaetDictionary  { return _pacsaetDictionary;}
 +(NSArray*)localoids                 { return _localoids;}
 +(NSDictionary*)custodianDictionary  { return _custodianDictionary;}
 
