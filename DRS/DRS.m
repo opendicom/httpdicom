@@ -1,11 +1,3 @@
-//
-//  DRS.m
-//  httpdicom
-//
-//  Created by jacquesfauquex on 20180112.
-//  Copyright © 2018 opendicom.com. All rights reserved.
-//
-
 #import "DRS.h"
 
 #import "DRS+wado.h"

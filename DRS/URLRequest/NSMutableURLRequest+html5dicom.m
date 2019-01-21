@@ -1,11 +1,3 @@
-//
-//  NSMutableURLRequest+html5dicom.m
-//  httpdicom
-//
-//  Created by jacquesfauquex on 2017129.
-//  Copyright © 2017 opendicom.com. All rights reserved.
-//
-
 #import "NSMutableURLRequest+html5dicom.h"
 
 @implementation NSMutableURLRequest (html5dicom)

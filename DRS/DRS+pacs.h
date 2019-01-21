@@ -1,11 +1,3 @@
-//
-//  DRS+pacs.h
-//  httpdicom
-//
-//  Created by jacquesfauquex on 20180115.
-//  Copyright © 2018 opendicom.com. All rights reserved.
-//
-
 //custodians/titles -> lista de los titulos de custodians conocidos
 //custodians/titles/{title}  -> oid correspondiente
 //custodians/titles/{title}/aets -> lista de las aets vinculadas al custodian

@@ -1,11 +1,3 @@
-//
-//  NSMutableString+DSCD.m
-//  httpdicom
-//
-//  Created by jacquesfauquex on 20171217.
-//  Copyright © 2017 opendicom.com. All rights reserved.
-//
-
 #import "NSMutableString+DSCD.h"
 #import "DICMTypes.h"
 #import "NSUUID+DICM.h"

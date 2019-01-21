@@ -1,11 +1,3 @@
-//
-//  NSDictionary+PCS.m
-//  httpdicom
-//
-//  Created by jacquesfauquex on 20180426.
-//  Copyright © 2018 ridi.salud.uy. All rights reserved.
-//
-
 #import "NSDictionary+PCS.h"
 
 @implementation NSDictionary (PCS)

@@ -1,11 +1,3 @@
-//
-//  DRS+mwl.h
-//  httpdicom
-//
-//  Created by jacquesfauquex on 20180116.
-//  Copyright © 2018 ridi.salud.uy. All rights reserved.
-//
-
 /* PARAMETERS
 
  Los nombres que empiezan con mayúscula corresponden exactamente a atributos DICOM.

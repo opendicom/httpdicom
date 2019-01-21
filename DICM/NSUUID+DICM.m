@@ -1,11 +1,3 @@
-//
-//  NSUUID+DICM.m
-//  FoundationDICM
-//
-//  Created by jacquesfauquex on 04/08/13.
-//
-//
-
 #import "NSUUID+DICM.h"
 
 @implementation NSUUID (DICM)

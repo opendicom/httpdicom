@@ -11,7 +11,7 @@ ln -s /Volumes/IN/GitHub/httpdicom  /Users/Shared/GitHub/httpdicom
 Copy local/httpdicom  into /Users/Shared. For instance:
 
 ```bash
-cp /Volumes/IN/GitHub/httpdicom/local  /Users/Shared
+cp -R /Users/Shared/GitHub/httpdicom/local /Users/Shared
 ```
 
 The files within this new directory should be modified with local parameters and will not be affected by GitHub actualizations.

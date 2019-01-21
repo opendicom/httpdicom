@@ -1,11 +1,3 @@
-//
-//  NSDictionary+DICM.h
-//  FoundationDICM2
-//
-//  Created by jacques on 20100828.
-//  Copyright 2010 jacquesfauquex@gmail.com All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 
 

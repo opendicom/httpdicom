@@ -1,11 +1,3 @@
-//
-//  DRS+wadors.m
-//  httpdicom
-//
-//  Created by jacquesfauquex on 20180117.
-//  Copyright © 2018 ridi.salud.uy. All rights reserved.
-//
-
 #import "DRS+wadors.h"
 #import "NSURLComponents+PCS.h"
 

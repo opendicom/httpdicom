@@ -1,11 +1,3 @@
-//
-//  DRS+wado.h
-//  httpdicom
-//
-//  Created by jacquesfauquex on 20180113.
-//  Copyright © 2018 ridi.salud.uy. All rights reserved.
-//
-
 #import "DRS.h"
 
 @interface DRS (wado)

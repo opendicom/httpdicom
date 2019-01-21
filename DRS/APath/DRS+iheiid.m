@@ -1,11 +1,3 @@
-//
-//  DRS+iheiid.m
-//  httpdicom
-//
-//  Created by jacquesfauquex on 20180118.
-//  Copyright © 2018 ridi.salud.uy. All rights reserved.
-//
-
 #import "DRS+iheiid.h"
 #import "LFCGzipUtility.h"
 

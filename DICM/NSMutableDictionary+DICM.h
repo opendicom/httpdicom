@@ -1,11 +1,3 @@
-//
-//  NSMutableDictionary+DICM.h
-//  FoundationDICM2
-//
-//  Created by jacques on 20100824.
-//  Copyright 2010 jacquesfauquex@gmail.com All rights reserved.
-//
-
 #import <Cocoa/Cocoa.h>
 
 

@@ -1,13 +1,5 @@
-//
-//  NSMutableData+DICM.m
-//  FoundationDICM2
-//
-//  Created by jacquesfauquex on 10/06/13.
-//  Copyright (c) 2013 jacquesfauquex@gmail.com All rights reserved.
-//
-
 #import "NSMutableData+DICM.h"
-#import "const.h"
+#import "Const.h"
 
 
 const UInt32		DICM 			              = 0x4D434944;

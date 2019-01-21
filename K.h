@@ -1,11 +1,3 @@
-//
-//  K.h  Key Constant
-//  httpdicom
-//
-//  Created by jacquesfauquex on 20180321.
-//  Copyright © 2018 opendicom.com. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 
 //iso3166 country parsing

@@ -1,11 +1,3 @@
-//
-//  NSData+PCS.h
-//  httpdicom
-//
-//  Created by jacquesfauquex on 2016-10-12.
-//  Copyright © 2018 opendicom.com. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 
 #define DEFAULT_POLYNOMIAL 0xEDB88320L

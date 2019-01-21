@@ -1,11 +1,3 @@
-//
-//  DRS+mwl.m
-//  httpdicom
-//
-//  Created by jacquesfauquex on 20180116.
-//  Copyright © 2018 ridi.salud.uy. All rights reserved.
-//
-
 #import "DRS+functions.h"
 #import "DRS+mwl.h"
 #import "K.h"

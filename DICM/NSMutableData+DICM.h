@@ -1,11 +1,3 @@
-//
-//  NSMutableData+DICM.h
-//  FoundationDICM2
-//
-//  Created by jacquesfauquex on 10/06/13.
-//  Copyright (c) 2013 jacquesfauquex@gmail.com All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 
 @interface NSMutableData (DICM)

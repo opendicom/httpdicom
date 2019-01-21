@@ -1,12 +1,3 @@
-//
-//  NSData+PCS.m
-//  httpdicom
-//
-//  Created by jacquesfauquex on 2016-10-12.
-//  Copyright © 2018 opendicom.com. All rights reserved.
-//
-
-
 #import "NSData+PCS.h"
 #import "ODLog.h"
 
