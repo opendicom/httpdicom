@@ -211,7 +211,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         
 #pragma mark / =wado-uri
         [self addWadoHandler];//(default handler)
-       LOG_DEBUG(@"/ =wado-uri");
+       LOG_DEBUG(@"added handler / (=wado-uri)");
 
 #pragma mark /echo
         [self addHandler:@"GET" path:@"/echo" processBlock:

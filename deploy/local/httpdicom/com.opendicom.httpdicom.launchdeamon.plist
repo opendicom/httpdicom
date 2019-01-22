@@ -10,7 +10,7 @@
 	<string>/Users/Shared/httpdicom/httpdicom.log</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Users/Shared/httpdicom/bin/httpdicom</string>
+		<string>/Users/Shared/local/httpdicom//httpdicom</string>
 		<string>1.3.6.1.4.1.23650.152.0.2.737765846967</string>
 		<string>11124</string>
 		<string>DEBUG</string>
