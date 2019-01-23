@@ -5,16 +5,12 @@
 	<key>Label</key>
 	<string>com.opendicom.httpdicom.plist</string>
 	<key>StandardOutPath</key>
-	<string>/Users/Shared/httpdicom/httpdicom.log</string>
+	<string>/Users/Shared/local/httpdicom/httpdicom.log</string>
 	<key>StandardErrorPath</key>
-	<string>/Users/Shared/httpdicom/httpdicom.log</string>
+	<string>/Users/Shared/local/httpdicom/httpdicom.log</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Users/Shared/local/httpdicom//httpdicom</string>
-		<string>1.3.6.1.4.1.23650.152.0.2.737765846967</string>
-		<string>11124</string>
-		<string>DEBUG</string>
-		<string>+0300</string>
+		<string>/Users/Shared/local/httpdicom/httpdicom</string>
 	</array>
 	<key>KeepAlive</key>
 	<true/>

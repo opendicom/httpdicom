@@ -14,8 +14,8 @@ cp -R /Users/Shared/GitHub/httpdicom/deploy/local /Users/Shared
 The files within this new directory should be modified with local parameters and will not be affected by GitHub actualizations.
 These are:
 
-1. **com.opendicom.httpdicom.launchdeamon.plist** (the modified version needs to be copied into /Library/LaunchDeamons and activated with launchctl)
-2. **com.opendicom.httpdicom.watchdog.sh** (which restarts the server in case it would block)
+1. **com.opendicom.httpdicom.launchdeamon.plist** (copy into /Library/LaunchDeamons, adjust owner and privileges to root:wheel  -rw-r--r-, activate with launchctl)
+2. **com.opendicom.httpdicom.watchdog.sh** (which restarts the server in case it would block. Adjust the parameters, in particular default OID)
 3. **httpdicom** (the binary compiled server. Each actualization GitHub comes with a new bin. The bin can also be compiled locally, opening httpdicom.xcodeproj from the latest version of XCode)
 4. **CocoaRestClient.bin.plist** (to be imported in CocoaRestClient.app para realizar pruebas de los servicios)
 
@@ -31,11 +31,11 @@ ln -s /Users/Shared/GitHub/httpdicom/local/httpdicom/httpdicom  /Users/Shared/lo
 ##Ways to startup
 
 1. XCode, so that you can use debug tools. Adapt the args in the GUI.
-2. comand line 
+2. Comand line 
 
 ```bash
 cd /Users/Shared/local/httpdicom
-./httpdicom 1.3.6.1.4.1.23650.152.0.2.737765846967 11124 DEBUG +0300
+./httpdicom 1.3.6.1.4.1.23650.152.0.2.737765846967 11114 DEBUG +0300
 ```
 
 3. Adapting and copying com.opendicom.httpdicom.launchdeamon.plist to /Library/launchdeamons and using launchctl

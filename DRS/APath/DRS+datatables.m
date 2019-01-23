@@ -162,24 +162,17 @@ static NSMutableDictionary *sStudyDescription;
              NSMutableString *studiesWhere=[NSMutableString stringWithString:destSql[@"studiesWhere"]];
              
              //PEP por aet or custodian
-             if ([q[@"aet"] isEqualToString:q[@"custodiantitle"]])
-             {
-                 //[studiesWhere appendFormat:
-                 //@" AND %@ in %@",
-                 //destSql[@"accessControlId"],
-                 //custodianTitlesaetsStrings[q[@"custodiantitle"]]
-                 //];
-             }
-             else
-             {
-                 //[studiesWhere appendFormat:
-                 //@" AND %@ in ('%@','%@')",
-                 //destSql[@"accessControlId"],
-                 //q[@"aet"],
-                 //q[@"custodiantitle"]
-                 //];
-             }
-             
+            if (![q[@"aet"] isEqualToString:q[@"custodiantitle"]])
+            {
+               [studiesWhere appendFormat:
+                @" AND %@ in ('%@','%@')",
+                destSql[@"accessControlId"],
+                q[@"aet"],
+                q[@"custodiantitle"]
+                ];
+            }
+
+            
              if (q[@"search[value]"] && ![q[@"search[value]"] isEqualToString:@""])
              {
                  //AccessionNumber q[@"search[value]"]
