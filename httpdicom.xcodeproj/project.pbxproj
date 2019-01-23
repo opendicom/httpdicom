@@ -293,32 +293,16 @@
 				4A2D90582181E37C00371484 /* DRS+datatables.m */,
 				4A2D90612181E37D00371484 /* DRS+iheiid.h */,
 				4A2D90572181E37C00371484 /* DRS+iheiid.m */,
-			);
-			path = APath;
-			sourceTree = "<group>";
-		};
-		4A07FB6821F24F2700007B8B /* GET */ = {
-			isa = PBXGroup;
-			children = (
-				4A2D90602181E37D00371484 /* DRS+wado.h */,
-				4A2D90562181E37C00371484 /* DRS+wado.m */,
 				4A2D905C2181E37C00371484 /* DRS+wadors.h */,
 				4A2D905A2181E37C00371484 /* DRS+wadors.m */,
 				4A2D905B2181E37C00371484 /* DRS+zipped.h */,
 				4A2D905E2181E37D00371484 /* DRS+zipped.m */,
-			);
-			path = GET;
-			sourceTree = "<group>";
-		};
-		4A07FB6921F24F9300007B8B /* POST */ = {
-			isa = PBXGroup;
-			children = (
 				4A94BE9D208691310009C4AB /* DRS+mwl.h */,
 				4A94BE9E208691320009C4AB /* DRS+mwl.m */,
 				4A7A17C72102438400B4E801 /* DRS+pdf.h */,
 				4A7A17C82102438400B4E801 /* DRS+pdf.m */,
 			);
-			path = POST;
+			path = APath;
 			sourceTree = "<group>";
 		};
 		4A0FDF2B1E91078C001E3426 /* Response */ = {
@@ -462,8 +446,6 @@
 			isa = PBXGroup;
 			children = (
 				4A07FB6721F24EF900007B8B /* APath */,
-				4A07FB6821F24F2700007B8B /* GET */,
-				4A07FB6921F24F9300007B8B /* POST */,
 				4AE49DD92008F1F600B8F321 /* DRS.h */,
 				4AE49DDA2008F1F600B8F321 /* DRS.m */,
 				4A94BE94208627AD0009C4AB /* URLRequest */,
@@ -471,6 +453,8 @@
 				4AE49DE22009987800B8F321 /* DRS+functions.m */,
 				4AE49DF0200D153000B8F321 /* DRS+pacs.h */,
 				4AE49DF1200D153000B8F321 /* DRS+pacs.m */,
+				4A2D90602181E37D00371484 /* DRS+wado.h */,
+				4A2D90562181E37C00371484 /* DRS+wado.m */,
 			);
 			path = DRS;
 			sourceTree = "<group>";

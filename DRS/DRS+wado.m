@@ -136,6 +136,8 @@
 #pragma mark TODO (e) DICOM c-move
              
              //(f) global?
+#pragma mark TODO (f) verify global
+
              if ([pacs[@"custodianglobaluri"] length])
              {
                  NSString *uriString=[NSString stringWithFormat:@"%@?%@",

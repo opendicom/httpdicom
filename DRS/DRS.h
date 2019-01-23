@@ -1,9 +1,9 @@
 /*
 wado/encapsulated
 
-pacs
+pacs/custodians
 
-fidji
+APath
  qido
  weasis
  datatables
