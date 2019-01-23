@@ -19,7 +19,7 @@
 
                             <xs:element name="key">
                                 <xs:annotation>
-                                    <xs:documentation>oid de device</xs:documentation>
+                                    <xs:documentation>oid of the pacs</xs:documentation>
                                 </xs:annotation>
                                 <xs:simpleType>
                                     <xs:restriction base="xs:string">
@@ -29,7 +29,7 @@
                             </xs:element>
                             <xs:element name="dict">
                                 <xs:annotation>
-                                    <xs:documentation>propiedades del device</xs:documentation>
+                                    <xs:documentation>properties of the pacs</xs:documentation>
                                 </xs:annotation>
                                 <xs:complexType>
                                     <xs:sequence>

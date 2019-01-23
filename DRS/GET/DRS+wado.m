@@ -72,20 +72,19 @@
              
              
              //(b) sql+filesystem?
-             NSString *filesystembaseuri=pacs[@"filesystembaseuri"];
-             NSString *sqlobjectmodel=pacs[@"sqlobjectmodel"];
-             if ([filesystembaseuri length] && [sqlobjectmodel length])
+             if (   [pacs[@"filesystembaseuri"] length]
+                 && [pacs[@"select"] isEqualToString:@"sql"])
              {
 #pragma mark TODO wado simulated by sql+filesystem
-                 return [RSErrorResponse responseWithClientError:404 message:@"%@ [wado] not available]",urlComponents.path];
+                 return [RSErrorResponse responseWithClientError:404 message:@"%@ [wado] sql+filesystem not available]",urlComponents.path];
              }
              
              
-             //(c) wadolocaluri?
-             if ([pacs[@"wadolocaluri"] length])
+             //(c) wadouri?
+             if ([pacs[@"wadouri"] length])
              {
                  NSString *uriString=[NSString stringWithFormat:@"%@?%@",
-                                      pacs[@"wadolocaluri"],
+                                      pacs[@"wadouri"],
                                       [urlComponents queryWithoutItemNamed:@"pacs"]
                                       ];
                  LOG_VERBOSE(@"[wado] proxying localmente to:\r\n%@",uriString);
