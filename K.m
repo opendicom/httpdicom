@@ -23,6 +23,15 @@ static NSMutableDictionary *_procedureindexes=nil;
 static NSArray             *_iso3166=nil;//contries
 static NSDictionary        *_personidtype=nil;//icaa documents
 
+static NSData *_dscdPrefixData;
+static NSData *_dscdSuffixData;
+static NSData *_scdPrefixData;
+static NSData *_scdSuffixData;
+static NSData *_cdaPrefixData;
+static NSData *_cdaSuffixData;
+static NSData *_pdfComponentPrefixData;
+static NSData *_pdfComponentSuffixData;
+
 # pragma mark - init
 
 + (void)initialize {
@@ -236,6 +245,16 @@ static NSDictionary        *_personidtype=nil;//icaa documents
           @"ST",//63
           @""//64
           ];
+   
+   _dscdPrefixData=[@"<dscd" dataUsingEncoding:NSUTF8StringEncoding];
+   _dscdSuffixData=[@"</dscd>" dataUsingEncoding:NSUTF8StringEncoding];
+   _scdPrefixData=[@"<SignedClinicalDocument" dataUsingEncoding:NSUTF8StringEncoding];
+   _scdSuffixData=[@"</SignedClinicalDocument>" dataUsingEncoding:NSUTF8StringEncoding];
+   _cdaPrefixData=[@"<ClinicalDocument" dataUsingEncoding:NSUTF8StringEncoding];
+   _cdaSuffixData=[@"</ClinicalDocument>" dataUsingEncoding:NSUTF8StringEncoding];
+   _pdfComponentPrefixData=[@"data:application/pdf;base64," dataUsingEncoding:NSUTF8StringEncoding];
+   _pdfComponentSuffixData=[@"\"/>" dataUsingEncoding:NSUTF8StringEncoding];
+
 }
 
 +(void)setDefaultTimezone:(NSString*)defaultTimezone

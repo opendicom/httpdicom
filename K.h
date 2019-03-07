@@ -113,6 +113,15 @@
 @property (class, nonatomic, readonly) NSArray               *iso3166;
 @property (class, nonatomic, readonly) NSDictionary          *personidtype;
 
+@property (class, nonatomic, readonly) NSData                *dscdPrefixData;
+@property (class, nonatomic, readonly) NSData                *dscdSuffixData;
+@property (class, nonatomic, readonly) NSData                *scdPrefixData;
+@property (class, nonatomic, readonly) NSData                *scdSuffixData;
+@property (class, nonatomic, readonly) NSData                *cdaPrefixData;
+@property (class, nonatomic, readonly) NSData                *cdaSuffixData;
+@property (class, nonatomic, readonly) NSData                *pdfComponentPrefixData;
+@property (class, nonatomic, readonly) NSData                *pdfComponentlSuffixData;
+
 +(void)setDefaultTimezone:(NSString*)timezone;
 +(void)loadIso3166ByCountry:(NSArray*)country;
 +(void)loadPersonIDTypes:(NSDictionary*)personidtype;

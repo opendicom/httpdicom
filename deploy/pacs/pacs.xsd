@@ -36,20 +36,29 @@
                                         <xs:group ref="pacsaet"/>
                                         <xs:group ref="local"/>
                                         <xs:group ref="preferredstudyidentificator"/>
-                                        <xs:group ref="TimezoneOffsetFromUTC"/>
+                                        <xs:group ref="timezoneoffsetfromutc"/>
                                         <xs:group ref="custodiantitle"/>
                                         <xs:group ref="custodianoid"/>
                                         <xs:group ref="custodianglobaluri"/>                        
-
+                                        <xs:group ref="countrycode"/>
+                                        <xs:group ref="principallanguage"/>                        
+                                        
                                         <!-- ================================== -->
                                         <!-- device (mandatory if local) -->
                                         <xs:sequence minOccurs="0">
                                             <xs:group ref="select"/>
+                                            <xs:group ref="mwl"/>
                                             <!--sql/files-->
                                             <xs:group ref="sqlprolog"/>
                                             <xs:group ref="sqlstringencoding"/>
                                             <xs:group ref="sqlmap"/>
                                             <xs:group ref="filesystembaseuri"/>
+                                            
+                                            <xs:group ref="sopstringencoding"/>
+                                            
+                                            <!--mllp-->
+                                            <xs:group ref="mllpip"/>
+                                            <xs:group ref="mllpport"/>
                                             <!--dimse-->
                                             <xs:group ref="dimseip"/>
                                             <xs:group ref="dimseport"/>
@@ -119,14 +128,14 @@
     </xs:group>
 
 
-    <xs:group name="TimezoneOffsetFromUTC">
+    <xs:group name="timezoneoffsetfromutc">
         <xs:sequence>
-            <xs:element name="key" fixed="TimezoneOffsetFromUTC">
+            <xs:element name="key" fixed="timezoneoffsetfromutc">
                 <xs:annotation>
                     <xs:documentation>+/-HHMM</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="TimezoneOffsetFromUTC" />
+            <xs:element ref="string" id="timezoneoffsetfromutc" />
         </xs:sequence>
     </xs:group>
     
@@ -164,6 +173,29 @@
         </xs:sequence>
     </xs:group>
     
+    <xs:group name="countrycode">
+    <xs:sequence>
+        <xs:element name="key" fixed="countrycode">
+            <xs:annotation>
+                <xs:documentation>country</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element ref="string" id="countrycode"/>
+    </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="principallanguage">
+    <xs:sequence>
+        <xs:element name="key" fixed="principallanguage">
+            <xs:annotation>
+                <xs:documentation>principal language</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element ref="string" id="principallanguage"/>
+    </xs:sequence>
+    </xs:group>
+    
+    
     <xs:group name="select">
         <xs:sequence>
             <xs:element name="key" fixed="select">
@@ -171,10 +203,35 @@
                     <xs:documentation>sql, qido or cfind</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="selectidentificator" />
+            <xs:element ref="string" id="select" />
         </xs:sequence>
     </xs:group>
     
+    <xs:group name="mwl">
+       <xs:sequence>
+          <xs:element name="key" fixed="mwl">
+             <xs:annotation>
+                <xs:documentation>sql, rest or mllp</xs:documentation>
+             </xs:annotation>
+          </xs:element>
+          <xs:element ref="string" id="mwl" />
+       </xs:sequence>
+    </xs:group>
+
+
+
+    <xs:group name="sopstringencoding">
+        <xs:sequence>
+            <xs:element name="key" fixed="sopstringencoding">
+                <xs:annotation>
+                    <xs:documentation>(4=UTF-8, 5=latin1)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="sopstringencoding"/>
+        </xs:sequence>
+    </xs:group>
+    
+
     <xs:group name="sqlprolog">
         <xs:sequence>
             <xs:element name="key" fixed="sqlprolog">
@@ -196,7 +253,7 @@
             <xs:element ref="string" id="sqlstringencoding"/>
         </xs:sequence>
     </xs:group>
-    
+
     <xs:group name="sqlmap">
         <xs:sequence>
             <xs:element name="key" fixed="sqlmap">
@@ -241,6 +298,30 @@
         </xs:sequence>
     </xs:group>
     
+    
+    <xs:group name="mllpip">
+       <xs:sequence>
+          <xs:element name="key" fixed="mllpip">
+             <xs:annotation>
+                <xs:documentation></xs:documentation>
+             </xs:annotation>
+          </xs:element>
+          <xs:element ref="string" id="mllpip"/>
+       </xs:sequence>
+    </xs:group>
+    
+    
+    <xs:group name="mllpport">
+       <xs:sequence>
+          <xs:element name="key" fixed="mllpport">
+             <xs:annotation>
+                <xs:documentation></xs:documentation>
+             </xs:annotation>
+          </xs:element>
+          <xs:element ref="string" id="mllpport"/>
+       </xs:sequence>
+    </xs:group>
+
     
     <xs:group name="dimseip">
         <xs:sequence>
@@ -374,11 +455,11 @@
                                     <xs:group ref="location"/>
                                     <xs:group ref="html5dicomuserserviceuri"/>
                                     <xs:group ref="html5dicomuseractive"/>
-                                    <xs:group ref="StationAETitle"/>                                                                    
+                                    <xs:group ref="stationaetitle"/>                                                                    
                                     <xs:group ref="ip"/>                                                                    
                                     <xs:group ref="port"/>                                                                    
                                     <xs:group ref="modalities"/>                                                                    
-                                    <xs:group ref="readingAsReferring"/>                                                                    
+                                    <xs:group ref="readingasreferring"/>                                                                    
                                     <xs:group ref="referring" minOccurs="0"/>
                                 </xs:sequence>                                    
                             </xs:complexType>
@@ -446,14 +527,14 @@
         </xs:sequence>
     </xs:group>
     
-    <xs:group name="StationAETitle">
+    <xs:group name="stationaetitle">
         <xs:sequence>
-            <xs:element name="key" fixed="StationAETitle">
+            <xs:element name="key" fixed="stationaetitle">
                 <xs:annotation>
                     <xs:documentation>nombre corto (máx 16 chars) del device</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="StationAETitle"/>
+            <xs:element ref="string" id="stationaetitle"/>
         </xs:sequence>
     </xs:group>
     
@@ -496,9 +577,9 @@
         </xs:sequence>
     </xs:group>
     
-    <xs:group name="readingAsReferring">
+    <xs:group name="readingasreferring">
         <xs:sequence>
-            <xs:element name="key" fixed="readingAsReferring">
+            <xs:element name="key" fixed="readingasreferring">
                 <xs:annotation>
                     <xs:documentation>in order to be able to input NameOfPhysicianReading</xs:documentation>
                 </xs:annotation>
@@ -534,8 +615,12 @@
         <xs:alternative test="@id = 'preferredstudyidentificator'" type="studyidentificatoridstring"/>
         <xs:alternative test="@id = 'custodiantitle'"              type="titleidstring"/>
         <xs:alternative test="@id = 'custodianoid'"                type="oididstring"/>
-
+        <xs:alternative test="@id = 'countrycode'"                 type="countrycodeidstring"/>
+        <xs:alternative test="@id = 'sopstringencoding'"           type="stringencodingidstring"/>
+        <xs:alternative test="@id = 'principallanguage'"           type="principallanguageidstring"/>
+        
         <xs:alternative test="@id = 'select'"                      type="selectidstring"/>
+        <xs:alternative test="@id = 'mwl'"                      type="mwlidstring"/>
 
         <xs:alternative test="@id = 'sqlstringencoding'"           type="stringencodingidstring"/>
 
@@ -546,7 +631,10 @@
 
         <xs:alternative test="@id = 'pacsaet'"                    type="titleidstring"/>
         <xs:alternative test="@id = 'dimseip'"                     type="ipidstring"/>
-        <xs:alternative test="@id = 'dimsepuerto'"                 type="portidstring"/>
+        <xs:alternative test="@id = 'dimseport'"                 type="portidstring"/>
+
+        <xs:alternative test="@id = 'mllpip'"                     type="ipidstring"/>
+        <xs:alternative test="@id = 'mllpport'"                 type="portidstring"/>
     </xs:element>
     
     <xs:complexType name="idstring">
@@ -605,6 +693,35 @@
         </xs:simpleContent>
     </xs:complexType>
     
+    <xs:complexType name="mwlidstring">
+       <xs:simpleContent>
+          <xs:restriction base="idstring">
+             <xs:enumeration value="sql"/>
+             <xs:enumeration value="rest"/>
+             <xs:enumeration value="mllp"/>
+          </xs:restriction>
+       </xs:simpleContent>
+    </xs:complexType>
+    
+    <xs:complexType name="countrycodeidstring">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:enumeration value="cl"/><!--Chile-->
+                <xs:enumeration value="uy"/><!--Uruguay-->
+                <xs:enumeration value="ar"/><!--Argentina-->
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <xs:complexType name="principallanguageidstring">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:enumeration value="es"/><!--spanish-->
+                <xs:enumeration value="en"/><!--english-->
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+
     <xs:complexType name="stringencodingidstring">
         <xs:simpleContent>
             <xs:restriction base="idstring">

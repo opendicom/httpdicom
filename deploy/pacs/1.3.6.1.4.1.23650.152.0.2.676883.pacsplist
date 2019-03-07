@@ -16,18 +16,25 @@
             <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
-            <key>TimezoneOffsetFromUTC</key>
-            <string id="TimezoneOffsetFromUTC">+0300</string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc">+0300</string>
             <key>custodiantitle</key>
             <string id="custodiantitle">CDS</string>
             <key>custodianoid</key>
             <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.676883</string>
             <key>custodianglobaluri</key>
             <string id="custodianglobaluri"></string>
-
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            
             <key>select</key>
             <string id="select">qido</string>
 
+            <key>mwl</key>
+            <string id="mwl">mllp</string>
+            
             <key>sqlprolog</key>
             <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e &quot;</string>
             <key>sqlstringencoding</key>
@@ -36,6 +43,15 @@
             <string id="sqlmap">dal55mysql.plist</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
+            
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            
+            <key>mllpip</key>
+            <string id="mllpip">127.0.0.1</string>
+            <key>mllpport</key>
+            <string id="mllpport">2575</string>
+
             <key>dimseip</key>
             <string id="dimseip">127.0.0.1</string>
             <key>dimseport</key>
@@ -81,8 +97,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle">MRC23169</string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle">MRC23169</string>
                     <key>ip</key>
                     <string id="ip">192.168.121.177</string>
                     <key>port</key>
@@ -91,7 +107,7 @@
                     <array>
                         <string id="modalities">MR</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>Scanner CT</key>
@@ -106,7 +122,7 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
+                    <key>stationaetitle</key>
                     <string id="StationAETitle">AN_CTAWP50037</string>
                     <key>ip</key>
                     <string id="ip">192.168.0.100</string>
@@ -116,7 +132,7 @@
                     <array>
                         <string id="modalities">CT</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>Ecografo 1</key>
@@ -131,7 +147,7 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
+                    <key>stationaetitle</key>
                     <string id="StationAETitle">HDI5000</string>
                     <key>ip</key>
                     <string id="ip">192.168.1.115</string>
@@ -141,7 +157,7 @@
                     <array>
                         <string id="modalities">USr</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>Ecografo 2</key>
@@ -156,7 +172,7 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
+                    <key>stationaetitle</key>
                     <string id="StationAETitle">UI22</string>
                     <key>ip</key>
                     <string id="ip">192.168.1.131</string>
@@ -167,7 +183,7 @@
                         <string id="modalities">US</string>
                         <string id="modalities">USm</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>Ecografo 3</key>
@@ -182,7 +198,7 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
+                    <key>stationaetitle</key>
                     <string id="StationAETitle">UI22CDS4</string>
                     <key>ip</key>
                     <string id="ip">192.168.1.161</string>
@@ -192,7 +208,7 @@
                     <array>
                         <string id="modalities">US</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>Ecografo 4</key>
@@ -207,7 +223,7 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
+                    <key>stationaetitle</key>
                     <string id="StationAETitle"></string>
                     <key>ip</key>
                     <string id="ip">192.168.1.117</string>
@@ -217,7 +233,7 @@
                     <array>
                         <string id="modalities">US</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>Flat Panel</key>
@@ -232,7 +248,7 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
+                    <key>stationaetitle</key>
                     <string id="StationAETitle">FCR_CDS</string>
                     <key>ip</key>
                     <string id="ip">192.168.0.10</string>
@@ -242,7 +258,7 @@
                     <array>
                         <string id="modalities">CR</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>Digitalizador</key>
@@ -257,7 +273,7 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
+                    <key>stationaetitle</key>
                     <string id="StationAETitle">FCR_CSL_MX</string>
                     <key>ip</key>
                     <string id="ip">192.168.0.11</string>
@@ -268,7 +284,7 @@
                         <string id="modalities">CR</string>
                         <string id="modalities">DXm</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
             </dict>

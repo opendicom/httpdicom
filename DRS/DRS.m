@@ -1,4 +1,6 @@
 #import "DRS.h"
+#import "NSData+PCS.h"
+#import "NSString+PCS.h"
 
 #import "DRS+wado.h"
 #import "DRS+pacs.h"
@@ -7,9 +9,289 @@
 #import "DRS+zipped.h"
 
 #import "DRS+mwl.h"
-#import "DRS+pdf.h"
+//#import "DRS+pdf.h"
+#import "DRS+encapsulated.h"
 
-#import "DICMTypes.h"
+
+//RSRequest properties:      NSMutableURLRequest
+//- NSString* method          -> HTTPMethod
+//- NSURL* URL                -> URL
+//- NSDictionary* headers     -> allHTTPHeaderFields
+//- NSString* path            -> URL.path (NSArray *URL.pathComponents
+//- NSDictionary* query       -> URL -> NSURLComponents.queryItems
+//- NSString* contentType     -> allHTTPHeaderFields[@"Content-Type"]
+//- NSData* data              -> HTTPBody (HTTPBodyStream)
+
+
+BOOL parseRequestParams(RSRequest* request,
+                        NSMutableArray  * names,
+                        NSMutableArray  * values,
+                        NSMutableArray  * types,
+                        NSMutableString * jsonString,
+                        NSMutableString * errorString)
+{
+   //method
+   [names addObject:@"HTTPMethod"];
+   [values addObject:request.method];
+   
+   //headers
+   for (NSString * key in [request.headers allKeys])
+   {
+      [names addObject:key];
+      [values addObject:request.headers[key]];
+   }
+   
+   //Content-Type
+   NSString * contentType=request.contentType;
+   if (contentType) {
+      
+      
+      //json
+      if ([request.contentType hasPrefix:@"application/json"]) {
+         
+         NSData *requestData=request.data;
+         if (!requestData){
+            [errorString appendString:@"Content-Type:\"application/json\" with no body"];
+            return false;
+         }
+         
+         
+         if (![requestData length]) return true;
+         
+         
+         NSString *string=[[NSString alloc]initWithData:requestData encoding:NSUTF8StringEncoding];
+         if (!string){
+            [errorString appendString:@"json not readable UTF-8"];
+            return false;
+         }
+         [jsonString appendString:string];
+         
+         
+         NSError *requestJsonError=nil;
+         id requestJson=[NSJSONSerialization JSONObjectWithData:requestData options:0 error:&requestJsonError];
+         if (requestJsonError){
+            [errorString appendFormat:@"%@\r\n%@",string,[requestJsonError description]];
+            return false;
+         }
+         
+         if (![requestJson isKindOfClass:[NSDictionary class]]){
+            [errorString appendFormat:@"json dictionary expected, but got\r\n%@",string];
+            return false;
+         }
+         
+         [names addObjectsFromArray:[requestJson allKeys]];
+         [values addObjectsFromArray:[requestJson allValues]];
+         return true;
+      }
+      
+      
+      //form html5
+      if ([request.contentType hasPrefix:@"multipart/form-data"])
+      {
+         NSString *boundaryString=[request.contentType valueForName:@"boundary"];
+         if (!boundaryString || ![boundaryString length]){
+            [errorString appendString:@"multipart/form-data with no boundary"];
+            return false;
+         }
+         
+         NSDictionary *components=[request.data parseNamesValuesTypesInBodySeparatedBy:[boundaryString dataUsingEncoding:NSASCIIStringEncoding]];
+         
+         names=components[@"names"];
+         values=components[@"values"];
+         types=components[@"types"];
+         return true;
+      }
+      
+      
+      //x-www-form-urlencoded
+      if ([request.contentType hasPrefix:@"application/x-www-form-urlencoded"])
+      {
+         NSArray *queryItems=[[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO]queryItems];
+         for (NSURLQueryItem *queryItem in queryItems)
+         {
+            [names addObject:queryItem.name];
+            [values addObject:queryItem.value];
+         }
+         return true;
+      }
+      
+      
+      [errorString appendFormat:@"Content-Type:\"%@\" not accepted",request.contentType];
+      return false;
+   }
+   
+   
+   //no Content-Type
+   NSArray *queryItems=[[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO]queryItems];
+   for (NSURLQueryItem *queryItem in queryItems)
+   {
+      [names addObject:queryItem.name];
+      [values addObject:queryItem.value];
+   }
+   return true;
+}
+
+
+NSDictionary * pacsParam(NSMutableArray  * names,
+                         NSMutableArray  * values,
+                         NSMutableString * pacsOID,
+                         NSMutableString * errorString)
+{
+   NSUInteger pacsIndex=[names indexOfObject:@"pacs"];
+   if (pacsIndex!=NSNotFound)
+   {
+      
+      [pacsOID appendString:values[pacsIndex]];
+      if (![DICMTypes.UIRegex numberOfMatchesInString:pacsOID options:0 range:NSMakeRange(0,[pacsOID length])]){
+         LOG_WARNING(@"<-404:  pacsUID '%@' should be an OID",pacsOID);
+         [errorString appendFormat:@" pacsUID '%@' should be an OID",pacsOID];
+         return nil;
+      }
+      
+      
+      if (!DRS.pacs[pacsOID]){
+         LOG_WARNING(@"<-404:  pacs '%@' not known",pacsOID);
+         [errorString appendFormat:@" pacsUID '%@' not known",pacsOID];
+         return nil;
+      }
+   }
+   else [pacsOID appendString:DRS.defaultpacsoid];
+   
+   
+   return DRS.pacs[pacsOID];
+}
+
+
+
+int bash(NSData *writeData, NSMutableData *readData)
+{
+   return task(@"/bin/bash",@[@"-s"], writeData, readData);
+}
+
+
+
+NSMutableArray *jsonMutableArray(NSString *scriptString, NSStringEncoding encoding)
+{
+   if      (encoding==4) LOG_DEBUG(@"utf8\r\n%@",scriptString);
+   else if (encoding==5) LOG_DEBUG(@"latin1\r\n%@",scriptString);
+   else                  LOG_DEBUG(@"encoding:%lu\r\n%@",(unsigned long)encoding,scriptString);
+   
+   NSMutableData *mutableData=[NSMutableData data];
+   if (!task(@"/bin/bash",@[@"-s"],[scriptString dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+      [RSErrorResponse responseWithClientError:404 message:@"%@",@"can not execute the script"];//NotFound
+   NSString *string=[[NSString alloc]initWithData:mutableData encoding:encoding];//5=latinISO1 4=UTF8
+   NSData *utf8Data=[string dataUsingEncoding:NSUTF8StringEncoding];
+   
+   NSError *e;
+   NSMutableArray *mutableArray=[NSJSONSerialization JSONObjectWithData:utf8Data options:NSJSONReadingMutableContainers error:&e];
+   if (e)
+   {
+      LOG_DEBUG(@"%@",[e description]);
+      return nil;
+   }
+   return mutableArray;
+}
+
+
+id qidoUrlProxy(NSString *qidoString,NSString *queryString, NSString *httpdicomString)
+{
+   __block dispatch_semaphore_t __urlProxySemaphore = dispatch_semaphore_create(0);
+   __block NSMutableData *__data;
+   __block NSURLResponse *__response;
+   __block NSError *__error;
+   __block NSDate *__date;
+   __block unsigned long __chunks=0;
+   
+   NSString *urlString;
+   if (queryString) urlString=[NSString stringWithFormat:@"%@?%@",qidoString,queryString];
+   else urlString=qidoString;
+   
+   NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+   [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];//application/dicom+json not accepted !!!!!
+   
+   NSURLSessionDataTask * const dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+                                            {
+                                               __data=[NSMutableData dataWithData:data];
+                                               __response=response;
+                                               __error=error;
+                                               dispatch_semaphore_signal(__urlProxySemaphore);
+                                            }];
+   __date=[NSDate date];
+   [dataTask resume];
+   dispatch_semaphore_wait(__urlProxySemaphore, DISPATCH_TIME_FOREVER);
+   //completionHandler of dataTask executed only once and before returning
+   return [RSStreamedResponse responseWithContentType:@"application/json" asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
+           {
+              if (__error) completionBlock(nil,__error);
+              if (__chunks)
+              {
+                 completionBlock([NSData data], nil);
+                 LOG_DEBUG(@"urlProxy: %lu chunk in %fs for:\r\n%@",__chunks,[[NSDate date] timeIntervalSinceDate:__date],[__response description]);
+              }
+              else
+              {
+                 NSData *pacsUri=[qidoString dataUsingEncoding:NSUTF8StringEncoding];
+                 NSData *httpdicomUri=[httpdicomString dataUsingEncoding:NSUTF8StringEncoding];
+                 NSUInteger httpdicomLength=[httpdicomUri length];
+                 NSRange dataLeft=NSMakeRange(0,[__data length]);
+                 NSRange occurrence=[__data rangeOfData:pacsUri options:0 range:dataLeft];
+                 while (occurrence.length)
+                 {
+                    [__data replaceBytesInRange:occurrence
+                                      withBytes:[httpdicomUri bytes]
+                                         length:httpdicomLength];
+                    dataLeft.location=occurrence.location+httpdicomLength;
+                    dataLeft.length=[__data length]-dataLeft.location;
+                    occurrence=[__data rangeOfData:pacsUri options:0 range:dataLeft];
+                 }
+                 completionBlock(__data, nil);
+                 __chunks++;
+              }
+           }];
+}
+
+
+id urlChunkedProxy(NSString *urlString,NSString *contentType)
+{
+   __block dispatch_semaphore_t __urlProxySemaphore = dispatch_semaphore_create(0);
+   __block NSData *__data;
+   __block NSURLResponse *__response;
+   __block NSError *__error;
+   __block NSDate *__date;
+   __block unsigned long __chunks=0;
+   
+   NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+   [request setValue:contentType forHTTPHeaderField:@"Accept"];//application/dicom+json not accepted !!!!!
+   [request setValue:@"chunked" forHTTPHeaderField:@"Transfer-Encoding"];
+   
+   NSURLSessionDataTask * const dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+                                            {
+                                               __data=data;
+                                               __response=response;
+                                               __error=error;
+                                               dispatch_semaphore_signal(__urlProxySemaphore);
+                                            }];
+   __date=[NSDate date];
+   [dataTask resume];
+   dispatch_semaphore_wait(__urlProxySemaphore, DISPATCH_TIME_FOREVER);
+   //completionHandler of dataTask executed only once and before returning
+   
+   
+   return [RSStreamedResponse responseWithContentType:contentType asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
+           {
+              if (__error) completionBlock(nil,__error);
+              if (__chunks)
+              {
+                 completionBlock([NSData data], nil);
+                 LOG_DEBUG(@"urlProxy: %lu chunk in %fs for:\r\n%@",__chunks,[[NSDate date] timeIntervalSinceDate:__date],[__response description]);
+              }
+              else completionBlock(__data, nil);
+              __chunks++;
+           }];
+}
+
+
+
 
 @implementation DRS
 
@@ -239,9 +521,10 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         [self addMWLHandler];
         LOG_DEBUG(@"added handler /mwlitem");        
 
-#pragma mark /pdf
-        [self addPDFHandler];
-        LOG_DEBUG(@"added handler /pdf /report /informe");
+#pragma mark /encapsulated
+        [self GETencapsulated];
+        [self POSTencapsulated];
+        LOG_DEBUG(@"added handlers GETencapsulated and POSTencapsulated");
     }
     return self;
 }

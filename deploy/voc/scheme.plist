@@ -143,5 +143,28 @@
             <key>retired</key>
             <string id="retired"></string>
         </dict>
+        <key>7</key>
+        <dict>
+            <key>oid</key>
+            <string id="oid"></string>
+            <key>description</key>
+            <string id="description">CMQ</string>
+            <key>version</key>
+            <string id="version">2019</string>
+            <key>shortname</key>
+            <string id="shortname">CMQ</string>
+            <key>hl7v2</key>
+            <string id="hl7v2"></string>
+            <key>dcm</key>
+            <string id="dcm"></string>
+            <key>uri</key>
+            <string id="uri"></string>
+            <key>active</key>
+            <true/>
+            <key>created</key>
+            <string id="created">20190130</string>
+            <key>retired</key>
+            <string id="retired"></string>
+        </dict>
     </dict>
 </plist>

@@ -10,5 +10,4 @@
 -(NSString*)valueForName:(NSString*)name;
 -(NSString*)dcmDaFromDate;
 -(NSString*)spaceNormalize;
-
 @end

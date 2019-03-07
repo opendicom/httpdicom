@@ -58,12 +58,8 @@
 		4A2D90792183455100371484 /* zconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2D90752183455000371484 /* zconf.h */; };
 		4A7A17C92102438400B4E801 /* DRS+pdf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7A17C72102438400B4E801 /* DRS+pdf.h */; };
 		4A7A17CA2102438400B4E801 /* DRS+pdf.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7A17C82102438400B4E801 /* DRS+pdf.m */; };
-		4A7E6CFC210A06DA00D63315 /* NSMutableURLRequest+instance.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7E6CF6210A06DA00D63315 /* NSMutableURLRequest+instance.h */; };
 		4A7E6CFD210A06DA00D63315 /* NSMutableURLRequest+html5dicom.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7E6CF7210A06DA00D63315 /* NSMutableURLRequest+html5dicom.m */; };
-		4A7E6CFE210A06DA00D63315 /* NSMutableURLRequest+enclosed.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7E6CF8210A06DA00D63315 /* NSMutableURLRequest+enclosed.h */; };
-		4A7E6CFF210A06DA00D63315 /* NSMutableURLRequest+instance.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7E6CF9210A06DA00D63315 /* NSMutableURLRequest+instance.m */; };
 		4A7E6D00210A06DA00D63315 /* NSMutableURLRequest+html5dicom.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7E6CFA210A06DA00D63315 /* NSMutableURLRequest+html5dicom.h */; };
-		4A7E6D01210A06DA00D63315 /* NSMutableURLRequest+enclosed.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7E6CFB210A06DA00D63315 /* NSMutableURLRequest+enclosed.m */; };
 		4A7E6D04210A0A5A00D63315 /* NSMutableURLRequest+patient.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7E6D02210A0A5900D63315 /* NSMutableURLRequest+patient.m */; };
 		4A7E6D05210A0A5A00D63315 /* NSMutableURLRequest+patient.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7E6D03210A0A5900D63315 /* NSMutableURLRequest+patient.h */; };
 		4A94BE9F208691320009C4AB /* DRS+mwl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A94BE9D208691310009C4AB /* DRS+mwl.h */; };
@@ -77,9 +73,9 @@
 		4ABF11DF1FE5C11C000B8DE6 /* NSString+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11D51FE5C11B000B8DE6 /* NSString+PCS.h */; };
 		4ABF11E11FE5C11C000B8DE6 /* NSURLComponents+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11D71FE5C11C000B8DE6 /* NSURLComponents+PCS.h */; };
 		4ABF11E21FE5C11C000B8DE6 /* NSURLComponents+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11D81FE5C11C000B8DE6 /* NSURLComponents+PCS.m */; };
-		4ABF11E31FE5C11C000B8DE6 /* NSURLSessionDataTask+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11D91FE5C11C000B8DE6 /* NSURLSessionDataTask+PCS.m */; };
+		4ABF11E31FE5C11C000B8DE6 /* NSURLSessionDataTask+DRS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11D91FE5C11C000B8DE6 /* NSURLSessionDataTask+DRS.m */; };
 		4ABF11E41FE5C11C000B8DE6 /* NSData+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11DA1FE5C11C000B8DE6 /* NSData+PCS.m */; };
-		4ABF11E51FE5C11C000B8DE6 /* NSURLSessionDataTask+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11DB1FE5C11C000B8DE6 /* NSURLSessionDataTask+PCS.h */; };
+		4ABF11E51FE5C11C000B8DE6 /* NSURLSessionDataTask+DRS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11DB1FE5C11C000B8DE6 /* NSURLSessionDataTask+DRS.h */; };
 		4ABF11F01FE5C13B000B8DE6 /* NSMutableData+DICM.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11E61FE5C13A000B8DE6 /* NSMutableData+DICM.h */; };
 		4ABF11F11FE5C13B000B8DE6 /* NSUUID+DICM.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11E71FE5C13B000B8DE6 /* NSUUID+DICM.m */; };
 		4ABF11F21FE5C13B000B8DE6 /* NSMutableData+DICM.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11E81FE5C13B000B8DE6 /* NSMutableData+DICM.m */; };
@@ -99,13 +95,51 @@
 		4AD38B332062D47200CA1ECC /* K.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AD38B312062D47200CA1ECC /* K.m */; };
 		4AE49DDB2008F1F600B8F321 /* DRS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE49DD92008F1F600B8F321 /* DRS.h */; };
 		4AE49DDC2008F1F600B8F321 /* DRS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AE49DDA2008F1F600B8F321 /* DRS.m */; };
-		4AE49DE32009987800B8F321 /* DRS+functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE49DE12009987800B8F321 /* DRS+functions.h */; };
-		4AE49DE42009987800B8F321 /* DRS+functions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AE49DE22009987800B8F321 /* DRS+functions.m */; };
 		4AE49DE62009D11800B8F321 /* ODLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AE49DE52009D11800B8F321 /* ODLog.m */; };
 		4AE49DF2200D153000B8F321 /* DRS+pacs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE49DF0200D153000B8F321 /* DRS+pacs.h */; };
 		4AE49DF3200D153000B8F321 /* DRS+pacs.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AE49DF1200D153000B8F321 /* DRS+pacs.m */; };
 		4AE49DFA200F66AC00B8F321 /* NSMutableURLRequest+MWL.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE49DF8200F66AC00B8F321 /* NSMutableURLRequest+MWL.h */; };
 		4AE49DFB200F66AC00B8F321 /* NSMutableURLRequest+MWL.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AE49DF9200F66AC00B8F321 /* NSMutableURLRequest+MWL.m */; };
+		4AF40D3121F8FA8B00103F99 /* DRS+encapsulated.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D2D21F8FA8A00103F99 /* DRS+encapsulated.h */; };
+		4AF40D3221F8FA8B00103F99 /* DRS+qido.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D2E21F8FA8A00103F99 /* DRS+qido.h */; };
+		4AF40D3321F8FA8B00103F99 /* DRS+qido.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D2F21F8FA8A00103F99 /* DRS+qido.m */; };
+		4AF40D3421F8FA8B00103F99 /* DRS+encapsulated.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D3021F8FA8A00103F99 /* DRS+encapsulated.m */; };
+		4AF40D3721F8FD2100103F99 /* NSMutableData+SQL.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D3521F8FD2100103F99 /* NSMutableData+SQL.m */; };
+		4AF40D3821F8FD2100103F99 /* NSMutableData+SQL.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D3621F8FD2100103F99 /* NSMutableData+SQL.h */; };
+		4AF40D3B21FF7B8400103F99 /* NSMutableURLRequest+DRS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D3921FF7B8400103F99 /* NSMutableURLRequest+DRS.h */; };
+		4AF40D3C21FF7B8400103F99 /* NSMutableURLRequest+DRS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D3A21FF7B8400103F99 /* NSMutableURLRequest+DRS.m */; };
+		4AF40D49220ED1F400103F99 /* RequestXMLMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D47220ED1F400103F99 /* RequestXMLMetadata.h */; };
+		4AF40D4A220ED1F400103F99 /* RequestXMLMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D48220ED1F400103F99 /* RequestXMLMetadata.m */; };
+		4AF40D4D22169D2A00103F99 /* WADOURIRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D4B22169D2900103F99 /* WADOURIRequest.h */; };
+		4AF40D4E22169D2A00103F99 /* WADOURIRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D4C22169D2900103F99 /* WADOURIRequest.m */; };
+		4AF40D5122183E7400103F99 /* RequestJSONMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D4F22183E7400103F99 /* RequestJSONMetadata.h */; };
+		4AF40D5222183E7400103F99 /* RequestJSONMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D5022183E7400103F99 /* RequestJSONMetadata.m */; };
+		4AF40D5A2219EE6C00103F99 /* RequestPOSTEncapsulated.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D582219EE6C00103F99 /* RequestPOSTEncapsulated.h */; };
+		4AF40D5B2219EE6C00103F99 /* RequestPOSTEncapsulated.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D592219EE6C00103F99 /* RequestPOSTEncapsulated.m */; };
+		4AF40D5F221C3FCF00103F99 /* RequestPatient.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D5D221C3FCF00103F99 /* RequestPatient.h */; };
+		4AF40D60221C3FCF00103F99 /* RequestPatient.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D5E221C3FCF00103F99 /* RequestPatient.m */; };
+		4AF40D64221C52D700103F99 /* ResponsePatient.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D62221C52D700103F99 /* ResponsePatient.h */; };
+		4AF40D65221C52D700103F99 /* ResponsePatient.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D63221C52D700103F99 /* ResponsePatient.m */; };
+		4AF40D68221C592300103F99 /* ResponseStudy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D66221C592300103F99 /* ResponseStudy.h */; };
+		4AF40D69221C592300103F99 /* ResponseStudy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D67221C592300103F99 /* ResponseStudy.m */; };
+		4AF40D6C221C59C900103F99 /* RequestStudy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D6A221C59C900103F99 /* RequestStudy.h */; };
+		4AF40D6D221C59C900103F99 /* RequestStudy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D6B221C59C900103F99 /* RequestStudy.m */; };
+		4AF40D932222D08200103F99 /* mllpClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D912222D08200103F99 /* mllpClient.h */; };
+		4AF40D942222D08300103F99 /* mllpClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D922222D08200103F99 /* mllpClient.m */; };
+		4AF40D992223127B00103F99 /* ORMO01_231.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D972223127B00103F99 /* ORMO01_231.h */; };
+		4AF40D9A2223127B00103F99 /* ORMO01_231.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D982223127B00103F99 /* ORMO01_231.m */; };
+		4AF40DCD2224317400103F99 /* MSH.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DCB2224317400103F99 /* MSH.h */; };
+		4AF40DCE2224317400103F99 /* MSH.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DCC2224317400103F99 /* MSH.m */; };
+		4AF40DD12224319400103F99 /* ORC.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DCF2224319400103F99 /* ORC.h */; };
+		4AF40DD22224319400103F99 /* ORC.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD02224319400103F99 /* ORC.m */; };
+		4AF40DD5222431B000103F99 /* PID.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DD3222431B000103F99 /* PID.h */; };
+		4AF40DD6222431B000103F99 /* PID.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD4222431B000103F99 /* PID.m */; };
+		4AF40DD9222431C500103F99 /* PV1.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DD7222431C500103F99 /* PV1.h */; };
+		4AF40DDA222431C500103F99 /* PV1.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD8222431C500103F99 /* PV1.m */; };
+		4AF40DDD222431ED00103F99 /* OBR.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DDB222431ED00103F99 /* OBR.h */; };
+		4AF40DDE222431ED00103F99 /* OBR.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DDC222431ED00103F99 /* OBR.m */; };
+		4AF40DE12224320700103F99 /* ZDS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DDF2224320700103F99 /* ZDS.h */; };
+		4AF40DE22224320700103F99 /* ZDS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DE02224320700103F99 /* ZDS.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -179,12 +213,8 @@
 		4A2D90752183455000371484 /* zconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zconf.h; sourceTree = "<group>"; };
 		4A7A17C72102438400B4E801 /* DRS+pdf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+pdf.h"; sourceTree = "<group>"; };
 		4A7A17C82102438400B4E801 /* DRS+pdf.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+pdf.m"; sourceTree = "<group>"; };
-		4A7E6CF6210A06DA00D63315 /* NSMutableURLRequest+instance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableURLRequest+instance.h"; sourceTree = "<group>"; };
 		4A7E6CF7210A06DA00D63315 /* NSMutableURLRequest+html5dicom.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableURLRequest+html5dicom.m"; sourceTree = "<group>"; };
-		4A7E6CF8210A06DA00D63315 /* NSMutableURLRequest+enclosed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableURLRequest+enclosed.h"; sourceTree = "<group>"; };
-		4A7E6CF9210A06DA00D63315 /* NSMutableURLRequest+instance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableURLRequest+instance.m"; sourceTree = "<group>"; };
 		4A7E6CFA210A06DA00D63315 /* NSMutableURLRequest+html5dicom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableURLRequest+html5dicom.h"; sourceTree = "<group>"; };
-		4A7E6CFB210A06DA00D63315 /* NSMutableURLRequest+enclosed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableURLRequest+enclosed.m"; sourceTree = "<group>"; };
 		4A7E6D02210A0A5900D63315 /* NSMutableURLRequest+patient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableURLRequest+patient.m"; sourceTree = "<group>"; };
 		4A7E6D03210A0A5900D63315 /* NSMutableURLRequest+patient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableURLRequest+patient.h"; sourceTree = "<group>"; };
 		4A94BE9D208691310009C4AB /* DRS+mwl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+mwl.h"; sourceTree = "<group>"; };
@@ -199,9 +229,9 @@
 		4ABF11D51FE5C11B000B8DE6 /* NSString+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+PCS.h"; sourceTree = "<group>"; };
 		4ABF11D71FE5C11C000B8DE6 /* NSURLComponents+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLComponents+PCS.h"; sourceTree = "<group>"; };
 		4ABF11D81FE5C11C000B8DE6 /* NSURLComponents+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLComponents+PCS.m"; sourceTree = "<group>"; };
-		4ABF11D91FE5C11C000B8DE6 /* NSURLSessionDataTask+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLSessionDataTask+PCS.m"; sourceTree = "<group>"; };
+		4ABF11D91FE5C11C000B8DE6 /* NSURLSessionDataTask+DRS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLSessionDataTask+DRS.m"; sourceTree = "<group>"; };
 		4ABF11DA1FE5C11C000B8DE6 /* NSData+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+PCS.m"; sourceTree = "<group>"; };
-		4ABF11DB1FE5C11C000B8DE6 /* NSURLSessionDataTask+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLSessionDataTask+PCS.h"; sourceTree = "<group>"; };
+		4ABF11DB1FE5C11C000B8DE6 /* NSURLSessionDataTask+DRS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLSessionDataTask+DRS.h"; sourceTree = "<group>"; };
 		4ABF11E61FE5C13A000B8DE6 /* NSMutableData+DICM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableData+DICM.h"; sourceTree = "<group>"; };
 		4ABF11E71FE5C13B000B8DE6 /* NSUUID+DICM.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSUUID+DICM.m"; sourceTree = "<group>"; };
 		4ABF11E81FE5C13B000B8DE6 /* NSMutableData+DICM.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableData+DICM.m"; sourceTree = "<group>"; };
@@ -221,13 +251,51 @@
 		4AD38B312062D47200CA1ECC /* K.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = K.m; sourceTree = "<group>"; };
 		4AE49DD92008F1F600B8F321 /* DRS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DRS.h; sourceTree = "<group>"; };
 		4AE49DDA2008F1F600B8F321 /* DRS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DRS.m; sourceTree = "<group>"; };
-		4AE49DE12009987800B8F321 /* DRS+functions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DRS+functions.h"; sourceTree = "<group>"; };
-		4AE49DE22009987800B8F321 /* DRS+functions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "DRS+functions.m"; sourceTree = "<group>"; };
 		4AE49DE52009D11800B8F321 /* ODLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ODLog.m; sourceTree = "<group>"; };
 		4AE49DF0200D153000B8F321 /* DRS+pacs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DRS+pacs.h"; sourceTree = "<group>"; };
 		4AE49DF1200D153000B8F321 /* DRS+pacs.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "DRS+pacs.m"; sourceTree = "<group>"; };
 		4AE49DF8200F66AC00B8F321 /* NSMutableURLRequest+MWL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableURLRequest+MWL.h"; sourceTree = "<group>"; };
 		4AE49DF9200F66AC00B8F321 /* NSMutableURLRequest+MWL.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableURLRequest+MWL.m"; sourceTree = "<group>"; };
+		4AF40D2D21F8FA8A00103F99 /* DRS+encapsulated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+encapsulated.h"; sourceTree = "<group>"; };
+		4AF40D2E21F8FA8A00103F99 /* DRS+qido.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+qido.h"; sourceTree = "<group>"; };
+		4AF40D2F21F8FA8A00103F99 /* DRS+qido.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+qido.m"; sourceTree = "<group>"; };
+		4AF40D3021F8FA8A00103F99 /* DRS+encapsulated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+encapsulated.m"; sourceTree = "<group>"; };
+		4AF40D3521F8FD2100103F99 /* NSMutableData+SQL.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableData+SQL.m"; sourceTree = "<group>"; };
+		4AF40D3621F8FD2100103F99 /* NSMutableData+SQL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableData+SQL.h"; sourceTree = "<group>"; };
+		4AF40D3921FF7B8400103F99 /* NSMutableURLRequest+DRS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableURLRequest+DRS.h"; sourceTree = "<group>"; };
+		4AF40D3A21FF7B8400103F99 /* NSMutableURLRequest+DRS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableURLRequest+DRS.m"; sourceTree = "<group>"; };
+		4AF40D47220ED1F400103F99 /* RequestXMLMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RequestXMLMetadata.h; sourceTree = "<group>"; };
+		4AF40D48220ED1F400103F99 /* RequestXMLMetadata.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RequestXMLMetadata.m; sourceTree = "<group>"; };
+		4AF40D4B22169D2900103F99 /* WADOURIRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WADOURIRequest.h; sourceTree = "<group>"; };
+		4AF40D4C22169D2900103F99 /* WADOURIRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WADOURIRequest.m; sourceTree = "<group>"; };
+		4AF40D4F22183E7400103F99 /* RequestJSONMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RequestJSONMetadata.h; sourceTree = "<group>"; };
+		4AF40D5022183E7400103F99 /* RequestJSONMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RequestJSONMetadata.m; sourceTree = "<group>"; };
+		4AF40D582219EE6C00103F99 /* RequestPOSTEncapsulated.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RequestPOSTEncapsulated.h; sourceTree = "<group>"; };
+		4AF40D592219EE6C00103F99 /* RequestPOSTEncapsulated.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RequestPOSTEncapsulated.m; sourceTree = "<group>"; };
+		4AF40D5D221C3FCF00103F99 /* RequestPatient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RequestPatient.h; sourceTree = "<group>"; };
+		4AF40D5E221C3FCF00103F99 /* RequestPatient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RequestPatient.m; sourceTree = "<group>"; };
+		4AF40D62221C52D700103F99 /* ResponsePatient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResponsePatient.h; sourceTree = "<group>"; };
+		4AF40D63221C52D700103F99 /* ResponsePatient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResponsePatient.m; sourceTree = "<group>"; };
+		4AF40D66221C592300103F99 /* ResponseStudy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResponseStudy.h; sourceTree = "<group>"; };
+		4AF40D67221C592300103F99 /* ResponseStudy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResponseStudy.m; sourceTree = "<group>"; };
+		4AF40D6A221C59C900103F99 /* RequestStudy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RequestStudy.h; sourceTree = "<group>"; };
+		4AF40D6B221C59C900103F99 /* RequestStudy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RequestStudy.m; sourceTree = "<group>"; };
+		4AF40D912222D08200103F99 /* mllpClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mllpClient.h; sourceTree = "<group>"; };
+		4AF40D922222D08200103F99 /* mllpClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = mllpClient.m; sourceTree = "<group>"; };
+		4AF40D972223127B00103F99 /* ORMO01_231.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ORMO01_231.h; sourceTree = "<group>"; };
+		4AF40D982223127B00103F99 /* ORMO01_231.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ORMO01_231.m; sourceTree = "<group>"; };
+		4AF40DCB2224317400103F99 /* MSH.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSH.h; sourceTree = "<group>"; };
+		4AF40DCC2224317400103F99 /* MSH.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSH.m; sourceTree = "<group>"; };
+		4AF40DCF2224319400103F99 /* ORC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ORC.h; sourceTree = "<group>"; };
+		4AF40DD02224319400103F99 /* ORC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ORC.m; sourceTree = "<group>"; };
+		4AF40DD3222431B000103F99 /* PID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PID.h; sourceTree = "<group>"; };
+		4AF40DD4222431B000103F99 /* PID.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PID.m; sourceTree = "<group>"; };
+		4AF40DD7222431C500103F99 /* PV1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PV1.h; sourceTree = "<group>"; };
+		4AF40DD8222431C500103F99 /* PV1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PV1.m; sourceTree = "<group>"; };
+		4AF40DDB222431ED00103F99 /* OBR.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OBR.h; sourceTree = "<group>"; };
+		4AF40DDC222431ED00103F99 /* OBR.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OBR.m; sourceTree = "<group>"; };
+		4AF40DDF2224320700103F99 /* ZDS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZDS.h; sourceTree = "<group>"; };
+		4AF40DE02224320700103F99 /* ZDS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZDS.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -259,6 +327,7 @@
 				4ABF11C41FE5BD5A000B8DE6 /* PCS */,
 				4ABF11C31FE5BD14000B8DE6 /* DICM */,
 				4A2D90712183455000371484 /* ZIP */,
+				4AF40D902222D03000103F99 /* MLLP */,
 				4A19C9171E8F15B700DDD35D /* RS */,
 				4AE49DEF2009E3F200B8F321 /* DRS */,
 				2A31F5E41C87295A00A78C7C /* Frameworks */,
@@ -284,9 +353,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		4A07FB6721F24EF900007B8B /* APath */ = {
+		4A07FB6721F24EF900007B8B /* exposed API */ = {
 			isa = PBXGroup;
 			children = (
+				4AF40D2D21F8FA8A00103F99 /* DRS+encapsulated.h */,
+				4AF40D3021F8FA8A00103F99 /* DRS+encapsulated.m */,
+				4AF40D2E21F8FA8A00103F99 /* DRS+qido.h */,
+				4AF40D2F21F8FA8A00103F99 /* DRS+qido.m */,
 				4A2D905D2181E37C00371484 /* DRS+weasis.h */,
 				4A2D905F2181E37D00371484 /* DRS+weasis.m */,
 				4A2D90592181E37C00371484 /* DRS+datatables.h */,
@@ -302,7 +375,7 @@
 				4A7A17C72102438400B4E801 /* DRS+pdf.h */,
 				4A7A17C82102438400B4E801 /* DRS+pdf.m */,
 			);
-			path = APath;
+			path = "exposed API";
 			sourceTree = "<group>";
 		};
 		4A0FDF2B1E91078C001E3426 /* Response */ = {
@@ -377,23 +450,23 @@
 			path = ZIP;
 			sourceTree = "<group>";
 		};
-		4A94BE94208627AD0009C4AB /* URLRequest */ = {
+		4A94BE94208627AD0009C4AB /* DICOMweb */ = {
 			isa = PBXGroup;
 			children = (
+				4AF40D42220ECF7900103F99 /* stow */,
+				4AF40D41220ECF6E00103F99 /* qido */,
+				4AF40D40220ECF5F00103F99 /* wadors */,
+				4AF40D3F220ECF3B00103F99 /* wadouri */,
 				4A07FB6421F2235B00007B8B /* NSMutableURLRequest+studies.h */,
 				4A07FB6321F2235B00007B8B /* NSMutableURLRequest+studies.m */,
 				4A7E6D03210A0A5900D63315 /* NSMutableURLRequest+patient.h */,
 				4A7E6D02210A0A5900D63315 /* NSMutableURLRequest+patient.m */,
-				4A7E6CF8210A06DA00D63315 /* NSMutableURLRequest+enclosed.h */,
-				4A7E6CFB210A06DA00D63315 /* NSMutableURLRequest+enclosed.m */,
 				4A7E6CFA210A06DA00D63315 /* NSMutableURLRequest+html5dicom.h */,
 				4A7E6CF7210A06DA00D63315 /* NSMutableURLRequest+html5dicom.m */,
-				4A7E6CF6210A06DA00D63315 /* NSMutableURLRequest+instance.h */,
-				4A7E6CF9210A06DA00D63315 /* NSMutableURLRequest+instance.m */,
 				4AE49DF8200F66AC00B8F321 /* NSMutableURLRequest+MWL.h */,
 				4AE49DF9200F66AC00B8F321 /* NSMutableURLRequest+MWL.m */,
 			);
-			path = URLRequest;
+			path = DICOMweb;
 			sourceTree = "<group>";
 		};
 		4ABF11C31FE5BD14000B8DE6 /* DICM */ = {
@@ -419,14 +492,14 @@
 		4ABF11C41FE5BD5A000B8DE6 /* PCS */ = {
 			isa = PBXGroup;
 			children = (
+				4AF40D3621F8FD2100103F99 /* NSMutableData+SQL.h */,
+				4AF40D3521F8FD2100103F99 /* NSMutableData+SQL.m */,
 				4ABF11D41FE5C11B000B8DE6 /* NSData+PCS.h */,
 				4ABF11DA1FE5C11C000B8DE6 /* NSData+PCS.m */,
 				4ABF11D51FE5C11B000B8DE6 /* NSString+PCS.h */,
 				4ABF11D21FE5C11B000B8DE6 /* NSString+PCS.m */,
 				4ABF11D71FE5C11C000B8DE6 /* NSURLComponents+PCS.h */,
 				4ABF11D81FE5C11C000B8DE6 /* NSURLComponents+PCS.m */,
-				4ABF11DB1FE5C11C000B8DE6 /* NSURLSessionDataTask+PCS.h */,
-				4ABF11D91FE5C11C000B8DE6 /* NSURLSessionDataTask+PCS.m */,
 				4A94BEA2209228E10009C4AB /* NSDictionary+PCS.h */,
 				4A94BEA3209228E10009C4AB /* NSDictionary+PCS.m */,
 			);
@@ -445,18 +518,135 @@
 		4AE49DEF2009E3F200B8F321 /* DRS */ = {
 			isa = PBXGroup;
 			children = (
-				4A07FB6721F24EF900007B8B /* APath */,
+				4AF40D3D220D9B0C00103F99 /* request */,
+				4AF40D5C221C3EBA00103F99 /* response */,
+				4A07FB6721F24EF900007B8B /* exposed API */,
 				4AE49DD92008F1F600B8F321 /* DRS.h */,
 				4AE49DDA2008F1F600B8F321 /* DRS.m */,
-				4A94BE94208627AD0009C4AB /* URLRequest */,
-				4AE49DE12009987800B8F321 /* DRS+functions.h */,
-				4AE49DE22009987800B8F321 /* DRS+functions.m */,
 				4AE49DF0200D153000B8F321 /* DRS+pacs.h */,
 				4AE49DF1200D153000B8F321 /* DRS+pacs.m */,
 				4A2D90602181E37D00371484 /* DRS+wado.h */,
 				4A2D90562181E37C00371484 /* DRS+wado.m */,
 			);
 			path = DRS;
+			sourceTree = "<group>";
+		};
+		4AF40D3D220D9B0C00103F99 /* request */ = {
+			isa = PBXGroup;
+			children = (
+				4AF40D3921FF7B8400103F99 /* NSMutableURLRequest+DRS.h */,
+				4AF40D3A21FF7B8400103F99 /* NSMutableURLRequest+DRS.m */,
+				4AF40D3E220D9B4E00103F99 /* dcm4chee+opendicom */,
+				4A94BE94208627AD0009C4AB /* DICOMweb */,
+			);
+			path = request;
+			sourceTree = "<group>";
+		};
+		4AF40D3E220D9B4E00103F99 /* dcm4chee+opendicom */ = {
+			isa = PBXGroup;
+			children = (
+				4AF40D5D221C3FCF00103F99 /* RequestPatient.h */,
+				4AF40D5E221C3FCF00103F99 /* RequestPatient.m */,
+				4AF40D6A221C59C900103F99 /* RequestStudy.h */,
+				4AF40D6B221C59C900103F99 /* RequestStudy.m */,
+			);
+			path = "dcm4chee+opendicom";
+			sourceTree = "<group>";
+		};
+		4AF40D3F220ECF3B00103F99 /* wadouri */ = {
+			isa = PBXGroup;
+			children = (
+				4AF40D4B22169D2900103F99 /* WADOURIRequest.h */,
+				4AF40D4C22169D2900103F99 /* WADOURIRequest.m */,
+			);
+			path = wadouri;
+			sourceTree = "<group>";
+		};
+		4AF40D40220ECF5F00103F99 /* wadors */ = {
+			isa = PBXGroup;
+			children = (
+				4AF40D4F22183E7400103F99 /* RequestJSONMetadata.h */,
+				4AF40D5022183E7400103F99 /* RequestJSONMetadata.m */,
+				4AF40D47220ED1F400103F99 /* RequestXMLMetadata.h */,
+				4AF40D48220ED1F400103F99 /* RequestXMLMetadata.m */,
+			);
+			path = wadors;
+			sourceTree = "<group>";
+		};
+		4AF40D41220ECF6E00103F99 /* qido */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = qido;
+			sourceTree = "<group>";
+		};
+		4AF40D42220ECF7900103F99 /* stow */ = {
+			isa = PBXGroup;
+			children = (
+				4AF40D582219EE6C00103F99 /* RequestPOSTEncapsulated.h */,
+				4AF40D592219EE6C00103F99 /* RequestPOSTEncapsulated.m */,
+			);
+			path = stow;
+			sourceTree = "<group>";
+		};
+		4AF40D5C221C3EBA00103F99 /* response */ = {
+			isa = PBXGroup;
+			children = (
+				4ABF11DB1FE5C11C000B8DE6 /* NSURLSessionDataTask+DRS.h */,
+				4ABF11D91FE5C11C000B8DE6 /* NSURLSessionDataTask+DRS.m */,
+				4AF40D61221C521A00103F99 /* dcm4chee+opendicom */,
+			);
+			path = response;
+			sourceTree = "<group>";
+		};
+		4AF40D61221C521A00103F99 /* dcm4chee+opendicom */ = {
+			isa = PBXGroup;
+			children = (
+				4AF40D62221C52D700103F99 /* ResponsePatient.h */,
+				4AF40D63221C52D700103F99 /* ResponsePatient.m */,
+				4AF40D66221C592300103F99 /* ResponseStudy.h */,
+				4AF40D67221C592300103F99 /* ResponseStudy.m */,
+			);
+			path = "dcm4chee+opendicom";
+			sourceTree = "<group>";
+		};
+		4AF40D902222D03000103F99 /* MLLP */ = {
+			isa = PBXGroup;
+			children = (
+				4AF40D952223120D00103F99 /* 231 */,
+				4AF40D912222D08200103F99 /* mllpClient.h */,
+				4AF40D922222D08200103F99 /* mllpClient.m */,
+			);
+			path = MLLP;
+			sourceTree = "<group>";
+		};
+		4AF40D952223120D00103F99 /* 231 */ = {
+			isa = PBXGroup;
+			children = (
+				4AF40D962223125200103F99 /* segments231 */,
+				4AF40D972223127B00103F99 /* ORMO01_231.h */,
+				4AF40D982223127B00103F99 /* ORMO01_231.m */,
+			);
+			path = 231;
+			sourceTree = "<group>";
+		};
+		4AF40D962223125200103F99 /* segments231 */ = {
+			isa = PBXGroup;
+			children = (
+				4AF40DCB2224317400103F99 /* MSH.h */,
+				4AF40DCC2224317400103F99 /* MSH.m */,
+				4AF40DD3222431B000103F99 /* PID.h */,
+				4AF40DD4222431B000103F99 /* PID.m */,
+				4AF40DD7222431C500103F99 /* PV1.h */,
+				4AF40DD8222431C500103F99 /* PV1.m */,
+				4AF40DCF2224319400103F99 /* ORC.h */,
+				4AF40DD02224319400103F99 /* ORC.m */,
+				4AF40DDB222431ED00103F99 /* OBR.h */,
+				4AF40DDC222431ED00103F99 /* OBR.m */,
+				4AF40DDF2224320700103F99 /* ZDS.h */,
+				4AF40DE02224320700103F99 /* ZDS.m */,
+			);
+			path = segments231;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -466,7 +656,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AF40DD9222431C500103F99 /* PV1.h in Headers */,
 				4A0FDF641E910C1D001E3426 /* RSGZipDecoder.h in Headers */,
+				4AF40D64221C52D700103F99 /* ResponsePatient.h in Headers */,
+				4AF40D3821F8FD2100103F99 /* NSMutableData+SQL.h in Headers */,
 				4ABF11F01FE5C13B000B8DE6 /* NSMutableData+DICM.h in Headers */,
 				4A0FDF451E91078C001E3426 /* RSGZipEncoder.h in Headers */,
 				4A2D906C2181E37D00371484 /* DRS+wado.h in Headers */,
@@ -477,45 +670,59 @@
 				4ABF11F81FE5C13B000B8DE6 /* NSMutableDictionary+DICM.h in Headers */,
 				4A2D906D2181E37D00371484 /* DRS+iheiid.h in Headers */,
 				4A0FDF491E91078C001E3426 /* RSDataResponse.h in Headers */,
-				4ABF11E51FE5C11C000B8DE6 /* NSURLSessionDataTask+PCS.h in Headers */,
+				4AF40DDD222431ED00103F99 /* OBR.h in Headers */,
+				4ABF11E51FE5C11C000B8DE6 /* NSURLSessionDataTask+DRS.h in Headers */,
 				4A2D90682181E37D00371484 /* DRS+wadors.h in Headers */,
 				4ABF12021FE89413000B8DE6 /* Const.h in Headers */,
 				4A19C9341E8F15B700DDD35D /* RSHandler.h in Headers */,
-				4A7E6CFC210A06DA00D63315 /* NSMutableURLRequest+instance.h in Headers */,
 				4A2D90652181E37D00371484 /* DRS+datatables.h in Headers */,
 				4A7A17C92102438400B4E801 /* DRS+pdf.h in Headers */,
 				4ABF11DF1FE5C11C000B8DE6 /* NSString+PCS.h in Headers */,
 				4A96C5611E843CBD002EB09E /* RFC822.h in Headers */,
+				4AF40DD5222431B000103F99 /* PID.h in Headers */,
+				4AF40DE12224320700103F99 /* ZDS.h in Headers */,
 				4A0FDF4F1E91078C001E3426 /* RSStreamedResponse.h in Headers */,
 				4ABF11F61FE5C13B000B8DE6 /* DICMTypes.h in Headers */,
 				4A0FDF421E91078C001E3426 /* RSBodyEncoder.h in Headers */,
+				4AF40D5122183E7400103F99 /* RequestJSONMetadata.h in Headers */,
+				4AF40D3B21FF7B8400103F99 /* NSMutableURLRequest+DRS.h in Headers */,
 				4A7E6D05210A0A5A00D63315 /* NSMutableURLRequest+patient.h in Headers */,
-				4AE49DE32009987800B8F321 /* DRS+functions.h in Headers */,
 				4A0FDF4D1E91078C001E3426 /* RSFileResponse.h in Headers */,
 				4ABF11F51FE5C13B000B8DE6 /* NSUUID+DICM.h in Headers */,
 				4A0FDF511E91078C001E3426 /* RS.h in Headers */,
 				4A0FDF531E91078C001E3426 /* RSConnection.h in Headers */,
+				4AF40DD12224319400103F99 /* ORC.h in Headers */,
+				4AF40D5F221C3FCF00103F99 /* RequestPatient.h in Headers */,
+				4AF40D3121F8FA8B00103F99 /* DRS+encapsulated.h in Headers */,
 				4A2D90772183455100371484 /* zlib.h in Headers */,
 				4A0FDF621E910C1D001E3426 /* RSBodyDecoder.h in Headers */,
 				4A94BEA4209228E10009C4AB /* NSDictionary+PCS.h in Headers */,
-				4A7E6CFE210A06DA00D63315 /* NSMutableURLRequest+enclosed.h in Headers */,
 				4A0FDF441E91078C001E3426 /* RSBodyReaderProtocol.h in Headers */,
 				4ABF11FD1FE6879C000B8DE6 /* NSMutableString+DSCD.h in Headers */,
 				4ABF11DE1FE5C11C000B8DE6 /* NSData+PCS.h in Headers */,
 				4AD38B322062D47200CA1ECC /* K.h in Headers */,
+				4AF40D932222D08200103F99 /* mllpClient.h in Headers */,
 				4A0FDF5C1E9109EB001E3426 /* RSRequest.h in Headers */,
 				4A94BE9F208691320009C4AB /* DRS+mwl.h in Headers */,
+				4AF40D68221C592300103F99 /* ResponseStudy.h in Headers */,
 				4A2D90792183455100371484 /* zconf.h in Headers */,
 				4A0FDF5B1E9109EB001E3426 /* RSBodyWriterProtocol.h in Headers */,
 				4ABF11F31FE5C13B000B8DE6 /* NSDictionary+DICM.h in Headers */,
+				4AF40D992223127B00103F99 /* ORMO01_231.h in Headers */,
+				4AF40D49220ED1F400103F99 /* RequestXMLMetadata.h in Headers */,
+				4AF40D3221F8FA8B00103F99 /* DRS+qido.h in Headers */,
 				4A0FDF4B1E91078C001E3426 /* RSErrorResponse.h in Headers */,
+				4AF40DCD2224317400103F99 /* MSH.h in Headers */,
 				4ABF12041FE89413000B8DE6 /* iconv.h in Headers */,
 				4A2D90672181E37D00371484 /* DRS+zipped.h in Headers */,
 				4AE49DFA200F66AC00B8F321 /* NSMutableURLRequest+MWL.h in Headers */,
 				4A2D90782183455100371484 /* LFCGzipUtility.h in Headers */,
+				4AF40D5A2219EE6C00103F99 /* RequestPOSTEncapsulated.h in Headers */,
 				4A2D90692181E37D00371484 /* DRS+weasis.h in Headers */,
 				4ABF11E11FE5C11C000B8DE6 /* NSURLComponents+PCS.h in Headers */,
+				4AF40D4D22169D2A00103F99 /* WADOURIRequest.h in Headers */,
 				4A7E6D00210A06DA00D63315 /* NSMutableURLRequest+html5dicom.h in Headers */,
+				4AF40D6C221C59C900103F99 /* RequestStudy.h in Headers */,
 				4A07FB6621F2235B00007B8B /* NSMutableURLRequest+studies.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -549,6 +756,11 @@
 			attributes = {
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = ridi.salud.uy;
+				TargetAttributes = {
+					2A31F5E11C87295A00A78C7C = {
+						LastSwiftMigration = 1010;
+					};
+				};
 			};
 			buildConfigurationList = 2A31F5DD1C87295A00A78C7C /* Build configuration list for PBXProject "httpdicom" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -574,49 +786,66 @@
 			files = (
 				4A2D90762183455100371484 /* LFCGzipUtility.m in Sources */,
 				4A0FDF461E91078C001E3426 /* RSGZipEncoder.m in Sources */,
+				4AF40D60221C3FCF00103F99 /* RequestPatient.m in Sources */,
+				4AF40DDE222431ED00103F99 /* OBR.m in Sources */,
 				4A19C9351E8F15B700DDD35D /* RSHandler.m in Sources */,
 				4ABF11DC1FE5C11C000B8DE6 /* NSString+PCS.m in Sources */,
+				4AF40D3421F8FA8B00103F99 /* DRS+encapsulated.m in Sources */,
+				4AF40D9A2223127B00103F99 /* ORMO01_231.m in Sources */,
 				4AE49DF3200D153000B8F321 /* DRS+pacs.m in Sources */,
 				4A2D90622181E37D00371484 /* DRS+wado.m in Sources */,
+				4AF40D3321F8FA8B00103F99 /* DRS+qido.m in Sources */,
 				4A0FDF4C1E91078C001E3426 /* RSErrorResponse.m in Sources */,
 				4A7E6CFD210A06DA00D63315 /* NSMutableURLRequest+html5dicom.m in Sources */,
+				4AF40DD22224319400103F99 /* ORC.m in Sources */,
 				4A2D906B2181E37D00371484 /* DRS+weasis.m in Sources */,
 				4A0FDF4A1E91078C001E3426 /* RSDataResponse.m in Sources */,
 				4A0FDF4E1E91078C001E3426 /* RSFileResponse.m in Sources */,
 				4ABF11F71FE5C13B000B8DE6 /* DICMTypes.m in Sources */,
 				4AD38B332062D47200CA1ECC /* K.m in Sources */,
+				4AF40D65221C52D700103F99 /* ResponsePatient.m in Sources */,
 				4A0FDF651E910C1D001E3426 /* RSGZipDecoder.m in Sources */,
+				4AF40D3C21FF7B8400103F99 /* NSMutableURLRequest+DRS.m in Sources */,
+				4AF40D6D221C59C900103F99 /* RequestStudy.m in Sources */,
+				4AF40DD6222431B000103F99 /* PID.m in Sources */,
 				4ABF12031FE89413000B8DE6 /* Const.m in Sources */,
+				4AF40D4E22169D2A00103F99 /* WADOURIRequest.m in Sources */,
+				4AF40DCE2224317400103F99 /* MSH.m in Sources */,
 				4A0FDF521E91078C001E3426 /* RS.m in Sources */,
 				4A2D90642181E37D00371484 /* DRS+datatables.m in Sources */,
 				4A0FDF501E91078C001E3426 /* RSStreamedResponse.m in Sources */,
+				4AF40D69221C592300103F99 /* ResponseStudy.m in Sources */,
 				4A0FDF481E91078C001E3426 /* RSResponse.m in Sources */,
 				4ABF11FE1FE6879C000B8DE6 /* NSMutableString+DSCD.m in Sources */,
 				4A0FDF201E904E5C001E3426 /* main.m in Sources */,
 				4A2D906A2181E37D00371484 /* DRS+zipped.m in Sources */,
+				4AF40D942222D08300103F99 /* mllpClient.m in Sources */,
+				4AF40D3721F8FD2100103F99 /* NSMutableData+SQL.m in Sources */,
 				4A0FDF5D1E9109EB001E3426 /* RSRequest.m in Sources */,
 				4A2D90632181E37D00371484 /* DRS+iheiid.m in Sources */,
 				4A0FDF631E910C1D001E3426 /* RSBodyDecoder.m in Sources */,
+				4AF40DDA222431C500103F99 /* PV1.m in Sources */,
 				4A0FDF431E91078C001E3426 /* RSBodyEncoder.m in Sources */,
 				4A96C55F1E843C9E002EB09E /* RFC822.m in Sources */,
 				4ABF11F41FE5C13B000B8DE6 /* NSDictionary+DICM.m in Sources */,
 				4A7E6D04210A0A5A00D63315 /* NSMutableURLRequest+patient.m in Sources */,
 				4A0FDF541E91078C001E3426 /* RSConnection.m in Sources */,
-				4A7E6CFF210A06DA00D63315 /* NSMutableURLRequest+instance.m in Sources */,
 				4AE49DFB200F66AC00B8F321 /* NSMutableURLRequest+MWL.m in Sources */,
 				4A07FB6521F2235B00007B8B /* NSMutableURLRequest+studies.m in Sources */,
 				4ABF11F91FE5C13B000B8DE6 /* NSMutableDictionary+DICM.m in Sources */,
+				4AF40DE22224320700103F99 /* ZDS.m in Sources */,
 				4A2D90662181E37D00371484 /* DRS+wadors.m in Sources */,
 				4A94BEA0208691320009C4AB /* DRS+mwl.m in Sources */,
+				4AF40D5222183E7400103F99 /* RequestJSONMetadata.m in Sources */,
 				4ABF11E41FE5C11C000B8DE6 /* NSData+PCS.m in Sources */,
 				4AE49DE62009D11800B8F321 /* ODLog.m in Sources */,
-				4AE49DE42009987800B8F321 /* DRS+functions.m in Sources */,
+				4AF40D5B2219EE6C00103F99 /* RequestPOSTEncapsulated.m in Sources */,
+				4AF40D4A220ED1F400103F99 /* RequestXMLMetadata.m in Sources */,
 				4ABF11F21FE5C13B000B8DE6 /* NSMutableData+DICM.m in Sources */,
 				4A7A17CA2102438400B4E801 /* DRS+pdf.m in Sources */,
 				4AE49DDC2008F1F600B8F321 /* DRS.m in Sources */,
 				4A94BEA5209228E10009C4AB /* NSDictionary+PCS.m in Sources */,
-				4ABF11E31FE5C11C000B8DE6 /* NSURLSessionDataTask+PCS.m in Sources */,
-				4A7E6D01210A06DA00D63315 /* NSMutableURLRequest+enclosed.m in Sources */,
+				4ABF11E31FE5C11C000B8DE6 /* NSURLSessionDataTask+DRS.m in Sources */,
 				4ABF11F11FE5C13B000B8DE6 /* NSUUID+DICM.m in Sources */,
 				4ABF11E21FE5C11C000B8DE6 /* NSURLComponents+PCS.m in Sources */,
 			);
@@ -725,6 +954,7 @@
 		2A31F5F11C87295A00A78C7C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
@@ -737,9 +967,12 @@
 					"$(SDKROOT)/usr/include/libxml2",
 				);
 				INSTALL_PATH = /deploy/local/httpdicom;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_NAME = httpdicom;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				VALID_ARCHS = x86_64;
 			};
 			name = Debug;
@@ -747,6 +980,7 @@
 		2A31F5F21C87295A00A78C7C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = "";
@@ -758,10 +992,12 @@
 					"$(SDKROOT)/usr/include/libxml2",
 				);
 				INSTALL_PATH = /deploy/local/httpdicom;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = httpdicom;
+				SWIFT_VERSION = 5.0;
 				VALID_ARCHS = x86_64;
 			};
 			name = Release;

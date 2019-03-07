@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plist
-    xmlns="http://www.opendicom.com/xsd/plist/devices.xsd"
+    xmlns="http://www.opendicom.com/xsd/plist/pacs.xsd"
     
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.opendicom.com/xsd/plist/devices.xsd devices.xsd"
+    xsi:schemaLocation="http://www.opendicom.com/xsd/plist/pacs.xsd pacs.xsd"
     
     version="1.0"
     >
@@ -16,17 +16,24 @@
             <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
-            <key>TimezoneOffsetFromUTC</key>
-            <string id="TimezoneOffsetFromUTC"></string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc"></string>
             <key>custodiantitle</key>
             <string id="custodiantitle">IMATEC</string>
             <key>custodianoid</key>
             <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
             <key>custodianglobaluri</key>
             <string id="custodianglobaluri"></string>
-
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            
             <key>select</key>
             <string id="select">qido</string>
+            
+            <key>mwl</key>
+            <string id="mwl">mllp</string>
             
             <key>sqlprolog</key>
             <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e &quot;</string>
@@ -36,7 +43,15 @@
             <string id="sqlmap">dal55mysql.plist</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
-
+            
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            
+            <key>mllpip</key>
+            <string id="mllpip">127.0.0.1</string>
+            <key>mllpport</key>
+            <string id="mllpport">2575</string>
+            
             <key>dimseip</key>
             <string id="dimseip">127.0.0.1</string>
             <key>dimseport</key>
@@ -77,18 +92,25 @@
             <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
-            <key>TimezoneOffsetFromUTC</key>
-            <string id="TimezoneOffsetFromUTC"></string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc"></string>
             <key>custodiantitle</key>
             <string id="custodiantitle">IMATEC</string>
             <key>custodianoid</key>
             <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
             <key>custodianglobaluri</key>
             <string id="custodianglobaluri"></string>
-
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            
             <key>select</key>
             <string id="select">sql</string>
-
+            
+            <key>mwl</key>
+            <string id="mwl">mllp</string>
+            
             <key>sqlprolog</key>
             <string id="sqlprolog">export MYSQL_PWD=pacsweb;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsweb -h 192.168.4.15 -b pacsdb -e &quot;</string>
             <key>sqlstringencoding</key>
@@ -97,7 +119,15 @@
             <string id="sqlmap">dcm4chee2170mysql.plist</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
-
+            
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            
+            <key>mllpip</key>
+            <string id="mllpip">127.0.0.1</string>
+            <key>mllpport</key>
+            <string id="mllpport">2575</string>
+            
             <key>dimseip</key>
             <string id="dimseip">192.168.4.15</string>
             <key>dimseport</key>
@@ -138,17 +168,24 @@
             <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
-            <key>TimezoneOffsetFromUTC</key>
-            <string id="TimezoneOffsetFromUTC"></string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc"></string>
             <key>custodiantitle</key>
             <string id="custodiantitle">IMATEC</string>
             <key>custodianoid</key>
             <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
             <key>custodianglobaluri</key>
             <string id="custodianglobaluri"></string>
-
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            
             <key>select</key>
             <string id="select">qido</string>
+
+            <key>mwl</key>
+            <string id="mwl">mllp</string>
 
             <key>sqlprolog</key>
             <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e &quot;</string>
@@ -158,6 +195,15 @@
             <string id="sqlmap">dal55mysql.plist</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
+            
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            
+            <key>mllpip</key>
+            <string id="mllpip">127.0.0.1</string>
+            <key>mllpport</key>
+            <string id="mllpport">2575</string>
+
             <key>dimseip</key>
             <string id="dimseip">127.0.0.1</string>
             <key>dimseport</key>
@@ -203,8 +249,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -213,7 +259,7 @@
                     <array>
                         <string id="modalities">MR</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>CT</key>
@@ -228,8 +274,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle">N</string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle">N</string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -238,7 +284,7 @@
                     <array>
                         <string id="modalities">CT</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>US</key>
@@ -253,8 +299,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -263,7 +309,7 @@
                     <array>
                         <string id="modalities">US</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>MG</key>
@@ -278,8 +324,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -288,7 +334,7 @@
                     <array>
                         <string id="modalities">MG</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>DX</key>
@@ -303,8 +349,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -313,7 +359,7 @@
                     <array>
                         <string id="modalities">DX</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>CR</key>
@@ -328,8 +374,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -338,7 +384,7 @@
                     <array>
                         <string id="modalities">CR</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
             </dict>
@@ -352,18 +398,25 @@
             <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
-            <key>TimezoneOffsetFromUTC</key>
-            <string id="TimezoneOffsetFromUTC"></string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc"></string>
             <key>custodiantitle</key>
             <string id="custodiantitle">IMATEC</string>
             <key>custodianoid</key>
             <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
             <key>custodianglobaluri</key>
             <string id="custodianglobaluri"></string>
-
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            
             <key>select</key>
             <string id="select">qido</string>
-
+            
+            <key>mwl</key>
+            <string id="mwl">mllp</string>
+            
             <key>sqlprolog</key>
             <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e &quot;</string>
             <key>sqlstringencoding</key>
@@ -372,7 +425,15 @@
             <string id="sqlmap">dal55mysql.plist</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
-
+            
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            
+            <key>mllpip</key>
+            <string id="mllpip">127.0.0.1</string>
+            <key>mllpport</key>
+            <string id="mllpport">2575</string>
+            
             <key>dimseip</key>
             <string id="dimseip">127.0.0.1</string>
             <key>dimseport</key>
@@ -418,8 +479,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -428,7 +489,7 @@
                     <array>
                         <string id="modalities">MR</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>CT</key>
@@ -443,8 +504,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle">N</string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle">N</string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -453,7 +514,7 @@
                     <array>
                         <string id="modalities">CT</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>US</key>
@@ -468,8 +529,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -478,7 +539,7 @@
                     <array>
                         <string id="modalities">US</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>MG</key>
@@ -493,8 +554,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -503,7 +564,7 @@
                     <array>
                         <string id="modalities">MG</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>DX</key>
@@ -518,8 +579,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -528,7 +589,7 @@
                     <array>
                         <string id="modalities">DX</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>CR</key>
@@ -543,8 +604,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -553,7 +614,7 @@
                     <array>
                         <string id="modalities">CR</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
             </dict>
@@ -567,18 +628,25 @@
             <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
-            <key>TimezoneOffsetFromUTC</key>
-            <string id="TimezoneOffsetFromUTC"></string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc"></string>
             <key>custodiantitle</key>
             <string id="custodiantitle">IMATEC</string>
             <key>custodianoid</key>
             <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
             <key>custodianglobaluri</key>
             <string id="custodianglobaluri"></string>
-
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            
             <key>select</key>
             <string id="select">qido</string>
-
+            
+            <key>mwl</key>
+            <string id="mwl">mllp</string>
+            
             <key>sqlprolog</key>
             <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e &quot;</string>
             <key>sqlstringencoding</key>
@@ -587,7 +655,15 @@
             <string id="sqlmap">dal55mysql.plist</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
-
+            
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            
+            <key>mllpip</key>
+            <string id="mllpip">127.0.0.1</string>
+            <key>mllpport</key>
+            <string id="mllpport">2575</string>
+            
             <key>dimseip</key>
             <string id="dimseip">127.0.0.1</string>
             <key>dimseport</key>
@@ -633,8 +709,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -643,7 +719,7 @@
                     <array>
                         <string id="modalities">MR</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>CT</key>
@@ -658,8 +734,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle">N</string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle">N</string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -668,7 +744,7 @@
                     <array>
                         <string id="modalities">CT</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>US</key>
@@ -683,8 +759,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -693,7 +769,7 @@
                     <array>
                         <string id="modalities">US</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>MG</key>
@@ -708,8 +784,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -718,7 +794,7 @@
                     <array>
                         <string id="modalities">MG</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>DX</key>
@@ -733,8 +809,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -743,7 +819,7 @@
                     <array>
                         <string id="modalities">DX</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
                 <key>CR</key>
@@ -758,8 +834,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>StationAETitle</key>
-                    <string id="StationAETitle"></string>
+                    <key>stationaetitle</key>
+                    <string id="stationaetitle"></string>
                     <key>ip</key>
                     <string id="ip"></string>
                     <key>port</key>
@@ -768,7 +844,7 @@
                     <array>
                         <string id="modalities">CR</string>
                     </array>
-                    <key>readingAsReferring</key>
+                    <key>readingasreferring</key>
                     <false/>
                 </dict>
             </dict>

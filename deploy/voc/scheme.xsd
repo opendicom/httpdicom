@@ -157,7 +157,7 @@
     <xs:complexType name="daidstring">
         <xs:simpleContent>
             <xs:restriction base="idstring">
-                <xs:pattern value="(20[0-9][0-9][01][0-9][012][0-9])?"/>
+                <xs:pattern value="(20[0-9][0-9][0-1][0-9][0-3][0-9])?"/>
             </xs:restriction>
         </xs:simpleContent>
     </xs:complexType>

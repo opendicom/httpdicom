@@ -1,23 +1,7 @@
-/*
-wado/encapsulated
-
-pacs/custodians
-
-APath
- qido
- weasis
- datatables
- iheiid
- 
- wadors/zipped
- 
-mwl
- 
-*/
-
 #import <Foundation/Foundation.h>
 #import "ODLog.h"
 #import "K.h"
+#import "DICMTypes.h"
 
 #import "RS.h"
 #import "RSDataResponse.h"
@@ -25,6 +9,36 @@ mwl
 #import "RSFileResponse.h"
 #import "RSStreamedResponse.h"
 
+//RSRequest
+
+BOOL parseRequestParams(RSRequest       * request,
+                        NSMutableArray  * names,
+                        NSMutableArray  * values,
+                        NSMutableArray  * types,
+                        NSMutableString * jsonString,
+                        NSMutableString * errorString)
+;
+
+//pacs
+NSDictionary * pacsParam(NSMutableArray  * names,
+                         NSMutableArray  * values,
+                         NSMutableString * pacsOID,
+                         NSMutableString * errorString)
+;
+
+
+//task
+int bash(NSData *writeData, NSMutableData *readData);
+int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData);
+
+
+//charset
+NSMutableArray *jsonMutableArray(NSString *scriptString, NSStringEncoding encoding);
+
+//proxy
+id qidoUrlProxy(NSString *qidoString,NSString *queryString, NSString *httpdicomString);
+
+id urlChunkedProxy(NSString *urlString,NSString *contentType);
 
 
 @interface DRS : RS
