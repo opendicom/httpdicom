@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
                     MSH_17:(NSString*)CountryCode
                     MSH_18:(NSStringEncoding)sopStringEncoding      //00080005
                     MSH_19:(NSString*)PrincipalLanguage
-                     PID_2:(NSString*)pID                           //00100020+00100021
+                     PID_3:(NSString*)pID                           //00100020+00100021
                      PID_5:(NSString*)pName                         //00100010
                      PID_7:(NSString*)pBirthDate                    //00100030
                      PID_8:(NSString*)pSex                          //00100040

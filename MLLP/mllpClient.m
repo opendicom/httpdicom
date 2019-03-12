@@ -10,25 +10,13 @@ const uint8 CR=0x0D;
 
 @implementation mllpClient
 
-+(bool)sendPacs:(NSDictionary*)pacs
-        message:(NSString*)message
+
++(bool)sendIP:ipString
+         port:portString
+      message:(NSString*)message
  stringEncoding:(NSStringEncoding)stringEncoding
         payload:(NSMutableString*)payload
 {
-   NSString *ipString=pacs[@"mllpip"];
-   if (!ipString)
-   {
-      [payload appendString:@"mllp ip not available"];
-      return false;
-   }
-      
-   NSString *portString=pacs[@"mllpport"];
-   if (!portString)
-   {
-      [payload appendString:@"mllp port not available"];
-      return false;
-   }
-
    //create stream structures
    NSInputStream *inputStream=nil;
    NSOutputStream *outputStream=nil;
@@ -72,7 +60,7 @@ const uint8 CR=0x0D;
       [payload appendFormat:@">%@:%@\r\n%@",ipString,portString,[streamError description]];
       return false;
    }
-
+   
    //receive payload
    [inputStream open];
    long len = 1024;

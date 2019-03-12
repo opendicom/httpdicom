@@ -1,6 +1,14 @@
-#import "OBR.h"
+#import "OBR_231.h"
 
 @implementation OBR
+
+static unsigned long uniqueRpID;
+static unsigned long uniqueSpsID;
++(void)initialize
+{
+    uniqueRpID=[[NSDate date]timeIntervalSinceReferenceDate];
+    uniqueSpsID=uniqueRpID;
+}
 
 +(NSString*)spsProtocolCode:(NSString*)ProtocolCode
               isrDangerCode:(NSString*)DangerCode
@@ -23,9 +31,9 @@ isrNameOfPhysiciansReadingStudy:(NSString*)PrincipalResultInterpreter
    if (!RelevantClinicalInfo)RelevantClinicalInfo=@"";
    if (!OrderingProvider)OrderingProvider=@"";
    if (!PlacerField1)PlacerField1=@"";
-   if (!PlacerField2)PlacerField2=@"";
-   if (!FillerField1)FillerField1=@"";
-   if (!FillerField2)FillerField1=@"";
+    if (!PlacerField2) PlacerField2=[NSString stringWithFormat:@"%lu",uniqueRpID++];
+   if (!FillerField1)FillerField1=[NSString stringWithFormat:@"%lu",uniqueSpsID++];
+   if (!FillerField2)FillerField2=@"";
    if (!DiagnosticServiceSectID)DiagnosticServiceSectID=@"";
    if (!TransportationMode)TransportationMode=@"";
    if (!ReasonForStudy)ReasonForStudy=@"";
@@ -33,7 +41,7 @@ isrNameOfPhysiciansReadingStudy:(NSString*)PrincipalResultInterpreter
    if (!Technician)Technician=@"";
    if (!UniversalServiceID)UniversalServiceID=@"";
 
-   return [NSString stringWithFormat:@"OBR||||%@|||||||||%@|%@||%@||%@|%@|%@|%@|||%@||||||%@|%@|%@||%@||||||||||%@",
+   return [NSString stringWithFormat:@"OBR||||%@||||||||%@|%@|||%@||%@|%@|%@|%@|||%@||||||%@|%@|%@||%@||||||||||%@",
            ProtocolCode,
            DangerCode,
            RelevantClinicalInfo,

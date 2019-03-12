@@ -1,10 +1,10 @@
 #import "ORMO01_231.h"
-#import "MSH.h"
-#import "PID.h"
-#import "PV1.h"
-#import "ORC.h"
-#import "OBR.h"
-#import "ZDS.h"
+#import "MSH_231.h"
+#import "PID_231.h"
+#import "PV1_231.h"
+#import "ORC_231.h"
+#import "OBR_231.h"
+#import "ZDS_231.h"
 
 @implementation ORMO01_231
 
@@ -16,7 +16,7 @@
                     MSH_17:(NSString*)CountryCode
                     MSH_18:(NSStringEncoding)sopStringEncoding      //00080005
                     MSH_19:(NSString*)PrincipalLanguage
-                     PID_2:(NSString*)pID                           //00100020+00100021
+                     PID_3:(NSString*)pID                           //00100020+00100021
                      PID_5:(NSString*)pName                         //00100010
                      PID_7:(NSString*)pBirthDate                    //00100030
                      PID_8:(NSString*)pSex                          //00100040
@@ -66,13 +66,13 @@
    //PID
    [segments appendString:
     [PID
-     PatientID:PatientID
-     IdentifierList:nil
+     PatientID:nil
+     IdentifierList:pID
      AlternateID:nil
-     Name:PatientName
+     Name:pName
      MotherMaidenName:nil
-     BirthDate:PatientBirthDate
-     Sex:PatientSex
+     BirthDate:pBirthDate
+     Sex:pSex
      Alias:nil
      ]
     ];

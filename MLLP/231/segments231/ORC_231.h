@@ -6,9 +6,9 @@
 
 //https://dcm4chee-arc-hl7cs.readthedocs.io/en/latest/orm/inbound.html#tab-pv1-orm-omg
 
-//1  OrderControl
-//2  PlacerOrderNumber
-//3  FillerOrderNumber
+//1  OrderControl (NW, XO, CA, ...)
+//2  PlacerOrderNumber now (date time of the order)
+//3  FillerOrderNumber (date time of the scheduled visit)
 
 //4  OrderStatus
 //http://ihewiki.wustl.edu/wiki/index.php/HL7_Tables#Order_Status

@@ -393,7 +393,7 @@
          MSH_17:pacs[@"countrycode"]
          MSH_18:(NSStringEncoding)[pacs[@"sopstringencoding"]integerValue]
          MSH_19:pacs[@"principallanguage"]
-         PID_2:[NSString stringWithFormat:@"%@^^^%@",PatientID1,IssuerOfPatientID1]
+         PID_3:[NSString stringWithFormat:@"%@^^^%@",PatientID1,IssuerOfPatientID1]
          PID_5:PatientName1
          PID_7:PatientBirthdate1
          PID_8:PatientSexValue1
@@ -421,8 +421,24 @@
          ];
 
       LOG_DEBUG(@"MLLP ->\r\n%@",msg);
+      
+      NSString *ipString=pacs[@"mllpip"];
+      if (!ipString)
+      {
+         [payload appendString:@"mllp ip not available"];
+         return [RSErrorResponse responseWithClientError:404 message:@"%@",payload];
+      }
+      
+      NSString *portString=pacs[@"mllpport"];
+      if (!portString)
+      {
+         [payload appendString:@"mllp port not available"];
+         return [RSErrorResponse responseWithClientError:404 message:@"%@",payload];
+      }
+
       NSMutableString * payload=[NSMutableString string];
-      if (![mllpClient sendPacs:pacs
+      if (![mllpClient sendIP:ipString
+                         port:portString
                        message:msg
                 stringEncoding:(NSStringEncoding)[pacs[@"sopstringencoding"]integerValue]
                        payload:(NSMutableString*)payload])
