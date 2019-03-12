@@ -23,39 +23,39 @@
    "Class" : "ORMO01_231",
    "Method" :
    {
-    "singleSpsMSH_3" : "sendingRisName"
-    "MSH_4"  : "sendingRisIP"
-    "MSH_5"  : "receivingCustodianTitle"
-    "MSH_6"  : "receivingPacsaet"
-    "MSH_10" : "MessageControlId"
-    "MSH_17" : "CountryCode"
-    "MSH_18" : "sopStringEncoding"
-    "MSH_19" : "PrincipalLanguage
-    "PID_3"  : "pID"
-    "PID_5"  : "pName"
-    "PID_7"  : "pBirthDate"
-    "PID_8"  : "pSex"
-    "PV1_8"  : "isrPatientInsuranceShortName"
-    "ORC_2"  : "isrPlacerNumber"
-    "ORC_3"  : "isrFillerNumber"
-    "ORC_5"  : "spsOrderStatus"
-    "ORC_7"  : "spsDateTime"
-    "ORC_7_" : "rpPriority"
-    "OBR_4"  : "spsProtocolCode"
-    "OBR_12" : "isrDangerCode"
-    "OBR_13" : "isrRelevantClinicalInfo"
-    "OBR_16" : "isrReferringPhysician"
-    "OBR_18" : "isrAccessionNumber"
-    "OBR_19" : "rpID"
-    "OBR_20" : "spsID"
-    "OBR_21" : "spsStationAETitle"
-    "OBR_24" : "spsModality"
-    "OBR_30" : "rpTransportationMode"
-    "OBR_31" : "rpReasonForStudy"
-    "OBR_32" : "isrNameOfPhysiciansReadingStudy"
-    "OBR_34" : "spsTechnician"
-    "OBR_44" : "rpUniversalStudyCode"
-    "ZDS_1"  : "isrStudyInstanceUID"
+    "sendingRisName" :                  "sendingRisName"
+    "sendingRisIP"  :                   "sendingRisIP"
+    "receivingCustodianTitle"  :        "receivingCustodianTitle"
+    "receivingPacsaet"  :               "receivingPacsaet"
+    "MessageControlId" :                "MessageControlId"
+    "CountryCode" :                     "CountryCode"
+    "sopStringEncoding" :               "sopStringEncoding"
+    "sopStringEncoding" :               "PrincipalLanguage"
+    "pID"  :                            "pID"
+    "pName"  :                          "pName"
+    "pBirthDate"  :                     "pBirthDate"
+    "pSex"  :                           "pSex"
+    "isrPatientInsuranceShortName"  :   "isrPatientInsuranceShortName"
+    "isrPlacerNumber"  :                "isrPlacerNumber"
+    "isrFillerNumber"  :                "isrFillerNumber"
+    "spsOrderStatus"  :                 "spsOrderStatus"
+    "spsDateTime"  :                    "spsDateTime"
+    "rpPriority" :                      "rpPriority"
+    "spsProtocolCode"  :                "spsProtocolCode"
+    ""isrDangerCode" :                  "isrDangerCode"
+    "isrRelevantClinicalInfo" :         "isrRelevantClinicalInfo"
+    "isrReferringPhysician" :           "isrReferringPhysician"
+    "isrAccessionNumber" :              "isrAccessionNumber"
+    "rpID" :                            "rpID"
+    "spsID" :                           "spsID"
+    "spsStationAETitle" :               "spsStationAETitle"
+    "spsModality" :                     "spsModality"
+    "rpTransportationMode" :            "rpTransportationMode"
+    "rpReasonForStudy" :                "rpReasonForStudy"
+    "isrNameOfPhysiciansReadingStudy" : "isrNameOfPhysiciansReadingStudy"
+    "spsTechnician" :                   "spsTechnician"
+    "rpUniversalStudyCode" :            "rpUniversalStudyCode"
+    "isrStudyInstanceUID"  :            "isrStudyInstanceUID"
    }
  }
  */
@@ -84,9 +84,9 @@ int main(int argc, const char * argv[]) {
  
                char firstByte=0;
                [inputStream getBytes:&firstByte length:1];
-               if ( firstByte == 123)
+               if ( firstByte == 123) //123={  -> json contents
                {
-                  //{  -> json contents
+                  
                   NSError *error=nil;
                   NSDictionary *json=[NSJSONSerialization JSONObjectWithData:inputStream options:0 error:&error];
                   if (error) NSLog(@"%@",[error description]);
@@ -95,7 +95,46 @@ int main(int argc, const char * argv[]) {
                      if (!json[@"Class"] || !json[@"Method"]) NSLog(@"json without \"Class\" name/value or \"Method\" object");
                      else
                      {
-                        
+                        if ([json[@"Class"] isEqualToString:@"ORMO01_231"])
+                        {
+                           NSDictionary * params=json[@"Method"];
+                           hl7String=[ORMO01_231
+                                      singleSpsMSH_3:params[@"sendingRisName"]
+                                      MSH_4:params[@"sendingRisIP"]
+                                      MSH_5:params[@"receivingCustodianTitle"]
+                                      MSH_6:params[@"receivingPacsaet"]
+                                      MSH_10:params[@"MessageControlId"]
+                                      MSH_17:params[@"CountryCode"]
+                                      MSH_18:(NSStringEncoding)[params[@"sopStringEncoding"]integerValue]
+                                      MSH_19:params[@"PrincipalLanguage"]
+                                      PID_3:params[@"pID"]
+                                      PID_5:params[@"pName"]
+                                      PID_7:params[@"pBirthDate"]
+                                      PID_8:params[@"pSex"]
+                                      PV1_8:params[@"isrPatientInsuranceShortName"]
+                                      ORC_2:params[@"isrPlacerNumber"]
+                                      ORC_3:params[@"isrFillerNumber"]
+                                      ORC_5:params[@"spsOrderStatus"]
+                                      ORC_7:params[@"spsDateTime"]
+                                      ORC_7_:params[@"rpPriority"]
+                                      OBR_4:params[@"spsProtocolCode"]
+                                      OBR_12:params[@"isrDangerCode"]
+                                      OBR_13:params[@"isrRelevantClinicalInfo"]
+                                      OBR_16:params[@"isrReferringPhysician"]
+                                      OBR_18:params[@"isrAccessionNumber"]
+                                      OBR_19:params[@"rpID"]
+                                      OBR_20:params[@"spsID"]
+                                      OBR_21:params[@"spsStationAETitle"]
+                                      OBR_24:params[@"spsModality"]
+                                      OBR_30:params[@"rpTransportationMode"]
+                                      OBR_31:params[@"rpReasonForStudy"]
+                                      OBR_32:params[@"isrNameOfPhysiciansReadingStudy"]
+                                      OBR_34:params[@"spsTechnician"]
+                                      OBR_44:params[@"rpUniversalStudyCode"]
+                                      ZDS_1:params[@"isrStudyInstanceUID"]
+                                      ];
+                        }
+                        else NSLog(@"Class %@ not implemented",json[@"Class"]);
                      }
                   }
                }
@@ -122,7 +161,7 @@ int main(int argc, const char * argv[]) {
             break;
             
          default:
-            NSLog(@"\r\n\r\nsyntax    : json / hl7utf8 message > mllpSend ip:port [encoding]\r\nreturns   : 0 when succes payload was received\r\nencodings : NSASCIIStringEncoding = 1\r\n            NSUTF8StringEncoding = 4\r\n            NSISOLatin1StringEncoding = 5 (default, if value is omitted)\r\n\r\n");
+            NSLog(@"\r\n\r\nsyntax    : cat/echo json/hl7utf8\r\n                 > mllpSend ip:port [encoding (default:5)]\r\n                      > hl7payload\r\n\r\nreturns   : 0 when succes payload was received\r\n\r\nencodings : NSASCIIStringEncoding = 1\r\n            NSUTF8StringEncoding = 4\r\n            NSISOLatin1StringEncoding = 5\r\n\r\njson      : (description in corresponding header files of mllp library)\r\n            ORMO01_231\r\n            ADT");
             break;
       }
    }
