@@ -26,6 +26,7 @@
 		4A0426F32232A65400E78FEA /* ORMO01_231.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D982223127B00103F99 /* ORMO01_231.m */; };
 		4A0426F42232A7E000E78FEA /* DICMTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11EC1FE5C13B000B8DE6 /* DICMTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0426F52232A7EB00E78FEA /* DICMTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11ED1FE5C13B000B8DE6 /* DICMTypes.m */; };
+		4A0426FA2237F55100E78FEA /* ORMO01_231.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D972223127B00103F99 /* ORMO01_231.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A07FB6521F2235B00007B8B /* NSMutableURLRequest+studies.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A07FB6321F2235B00007B8B /* NSMutableURLRequest+studies.m */; };
 		4A07FB6621F2235B00007B8B /* NSMutableURLRequest+studies.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A07FB6421F2235B00007B8B /* NSMutableURLRequest+studies.h */; };
 		4A0E60441E81C01B005D7F2B /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A0E60431E81C01B005D7F2B /* ODLog.h */; };
@@ -794,6 +795,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A0426E12232A39300E78FEA /* mllp.h in Headers */,
+				4A0426FA2237F55100E78FEA /* ORMO01_231.h in Headers */,
 				4A0426F42232A7E000E78FEA /* DICMTypes.h in Headers */,
 				4A0426E52232A5EC00E78FEA /* mllpClient.h in Headers */,
 				4A0426E72232A5F900E78FEA /* MSH_231.h in Headers */,
