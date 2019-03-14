@@ -1,8 +1,7 @@
-#import "MSH.h"
+#import "NSString+MSH.h"
 #import "DICMTypes.h"
 
-@implementation MSH
-
+@implementation NSString(MSH)
 
 +(NSString*)
    SendingApplication  :(NSString*)MSH_3

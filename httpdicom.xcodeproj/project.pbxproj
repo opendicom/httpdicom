@@ -11,40 +11,14 @@
 		4A0426E12232A39300E78FEA /* mllp.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A0426DF2232A39300E78FEA /* mllp.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0426E52232A5EC00E78FEA /* mllpClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D912222D08200103F99 /* mllpClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0426E62232A5F100E78FEA /* mllpClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D922222D08200103F99 /* mllpClient.m */; };
-		4A0426E72232A5F900E78FEA /* MSH.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DCB2224317400103F99 /* MSH.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A0426E82232A5FC00E78FEA /* PID.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DD3222431B000103F99 /* PID.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A0426E92232A60100E78FEA /* PV1.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DD7222431C500103F99 /* PV1.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A0426EA2232A61100E78FEA /* ORC.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DCF2224319400103F99 /* ORC.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A0426EB2232A61700E78FEA /* OBR.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DDB222431ED00103F99 /* OBR.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A0426EC2232A61C00E78FEA /* ZDS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DDF2224320700103F99 /* ZDS.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A0426ED2232A62200E78FEA /* MSH.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DCC2224317400103F99 /* MSH.m */; };
-		4A0426EE2232A62600E78FEA /* PID.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD4222431B000103F99 /* PID.m */; };
-		4A0426EF2232A62A00E78FEA /* PV1.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD8222431C500103F99 /* PV1.m */; };
-		4A0426F02232A63900E78FEA /* ORC.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD02224319400103F99 /* ORC.m */; };
-		4A0426F12232A63F00E78FEA /* OBR.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DDC222431ED00103F99 /* OBR.m */; };
-		4A0426F22232A64400E78FEA /* ZDS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DE02224320700103F99 /* ZDS.m */; };
-		4A0426F32232A65400E78FEA /* O01.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D982223127B00103F99 /* O01.m */; };
+		4A0426E72232A5F900E78FEA /* NSString+MSH.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DCB2224317400103F99 /* NSString+MSH.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A0426E82232A5FC00E78FEA /* NSString+PID.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DD3222431B000103F99 /* NSString+PID.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A0426ED2232A62200E78FEA /* NSString+MSH.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DCC2224317400103F99 /* NSString+MSH.m */; };
+		4A0426EE2232A62600E78FEA /* NSString+PID.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD4222431B000103F99 /* NSString+PID.m */; };
 		4A0426F42232A7E000E78FEA /* DICMTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11EC1FE5C13B000B8DE6 /* DICMTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0426F52232A7EB00E78FEA /* DICMTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11ED1FE5C13B000B8DE6 /* DICMTypes.m */; };
-		4A0426FA2237F55100E78FEA /* O01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D972223127B00103F99 /* O01.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A04270D22389ADF00E78FEA /* A40.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A0426FB22389ADE00E78FEA /* A40.h */; };
-		4A04270E22389ADF00E78FEA /* A28.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A0426FC22389ADE00E78FEA /* A28.h */; };
-		4A04270F22389ADF00E78FEA /* A04.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A0426FD22389ADE00E78FEA /* A04.h */; };
-		4A04271022389ADF00E78FEA /* A23.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A0426FE22389ADE00E78FEA /* A23.m */; };
-		4A04271122389ADF00E78FEA /* A04.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A0426FF22389ADE00E78FEA /* A04.m */; };
-		4A04271222389ADF00E78FEA /* A01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04270022389ADE00E78FEA /* A01.h */; };
-		4A04271322389ADF00E78FEA /* A40.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A04270122389ADE00E78FEA /* A40.m */; };
-		4A04271422389ADF00E78FEA /* A47.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A04270222389ADE00E78FEA /* A47.m */; };
-		4A04271522389ADF00E78FEA /* A08.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04270322389ADF00E78FEA /* A08.h */; };
-		4A04271622389ADF00E78FEA /* A10.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A04270422389ADF00E78FEA /* A10.m */; };
-		4A04271722389ADF00E78FEA /* A01.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A04270522389ADF00E78FEA /* A01.m */; };
-		4A04271822389ADF00E78FEA /* A28.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A04270622389ADF00E78FEA /* A28.m */; };
-		4A04271922389ADF00E78FEA /* A31.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A04270722389ADF00E78FEA /* A31.m */; };
-		4A04271A22389ADF00E78FEA /* A47.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04270822389ADF00E78FEA /* A47.h */; };
-		4A04271B22389ADF00E78FEA /* A10.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04270922389ADF00E78FEA /* A10.h */; };
-		4A04271C22389ADF00E78FEA /* A23.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04270A22389ADF00E78FEA /* A23.h */; };
-		4A04271D22389ADF00E78FEA /* A08.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A04270B22389ADF00E78FEA /* A08.m */; };
-		4A04271E22389ADF00E78FEA /* A31.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04270C22389ADF00E78FEA /* A31.h */; };
+		4A04271222389ADF00E78FEA /* NSString+A01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04270022389ADE00E78FEA /* NSString+A01.h */; };
+		4A04271722389ADF00E78FEA /* NSString+A01.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A04270522389ADF00E78FEA /* NSString+A01.m */; };
 		4A07FB6521F2235B00007B8B /* NSMutableURLRequest+studies.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A07FB6321F2235B00007B8B /* NSMutableURLRequest+studies.m */; };
 		4A07FB6621F2235B00007B8B /* NSMutableURLRequest+studies.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A07FB6421F2235B00007B8B /* NSMutableURLRequest+studies.h */; };
 		4A0E60441E81C01B005D7F2B /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A0E60431E81C01B005D7F2B /* ODLog.h */; };
@@ -164,20 +138,10 @@
 		4AF40D6D221C59C900103F99 /* RequestStudy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D6B221C59C900103F99 /* RequestStudy.m */; };
 		4AF40D932222D08200103F99 /* mllpClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D912222D08200103F99 /* mllpClient.h */; };
 		4AF40D942222D08300103F99 /* mllpClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D922222D08200103F99 /* mllpClient.m */; };
-		4AF40D992223127B00103F99 /* O01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D972223127B00103F99 /* O01.h */; };
-		4AF40D9A2223127B00103F99 /* O01.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D982223127B00103F99 /* O01.m */; };
-		4AF40DCD2224317400103F99 /* MSH.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DCB2224317400103F99 /* MSH.h */; };
-		4AF40DCE2224317400103F99 /* MSH.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DCC2224317400103F99 /* MSH.m */; };
-		4AF40DD12224319400103F99 /* ORC.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DCF2224319400103F99 /* ORC.h */; };
-		4AF40DD22224319400103F99 /* ORC.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD02224319400103F99 /* ORC.m */; };
-		4AF40DD5222431B000103F99 /* PID.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DD3222431B000103F99 /* PID.h */; };
-		4AF40DD6222431B000103F99 /* PID.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD4222431B000103F99 /* PID.m */; };
-		4AF40DD9222431C500103F99 /* PV1.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DD7222431C500103F99 /* PV1.h */; };
-		4AF40DDA222431C500103F99 /* PV1.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD8222431C500103F99 /* PV1.m */; };
-		4AF40DDD222431ED00103F99 /* OBR.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DDB222431ED00103F99 /* OBR.h */; };
-		4AF40DDE222431ED00103F99 /* OBR.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DDC222431ED00103F99 /* OBR.m */; };
-		4AF40DE12224320700103F99 /* ZDS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DDF2224320700103F99 /* ZDS.h */; };
-		4AF40DE22224320700103F99 /* ZDS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DE02224320700103F99 /* ZDS.m */; };
+		4AF40DCD2224317400103F99 /* NSString+MSH.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DCB2224317400103F99 /* NSString+MSH.h */; };
+		4AF40DCE2224317400103F99 /* NSString+MSH.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DCC2224317400103F99 /* NSString+MSH.m */; };
+		4AF40DD5222431B000103F99 /* NSString+PID.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DD3222431B000103F99 /* NSString+PID.h */; };
+		4AF40DD6222431B000103F99 /* NSString+PID.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD4222431B000103F99 /* NSString+PID.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -219,24 +183,8 @@
 		4A0426DD2232A39300E78FEA /* mllp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = mllp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A0426DF2232A39300E78FEA /* mllp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mllp.h; sourceTree = "<group>"; };
 		4A0426E02232A39300E78FEA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4A0426FB22389ADE00E78FEA /* A40.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = A40.h; sourceTree = "<group>"; };
-		4A0426FC22389ADE00E78FEA /* A28.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = A28.h; sourceTree = "<group>"; };
-		4A0426FD22389ADE00E78FEA /* A04.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = A04.h; sourceTree = "<group>"; };
-		4A0426FE22389ADE00E78FEA /* A23.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = A23.m; sourceTree = "<group>"; };
-		4A0426FF22389ADE00E78FEA /* A04.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = A04.m; sourceTree = "<group>"; };
-		4A04270022389ADE00E78FEA /* A01.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = A01.h; sourceTree = "<group>"; };
-		4A04270122389ADE00E78FEA /* A40.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = A40.m; sourceTree = "<group>"; };
-		4A04270222389ADE00E78FEA /* A47.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = A47.m; sourceTree = "<group>"; };
-		4A04270322389ADF00E78FEA /* A08.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = A08.h; sourceTree = "<group>"; };
-		4A04270422389ADF00E78FEA /* A10.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = A10.m; sourceTree = "<group>"; };
-		4A04270522389ADF00E78FEA /* A01.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = A01.m; sourceTree = "<group>"; };
-		4A04270622389ADF00E78FEA /* A28.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = A28.m; sourceTree = "<group>"; };
-		4A04270722389ADF00E78FEA /* A31.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = A31.m; sourceTree = "<group>"; };
-		4A04270822389ADF00E78FEA /* A47.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = A47.h; sourceTree = "<group>"; };
-		4A04270922389ADF00E78FEA /* A10.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = A10.h; sourceTree = "<group>"; };
-		4A04270A22389ADF00E78FEA /* A23.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = A23.h; sourceTree = "<group>"; };
-		4A04270B22389ADF00E78FEA /* A08.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = A08.m; sourceTree = "<group>"; };
-		4A04270C22389ADF00E78FEA /* A31.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = A31.h; sourceTree = "<group>"; };
+		4A04270022389ADE00E78FEA /* NSString+A01.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+A01.h"; sourceTree = "<group>"; };
+		4A04270522389ADF00E78FEA /* NSString+A01.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+A01.m"; sourceTree = "<group>"; };
 		4A07FB6321F2235B00007B8B /* NSMutableURLRequest+studies.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableURLRequest+studies.m"; sourceTree = "<group>"; };
 		4A07FB6421F2235B00007B8B /* NSMutableURLRequest+studies.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableURLRequest+studies.h"; sourceTree = "<group>"; };
 		4A07FB6B21F5FB3A00007B8B /* INSTALL.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = INSTALL.md; sourceTree = "<group>"; };
@@ -362,20 +310,10 @@
 		4AF40D6B221C59C900103F99 /* RequestStudy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RequestStudy.m; sourceTree = "<group>"; };
 		4AF40D912222D08200103F99 /* mllpClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mllpClient.h; sourceTree = "<group>"; };
 		4AF40D922222D08200103F99 /* mllpClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = mllpClient.m; sourceTree = "<group>"; };
-		4AF40D972223127B00103F99 /* O01.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = O01.h; sourceTree = "<group>"; };
-		4AF40D982223127B00103F99 /* O01.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = O01.m; sourceTree = "<group>"; };
-		4AF40DCB2224317400103F99 /* MSH.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSH.h; sourceTree = "<group>"; };
-		4AF40DCC2224317400103F99 /* MSH.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSH.m; sourceTree = "<group>"; };
-		4AF40DCF2224319400103F99 /* ORC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ORC.h; sourceTree = "<group>"; };
-		4AF40DD02224319400103F99 /* ORC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ORC.m; sourceTree = "<group>"; };
-		4AF40DD3222431B000103F99 /* PID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PID.h; sourceTree = "<group>"; };
-		4AF40DD4222431B000103F99 /* PID.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PID.m; sourceTree = "<group>"; };
-		4AF40DD7222431C500103F99 /* PV1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PV1.h; sourceTree = "<group>"; };
-		4AF40DD8222431C500103F99 /* PV1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PV1.m; sourceTree = "<group>"; };
-		4AF40DDB222431ED00103F99 /* OBR.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OBR.h; sourceTree = "<group>"; };
-		4AF40DDC222431ED00103F99 /* OBR.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OBR.m; sourceTree = "<group>"; };
-		4AF40DDF2224320700103F99 /* ZDS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZDS.h; sourceTree = "<group>"; };
-		4AF40DE02224320700103F99 /* ZDS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZDS.m; sourceTree = "<group>"; };
+		4AF40DCB2224317400103F99 /* NSString+MSH.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+MSH.h"; sourceTree = "<group>"; };
+		4AF40DCC2224317400103F99 /* NSString+MSH.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSH.m"; sourceTree = "<group>"; };
+		4AF40DD3222431B000103F99 /* NSString+PID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+PID.h"; sourceTree = "<group>"; };
+		4AF40DD4222431B000103F99 /* NSString+PID.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+PID.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -723,26 +661,8 @@
 		4AF40D952223120D00103F99 /* messages */ = {
 			isa = PBXGroup;
 			children = (
-				4A04270022389ADE00E78FEA /* A01.h */,
-				4A04270522389ADF00E78FEA /* A01.m */,
-				4A0426FD22389ADE00E78FEA /* A04.h */,
-				4A0426FF22389ADE00E78FEA /* A04.m */,
-				4A04270322389ADF00E78FEA /* A08.h */,
-				4A04270B22389ADF00E78FEA /* A08.m */,
-				4A04270922389ADF00E78FEA /* A10.h */,
-				4A04270422389ADF00E78FEA /* A10.m */,
-				4A04270A22389ADF00E78FEA /* A23.h */,
-				4A0426FE22389ADE00E78FEA /* A23.m */,
-				4A0426FC22389ADE00E78FEA /* A28.h */,
-				4A04270622389ADF00E78FEA /* A28.m */,
-				4A04270C22389ADF00E78FEA /* A31.h */,
-				4A04270722389ADF00E78FEA /* A31.m */,
-				4A0426FB22389ADE00E78FEA /* A40.h */,
-				4A04270122389ADE00E78FEA /* A40.m */,
-				4A04270822389ADF00E78FEA /* A47.h */,
-				4A04270222389ADE00E78FEA /* A47.m */,
-				4AF40D972223127B00103F99 /* O01.h */,
-				4AF40D982223127B00103F99 /* O01.m */,
+				4A04270022389ADE00E78FEA /* NSString+A01.h */,
+				4A04270522389ADF00E78FEA /* NSString+A01.m */,
 			);
 			path = messages;
 			sourceTree = "<group>";
@@ -750,18 +670,10 @@
 		4AF40D962223125200103F99 /* segments */ = {
 			isa = PBXGroup;
 			children = (
-				4AF40DCB2224317400103F99 /* MSH.h */,
-				4AF40DCC2224317400103F99 /* MSH.m */,
-				4AF40DD3222431B000103F99 /* PID.h */,
-				4AF40DD4222431B000103F99 /* PID.m */,
-				4AF40DD7222431C500103F99 /* PV1.h */,
-				4AF40DD8222431C500103F99 /* PV1.m */,
-				4AF40DCF2224319400103F99 /* ORC.h */,
-				4AF40DD02224319400103F99 /* ORC.m */,
-				4AF40DDB222431ED00103F99 /* OBR.h */,
-				4AF40DDC222431ED00103F99 /* OBR.m */,
-				4AF40DDF2224320700103F99 /* ZDS.h */,
-				4AF40DE02224320700103F99 /* ZDS.m */,
+				4AF40DCB2224317400103F99 /* NSString+MSH.h */,
+				4AF40DCC2224317400103F99 /* NSString+MSH.m */,
+				4AF40DD3222431B000103F99 /* NSString+PID.h */,
+				4AF40DD4222431B000103F99 /* NSString+PID.m */,
 			);
 			path = segments;
 			sourceTree = "<group>";
@@ -773,7 +685,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4AF40DD9222431C500103F99 /* PV1.h in Headers */,
 				4A0FDF641E910C1D001E3426 /* RSGZipDecoder.h in Headers */,
 				4AF40D64221C52D700103F99 /* ResponsePatient.h in Headers */,
 				4AF40D3821F8FD2100103F99 /* NSMutableData+SQL.h in Headers */,
@@ -787,7 +698,6 @@
 				4ABF11F81FE5C13B000B8DE6 /* NSMutableDictionary+DICM.h in Headers */,
 				4A2D906D2181E37D00371484 /* DRS+iheiid.h in Headers */,
 				4A0FDF491E91078C001E3426 /* RSDataResponse.h in Headers */,
-				4AF40DDD222431ED00103F99 /* OBR.h in Headers */,
 				4ABF11E51FE5C11C000B8DE6 /* NSURLSessionDataTask+DRS.h in Headers */,
 				4A2D90682181E37D00371484 /* DRS+wadors.h in Headers */,
 				4ABF12021FE89413000B8DE6 /* Const.h in Headers */,
@@ -796,8 +706,7 @@
 				4A7A17C92102438400B4E801 /* DRS+pdf.h in Headers */,
 				4ABF11DF1FE5C11C000B8DE6 /* NSString+PCS.h in Headers */,
 				4A96C5611E843CBD002EB09E /* RFC822.h in Headers */,
-				4AF40DD5222431B000103F99 /* PID.h in Headers */,
-				4AF40DE12224320700103F99 /* ZDS.h in Headers */,
+				4AF40DD5222431B000103F99 /* NSString+PID.h in Headers */,
 				4A0FDF4F1E91078C001E3426 /* RSStreamedResponse.h in Headers */,
 				4ABF11F61FE5C13B000B8DE6 /* DICMTypes.h in Headers */,
 				4A0FDF421E91078C001E3426 /* RSBodyEncoder.h in Headers */,
@@ -808,7 +717,6 @@
 				4ABF11F51FE5C13B000B8DE6 /* NSUUID+DICM.h in Headers */,
 				4A0FDF511E91078C001E3426 /* RS.h in Headers */,
 				4A0FDF531E91078C001E3426 /* RSConnection.h in Headers */,
-				4AF40DD12224319400103F99 /* ORC.h in Headers */,
 				4AF40D5F221C3FCF00103F99 /* RequestPatient.h in Headers */,
 				4AF40D3121F8FA8B00103F99 /* DRS+encapsulated.h in Headers */,
 				4A2D90772183455100371484 /* zlib.h in Headers */,
@@ -825,11 +733,10 @@
 				4A2D90792183455100371484 /* zconf.h in Headers */,
 				4A0FDF5B1E9109EB001E3426 /* RSBodyWriterProtocol.h in Headers */,
 				4ABF11F31FE5C13B000B8DE6 /* NSDictionary+DICM.h in Headers */,
-				4AF40D992223127B00103F99 /* O01.h in Headers */,
 				4AF40D49220ED1F400103F99 /* RequestXMLMetadata.h in Headers */,
 				4AF40D3221F8FA8B00103F99 /* DRS+qido.h in Headers */,
 				4A0FDF4B1E91078C001E3426 /* RSErrorResponse.h in Headers */,
-				4AF40DCD2224317400103F99 /* MSH.h in Headers */,
+				4AF40DCD2224317400103F99 /* NSString+MSH.h in Headers */,
 				4ABF12041FE89413000B8DE6 /* iconv.h in Headers */,
 				4A2D90672181E37D00371484 /* DRS+zipped.h in Headers */,
 				4AE49DFA200F66AC00B8F321 /* NSMutableURLRequest+MWL.h in Headers */,
@@ -848,25 +755,12 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A04270D22389ADF00E78FEA /* A40.h in Headers */,
 				4A0426E12232A39300E78FEA /* mllp.h in Headers */,
-				4A04271B22389ADF00E78FEA /* A10.h in Headers */,
-				4A0426FA2237F55100E78FEA /* O01.h in Headers */,
-				4A04271222389ADF00E78FEA /* A01.h in Headers */,
+				4A04271222389ADF00E78FEA /* NSString+A01.h in Headers */,
 				4A0426F42232A7E000E78FEA /* DICMTypes.h in Headers */,
-				4A04270F22389ADF00E78FEA /* A04.h in Headers */,
 				4A0426E52232A5EC00E78FEA /* mllpClient.h in Headers */,
-				4A04271E22389ADF00E78FEA /* A31.h in Headers */,
-				4A04271A22389ADF00E78FEA /* A47.h in Headers */,
-				4A0426E72232A5F900E78FEA /* MSH.h in Headers */,
-				4A04270E22389ADF00E78FEA /* A28.h in Headers */,
-				4A0426E82232A5FC00E78FEA /* PID.h in Headers */,
-				4A0426E92232A60100E78FEA /* PV1.h in Headers */,
-				4A0426EA2232A61100E78FEA /* ORC.h in Headers */,
-				4A04271522389ADF00E78FEA /* A08.h in Headers */,
-				4A04271C22389ADF00E78FEA /* A23.h in Headers */,
-				4A0426EB2232A61700E78FEA /* OBR.h in Headers */,
-				4A0426EC2232A61C00E78FEA /* ZDS.h in Headers */,
+				4A0426E72232A5F900E78FEA /* NSString+MSH.h in Headers */,
+				4A0426E82232A5FC00E78FEA /* NSString+PID.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -986,17 +880,14 @@
 				4A2D90762183455100371484 /* LFCGzipUtility.m in Sources */,
 				4A0FDF461E91078C001E3426 /* RSGZipEncoder.m in Sources */,
 				4AF40D60221C3FCF00103F99 /* RequestPatient.m in Sources */,
-				4AF40DDE222431ED00103F99 /* OBR.m in Sources */,
 				4A19C9351E8F15B700DDD35D /* RSHandler.m in Sources */,
 				4ABF11DC1FE5C11C000B8DE6 /* NSString+PCS.m in Sources */,
 				4AF40D3421F8FA8B00103F99 /* DRS+encapsulated.m in Sources */,
-				4AF40D9A2223127B00103F99 /* O01.m in Sources */,
 				4AE49DF3200D153000B8F321 /* DRS+pacs.m in Sources */,
 				4A2D90622181E37D00371484 /* DRS+wado.m in Sources */,
 				4AF40D3321F8FA8B00103F99 /* DRS+qido.m in Sources */,
 				4A0FDF4C1E91078C001E3426 /* RSErrorResponse.m in Sources */,
 				4A7E6CFD210A06DA00D63315 /* NSMutableURLRequest+html5dicom.m in Sources */,
-				4AF40DD22224319400103F99 /* ORC.m in Sources */,
 				4A2D906B2181E37D00371484 /* DRS+weasis.m in Sources */,
 				4A0FDF4A1E91078C001E3426 /* RSDataResponse.m in Sources */,
 				4A0FDF4E1E91078C001E3426 /* RSFileResponse.m in Sources */,
@@ -1006,10 +897,10 @@
 				4A0FDF651E910C1D001E3426 /* RSGZipDecoder.m in Sources */,
 				4AF40D3C21FF7B8400103F99 /* NSMutableURLRequest+DRS.m in Sources */,
 				4AF40D6D221C59C900103F99 /* RequestStudy.m in Sources */,
-				4AF40DD6222431B000103F99 /* PID.m in Sources */,
+				4AF40DD6222431B000103F99 /* NSString+PID.m in Sources */,
 				4ABF12031FE89413000B8DE6 /* Const.m in Sources */,
 				4AF40D4E22169D2A00103F99 /* WADOURIRequest.m in Sources */,
-				4AF40DCE2224317400103F99 /* MSH.m in Sources */,
+				4AF40DCE2224317400103F99 /* NSString+MSH.m in Sources */,
 				4A0FDF521E91078C001E3426 /* RS.m in Sources */,
 				4A2D90642181E37D00371484 /* DRS+datatables.m in Sources */,
 				4A0FDF501E91078C001E3426 /* RSStreamedResponse.m in Sources */,
@@ -1023,7 +914,6 @@
 				4A0FDF5D1E9109EB001E3426 /* RSRequest.m in Sources */,
 				4A2D90632181E37D00371484 /* DRS+iheiid.m in Sources */,
 				4A0FDF631E910C1D001E3426 /* RSBodyDecoder.m in Sources */,
-				4AF40DDA222431C500103F99 /* PV1.m in Sources */,
 				4A0FDF431E91078C001E3426 /* RSBodyEncoder.m in Sources */,
 				4A96C55F1E843C9E002EB09E /* RFC822.m in Sources */,
 				4ABF11F41FE5C13B000B8DE6 /* NSDictionary+DICM.m in Sources */,
@@ -1032,7 +922,6 @@
 				4AE49DFB200F66AC00B8F321 /* NSMutableURLRequest+MWL.m in Sources */,
 				4A07FB6521F2235B00007B8B /* NSMutableURLRequest+studies.m in Sources */,
 				4ABF11F91FE5C13B000B8DE6 /* NSMutableDictionary+DICM.m in Sources */,
-				4AF40DE22224320700103F99 /* ZDS.m in Sources */,
 				4A2D90662181E37D00371484 /* DRS+wadors.m in Sources */,
 				4A94BEA0208691320009C4AB /* DRS+mwl.m in Sources */,
 				4AF40D5222183E7400103F99 /* RequestJSONMetadata.m in Sources */,
@@ -1062,24 +951,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A04271122389ADF00E78FEA /* A04.m in Sources */,
-				4A04271022389ADF00E78FEA /* A23.m in Sources */,
 				4A0426E62232A5F100E78FEA /* mllpClient.m in Sources */,
-				4A04271722389ADF00E78FEA /* A01.m in Sources */,
+				4A04271722389ADF00E78FEA /* NSString+A01.m in Sources */,
 				4A0426F52232A7EB00E78FEA /* DICMTypes.m in Sources */,
-				4A0426F32232A65400E78FEA /* O01.m in Sources */,
-				4A04271422389ADF00E78FEA /* A47.m in Sources */,
-				4A0426ED2232A62200E78FEA /* MSH.m in Sources */,
-				4A0426EE2232A62600E78FEA /* PID.m in Sources */,
-				4A0426EF2232A62A00E78FEA /* PV1.m in Sources */,
-				4A0426F02232A63900E78FEA /* ORC.m in Sources */,
-				4A04271922389ADF00E78FEA /* A31.m in Sources */,
-				4A04271822389ADF00E78FEA /* A28.m in Sources */,
-				4A04271622389ADF00E78FEA /* A10.m in Sources */,
-				4A04271322389ADF00E78FEA /* A40.m in Sources */,
-				4A04271D22389ADF00E78FEA /* A08.m in Sources */,
-				4A0426F12232A63F00E78FEA /* OBR.m in Sources */,
-				4A0426F22232A64400E78FEA /* ZDS.m in Sources */,
+				4A0426ED2232A62200E78FEA /* NSString+MSH.m in Sources */,
+				4A0426EE2232A62600E78FEA /* NSString+PID.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

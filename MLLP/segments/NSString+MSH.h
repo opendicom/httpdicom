@@ -2,7 +2,7 @@
 
 //? = optional (nil accepted)
 //NS_ASSUME_NONNULL_BEGIN
-@interface MSH : NSObject
+@interface NSString(MSH)
 
 //reference
 //https://dcm4chee-arc-hl7cs.readthedocs.io/en/latest/hl7-impl-notes.html#hl7-v2-3-1-message-implementation-requirements
@@ -14,7 +14,7 @@
    ReceivingFacility   :(NSString*)MSH_6 //?
    MessageType         :(NSString*)MSH_9
    MessageControlID    :(NSString*)MSH_10 //?
-   VersionID           :(NSString*)MSH_12
+   VersionID           :(NSString*)MSH_12 //?
    CountryCode         :(NSString*)MSH_17 //?
    CharacterSet        :(NSStringEncoding)stringEncoding //?
    PrincipalLanguage   :(NSString*)MSH_19 //?
