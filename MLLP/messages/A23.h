@@ -1,9 +1,11 @@
+//delete patient
+
 #import <Foundation/Foundation.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ORMO01_231 : NSObject
+@interface O01 : NSObject
 
 //http://ihewiki.wustl.edu/wiki/index.php/HL7_Tables#RAD-2_and_RAD-3:_Placer_and_Filler_Order_Management
 //Source: IHE RAD TF-2 Table B-1: HL7 Order Mapping to DICOM MWL

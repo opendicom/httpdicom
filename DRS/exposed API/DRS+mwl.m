@@ -8,7 +8,7 @@
 #import "NSMutableString+DSCD.h"
 #import "NSUUID+DICM.h"
 
-#import "ORMO01_231.h"
+#import "O01.h"
 #import "mllpClient.h"
 
 #import "NSMutableURLRequest+MWL.h"
@@ -384,7 +384,7 @@
       if ([[values[[names indexOfObject:@"Priority"]] uppercaseString] isEqualToString:@"URGENT"])Priority=@"A";
       else Priority=@"T";
 
-     NSString *msg=[ORMO01_231
+     NSString *msg=[O01_231
          singleSpsMSH_3:@"IMATEC"
          MSH_4:request.remoteAddressString
          MSH_5:pacs[@"custodiantitle"]

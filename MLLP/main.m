@@ -20,8 +20,9 @@
  
  json Method object contents depends on Class value.
  {
-   "Class" : "ORMO01_231",
-   "Method" :
+   "Message" : "O01",
+   "Version" : "231",
+   "Params"  :
    {
     "sendingRisName" :                  "sendingRisName"
     "sendingRisIP"  :                   "sendingRisIP"
@@ -63,7 +64,7 @@
 
 #import <Foundation/Foundation.h>
 #import <mllp/mllpClient.h>
-#import <mllp/ORMO01_231.h>
+#import <mllp/O01.h>
 
 int main(int argc, const char * argv[]) {
    int returnValue=-1;
@@ -92,13 +93,13 @@ int main(int argc, const char * argv[]) {
                   if (error) NSLog(@"%@",[error description]);
                   else
                   {
-                     if (!json[@"Class"] || !json[@"Method"]) NSLog(@"json without \"Class\" name/value or \"Method\" object");
+                     if (!json[@"Class"] || !json[@"Params"] || !json[@"Version"]) NSLog(@"json without \"Message\" name/value or \"Version\" or \"Params\" object");
                      else
                      {
-                        if ([json[@"Class"] isEqualToString:@"ORMO01_231"])
+                        if ([json[@"Message"] isEqualToString:@"O01"])
                         {
-                           NSDictionary * params=json[@"Method"];
-                           hl7String=[ORMO01_231
+                           NSDictionary * params=json[@"Params"];
+                           hl7String=[O01
                                       singleSpsMSH_3:params[@"sendingRisName"]
                                       MSH_4:params[@"sendingRisIP"]
                                       MSH_5:params[@"receivingCustodianTitle"]
@@ -161,7 +162,7 @@ int main(int argc, const char * argv[]) {
             break;
             
          default:
-            NSLog(@"\r\n\r\nsyntax    : cat/echo json/hl7utf8\r\n                 > mllpSend ip:port [encoding (default:5)]\r\n                      > hl7payload\r\n\r\nreturns   : 0 when succes payload was received\r\n\r\nencodings : NSASCIIStringEncoding = 1\r\n            NSUTF8StringEncoding = 4\r\n            NSISOLatin1StringEncoding = 5\r\n\r\njson      : (description in corresponding header files of mllp library)\r\n            ORMO01_231\r\n            ADT");
+            NSLog(@"\r\n\r\nsyntax    : cat/echo json/hl7utf8\r\n                 > mllpSend ip:port [encoding (default:5)]\r\n                      > hl7payload\r\n\r\nreturns   : 0 when succes payload was received\r\n\r\nencodings : NSASCIIStringEncoding = 1\r\n            NSUTF8StringEncoding = 4\r\n            NSISOLatin1StringEncoding = 5\r\n\r\njson      : (description in corresponding header files of mllp library)\r\n            O01_231\r\n            ADT");
             break;
       }
    }

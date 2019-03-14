@@ -17,4 +17,4 @@ FOUNDATION_EXPORT const unsigned char mllpVersionString[];
 // In this header, you should import all the public headers of your framework using statements like #import <mllp/PublicHeader.h>
 
 #import <mllp/mllpClient.h>
-#import <mllp/ORMO01_231.h>
+#import <mllp/O01.h>

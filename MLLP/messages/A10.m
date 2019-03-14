@@ -1,12 +1,12 @@
-#import "ORMO01_231.h"
-#import "MSH_231.h"
-#import "PID_231.h"
-#import "PV1_231.h"
-#import "ORC_231.h"
-#import "OBR_231.h"
-#import "ZDS_231.h"
+#import "O01.h"
+#import "MSH.h"
+#import "PID.h"
+#import "PV1.h"
+#import "ORC.h"
+#import "OBR.h"
+#import "ZDS.h"
 
-@implementation ORMO01_231
+@implementation A10
 
 +(NSString*)singleSpsMSH_3:(NSString*)sendingRisName
                      MSH_4:(NSString*)sendingRisIP
