@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface mllpClient : NSObject
+@interface mllpSend : NSObject
 
 +(bool)sendIP:ipString
          port:portString

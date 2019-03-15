@@ -16,6 +16,7 @@
    PrincipalLanguage       :(NSString*)MSH_19
    PatientIdentifierList   :(NSString*)PID_3
    PatientName             :(NSString*)PID_5
+   MotherMaidenName        :(NSString*)PID_6
    PatientBirthDate        :(NSString*)PID_7
    PatientAdministrativeSex:(NSString*)PID_8
 {
@@ -34,10 +35,9 @@
      ];
    if (!MSH)return nil;
    
-      
+   
    NSString * PID = [NSString
-     PatientIdentifierList:PID_3
-     AlternatePatientID      :nil
+     PatientIdentifierList   :PID_3
      PatientName             :PID_5
      MotherMaidenName        :nil
      PatientBirthDate        :PID_7

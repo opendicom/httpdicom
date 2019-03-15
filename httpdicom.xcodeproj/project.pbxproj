@@ -9,16 +9,30 @@
 /* Begin PBXBuildFile section */
 		4A0426D422329E8300E78FEA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A0426D322329E8300E78FEA /* main.m */; };
 		4A0426E12232A39300E78FEA /* mllp.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A0426DF2232A39300E78FEA /* mllp.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A0426E52232A5EC00E78FEA /* mllpClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D912222D08200103F99 /* mllpClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A0426E62232A5F100E78FEA /* mllpClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D922222D08200103F99 /* mllpClient.m */; };
+		4A0426E52232A5EC00E78FEA /* mllpSend.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D912222D08200103F99 /* mllpSend.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A0426E62232A5F100E78FEA /* mllpSend.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D922222D08200103F99 /* mllpSend.m */; };
 		4A0426E72232A5F900E78FEA /* NSString+MSH.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DCB2224317400103F99 /* NSString+MSH.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0426E82232A5FC00E78FEA /* NSString+PID.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DD3222431B000103F99 /* NSString+PID.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0426ED2232A62200E78FEA /* NSString+MSH.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DCC2224317400103F99 /* NSString+MSH.m */; };
 		4A0426EE2232A62600E78FEA /* NSString+PID.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD4222431B000103F99 /* NSString+PID.m */; };
 		4A0426F42232A7E000E78FEA /* DICMTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11EC1FE5C13B000B8DE6 /* DICMTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0426F52232A7EB00E78FEA /* DICMTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11ED1FE5C13B000B8DE6 /* DICMTypes.m */; };
-		4A04271222389ADF00E78FEA /* NSString+A01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04270022389ADE00E78FEA /* NSString+A01.h */; };
+		4A04271222389ADF00E78FEA /* NSString+A01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04270022389ADE00E78FEA /* NSString+A01.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A04271722389ADF00E78FEA /* NSString+A01.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A04270522389ADF00E78FEA /* NSString+A01.m */; };
+		4A042727223AB3AE00E78FEA /* NSString+ZDS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04271F223AB3AD00E78FEA /* NSString+ZDS.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A042728223AB3AE00E78FEA /* NSString+PV1.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A042720223AB3AD00E78FEA /* NSString+PV1.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A042729223AB3AE00E78FEA /* NSString+OBR.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A042721223AB3AD00E78FEA /* NSString+OBR.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A04272A223AB3AE00E78FEA /* NSString+ZDS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042722223AB3AD00E78FEA /* NSString+ZDS.m */; };
+		4A04272B223AB3AE00E78FEA /* NSString+ORC.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A042723223AB3AD00E78FEA /* NSString+ORC.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A04272C223AB3AE00E78FEA /* NSString+PV1.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042724223AB3AD00E78FEA /* NSString+PV1.m */; };
+		4A04272D223AB3AE00E78FEA /* NSString+ORC.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042725223AB3AE00E78FEA /* NSString+ORC.m */; };
+		4A04272E223AB3AE00E78FEA /* NSString+OBR.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042726223AB3AE00E78FEA /* NSString+OBR.m */; };
+		4A042731223ABE4C00E78FEA /* NSString+O01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04272F223ABE4C00E78FEA /* NSString+O01.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A042732223ABE4C00E78FEA /* NSString+O01.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042730223ABE4C00E78FEA /* NSString+O01.m */; };
+		4A042733223AC06C00E78FEA /* NSUUID+DICM.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11EB1FE5C13B000B8DE6 /* NSUUID+DICM.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A042734223AC09800E78FEA /* NSUUID+DICM.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11E71FE5C13B000B8DE6 /* NSUUID+DICM.m */; };
+		4A042737223BF29A00E78FEA /* NSString+A04.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A042735223BF29A00E78FEA /* NSString+A04.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A042738223BF29A00E78FEA /* NSString+A04.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042736223BF29A00E78FEA /* NSString+A04.m */; };
 		4A07FB6521F2235B00007B8B /* NSMutableURLRequest+studies.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A07FB6321F2235B00007B8B /* NSMutableURLRequest+studies.m */; };
 		4A07FB6621F2235B00007B8B /* NSMutableURLRequest+studies.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A07FB6421F2235B00007B8B /* NSMutableURLRequest+studies.h */; };
 		4A0E60441E81C01B005D7F2B /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A0E60431E81C01B005D7F2B /* ODLog.h */; };
@@ -136,8 +150,8 @@
 		4AF40D69221C592300103F99 /* ResponseStudy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D67221C592300103F99 /* ResponseStudy.m */; };
 		4AF40D6C221C59C900103F99 /* RequestStudy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D6A221C59C900103F99 /* RequestStudy.h */; };
 		4AF40D6D221C59C900103F99 /* RequestStudy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D6B221C59C900103F99 /* RequestStudy.m */; };
-		4AF40D932222D08200103F99 /* mllpClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D912222D08200103F99 /* mllpClient.h */; };
-		4AF40D942222D08300103F99 /* mllpClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D922222D08200103F99 /* mllpClient.m */; };
+		4AF40D932222D08200103F99 /* mllpSend.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40D912222D08200103F99 /* mllpSend.h */; };
+		4AF40D942222D08300103F99 /* mllpSend.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40D922222D08200103F99 /* mllpSend.m */; };
 		4AF40DCD2224317400103F99 /* NSString+MSH.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DCB2224317400103F99 /* NSString+MSH.h */; };
 		4AF40DCE2224317400103F99 /* NSString+MSH.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DCC2224317400103F99 /* NSString+MSH.m */; };
 		4AF40DD5222431B000103F99 /* NSString+PID.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DD3222431B000103F99 /* NSString+PID.h */; };
@@ -145,7 +159,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		4A0426F82232AA2E00E78FEA /* PBXContainerItemProxy */ = {
+		4A04273A223BFFD400E78FEA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2A31F5DA1C87295A00A78C7C /* Project object */;
 			proxyType = 1;
@@ -185,6 +199,18 @@
 		4A0426E02232A39300E78FEA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4A04270022389ADE00E78FEA /* NSString+A01.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+A01.h"; sourceTree = "<group>"; };
 		4A04270522389ADF00E78FEA /* NSString+A01.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+A01.m"; sourceTree = "<group>"; };
+		4A04271F223AB3AD00E78FEA /* NSString+ZDS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+ZDS.h"; sourceTree = "<group>"; };
+		4A042720223AB3AD00E78FEA /* NSString+PV1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+PV1.h"; sourceTree = "<group>"; };
+		4A042721223AB3AD00E78FEA /* NSString+OBR.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+OBR.h"; sourceTree = "<group>"; };
+		4A042722223AB3AD00E78FEA /* NSString+ZDS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+ZDS.m"; sourceTree = "<group>"; };
+		4A042723223AB3AD00E78FEA /* NSString+ORC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+ORC.h"; sourceTree = "<group>"; };
+		4A042724223AB3AD00E78FEA /* NSString+PV1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+PV1.m"; sourceTree = "<group>"; };
+		4A042725223AB3AE00E78FEA /* NSString+ORC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+ORC.m"; sourceTree = "<group>"; };
+		4A042726223AB3AE00E78FEA /* NSString+OBR.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+OBR.m"; sourceTree = "<group>"; };
+		4A04272F223ABE4C00E78FEA /* NSString+O01.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+O01.h"; sourceTree = "<group>"; };
+		4A042730223ABE4C00E78FEA /* NSString+O01.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+O01.m"; sourceTree = "<group>"; };
+		4A042735223BF29A00E78FEA /* NSString+A04.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+A04.h"; sourceTree = "<group>"; };
+		4A042736223BF29A00E78FEA /* NSString+A04.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+A04.m"; sourceTree = "<group>"; };
 		4A07FB6321F2235B00007B8B /* NSMutableURLRequest+studies.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableURLRequest+studies.m"; sourceTree = "<group>"; };
 		4A07FB6421F2235B00007B8B /* NSMutableURLRequest+studies.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableURLRequest+studies.h"; sourceTree = "<group>"; };
 		4A07FB6B21F5FB3A00007B8B /* INSTALL.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = INSTALL.md; sourceTree = "<group>"; };
@@ -308,8 +334,8 @@
 		4AF40D67221C592300103F99 /* ResponseStudy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResponseStudy.m; sourceTree = "<group>"; };
 		4AF40D6A221C59C900103F99 /* RequestStudy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RequestStudy.h; sourceTree = "<group>"; };
 		4AF40D6B221C59C900103F99 /* RequestStudy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RequestStudy.m; sourceTree = "<group>"; };
-		4AF40D912222D08200103F99 /* mllpClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mllpClient.h; sourceTree = "<group>"; };
-		4AF40D922222D08200103F99 /* mllpClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = mllpClient.m; sourceTree = "<group>"; };
+		4AF40D912222D08200103F99 /* mllpSend.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mllpSend.h; sourceTree = "<group>"; };
+		4AF40D922222D08200103F99 /* mllpSend.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = mllpSend.m; sourceTree = "<group>"; };
 		4AF40DCB2224317400103F99 /* NSString+MSH.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+MSH.h"; sourceTree = "<group>"; };
 		4AF40DCC2224317400103F99 /* NSString+MSH.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSH.m"; sourceTree = "<group>"; };
 		4AF40DD3222431B000103F99 /* NSString+PID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+PID.h"; sourceTree = "<group>"; };
@@ -652,8 +678,8 @@
 				4A0426E02232A39300E78FEA /* Info.plist */,
 				4AF40D962223125200103F99 /* segments */,
 				4AF40D952223120D00103F99 /* messages */,
-				4AF40D912222D08200103F99 /* mllpClient.h */,
-				4AF40D922222D08200103F99 /* mllpClient.m */,
+				4AF40D912222D08200103F99 /* mllpSend.h */,
+				4AF40D922222D08200103F99 /* mllpSend.m */,
 			);
 			path = MLLP;
 			sourceTree = "<group>";
@@ -661,6 +687,10 @@
 		4AF40D952223120D00103F99 /* messages */ = {
 			isa = PBXGroup;
 			children = (
+				4A042735223BF29A00E78FEA /* NSString+A04.h */,
+				4A042736223BF29A00E78FEA /* NSString+A04.m */,
+				4A04272F223ABE4C00E78FEA /* NSString+O01.h */,
+				4A042730223ABE4C00E78FEA /* NSString+O01.m */,
 				4A04270022389ADE00E78FEA /* NSString+A01.h */,
 				4A04270522389ADF00E78FEA /* NSString+A01.m */,
 			);
@@ -670,6 +700,14 @@
 		4AF40D962223125200103F99 /* segments */ = {
 			isa = PBXGroup;
 			children = (
+				4A042721223AB3AD00E78FEA /* NSString+OBR.h */,
+				4A042726223AB3AE00E78FEA /* NSString+OBR.m */,
+				4A042723223AB3AD00E78FEA /* NSString+ORC.h */,
+				4A042725223AB3AE00E78FEA /* NSString+ORC.m */,
+				4A042720223AB3AD00E78FEA /* NSString+PV1.h */,
+				4A042724223AB3AD00E78FEA /* NSString+PV1.m */,
+				4A04271F223AB3AD00E78FEA /* NSString+ZDS.h */,
+				4A042722223AB3AD00E78FEA /* NSString+ZDS.m */,
 				4AF40DCB2224317400103F99 /* NSString+MSH.h */,
 				4AF40DCC2224317400103F99 /* NSString+MSH.m */,
 				4AF40DD3222431B000103F99 /* NSString+PID.h */,
@@ -726,7 +764,7 @@
 				4ABF11FD1FE6879C000B8DE6 /* NSMutableString+DSCD.h in Headers */,
 				4ABF11DE1FE5C11C000B8DE6 /* NSData+PCS.h in Headers */,
 				4AD38B322062D47200CA1ECC /* K.h in Headers */,
-				4AF40D932222D08200103F99 /* mllpClient.h in Headers */,
+				4AF40D932222D08200103F99 /* mllpSend.h in Headers */,
 				4A0FDF5C1E9109EB001E3426 /* RSRequest.h in Headers */,
 				4A94BE9F208691320009C4AB /* DRS+mwl.h in Headers */,
 				4AF40D68221C592300103F99 /* ResponseStudy.h in Headers */,
@@ -755,12 +793,19 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A0426E12232A39300E78FEA /* mllp.h in Headers */,
-				4A04271222389ADF00E78FEA /* NSString+A01.h in Headers */,
 				4A0426F42232A7E000E78FEA /* DICMTypes.h in Headers */,
-				4A0426E52232A5EC00E78FEA /* mllpClient.h in Headers */,
+				4A042737223BF29A00E78FEA /* NSString+A04.h in Headers */,
 				4A0426E72232A5F900E78FEA /* NSString+MSH.h in Headers */,
 				4A0426E82232A5FC00E78FEA /* NSString+PID.h in Headers */,
+				4A042728223AB3AE00E78FEA /* NSString+PV1.h in Headers */,
+				4A04272B223AB3AE00E78FEA /* NSString+ORC.h in Headers */,
+				4A042729223AB3AE00E78FEA /* NSString+OBR.h in Headers */,
+				4A042727223AB3AE00E78FEA /* NSString+ZDS.h in Headers */,
+				4A04271222389ADF00E78FEA /* NSString+A01.h in Headers */,
+				4A042731223ABE4C00E78FEA /* NSString+O01.h in Headers */,
+				4A0426E12232A39300E78FEA /* mllp.h in Headers */,
+				4A0426E52232A5EC00E78FEA /* mllpSend.h in Headers */,
+				4A042733223AC06C00E78FEA /* NSUUID+DICM.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -796,7 +841,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				4A0426F92232AA2E00E78FEA /* PBXTargetDependency */,
+				4A04273B223BFFD400E78FEA /* PBXTargetDependency */,
 			);
 			name = mllpSend;
 			productName = mllpClient;
@@ -909,7 +954,7 @@
 				4ABF11FE1FE6879C000B8DE6 /* NSMutableString+DSCD.m in Sources */,
 				4A0FDF201E904E5C001E3426 /* main.m in Sources */,
 				4A2D906A2181E37D00371484 /* DRS+zipped.m in Sources */,
-				4AF40D942222D08300103F99 /* mllpClient.m in Sources */,
+				4AF40D942222D08300103F99 /* mllpSend.m in Sources */,
 				4AF40D3721F8FD2100103F99 /* NSMutableData+SQL.m in Sources */,
 				4A0FDF5D1E9109EB001E3426 /* RSRequest.m in Sources */,
 				4A2D90632181E37D00371484 /* DRS+iheiid.m in Sources */,
@@ -951,21 +996,28 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A0426E62232A5F100E78FEA /* mllpClient.m in Sources */,
-				4A04271722389ADF00E78FEA /* NSString+A01.m in Sources */,
 				4A0426F52232A7EB00E78FEA /* DICMTypes.m in Sources */,
+				4A042734223AC09800E78FEA /* NSUUID+DICM.m in Sources */,
 				4A0426ED2232A62200E78FEA /* NSString+MSH.m in Sources */,
 				4A0426EE2232A62600E78FEA /* NSString+PID.m in Sources */,
+				4A04272C223AB3AE00E78FEA /* NSString+PV1.m in Sources */,
+				4A042738223BF29A00E78FEA /* NSString+A04.m in Sources */,
+				4A04272D223AB3AE00E78FEA /* NSString+ORC.m in Sources */,
+				4A04272E223AB3AE00E78FEA /* NSString+OBR.m in Sources */,
+				4A04272A223AB3AE00E78FEA /* NSString+ZDS.m in Sources */,
+				4A042732223ABE4C00E78FEA /* NSString+O01.m in Sources */,
+				4A04271722389ADF00E78FEA /* NSString+A01.m in Sources */,
+				4A0426E62232A5F100E78FEA /* mllpSend.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		4A0426F92232AA2E00E78FEA /* PBXTargetDependency */ = {
+		4A04273B223BFFD400E78FEA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4A0426DC2232A39300E78FEA /* mllp */;
-			targetProxy = 4A0426F82232AA2E00E78FEA /* PBXContainerItemProxy */;
+			targetProxy = 4A04273A223BFFD400E78FEA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

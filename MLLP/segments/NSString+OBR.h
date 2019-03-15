@@ -1,8 +1,10 @@
 #import <Foundation/Foundation.h>
 
+//? = optional (nil accepted)
 //NS_ASSUME_NONNULL_BEGIN
 
 //https://dcm4chee-arc-hl7cs.readthedocs.io/en/latest/orm/inbound.html#tab-obr-orm-omg
+
 
 //4  UniversalServiceID (^^^99845^RX INTESTINAL^CR)
 //   (P1^Procedure 1^ERL_MESA^X1_A1^SP Action Item X1_A1^DSS_MESA)
@@ -26,22 +28,23 @@
 //34 Technician
 //44 ProcedureCode (P1^Procedure 1^ERL_MESA^X1_A1)
 
-@interface OBR : NSObject
+@interface NSString(OBR)
 
-+(NSString*)spsProtocolCode:(NSString*)ProtocolCode
-              isrDangerCode:(NSString*)DangerCode
-    isrRelevantClinicalInfo:(NSString*)RelevantClinicalInfo
-      isrReferringPhysician:(NSString*)OrderingProvider
-         isrAccessionNumber:(NSString*)PlacerField1
-                       rpID:(NSString*)PlacerField2
-                      spsID:(NSString*)FillerField1
-          spsStationAETitle:(NSString*)FillerField2
-                spsModality:(NSString*)DiagnosticServiceSectID
-       rpTransportationMode:(NSString*)TransportationMode
-           rpReasonForStudy:(NSString*)ReasonForStudy
-isrNameOfPhysiciansReadingStudy:(NSString*)PrincipalResultInterpreter
-              spsTechnician:(NSString*)Technician
-       rpUniversalStudyCode:(NSString*)UniversalServiceID
++(NSString*)
+   spsProtocolCode                :(NSString*)OBR_4  //?
+   isrDangerCode                  :(NSString*)OBR_12 //?
+   isrRelevantClinicalInfo        :(NSString*)OBR_13 //?
+   isrReferringPhysician          :(NSString*)OBR_16 //?
+   isrAccessionNumber             :(NSString*)OBR_18 //?
+   rpID                           :(NSString*)OBR_19 //?
+   spsID                          :(NSString*)OBR_20 //?
+   spsStationAETitle              :(NSString*)OBR_21 //?
+   spsModality                    :(NSString*)OBR_24
+   rpTransportationMode           :(NSString*)OBR_30 //?
+   rpReasonForStudy               :(NSString*)OBR_31 //?
+   isrNameOfPhysiciansReadingStudy:(NSString*)OBR_32 //?
+   spsTechnician                  :(NSString*)OBR_34 //?
+   rpUniversalStudyCode           :(NSString*)OBR_44 //?
 ;
 
 @end

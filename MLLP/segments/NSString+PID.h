@@ -10,7 +10,6 @@
 
 +(NSString*)
    PatientIdentifierList   :(NSString*)PID_3 //  ID^^^ISSUER
-   AlternatePatientID      :(NSString*)PID_4 //?
    PatientName             :(NSString*)PID_5 //  FAMILY1>FAMILY2^GIVEN1 GIVEN2
    MotherMaidenName        :(NSString*)PID_6 //?
    PatientBirthDate        :(NSString*)PID_7 //? AAAAMMDD

@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
 
+//? = optional (nil accepted)
 //NS_ASSUME_NONNULL_BEGIN
-
-@interface ORC : NSObject
+@interface NSString(ORC)
 
 //https://dcm4chee-arc-hl7cs.readthedocs.io/en/latest/orm/inbound.html#tab-pv1-orm-omg
 
@@ -38,14 +38,16 @@
 //18 EnteringDevice ( This field may contain multiple values encoded as HL7 repeating field despite current HL7v2 not allowing multiple values for this field.)
 //we define it with IP of the sender (as in sending facility MSH-4)
 
-+(NSString*)NewSendingRisName:(NSString*)sendingRisName //MSH-3
-             receivingPacsaet:(NSString*)receivingPacsaet //MSH-6
-                  isrPlacerDT:(NSString*)PlacerNumber
-         isrFillerScheduledDT:(NSString*)FillerNumber
-               spsOrderStatus:(NSString*)OrderStatus
-                  spsDateTime:(NSString*)scheduledDateTime
-                   rpPriority:(NSString*)priority
-               EnteringDevice:(NSString*)EnteringDevice //IP of the sender (MSH-4)
++(NSString*)
+   OrderControl        :(NSString*)ORC_1  //? NW
+   sendingRisName      :(NSString*)ORC_2  //? HIS
+   receivingPacsaet    :(NSString*)ORC_3  //? CUSTODIAN
+   isrPlacerDT         :(NSString*)ORC_2_ //? now
+   isrFillerScheduledDT:(NSString*)ORC_3_ //? now
+   spsOrderStatus      :(NSString*)ORC_4  //? SC
+   spsDateTime         :(NSString*)ORC_7  //? now
+   rpPriority          :(NSString*)ORC_7_ //? T
+   EnteringDevice      :(NSString*)ORC_18 //? IP
 ;
 
 @end

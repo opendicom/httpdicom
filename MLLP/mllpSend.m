@@ -1,4 +1,4 @@
-#import "mllpClient.h"
+#import "mllpSend.h"
 
 const uint8 SB=0x0B;
 const uint8 EB=0x1C;
@@ -8,7 +8,7 @@ const uint8 CR=0x0D;
 @"ORC|NW|2013424203649|||||^^^201304242036^^M~EDIUM||20130424203649||||||||MUCAM\rOBR||987861||^^^kdkdkdff^TAC DE CRANEO^CT||||||||||||||987861|1|||||CT|||^^^201111301500\rZDS|987861"
  */
 
-@implementation mllpClient
+@implementation mllpSend
 
 
 +(bool)sendIP:ipString

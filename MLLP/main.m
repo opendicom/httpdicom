@@ -7,64 +7,39 @@
 //
 
 /*
- syntax: json / hl7utf8 message > mllpSend ip:port [charset] > stdout
+ syntax:
+   stdin > mllpSend ip:port [charset] > stdout
  
  charset =
-   1 NSASCIIStringEncoding
-   4 NSUTF8StringEncoding
-   5 NSISOLatin1StringEncoding (default, if value is omitted)
+   1 (NSASCIIStringEncoding)
+   4 (NSUTF8StringEncoding)
+   5 (NSISOLatin1StringEncoding (default, if value is omitted))
  
  stdin data stream may be:
-   hl7
-   json
+   hl7v2 message
+   json object which will be transformed in hl7v2 message
  
- json Method object contents depends on Class value.
+ Exemple of json:
  {
    "Message" : "O01",
-   "Version" : "231",
+   "Version" : "2.3.1",
    "Params"  :
    {
     "sendingRisName" :                  "sendingRisName"
     "sendingRisIP"  :                   "sendingRisIP"
-    "receivingCustodianTitle"  :        "receivingCustodianTitle"
-    "receivingPacsaet"  :               "receivingPacsaet"
-    "MessageControlId" :                "MessageControlId"
-    "CountryCode" :                     "CountryCode"
-    "sopStringEncoding" :               "sopStringEncoding"
-    "sopStringEncoding" :               "PrincipalLanguage"
-    "pID"  :                            "pID"
-    "pName"  :                          "pName"
-    "pBirthDate"  :                     "pBirthDate"
-    "pSex"  :                           "pSex"
-    "isrPatientInsuranceShortName"  :   "isrPatientInsuranceShortName"
-    "isrPlacerNumber"  :                "isrPlacerNumber"
-    "isrFillerNumber"  :                "isrFillerNumber"
-    "spsOrderStatus"  :                 "spsOrderStatus"
-    "spsDateTime"  :                    "spsDateTime"
-    "rpPriority" :                      "rpPriority"
-    "spsProtocolCode"  :                "spsProtocolCode"
-    ""isrDangerCode" :                  "isrDangerCode"
-    "isrRelevantClinicalInfo" :         "isrRelevantClinicalInfo"
-    "isrReferringPhysician" :           "isrReferringPhysician"
-    "isrAccessionNumber" :              "isrAccessionNumber"
-    "rpID" :                            "rpID"
-    "spsID" :                           "spsID"
-    "spsStationAETitle" :               "spsStationAETitle"
-    "spsModality" :                     "spsModality"
-    "rpTransportationMode" :            "rpTransportationMode"
-    "rpReasonForStudy" :                "rpReasonForStudy"
-    "isrNameOfPhysiciansReadingStudy" : "isrNameOfPhysiciansReadingStudy"
-    "spsTechnician" :                   "spsTechnician"
-    "rpUniversalStudyCode" :            "rpUniversalStudyCode"
-    "isrStudyInstanceUID"  :            "isrStudyInstanceUID"
+    ...
    }
  }
+ 
+ stdout copies the payload received from the mllp server, or some error
  */
 
 
 #import <Foundation/Foundation.h>
-#import <mllp/mllpClient.h>
-#import <mllp/O01.h>
+#import <mllp/mllpSend.h>
+#import <mllp/NSString+A01.h>
+#import <mllp/NSString+A04.h>
+#import <mllp/NSString+O01.h>
 
 int main(int argc, const char * argv[]) {
    int returnValue=-1;
@@ -96,46 +71,88 @@ int main(int argc, const char * argv[]) {
                      if (!json[@"Class"] || !json[@"Params"] || !json[@"Version"]) NSLog(@"json without \"Message\" name/value or \"Version\" or \"Params\" object");
                      else
                      {
-                        if ([json[@"Message"] isEqualToString:@"O01"])
-                        {
-                           NSDictionary * params=json[@"Params"];
-                           hl7String=[O01
-                                      singleSpsMSH_3:params[@"sendingRisName"]
-                                      MSH_4:params[@"sendingRisIP"]
-                                      MSH_5:params[@"receivingCustodianTitle"]
-                                      MSH_6:params[@"receivingPacsaet"]
-                                      MSH_10:params[@"MessageControlId"]
-                                      MSH_17:params[@"CountryCode"]
-                                      MSH_18:(NSStringEncoding)[params[@"sopStringEncoding"]integerValue]
-                                      MSH_19:params[@"PrincipalLanguage"]
-                                      PID_3:params[@"pID"]
-                                      PID_5:params[@"pName"]
-                                      PID_7:params[@"pBirthDate"]
-                                      PID_8:params[@"pSex"]
-                                      PV1_8:params[@"isrPatientInsuranceShortName"]
-                                      ORC_2:params[@"isrPlacerNumber"]
-                                      ORC_3:params[@"isrFillerNumber"]
-                                      ORC_5:params[@"spsOrderStatus"]
-                                      ORC_7:params[@"spsDateTime"]
-                                      ORC_7_:params[@"rpPriority"]
-                                      OBR_4:params[@"spsProtocolCode"]
-                                      OBR_12:params[@"isrDangerCode"]
-                                      OBR_13:params[@"isrRelevantClinicalInfo"]
-                                      OBR_16:params[@"isrReferringPhysician"]
-                                      OBR_18:params[@"isrAccessionNumber"]
-                                      OBR_19:params[@"rpID"]
-                                      OBR_20:params[@"spsID"]
-                                      OBR_21:params[@"spsStationAETitle"]
-                                      OBR_24:params[@"spsModality"]
-                                      OBR_30:params[@"rpTransportationMode"]
-                                      OBR_31:params[@"rpReasonForStudy"]
-                                      OBR_32:params[@"isrNameOfPhysiciansReadingStudy"]
-                                      OBR_34:params[@"spsTechnician"]
-                                      OBR_44:params[@"rpUniversalStudyCode"]
-                                      ZDS_1:params[@"isrStudyInstanceUID"]
-                                      ];
-                        }
-                        else NSLog(@"Class %@ not implemented",json[@"Class"]);
+if ([json[@"Message"] isEqualToString:@"A01"])
+{
+   NSDictionary * params=json[@"Params"];
+   hl7String=[NSString
+     admitInpatient:params[@"VersionID"]
+     sendingRisName:params[@"sendingRisName"]
+     sendingRisIP:params[@"sendingRisIP"]
+     receivingCustodianTitle:params[@"receivingCustodianTitle"]
+     receivingPacsaet:params[@"receivingPacsaet"]
+     MessageControlId:params[@"MessageControlId"]
+     CountryCode:params[@"CountryCode"]
+     stringEncoding:(NSStringEncoding)[params[@"stringEncoding"]integerValue]
+     PrincipalLanguage:params[@"PrincipalLanguage"]
+     PatientIdentifierList:params[@"PatientIdentifierList"]
+     PatientName:params[@"PatientName"]
+     MotherMaidenName:params[@"MotherMaidenName"]
+     PatientBirthDate:params[@"PatientBirthDate"]
+     PatientAdministrativeSex:params[@"PatientAdministrativeSex"]
+     ];
+}
+else if ([json[@"Message"] isEqualToString:@"A04"])
+{
+   NSDictionary * params=json[@"Params"];
+   hl7String=[NSString
+     registerPatient:params[@"VersionID"]
+     sendingRisName:params[@"sendingRisName"]
+     sendingRisIP:params[@"sendingRisIP"]
+     receivingCustodianTitle:params[@"receivingCustodianTitle"]
+     receivingPacsaet:params[@"receivingPacsaet"]
+     MessageControlId:params[@"MessageControlId"]
+     CountryCode:params[@"CountryCode"]
+     stringEncoding:(NSStringEncoding)[params[@"stringEncoding"]integerValue]
+     PrincipalLanguage:params[@"PrincipalLanguage"]
+     PatientIdentifierList:params[@"PatientIdentifierList"]
+     PatientName:params[@"PatientName"]
+     MotherMaidenName:params[@"MotherMaidenName"]
+     PatientBirthDate:params[@"PatientBirthDate"]
+     PatientAdministrativeSex:params[@"PatientAdministrativeSex"]
+     ];
+}
+else if ([json[@"Message"] isEqualToString:@"O01"])
+{
+   NSDictionary * params=json[@"Params"];
+   hl7String=[NSString
+       singleSps:params[@"VersionID"]
+       sendingRisName:params[@"sendingRisName"]
+       sendingRisIP:params[@"sendingRisIP"]
+       receivingCustodianTitle:params[@"receivingCustodianTitle"]
+       receivingPacsaet:params[@"receivingPacsaet"]
+       MessageControlId:params[@"MessageControlId"]
+       CountryCode:params[@"CountryCode"]
+       stringEncoding:(NSStringEncoding)[params[@"stringEncoding"]integerValue]
+       PrincipalLanguage:params[@"PrincipalLanguage"]
+       PatientIdentifierList:params[@"PatientIdentifierList"]
+       PatientName:params[@"PatientName"]
+       MotherMaidenName:params[@"MotherMaidenName"]
+       PatientBirthDate:params[@"PatientBirthDate"]
+       PatientAdministrativeSex:params[@"PatientAdministrativeSex"]
+       isrPatientInsuranceShortName:params[@"isrPatientInsuranceShortName"]
+       isrPlacerNumber:params[@"isrPlacerNumber"]
+       isrFillerNumber:params[@"isrFillerNumber"]
+       spsOrderStatus:params[@"spsOrderStatus"]
+       spsDateTime:params[@"spsDateTime"]
+       rpPriority:params[@"rpPriority"]
+       spsProtocolCode:params[@"spsProtocolCode"]
+       isrDangerCode:params[@"isrDangerCode"]
+       isrRelevantClinicalInfo:params[@"isrRelevantClinicalInfo"]
+       isrReferringPhysician:params[@"isrReferringPhysician"]
+       isrAccessionNumber:params[@"isrAccessionNumber"]
+       rpID:params[@"rpID"]
+       spsID:params[@"spsID"]
+       spsStationAETitle:params[@"spsStationAETitle"]
+       spsModality:params[@"spsModality"]
+       rpTransportationMode:params[@"rpTransportationMode"]
+       rpReasonForStudy:params[@"rpReasonForStudy"]
+       isrNameOfPhysiciansReadingStudy:params[@"isrNameOfPhysiciansReadingStudy"]
+       spsTechnician:params[@"spsTechnician"]
+       rpUniversalStudyCode:params[@"rpUniversalStudyCode"]
+       isrStudyInstanceUID:params[@"isrStudyInstanceUID"]
+       ];
+}
+else NSLog(@"Class %@ not implemented",json[@"Class"]);
                      }
                   }
                }
@@ -145,11 +162,11 @@ int main(int argc, const char * argv[]) {
                {
                   NSArray *ipport=[args[1] componentsSeparatedByString:@":"];
                   NSMutableString *payload=[NSMutableString string];
-                  returnValue=(![mllpClient sendIP:ipport[0]
-                                              port:ipport[1]
-                                           message:hl7String
-                                    stringEncoding:encoding
-                                           payload:payload]
+                  returnValue=(![mllpSend sendIP:ipport[0]
+                                            port:ipport[1]
+                                         message:hl7String
+                                  stringEncoding:encoding
+                                         payload:payload]
                                );
                   NSLog(@"%@",payload);
                }
@@ -162,7 +179,7 @@ int main(int argc, const char * argv[]) {
             break;
             
          default:
-            NSLog(@"\r\n\r\nsyntax    : cat/echo json/hl7utf8\r\n                 > mllpSend ip:port [encoding (default:5)]\r\n                      > hl7payload\r\n\r\nreturns   : 0 when succes payload was received\r\n\r\nencodings : NSASCIIStringEncoding = 1\r\n            NSUTF8StringEncoding = 4\r\n            NSISOLatin1StringEncoding = 5\r\n\r\njson      : (description in corresponding header files of mllp library)\r\n            O01_231\r\n            ADT");
+            NSLog(@"\r\n\r\nsyntax    : cat/echo json/hl7utf8\r\n                 > mllpSend ip:port [encoding (default:5)]\r\n                      > hl7payload\r\n\r\nreturns   : 0 when succes payload was received\r\n\r\nencodings : NSASCIIStringEncoding = 1\r\n            NSUTF8StringEncoding = 4\r\n            NSISOLatin1StringEncoding = 5\r\n\r\njson      : (ver message header files of mllp library)\r\n            O01\r\n            A01\r\n            A04");
             break;
       }
    }
