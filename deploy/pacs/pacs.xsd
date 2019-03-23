@@ -24,6 +24,7 @@
                                 <xs:simpleType>
                                     <xs:restriction base="xs:string">
                                         <xs:pattern value="[1-2](\d)*(\.0|\.[1-9](\d)*)*"/>
+                                        <xs:maxLength value="64"/>
                                     </xs:restriction>
                                 </xs:simpleType>                                
                             </xs:element>
@@ -44,7 +45,7 @@
                                         <xs:group ref="principallanguage"/>                        
                                         
                                         <!-- ================================== -->
-                                        <!-- device (mandatory if local) -->
+                                        <!-- mandatory if local -->
                                         <xs:sequence minOccurs="0">
                                             <xs:group ref="select"/>
                                             <xs:group ref="mwl"/>
@@ -76,7 +77,7 @@
                                             <xs:group ref="dcm4cheedimseproxytitle"/>
                                             <xs:group ref="html5dicomuserserviceuri"/>
                                             <xs:group ref="html5dicomuseractive"/>
-                                            <!--mwl-->
+                                            <!--modality and aet lists-->
                                             <xs:group ref="services" minOccurs="0"/>
                                         </xs:sequence>                                        
                                     </xs:sequence>
@@ -455,9 +456,7 @@
                                     <xs:group ref="location"/>
                                     <xs:group ref="html5dicomuserserviceuri"/>
                                     <xs:group ref="html5dicomuseractive"/>
-                                    <xs:group ref="stationaetitle"/>                                                                    
-                                    <xs:group ref="ip"/>                                                                    
-                                    <xs:group ref="port"/>                                                                    
+                                    <xs:group ref="aets"/>                                                                    
                                     <xs:group ref="modalities"/>                                                                    
                                     <xs:group ref="readingasreferring"/>                                                                    
                                     <xs:group ref="referring" minOccurs="0"/>
@@ -526,37 +525,15 @@
             <xs:group ref="truefalse"/>
         </xs:sequence>
     </xs:group>
-    
-    <xs:group name="stationaetitle">
+   
+    <xs:group name="aets">
         <xs:sequence>
-            <xs:element name="key" fixed="stationaetitle">
-                <xs:annotation>
-                    <xs:documentation>nombre corto (máx 16 chars) del device</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="stationaetitle"/>
-        </xs:sequence>
-    </xs:group>
-    
-    <xs:group name="ip">
-        <xs:sequence>
-            <xs:element name="key" fixed="ip">
-                <xs:annotation>
-                    <xs:documentation>nombre corto (máx 16 chars) del device</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="ip"/>
-        </xs:sequence>
-    </xs:group>
-
-    <xs:group name="port">
-        <xs:sequence>
-            <xs:element name="key" fixed="port">
+            <xs:element name="key" fixed="aets">
                 <xs:annotation>
                     <xs:documentation></xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="port"/>
+            <xs:element ref="string" id="aets"/>
         </xs:sequence>
     </xs:group>
     
@@ -567,13 +544,7 @@
                     <xs:documentation></xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="array">
-                <xs:complexType>
-                    <xs:sequence maxOccurs="unbounded">
-                        <xs:element ref="string" id="modalities"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
+            <xs:element ref="string" id="modalities"/>
         </xs:sequence>
     </xs:group>
     
@@ -611,6 +582,7 @@
     
 
 <!-- syntaxis -->
+       
     <xs:element name="string" type="idstring">
         <xs:alternative test="@id = 'preferredstudyidentificator'" type="studyidentificatoridstring"/>
         <xs:alternative test="@id = 'custodiantitle'"              type="titleidstring"/>
@@ -620,7 +592,7 @@
         <xs:alternative test="@id = 'principallanguage'"           type="principallanguageidstring"/>
         
         <xs:alternative test="@id = 'select'"                      type="selectidstring"/>
-        <xs:alternative test="@id = 'mwl'"                      type="mwlidstring"/>
+        <xs:alternative test="@id = 'mwl'"                         type="mwlidstring"/>
 
         <xs:alternative test="@id = 'sqlstringencoding'"           type="stringencodingidstring"/>
 
@@ -629,13 +601,18 @@
         <xs:alternative test="@id = 'wadors'"                      type="httpidstring"/>
         <xs:alternative test="@id = 'stow'"                        type="httpidstring"/>
 
-        <xs:alternative test="@id = 'pacsaet'"                    type="titleidstring"/>
+        <xs:alternative test="@id = 'pacsaet'"                     type="titleidstring"/>
         <xs:alternative test="@id = 'dimseip'"                     type="ipidstring"/>
-        <xs:alternative test="@id = 'dimseport'"                 type="portidstring"/>
+        <xs:alternative test="@id = 'dimseport'"                   type="portidstring"/>
 
-        <xs:alternative test="@id = 'mllpip'"                     type="ipidstring"/>
-        <xs:alternative test="@id = 'mllpport'"                 type="portidstring"/>
+        <xs:alternative test="@id = 'mllpip'"                      type="ipidstring"/>
+        <xs:alternative test="@id = 'mllpport'"                    type="portidstring"/>
+        
+        <xs:alternative test="@id = 'aets'"                        type="titlesidstring"/>
+        <xs:alternative test="@id = 'modalities'"                  type="modalitiesidstring"/>
+
     </xs:element>
+
     
     <xs:complexType name="idstring">
         <xs:simpleContent>
@@ -644,21 +621,46 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
-
+    
+    
+    <xs:complexType name="modalitiesidstring">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:pattern value="(CR|CT|DX|DXm|MG|MR|PT|RF|US|USr|USm|XA)(\s(CR|CT|DX|DXm|MG|MR|PT|RF|US|USr|USm|XA))*"></xs:pattern>
+                <xs:maxLength value="9"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+    
     <xs:complexType name="titleidstring">
         <xs:simpleContent>
             <xs:restriction base="idstring">
-                <xs:minLength value="1"/>
-                <xs:maxLength value="16"/>
+                <xs:pattern value="\S{1,16}"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <xs:complexType name="optionaltitleidstring">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:pattern value="\S{0,16}"/>
             </xs:restriction>
         </xs:simpleContent>
     </xs:complexType>
 
+    <xs:complexType name="titlesidstring">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <xs:pattern value="(\S{1,16}(\s\S{1,16})*)?"/>
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+    
     <xs:complexType name="oididstring">
         <xs:simpleContent>
             <xs:restriction base="idstring">
-                <xs:pattern value="[1-2](\d)*(\.0|\.[1-9](\d)*)*"/>
                 <xs:maxLength value="64"/>
+                <xs:pattern value="[1-2](\d)*(\.0|\.[1-9](\d)*)*"/>
             </xs:restriction>
         </xs:simpleContent>
     </xs:complexType>
@@ -666,8 +668,7 @@
     <xs:complexType name="httpidstring">
         <xs:simpleContent>
             <xs:restriction base="idstring">
-                <xs:pattern value="()|(https?://.*)"/>
-                <xs:whiteSpace value="collapse"></xs:whiteSpace>
+                <xs:pattern value="(https?://\S+)?"/>
             </xs:restriction>
         </xs:simpleContent>
     </xs:complexType>
@@ -676,6 +677,7 @@
     <xs:complexType name="studyidentificatoridstring">
         <xs:simpleContent>
             <xs:restriction base="idstring">
+                <xs:maxLength value="16"/>
                 <xs:enumeration value="StudyInstanceUID"/>
                 <xs:enumeration value="AccessionNumber"/>
             </xs:restriction>

@@ -97,16 +97,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle">MRC23169</string>
-                    <key>ip</key>
-                    <string id="ip">192.168.121.177</string>
-                    <key>port</key>
-                    <string id="port">104</string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">MR</string>
-                    </array>
+                    <string id="modalities">MR</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -122,16 +116,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="StationAETitle">AN_CTAWP50037</string>
-                    <key>ip</key>
-                    <string id="ip">192.168.0.100</string>
-                    <key>port</key>
-                    <string id="port">104</string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">CT</string>
-                    </array>
+                    <string id="modalities">CT</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -147,16 +135,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="StationAETitle">HDI5000</string>
-                    <key>ip</key>
-                    <string id="ip">192.168.1.115</string>
-                    <key>port</key>
-                    <string id="port">104</string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">USr</string>
-                    </array>
+                    <string id="modalities">USr</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -172,17 +154,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="StationAETitle">UI22</string>
-                    <key>ip</key>
-                    <string id="ip">192.168.1.131</string>
-                    <key>port</key>
-                    <string id="port">104</string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">US</string>
-                        <string id="modalities">USm</string>
-                    </array>
+                    <string id="modalities">US USm</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -198,16 +173,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="StationAETitle">UI22CDS4</string>
-                    <key>ip</key>
-                    <string id="ip">192.168.1.161</string>
-                    <key>port</key>
-                    <string id="port">104</string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">US</string>
-                    </array>
+                    <string id="modalities">US</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -223,16 +192,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="StationAETitle"></string>
-                    <key>ip</key>
-                    <string id="ip">192.168.1.117</string>
-                    <key>port</key>
-                    <string id="port">104</string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">US</string>
-                    </array>
+                    <string id="modalities">US</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -248,16 +211,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="StationAETitle">FCR_CDS</string>
-                    <key>ip</key>
-                    <string id="ip">192.168.0.10</string>
-                    <key>port</key>
-                    <string id="port">104</string>
+                    <key>aets</key>
+                    <string id="aets">FCR_CDS</string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">CR</string>
-                    </array>
+                    <string id="modalities">CR</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -273,17 +230,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="StationAETitle">FCR_CSL_MX</string>
-                    <key>ip</key>
-                    <string id="ip">192.168.0.11</string>
-                    <key>port</key>
-                    <string id="port">104</string>
+                    <key>aets</key>
+                    <string id="aets">FCR_CSL_MX</string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">CR</string>
-                        <string id="modalities">DXm</string>
-                    </array>
+                    <string id="modalities">CR DXm</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>

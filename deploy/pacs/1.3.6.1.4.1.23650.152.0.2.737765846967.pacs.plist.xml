@@ -249,16 +249,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">MR</string>
-                    </array>
+                    <string id="modalities">MR</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -274,16 +268,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle">N</string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">CT</string>
-                    </array>
+                    <string id="modalities">CT</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -299,16 +287,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">US</string>
-                    </array>
+                    <string id="modalities">US</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -324,16 +306,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">MG</string>
-                    </array>
+                    <string id="modalities">MG</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -349,16 +325,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">DX</string>
-                    </array>
+                    <string id="modalities">DX</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -374,16 +344,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">CR</string>
-                    </array>
+                    <string id="modalities">CR</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -479,16 +443,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">MR</string>
-                    </array>
+                    <string id="modalities">MR</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -504,16 +462,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle">N</string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">CT</string>
-                    </array>
+                    <string id="modalities">CT</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -529,16 +481,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">US</string>
-                    </array>
+                    <string id="modalities">US</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -554,16 +500,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">MG</string>
-                    </array>
+                    <string id="modalities">MG</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -579,16 +519,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">DX</string>
-                    </array>
+                    <string id="modalities">DX</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -604,16 +538,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">CR</string>
-                    </array>
+                    <string id="modalities">CR</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -709,16 +637,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">MR</string>
-                    </array>
+                    <string id="modalities">MR</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -734,16 +656,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle">N</string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">CT</string>
-                    </array>
+                    <string id="modalities">CT</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -759,16 +675,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">US</string>
-                    </array>
+                    <string id="modalities">US</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -784,16 +694,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">MG</string>
-                    </array>
+                    <string id="modalities">MG</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -809,16 +713,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">DX</string>
-                    </array>
+                    <string id="modalities">DX</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>
@@ -834,16 +732,10 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>stationaetitle</key>
-                    <string id="stationaetitle"></string>
-                    <key>ip</key>
-                    <string id="ip"></string>
-                    <key>port</key>
-                    <string id="port"></string>
+                    <key>aets</key>
+                    <string id="aets"></string>
                     <key>modalities</key>
-                    <array>
-                        <string id="modalities">CR</string>
-                    </array>
+                    <string id="modalities">CR</string>
                     <key>readingasreferring</key>
                     <false/>
                 </dict>

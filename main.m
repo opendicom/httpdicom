@@ -146,12 +146,12 @@ NSDictionary *pacs=[NSDictionary dictionaryWithContentsOfFile:
                     [[[deployPath
                        stringByAppendingPathComponent:@"pacs"]
                       stringByAppendingPathComponent:defaultpacsoid]
-                     stringByAppendingPathExtension:@"pacsplist"]
+                     stringByAppendingPathExtension:@"pacs.plist.xml"]
                     ];
 
 if (!pacs)
 {
-   NSLog(@"could not get contents of pacs/%@.pacsplist",defaultpacsoid);
+   NSLog(@"could not get contents of pacs/%@.pacs.plist.xml",defaultpacsoid);
    return 1;
 }
        
