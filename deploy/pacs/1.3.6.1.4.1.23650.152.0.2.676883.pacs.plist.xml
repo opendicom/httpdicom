@@ -2,7 +2,7 @@
 <plist
     xmlns="http://www.opendicom.com/xsd/plist/pacs.xsd"
     
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.opendicom.com/xsd/plist/pacs.xsd pacs.xsd"
     
     version="1.0"
