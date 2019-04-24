@@ -8,9 +8,9 @@
 #import "DRS+wadors.h"
 #import "DRS+zipped.h"
 
-#import "DRS+mwl.h"
+//#import "DRS+mwl.h"
 //#import "DRS+pdf.h"
-#import "DRS+encapsulated.h"
+//#import "DRS+encapsulated.h"
 
 
 //RSRequest properties:      NSMutableURLRequest
@@ -518,13 +518,13 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
        LOG_DEBUG(@"added handler /custodians");
 
 #pragma mark /mwlitem
-        [self addMWLHandler];
-        LOG_DEBUG(@"added handler /mwlitem");        
+//        [self addMWLHandler];
+//        LOG_DEBUG(@"added handler /mwlitem");
 
 #pragma mark /encapsulated
-        [self GETencapsulated];
-        [self POSTencapsulated];
-        LOG_DEBUG(@"added handlers GETencapsulated and POSTencapsulated");
+//        [self GETencapsulated];
+//        [self POSTencapsulated];
+//        LOG_DEBUG(@"added handlers GETencapsulated and POSTencapsulated");
     }
     return self;
 }

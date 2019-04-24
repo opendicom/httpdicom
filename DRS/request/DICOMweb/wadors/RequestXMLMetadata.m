@@ -1,4 +1,5 @@
 #import "RequestXMLMetadata.h"
+#import "NSMutableURLRequest+DRS.h"
 
 @implementation RequestXMLMetadata
 
@@ -16,12 +17,11 @@
    
    NSMutableString *URLString=[NSMutableString stringWithFormat:@"%@/studies/%@/metadata", pacs[@"wadors"], euid];
    
-      return [NSMutableURLRequest DRSRequestPacs:pacs
-                                       URLString:URLString
-                                          method:@"GET"
-                                     contentType:nil
-                                        bodyData:nil
-                                          accept:@"multipart/related;type=\"application/dicom+xml\""
+      return [NSMutableURLRequest
+              DRSRequestPacs:pacs
+              URLString:URLString
+              method:GET
+              accept:@"multipart/related;type=\"application/dicom+xml\""
               ];
 }
 
@@ -45,12 +45,11 @@
                                suid
                                ];
    
-   return [NSMutableURLRequest DRSRequestPacs:pacs
-                                    URLString:URLString
-                                       method:@"GET"
-                                  contentType:nil
-                                     bodyData:nil
-                                       accept:@"multipart/related;type=\"application/dicom+xml\""
+   return [NSMutableURLRequest
+           DRSRequestPacs:pacs
+           URLString:URLString
+           method:GET 
+           accept:@"multipart/related;type=\"application/dicom+xml\""
            ];
 }
 
@@ -77,12 +76,11 @@
                                iuid
                                ];
    
-   return [NSMutableURLRequest DRSRequestPacs:pacs
-                                    URLString:URLString
-                                       method:@"GET"
-                                  contentType:nil
-                                     bodyData:nil
-                                       accept:@"multipart/related;type=\"application/dicom+xml\""
+   return [NSMutableURLRequest
+           DRSRequestPacs:pacs
+           URLString:URLString
+           method:GET
+           accept:@"multipart/related;type=\"application/dicom+xml\""
            ];
 }
 

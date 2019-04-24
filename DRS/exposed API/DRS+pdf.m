@@ -8,9 +8,9 @@
 #import "NSMutableString+DSCD.h"
 #import "NSUUID+DICM.h"
 
-#import "NSMutableURLRequest+enclosed.h"
+//#import "NSMutableURLRequest+enclosed.h"
 #import "NSMutableURLRequest+patient.h"
-#import "NSMutableURLRequest+instance.h"
+//#import "NSMutableURLRequest+instance.h"
 #import "NSMutableURLRequest+html5dicom.h"
 
 

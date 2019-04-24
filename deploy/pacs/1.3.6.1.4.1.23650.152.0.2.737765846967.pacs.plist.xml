@@ -253,8 +253,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">MR</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>CT</key>
                 <dict>
@@ -272,8 +270,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">CT</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>US</key>
                 <dict>
@@ -291,8 +287,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">US</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>MG</key>
                 <dict>
@@ -310,8 +304,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">MG</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>DX</key>
                 <dict>
@@ -329,8 +321,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">DX</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>CR</key>
                 <dict>
@@ -348,8 +338,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">CR</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
             </dict>
         </dict>
@@ -447,8 +435,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">MR</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>CT</key>
                 <dict>
@@ -466,8 +452,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">CT</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>US</key>
                 <dict>
@@ -485,8 +469,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">US</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>MG</key>
                 <dict>
@@ -504,8 +486,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">MG</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>DX</key>
                 <dict>
@@ -523,8 +503,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">DX</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>CR</key>
                 <dict>
@@ -542,8 +520,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">CR</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
             </dict>
         </dict>
@@ -641,8 +617,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">MR</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>CT</key>
                 <dict>
@@ -660,8 +634,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">CT</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>US</key>
                 <dict>
@@ -679,8 +651,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">US</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>MG</key>
                 <dict>
@@ -698,8 +668,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">MG</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>DX</key>
                 <dict>
@@ -717,8 +685,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">DX</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>CR</key>
                 <dict>
@@ -736,8 +702,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">CR</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
             </dict>
         </dict>

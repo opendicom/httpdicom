@@ -8,7 +8,7 @@
 #import "NSMutableString+DSCD.h"
 #import "NSUUID+DICM.h"
 
-#import "O01.h"
+#import "NSString+O01.h"
 #import "mllpClient.h"
 
 #import "NSMutableURLRequest+MWL.h"
@@ -65,12 +65,14 @@
        ) return [RSErrorResponse responseWithClientError:404 message:@"[mwlitem] pacs '%@' is not a dcm4chee-arc",pacsUID1];
 
     
-#pragma mark validation service
+#pragma mark validation service 1
     //(was sala)
     NSString *service1Title=nil;
-    NSUInteger serviceIndex=[names indexOfObject:@"servicio"];
+    NSUInteger sps1ServiceIndex=[names indexOfObject:@"sps1Service"];
+    NSUInteger servicioIndex=[names indexOfObject:@"servicio"];
     NSUInteger salaIndex=[names indexOfObject:@"sala"];
-    if (serviceIndex!=NSNotFound) service1Title=[values[serviceIndex]spaceNormalize];
+    if (sps1ServiceIndex!=NSNotFound) service1Title=[values[sps1ServiceIndex]spaceNormalize];
+    else if (servicioIndex!=NSNotFound) service1Title=[values[servicioIndex]spaceNormalize];
     else if (salaIndex!=NSNotFound) service1Title=[values[salaIndex]spaceNormalize];
     
     NSDictionary *service1Dict=(pacs[@"services"])[service1Title];
@@ -361,10 +363,6 @@
          NameofPhysicianReadingStudy1=[NSString stringWithFormat:@"%@^%@^%@",subcomponents[0],subcomponents[1],[subcomponents[2]localizedLowercaseString]];
       else NameofPhysicianReadingStudy1=normalized;
    }
-   //if readingAsReferring.... implies corrective code into stow (put referring into reading and remove referring)
-   NSString *referringOreading=nil;
-   if ([service1Dict[@"readingAsReferring"]boolValue]==true) referringOreading=NameofPhysicianReadingStudy1;
-   else referringOreading=ReferringPhysiciansName1;
 
 
    if ([pacs[@"mwl"]isEqualToString:@"mllp"])
@@ -406,7 +404,7 @@
          OBR_4:StudyDescription1
          OBR_12:isrDangerCode
          OBR_13:isrRelevantClinicalInfo
-         OBR_16:referringOreading
+         OBR_16:ReferringPhysiciansName1
          OBR_18:AccessionNumber1
          OBR_19:rpID
          OBR_20:spsID
@@ -468,7 +466,7 @@
         TZ:K.defaultTimezone
         modality:Modality1
         accessionNumber:AccessionNumber1
-        referring:referringOreading
+        referring:ReferringPhysiciansName1
         status:@"ARRIVED"
         studyDescription:StudyDescription1
         priority:Priority

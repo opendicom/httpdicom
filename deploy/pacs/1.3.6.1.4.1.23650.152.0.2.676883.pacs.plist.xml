@@ -101,8 +101,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">MR</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>Scanner CT</key>
                 <dict>
@@ -120,8 +118,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">CT</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>Ecografo 1</key>
                 <dict>
@@ -139,8 +135,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">USr</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>Ecografo 2</key>
                 <dict>
@@ -158,8 +152,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">US USm</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>Ecografo 3</key>
                 <dict>
@@ -177,8 +169,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">US</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>Ecografo 4</key>
                 <dict>
@@ -196,8 +186,6 @@
                     <string id="aets"></string>
                     <key>modalities</key>
                     <string id="modalities">US</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>Flat Panel</key>
                 <dict>
@@ -215,8 +203,6 @@
                     <string id="aets">FCR_CDS</string>
                     <key>modalities</key>
                     <string id="modalities">CR</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
                 <key>Digitalizador</key>
                 <dict>
@@ -234,8 +220,6 @@
                     <string id="aets">FCR_CSL_MX</string>
                     <key>modalities</key>
                     <string id="modalities">CR DXm</string>
-                    <key>readingasreferring</key>
-                    <false/>
                 </dict>
             </dict>
         </dict>

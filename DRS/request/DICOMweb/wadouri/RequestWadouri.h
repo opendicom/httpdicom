@@ -1,8 +1,8 @@
-#import "NSMutableURLRequest+DRS.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WADOURIRequest : NSObject
+@interface RequestWadouri : NSObject
 
 
 /*

@@ -1,60 +1,633 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
 <topic id="topic_ckn_z5q_tdb">
-    <title>HTTPDICOM: API del servicio de MWL </title>
+    <title>HTTPDICOM: API del servicio MWL </title>
     <body>
-        <p>Httpdicom y html5dicom incluyen funciones de Modality Worklist (MWL) que permiten la
-            integración con los sistemas informáticos pre-existentes.</p>
+        <p>HTTPDICOM incluye funciones de Modality Worklist DICOM (MWL) para disponibilizar la
+            información del paciente en todas las etapas del estudio imagenologico.</p>
+        <p/>
+        <section id="section_vq1_h4l_3hb">
+            <title>Versionado del documento</title>
+            <p>JF = Jacques Fauquex</p>
+            <p>
+                <table frame="all" rowsep="1" colsep="1" id="table_w4q_m4l_3hb">
+                    <tgroup cols="3">
+                        <colspec colname="c1" colnum="1" colwidth="1.44*"/>
+                        <colspec colname="c2" colnum="2" colwidth="1*"/>
+                        <colspec colname="c3" colnum="3" colwidth="10.65*"/>
+                        <thead>
+                            <row>
+                                <entry>Fecha</entry>
+                                <entry>Autor</entry>
+                                <entry>Modificaciones</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>20190412</entry>
+                                <entry>JF</entry>
+                                <entry>Versión inicial</entry>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </p>
+        </section>
         <p> </p>
+        <section id="section_pjd_nq2_3hb">
+            <title>Definiciones</title>
+            <p>
+                <table frame="all" rowsep="1" colsep="1" id="table_znx_cr2_3hb">
+                    <tgroup cols="2">
+                        <colspec colname="c1" colnum="1" colwidth="1*"/>
+                        <colspec colname="c2" colnum="2" colwidth="2.95*"/>
+                        <thead>
+                            <row>
+                                <entry>Palabra</entry>
+                                <entry>Significado</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>RIS</entry>
+                                <entry>programa de gestión agenda y recepción de paciente.
+                                    Frecuentemente se trata de un desarrollo propio del
+                                    establecimiento.</entry>
+                            </row>
+                            <row>
+                                <entry>HTTPDICOM</entry>
+                                <entry>nuestro programa que vincula  equipos de gestión con equipos
+                                    imagenologicos, y guarda y distribuye las imágenes. Facilita el
+                                    uso de imágenes DICOM gracias al protocolo de comunicación
+                                    universal HTTP</entry>
+                            </row>
+                            <row>
+                                <entry>NAVEGADOR WEB</entry>
+                                <entry>Punto de acceso a HTTPDICOM para usuario humano. Los
+                                    navegadores WEB más conocidos son FIREFOX, CHROME y SAFARI y
+                                    funcionan desde computadora, tablet y celular</entry>
+                            </row>
+                            <row>
+                                <entry>CLIENTE REST</entry>
+                                <entry>Punto de acceso a HTTPDICOM para interconexión con otros
+                                    programas, por ejemplo para que el RIS se comunique con
+                                    HTTPDICOM</entry>
+                            </row>
+                            <row>
+                                <entry>UID</entry>
+                                <entry>identificador único constuido de numeros separados por
+                                    puntos. por ejemplo 1.2.0.520. Regex:
+                                    @"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$". Máx 64
+                                    caracteres.</entry>
+                            </row>
+                            <row>
+                                <entry>SH</entry>
+                                <entry>Nombre corto. Valor alfanumerico de hasta 16 caracteres.
+                                    Regex:
+                                    @"^(?:\\s*)([^\\r\\n\\f\\t]*[^\\r\\n\\f\\t\\s])(?:\\s*)$"</entry>
+                            </row>
+                            <row>
+                                <entry>MIRTH Connect</entry>
+                                <entry>interfaz de comunicación multi plata forma, multi protocolos
+                                    (que incluye protocolos HL7 y DICOM)</entry>
+                            </row>
+                            <row>
+                                <entry>HL7</entry>
+                                <entry>Protocolos de transmisión de datos médicos. Los más usados
+                                    son HL7 v2 (envio de información), CDA (estructura de documento
+                                    clínico) y FHIR (envió de información en formato JSON)</entry>
+                            </row>
+                            <row>
+                                <entry>JSON</entry>
+                                <entry>sintaxis de escritura de diccionario de propiedades que
+                                    soporta contenidos de tipo lista y diccionario embedido</entry>
+                            </row>
+                            <row>
+                                <entry>MWL</entry>
+                                <entry>Modality WorkList (lista de trabajo). Protocolo de
+                                    comunicación de información de paciente y estudio a realizar que
+                                    usan los equipos de imagenología DICOM. Requiere un servidor de
+                                    Modality Worklist.</entry>
+                            </row>
+                            <row>
+                                <entry>OT</entry>
+                                <entry>Other Type. Objeto DICOM que no es una imagen</entry>
+                            </row>
+                            <row>
+                                <entry>DOC</entry>
+                                <entry>Objeto DICOM tipo documento. Limitamos su uso a documentos
+                                    informes</entry>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </p>
+        </section>
         <section id="section_iyd_tvq_tdb">
-            <title>Proceso inicial de la creación de un estudio imagenológico</title>
-            <p>Para garantizar una buena identificación del paciente, y simplificar el trabajo de
-                los técnicos y médicos, es importante que comience la creación de estudio
-                imagenológico con la recolección de datos durante la recepción del paciente. Este
-                proceso ya está informatizado en muchas instituciones, por ejemplo cuando ya existe
-                un programa con base de datos de los pacientes que sea la raíz para verificar
-                identidades, derechos a servicios de salud y permita gestionar los eventuales pagos
-                correspondientes a los servicios. A este tipo de programa se le denomina,
-                frecuentemente, como RIS (Radiology Information System). Permite realizar las
-                verificaciones ya mencionadas cuando el paciente se presenta a la puerta de la
-                clínica para el estudio imagenológico. A veces, este programa incluye también
-                funciones de agenda, pero lo principal para nosotros es que permita el ingreso de la
-                orden de servicio. Es desde este punto que el RIS preexistente puede colaborar con
-                nuestro PACS WEB.</p>
-            <p>Si la clínica carece de un RIS, proveemos una página que puede ser usada desde
-                cualquier navegador web para iniciar este trámite de recepción del paciente.</p>
-            <p>Una vez informado de la recepción del paciente, nuestro sistema crea una tarea en la
-                MWL DICOM que puede ser consultada por el técnico desde el equipo de adquisición de
-                imágenes. La ventaja de esta práctica es que garantiza que las imágenes estarán
-                identificadas sin error de información mal copiada o con error de tipeo.</p>
-            <p/>
+            <title>Proceso de creación de estudio imagenológico</title>
+            <ol id="ol_hmg_ds2_3hb">
+                <li>El paciente se presenta en el establecimiento para realizarse un estudio
+                    imagenológico.</li>
+                <li>Un funcionario registra su llegada en el RIS.</li>
+                <li>El RIS envia la información del paciente y estudio a HTTPDICOM por protocolo
+                        REST.<ol id="ol_p1r_xt2_3hb">
+                        <li>Alternativamente, programos un proxy MIRTHConnect para extraer la
+                            información del RIS y pasarla a HTTPDICOM. </li>
+                        <li>Alternativamente, si no existe RIS, creamos un formulario especifico
+                            para cualquier navegador web que permite registrar el paciente
+                            directamente en HTTPDICOM.</li>
+                    </ol></li>
+                <li>HTTPDICOM crea una tarea  MWL  en un servidor DICOM que pone la información del
+                    paciente y estudio a disposición del equipo imagenológico.</li>
+                <li>HTTPDICOM crea un objeto DICOM OT de solicitud que será el primer documento del
+                    estudio imagenologico.</li>
+                <li>El técnico radiologo selecciona el paciente en la lista de trabajo del equipo
+                    imagenologico y produce imágenes. Estas incorporan automaticamente los datos del
+                    paciente, sin necesidad de ingresarlos nuevamente desde el teclado. Eso evita
+                    errores de tipeo.</li>
+                <li>El técnico manda las imágenes del equipo imagenologico a HTTPDICOM.</li>
+                <li>El radiologo accede desde navegador web a la solicitud e imágenes
+                    correspondientes y escribe el informe desde el editor de informes de la página
+                    web.</li>
+                <li>Desde navegador web, el paciente accede a su solicitud, imágenes e informe.</li>
+                <li>HTTPDICOM puede enviar el informe en formato CDA a un sistema de Historia
+                    Clínica Electrónica.</li>
+            </ol>
         </section>
         <section id="section_v4y_gbr_tdb">
-            <title>Comunicar los datos del proceso de recepción</title>
-            <p>Aceptamos tres formatos:</p>
+            <title>Comunicación de los datos del paciente y  estudio a HTTPDICOM</title>
+            <p>HTTPDICOM acepta tres formatos:</p>
             <p>
                 <ul id="ul_hhp_lbr_tdb">
-                    <li>HTTP(S) POST application/json (usa el body del request para mandar un(os)
-                        objeto(s) json que pueden contener archivos pdf codificados base64)</li>
-                    <li>HTTP(S) POST multipart/form-data (envío desde un formulario web html5.
-                        Permite adjuntar un archivo pdf.)</li>
-                    <li>HTTP(S) POST application/x-www-form-urlencoded (envío desde un formulario
-                        web html5. No permite adjuntar un archivo pdf.)</li>
+                    <li>HTTP(S) POST application/json</li>
+                    <li>HTTP(S) POST multipart/form-data (formulario html5)</li>
+                    <li>HTTP(S) POST application/x-www-form-urlencoded (formulario html5 sin HTTP
+                        body)</li>
                 </ul>
             </p>
-            <p>Los dos últimos formatos permiten usar nuestra solución sin tener a disposición un
-                RIS.</p>
-            <p>Si la clínica tiene un RIS, puede usar cualquiera de los tres formatos.</p>
-            <p>En caso de RIS que no pueda consumir un servicio web rest por ninguno de estos 3
-                formatos, brindamos una opción mirthConnect, que recibe datos de recepción desde
-                mensaje hl7 ORM u otro canal, incluyendo búsqueda proactiva dentro de una base de
-                datos. Estas opciones no vienen con el producto base y son objeto de una cotización
-                aparte.</p>
-            <p/>
+            <p>Los dos primeros formatos permiten adjuntar un documento PDF.</p>
         </section>
         <section id="section_yd2_b4r_tdb">
-            <title>Datos esperados en la etapa de la recepción</title>
-            <p>Lista en formato json:  </p>
+            <title>Detalle de los datos a communicar para cada nuevo estudio</title>
+            <p>El acceso a los estudios por navegador web requiere más formalidad que cuando se
+                entrega un informe papel finalizando la comunicación entre paciente y
+                establecimiento en relación al estudio realizado. En el caso del acceso web, es
+                crucial que el paciente este identificado exactamente de la misma forma en todos los
+                episodios de atención médica. De eso depende que pueda acceder a toda su historia
+                imagenologica con un mismo identificador cuando entra en la página web.</p>
+            <p>Por otro lado, en anticipación a la creación de redes de información de salud cada
+                vez más integradas, HTTPDICOM, en conformidad con el estándar DICOM, impone que los
+                identificadores sean universales. Por ejemplo, cuando se usa el número de cédula, se
+                debe indicar también a HTTPDICOM que se trata de una cédula y que fue emitida en
+                Chile. Así dicho número no se puede confundirse con un número igual, que sería de
+                libreta de conducir brazileña.</p>
+            <p>En el mismo espiritu, HTTPDICOM incluye una solución completa para la codificación de
+                los estudios y su relación con los códigos FONASA. Eso facilita la creación de
+                estadísticas y gestión administrativa.</p>
+            <p>Para lograr todos objetivos, HTTPDICOM requiere datos, que se pueden subdivir en tres
+                grupos y un grupo más repetido hasta 4 veces.</p>
+            <p><b>Notas relativas a las tablas</b>
+            </p>
+            <p>
+                <ol id="ol_o12_mz2_3hb">
+                    <li>columna opcionalidad: <ol id="ol_s2q_qhb_jhb">
+                            <li>?=opcional</li>
+                            <li>entre parentesis se precisa el valor por defecto usado cuando el
+                                dato no está presente en el pedido</li>
+                            <li>1=valor único obligatorio</li>
+                        </ol></li>
+                    <li>La columna =ORMO01 es el equivalente en el protocolo HLV v2.</li>
+                    <li>La columna =DICOM es el equivalente en los atributos copiados dentro de las
+                        imágenes DICOM.</li>
+                    <li>Para cada dato se puede usar o su nombre o cualquier uno de sus sinonimos.
+                        Los sinonimos están presentes para garantizar la compatibilidad con
+                        versiones anteriores.</li>
+                </ol>
+            </p>
+        </section>
+        <section id="section_bvj_gv2_3hb">
+            <p>
+                <table frame="all" rowsep="1" colsep="1" id="table_x3g_mx5_fhb">
+                    <title>Establecimiento</title>
+                    <tgroup cols="5">
+                        <colspec colname="c1" colnum="1" colwidth="1*"/>
+                        <colspec colname="c2" colnum="2" colwidth="1*"/>
+                        <colspec colname="c3" colnum="3" colwidth="1*"/>
+                        <colspec colname="c4" colnum="4" colwidth="1*"/>
+                        <colspec colname="c5" colnum="5" colwidth="1*"/>
+                        <thead>
+                            <row>
+                                <entry>nombre</entry>
+                                <entry>sinonimo</entry>
+                                <entry>opcionalidad*</entry>
+                                <entry>formato</entry>
+                                <entry>comentario</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry><b>pacs</b></entry>
+                                <entry/>
+                                <entry>? (UID indicado como parametro del comando run)</entry>
+                                <entry>UID</entry>
+                                <entry>selección de la unidad ejecutora</entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+                <table frame="all" rowsep="1" colsep="1" id="table_uss_ty2_3hb">
+                    <title>Paciente</title>
+                    <tgroup cols="7">
+                        <colspec colname="c1" colnum="1" colwidth="1*"/>
+                        <colspec colname="c2" colnum="2" colwidth="1*"/>
+                        <colspec colname="c3" colnum="3" colwidth="1*"/>
+                        <colspec colname="c4" colnum="4" colwidth="1*"/>
+                        <colspec colname="c5" colnum="5" colwidth="1*"/>
+                        <colspec colname="c6" colnum="6" colwidth="1*"/>
+                        <colspec colname="newCol7" colnum="7" colwidth="1*"/>
+                        <thead>
+                            <row>
+                                <entry>nombre</entry>
+                                <entry>sinonimo</entry>
+                                <entry>opcionalidad*</entry>
+                                <entry>formato</entry>
+                                <entry>comentario</entry>
+                                <entry>=ORMO01</entry>
+                                <entry>=DICOM</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>patFamily1</entry>
+                                <entry>apellido1</entry>
+                                <entry>1</entry>
+                                <entry>mayusculas</entry>
+                                <entry/>
+                                <entry>PID_5</entry>
+                                <entry>00100010</entry>
+                            </row>
+                            <row>
+                                <entry>patFamily2</entry>
+                                <entry>apellido2, motherMaiden</entry>
+                                <entry>?</entry>
+                                <entry>mayusculas</entry>
+                                <entry>en httpdicom, viene luego de apellido1 separado por >, en la
+                                    mwl usamos el tag 00101060 para que no aparezca el ></entry>
+                                <entry>PID_2</entry>
+                                <entry>00100010>| 00101060</entry>
+                            </row>
+                            <row>
+                                <entry>patGiven</entry>
+                                <entry>nombres</entry>
+                                <entry>?</entry>
+                                <entry>mayusculas</entry>
+                                <entry/>
+                                <entry>PID_5</entry>
+                                <entry>00100010^</entry>
+                            </row>
+                            <row>
+                                <entry>patBirthDate</entry>
+                                <entry>PatientBirthDate</entry>
+                                <entry>?</entry>
+                                <entry>aaaammdd</entry>
+                                <entry/>
+                                <entry>PID_7</entry>
+                                <entry>00100030</entry>
+                            </row>
+                            <row>
+                                <entry>patAdministrativeGender</entry>
+                                <entry>PatientSex</entry>
+                                <entry>?</entry>
+                                <entry>M | F | O</entry>
+                                <entry>masculino, feminino, otro</entry>
+                                <entry>PID_8</entry>
+                                <entry>00100040</entry>
+                            </row>
+                            <row>
+                                <entry>patId</entry>
+                                <entry>PatientID</entry>
+                                <entry>1</entry>
+                                <entry>SH</entry>
+                                <entry/>
+                                <entry>PID_3</entry>
+                                <entry>00100020</entry>
+                            </row>
+                            <row>
+                                <entry>patIdCountry</entry>
+                                <entry>PatientIDCountry</entry>
+                                <entry>1</entry>
+                                <entry>ISO3166</entry>
+                                <entry>2 o 3 letras</entry>
+                                <entry>PID_3</entry>
+                                <entry>00100021</entry>
+                            </row>
+                            <row>
+                                <entry>patIdType</entry>
+                                <entry>PatientIDType</entry>
+                                <entry>1</entry>
+                                <entry>ICAO</entry>
+                                <entry/>
+                                <entry>PID_3</entry>
+                                <entry>00100021</entry>
+                            </row>
+                            <row>
+                                <entry>patPassword</entry>
+                                <entry>clave</entry>
+                                <entry>?</entry>
+                                <entry>min 7 caracteres</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+                <table frame="all" rowsep="1" colsep="1" id="table_p1h_5y2_3hb">
+                    <title>Solicitud</title>
+                    <tgroup cols="7">
+                        <colspec colname="c1" colnum="1" colwidth="1*"/>
+                        <colspec colname="c2" colnum="2" colwidth="1*"/>
+                        <colspec colname="c3" colnum="3" colwidth="1*"/>
+                        <colspec colname="c4" colnum="4" colwidth="1*"/>
+                        <colspec colname="c5" colnum="5" colwidth="1*"/>
+                        <colspec colname="c6" colnum="6" colwidth="1*"/>
+                        <colspec colname="newCol7" colnum="7" colwidth="1*"/>
+                        <thead>
+                            <row>
+                                <entry>nombre</entry>
+                                <entry>sinonimo</entry>
+                                <entry>opcionalidad*</entry>
+                                <entry>formato</entry>
+                                <entry>comentario</entry>
+                                <entry>=ORMO01</entry>
+                                <entry>=DICOM</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>reqAN</entry>
+                                <entry>AccessionNumber</entry>
+                                <entry>1</entry>
+                                <entry>SH</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry>reqANIssuer</entry>
+                                <entry>issuerLocal, issuerUniversal</entry>
+                                <entry>1</entry>
+                                <entry/>
+                                <entry>en caso de AN local, nombre corto del servicio o de la
+                                    institución</entry>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry>reqANType</entry>
+                                <entry>issuerTipo</entry>
+                                <entry>?</entry>
+                                <entry>DNS, EUI64, ISO (=OID), URI, UUID, X400, X500</entry>
+                                <entry>en caso de AN local,vacío</entry>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry>reqId</entry>
+                                <entry>RequestedProcedureID</entry>
+                                <entry>?(generador de números consecutivos)</entry>
+                                <entry>SH</entry>
+                                <entry>puede ser buena opción copiar ahí el AN</entry>
+                                <entry/>
+                                <entry>00401001</entry>
+                            </row>
+                            <row>
+                                <entry>reqStudy</entry>
+                                <entry>StudyDescription</entry>
+                                <entry>?</entry>
+                                <entry>código^titulo^vocabulario</entry>
+                                <entry/>
+                                <entry/>
+                                <entry>00321060 &amp; 00321064</entry>
+                            </row>
+                            <row>
+                                <entry>reqPriority</entry>
+                                <entry>RequestedProcedurePriority</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00401003</entry>
+                            </row>
+                            <row>
+                                <entry>reqPhysician</entry>
+                                <entry>ReferringPhysiciansName</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00321032</entry>
+                            </row>
+                            <row>
+                                <entry>reqReading</entry>
+                                <entry>NameOfPhysicianReadingStudy</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00081060</entry>
+                            </row>
+                            <row>
+                                <entry>reqMsg</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00102000</entry>
+                            </row>
+                            <row>
+                                <entry>reqPdf</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+                <table frame="all" rowsep="1" colsep="1" id="table_bjj_5y2_3hb">
+                    <title>Paso 1 del protocolo</title>
+                    <tgroup cols="7">
+                        <colspec colname="c1" colnum="1" colwidth="1*"/>
+                        <colspec colname="c2" colnum="2" colwidth="1*"/>
+                        <colspec colname="c3" colnum="3" colwidth="1*"/>
+                        <colspec colname="c4" colnum="4" colwidth="1*"/>
+                        <colspec colname="c5" colnum="5" colwidth="1*"/>
+                        <colspec colname="c6" colnum="6" colwidth="1*"/>
+                        <colspec colname="newCol7" colnum="7" colwidth="1*"/>
+                        <thead>
+                            <row>
+                                <entry>nombre</entry>
+                                <entry>sinonimo</entry>
+                                <entry>opcionalidad*</entry>
+                                <entry>formato</entry>
+                                <entry>comentario</entry>
+                                <entry>=ORMO01</entry>
+                                <entry>=DICOM</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>sps1Modality</entry>
+                                <entry>Modality, modalidad</entry>
+                                <entry>(*)</entry>
+                                <entry>(**) CR, CT, MR,NM, US, PT, XA, RF, DX, MG, SR</entry>
+                                <entry/>
+                                <entry/>
+                                <entry>00080060</entry>
+                            </row>
+                            <row>
+                                <entry>sps1StationAETitle</entry>
+                                <entry/>
+                                <entry>(*)</entry>
+                                <entry>SH</entry>
+                                <entry/>
+                                <entry/>
+                                <entry>00400001</entry>
+                            </row>
+                            <row>
+                                <entry>sps1Date</entry>
+                                <entry/>
+                                <entry/>
+                                <entry>aaaammdd</entry>
+                                <entry/>
+                                <entry/>
+                                <entry>00400002</entry>
+                            </row>
+                            <row>
+                                <entry>sps1Time</entry>
+                                <entry/>
+                                <entry/>
+                                <entry>hhmmss</entry>
+                                <entry/>
+                                <entry/>
+                                <entry>00400003</entry>
+                            </row>
+                            <row>
+                                <entry>sps1Technician</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00400006</entry>
+                            </row>
+                            <row>
+                                <entry>sps1Location</entry>
+                                <entry>sala, service, servicio, sps1Service</entry>
+                                <entry>(*)</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00400011</entry>
+                            </row>
+                            <row>
+                                <entry>sps1StationName</entry>
+                                <entry/>
+                                <entry>?</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00400010</entry>
+                            </row>
+                            <row>
+                                <entry>sps1Protocol</entry>
+                                <entry/>
+                                <entry>1</entry>
+                                <entry>código^titulo^vocabulario</entry>
+                                <entry/>
+                                <entry/>
+                                <entry>00400007 &amp; 00400008</entry>
+                            </row>
+                            <row>
+                                <entry>sps1Id</entry>
+                                <entry/>
+                                <entry>?(generador de números consecutivos)</entry>
+                                <entry/>
+                                <entry>No se puede copiar ahí el AN si el request contiene varios
+                                    steps (pasos)</entry>
+                                <entry/>
+                                <entry>00400009</entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </p>
+        </section>
+        <section id="section_k5b_vwb_jhb">
+            <p>(*) complete list: CR, CT, MR,NM, US, OT,DG, ES, LS, PT, RG, TG, XA, RF, RTIMAGE,
+                RTDOSE, RTSTRUCT, RTPLAN, RTRECORD, HC, DX, MG, IO, PX, GM, SM, XC, PR, AU, ECG,
+                EPS, HD, SR IVUS, OP, SMR, AR, KER, VA, SRF, OCT, LEN, OPV, OPM, OAM, RESP, KO, SEG,
+                REG, OPT, BDUS, BMD, FID, PLAN, IOL, IVOCT</p>
+            <p>Se pueden agregar pasos 2, 3 y 4. El digito en el nombree cambia acorde.</p>
+            <p/>
+            <p>Lista en formato json: </p>
             <p>{</p>
             <p> "pacs":"", "sala":"", "modalidad":"", </p>
             <p/>
@@ -385,10 +958,10 @@
         <section id="section_h4n_r2x_tdb">
             <title>ReferringPhysiciansName, NameofPhysicianReadingStudy</title>
             <p>ReferringPhysiciansName y NameofPhysicianReadingStudy ambos siguen el formato
-                identificadorDeInstitución^nombreDeServicio^nombreDelUsuarioMedico.  El
-                identificador de la institución puede ser el nombre corto o su OID. El servicio
-                puede ser el nombre por defecto del servico, o sea la modalidad de imágenes DICOM
-                producidas en el servicio.</p>
+                identificadorDeInstitución^nombreDeServicio^nombreDelUsuarioMedico. El identificador
+                de la institución puede ser el nombre corto o su OID. El servicio puede ser el
+                nombre por defecto del servico, o sea la modalidad de imágenes DICOM producidas en
+                el servicio.</p>
             <p>Es posible indicar solo institución y servicio, o solamente institución.</p>
             <p>El archivo de configuración de PACS permite asociar un código a
                 ReferringPhysiciansName o NameofPhysicianReadingStudy. Por ejemplo,
@@ -397,7 +970,7 @@
                 "readingAsReferring". Cuando se activa esta opción, distorsiona la información
                 provista en la MWL, indicando NameofPhysicianReadingStudy en lugar de
                 ReferringPhysiciansName. El interés de está distorsión consiste en que
-                ReferringPhysiciansName es  modificable desde la consola del equipo DICOM. Hace
+                ReferringPhysiciansName es modificable desde la consola del equipo DICOM. Hace
                 posible definir qué radiólogo será responsable de informar el estudio una vez que se
                 adquieren las imágenes, antes de mandarlas al PACS WEB. Al recibir las imágenes el
                 PACS WEB repone las informaciones donde van en la metadata DICOM,

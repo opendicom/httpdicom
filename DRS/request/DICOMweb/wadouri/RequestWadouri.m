@@ -1,7 +1,7 @@
-#import "WADOURIRequest.h"
+#import "RequestWadouri.h"
+#import "NSMutableURLRequest+DRS.h"
 
-@implementation WADOURIRequest
-
+@implementation RequestWadouri
 
 
 +(NSMutableURLRequest*)requestDICMFromPacs:(NSDictionary*)pacs
@@ -9,7 +9,7 @@
                          SeriesInstanceUID:(NSString*)suid
                             SOPInstanceUID:(NSString*)iuid
 {
-   return [RequestObject requestDICMFromPacs:(NSDictionary*)pacs
+   return [RequestWadouri requestDICMFromPacs:(NSDictionary*)pacs
                             StudyInstanceUID:(NSString*)euid
                            SeriesInstanceUID:(NSString*)suid
                               SOPInstanceUID:(NSString*)iuid
@@ -46,12 +46,11 @@
                                transferSyntax
                                ];
    
-   return [NSMutableURLRequest DRSRequestPacs:pacs
-                                    URLString:URLString
-                                       method:@"GET"
-                                  contentType:nil
-                                     bodyData:nil
-                                       accept:nil];
+   return [NSMutableURLRequest
+           DRSRequestPacs:pacs
+           URLString:URLString
+           method:GET
+          ];
 }
 
 
@@ -81,12 +80,11 @@
                                iuid
                                ];
    
-   return [NSMutableURLRequest DRSRequestPacs:pacs
-                                    URLString:URLString
-                                       method:@"GET"
-                                  contentType:nil
-                                     bodyData:nil
-                                       accept:nil];
+   return [NSMutableURLRequest
+           DRSRequestPacs:pacs
+           URLString:URLString
+           method:GET
+           ];
 }
 
 
@@ -145,13 +143,11 @@
                                mediaType
                                ];
    
-   return [NSMutableURLRequest DRSRequestPacs:pacs
-                                    URLString:URLString
-                                       method:@"GET"
-                                  contentType:nil
-                                     bodyData:nil
-                                       accept:nil];
-
+   return [NSMutableURLRequest
+           DRSRequestPacs:pacs
+           URLString:URLString
+           method:GET
+           ];
 }
 
 

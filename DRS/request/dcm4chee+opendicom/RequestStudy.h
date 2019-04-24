@@ -1,24 +1,26 @@
-#import "NSMutableURLRequest+DRS.h"
+//when accessionType is empty (@""), accessionIssuer is local, else is universal
 
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface RequestStudy : NSObject
 
 
-+(NSDictionary*)existsInPacs:(NSDictionary*)pacs
-             accessionNumber:(NSString*)an
-                 issuerLocal:(NSString*)issuerLocal
-             issuerUniversal:(NSString*)issuerUniversal
-                  issuerType:(NSString*)issuerType
-            returnAttributes:(BOOL)returnAttributes;
++(NSMutableURLRequest*)existsInPacs:(NSDictionary*)pacs
+                    accessionNumber:(NSString*)accessionNumber
+                    accessionIssuer:(NSString*)accessionIssuer
+                      accessionType:(NSString*)accessionType
+                   returnAttributes:(BOOL)returnAttributes
+;
 
 
-+(NSArray*)existsInPacs:(NSDictionary*)pacs
-               studyUID:(NSString*)studyUID
-              seriesUID:(NSString*)seriesUID
-                 sopUID:(NSString*)sopUID
-       returnAttributes:(BOOL)returnAttributes;
++(NSMutableURLRequest*)existsInPacs:(NSDictionary*)pacs
+                           studyUID:(NSString*)studyUID
+                          seriesUID:(NSString*)seriesUID
+                             sopUID:(NSString*)sopUID
+                   returnAttributes:(BOOL)returnAttributes
+;
 
 @end
 

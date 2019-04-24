@@ -456,11 +456,9 @@
                                     <xs:group ref="location"/>
                                     <xs:group ref="html5dicomuserserviceuri"/>
                                     <xs:group ref="html5dicomuseractive"/>
-                                    <xs:group ref="aets"/>                                                                    
-                                    <xs:group ref="modalities"/>                                                                    
-                                    <xs:group ref="readingasreferring"/>                                                                    
-                                    <xs:group ref="referring" minOccurs="0"/>
-                                </xs:sequence>                                    
+                                    <xs:group ref="aets"/>
+                                    <xs:group ref="modalities"/>
+                                </xs:sequence>
                             </xs:complexType>
                         </xs:element>
                     </xs:sequence>
@@ -547,39 +545,6 @@
             <xs:element ref="string" id="modalities"/>
         </xs:sequence>
     </xs:group>
-    
-    <xs:group name="readingasreferring">
-        <xs:sequence>
-            <xs:element name="key" fixed="readingasreferring">
-                <xs:annotation>
-                    <xs:documentation>in order to be able to input NameOfPhysicianReading</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:group ref="truefalse"/>
-        </xs:sequence>
-    </xs:group>
-    
-    <xs:group name="referring">
-        <xs:sequence >
-            <xs:element name="key" fixed="referring"/>
-            <xs:element name="dict">
-                <xs:annotation>
-                    <xs:documentation>mapeo número PN</xs:documentation>
-                </xs:annotation>
-                <xs:complexType>
-                    <xs:sequence maxOccurs="unbounded">
-                        <xs:element name="key">
-                            <xs:annotation>
-                                <xs:documentation>número del profesional</xs:documentation>
-                            </xs:annotation>
-                        </xs:element>
-                        <xs:element ref="string" id="pn"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-        </xs:sequence>
-    </xs:group>
-    
 
 <!-- syntaxis -->
        

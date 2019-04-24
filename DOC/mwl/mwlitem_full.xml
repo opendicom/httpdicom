@@ -4,99 +4,129 @@
 <!ELEMENT attr (#PCDATA | item)*>
 <!ELEMENT item (#PCDATA | attr)*>
 <!ATTLIST attr tag CDATA #REQUIRED>
+<!ATTLIST attr vr CDATA #REQUIRED>
+<!ATTLIST item number CDATA #REQUIRED>
 ]>
 <dataset>
-<!-- Specific Character Set -->
-  <attr tag="00080005">ISO_IR 100</attr>
-<!-- Scheduled Procedure Step Sequence -->
-  <attr tag="00400100">
-    <item>
-<!-- Scheduled Station AE Title -->
-      <attr tag="00400001">STATION_AET</attr>
-<!-- Scheduled Procedure Step Start Date -->
-      <attr tag="00400002">20040210</attr>
-<!-- Scheduled Procedure Step Start Time -->
-      <attr tag="00400003">0910</attr>
-<!-- Modality -->
-      <attr tag="00080060">CT</attr>
-<!-- Scheduled Performing Physician's Name -->
-      <attr tag="00400006">Performing^Physician</attr>
-<!-- Scheduled Procedure Step Description -->
-      <attr tag="00400007">Scheduled Procedure Step Description</attr>
-<!-- Scheduled Procedure Step Location -->
-      <attr tag="00400011">Scheduled Procedure Step Location</attr>
-<!-- Scheduled Protocol Code Sequence -->
-      <attr tag="00400008">
-        <item>
-<!-- Code Value -->
-          <attr tag="00080100">PROT-1234</attr>
-<!-- Coding Scheme Designator -->
-          <attr tag="00080102">99DCM4CHE</attr>
-<!-- Code Meaning -->
-          <attr tag="00080104">Code Meaning of PROT-1234</attr>
-        </item>
-      </attr>
-<!-- Pre-Medication -->
-			<attr tag="00400012">Pre-Medication</attr>
-<!-- Scheduled Procedure Step ID -->
-			<attr tag="00400009">SPS-1234</attr>
-<!-- Requested Contrast Agent -->
-			<attr tag="00321070">Requested Contrast Agent</attr>
-<!-- Scheduled Procedure Step Status -->
-			<attr tag="00400020">SCHEDULED</attr>
-    </item>		
-  </attr>
-<!-- Requested Procedure ID -->
-	<attr tag="00401001">RP-1234</attr>
-<!-- Requested Procedure Description -->
-	<attr tag="00321060">Requested Procedure Description</attr>
-<!-- Requested Procedure Code Sequence -->
-	<attr tag="00321064">
-    <item>
-<!-- Code Value -->
-      <attr tag="00080100">PROC-1234</attr>
-<!-- Coding Scheme Designator -->
-      <attr tag="00080102">99DCM4CHE</attr>
-<!-- Code Meaning -->
-      <attr tag="00080104">Code Meaning of PROC-1234</attr>
-    </item>
+	<!-- Specific Character Set <CHARSET>-->
+  	<attr tag="00080005" vr="CS">ISO_IR 100</attr>
+	<!-- Accession Number <reqAN>-->
+	<attr tag="00080050" vr="SH"></attr>
+	<!-- Issuer of Accession Number Sequence-->
+	<attr tag="00080051" vr="SQ">
+		<item number="1">
+			<!-- Local Namespace Entity ID <reqANLOCAL>-->
+			<attr tag="00400031" vr="UT"></attr>
+			<!-- Universal Entity ID <reqANUNIVERSAL>-->
+			<attr tag="00400032" vr="UT"></attr>
+			<!-- Universal Entity ID Type reqANTYPE-->
+			<attr tag="00400033" vr="CS"></attr>
+		</item>
 	</attr>
-<!-- Study Instance UID -->
-	<attr tag="0020000D">1.2.40.0.13.1.999.1234</attr>
-<!-- Requested Procedure Priority -->
-	<attr tag="00401003">MEDIUM</attr>
-<!-- Accession Number -->
-	<attr tag="00080050">ACC-1234</attr>
-<!-- Requesting Physician -->
-	<attr tag="00321032">Requesting^Physician</attr>
-<!-- Requesting Service -->
-	<attr tag="00321033">Requesting Service</attr>
-<!-- Referring Physician's Name -->
-	<attr tag="00080090">Referring^Physician</attr>
-<!-- Admission ID -->
-	<attr tag="00380010">ADM-1234</attr>
-<!-- Current Patient Location -->
-	<attr tag="00380300">Current Patient Location</attr>
-<!-- Patient's Name -->
-	<attr tag="00100010">Patient^Name</attr>
-<!-- Patient ID -->
-	<attr tag="00100020">Patient ID</attr>
-<!-- Patients Birth Date -->
-	<attr tag="00100030">19320214</attr>
-<!-- Patient's Sex -->
-	<attr tag="00100040">F</attr>
-<!-- Patient's Weight -->
-	<attr tag="00101030">75</attr>
-<!-- Confidentiality constraint on patient data -->
-	<attr tag="00403001">V</attr>
-<!-- Patient State -->
-	<attr tag="00380500">Patient State</attr>
-<!-- Pregnancy Status -->
-	<attr tag="001021C0">0001</attr>
-<!-- Medical Alerts -->
-	<attr tag="00102000">Medical Alerts</attr>
-<!-- Contrast Allergies -->
-	<attr tag="00102110">Contrast Allergies</attr>
-<!-- Special Needs -->
-	<attr tag="00380050">Special Needs</attr>
+	<!-- Referring Physician's Name (inst^service^doctor^title) <refPHYS>-->
+	<attr tag="00080090" vr="PN"></attr>
+	<!-- Name Of Physicians Reading Study (=spsPerforming)-->
+	<attr tag="00081060" vr="PN"></attr>
+	<!-- Patient's Name -->
+	<attr tag="00100010" vr="PN"></attr>
+	<!-- Patient ID -->
+	<attr tag="00100020" vr="LO">Patient ID</attr>
+	<!-- Patient ID Issuer-->
+	<attr tag="00100021" vr="LO">Patient ID Issuer</attr>
+	<!-- Issuer of Patient ID Qualifiers Sequence-->
+	<attr tag="00100024" vr="SQ">
+		<item number="1">
+			<!-- Local Namespace Entity ID -->
+			<attr tag="00400031" vr="UT"></attr>
+			<!-- Universal Entity ID -->
+			<attr tag="00400032" vr="UT"></attr>
+			<!-- Universal Entity ID Type -->
+			<attr tag="00400033" vr="CS"></attr>
+		</item>
+	</attr>
+	<!-- Patients Birth Date -->
+	<attr tag="00100030" vr="DA">19320214</attr>
+	<!-- Patient's Sex -->
+	<attr tag="00100040" vr="CS">F</attr>
+	<!-- Patient's Weight -->
+	<attr tag="00101030" vr="DS">75</attr>
+	<!-- Mother Maiden Name -->
+	<attr tag="00101060" vr="PN">Mother^Maiden^Name</attr>
+	<!-- Medical Alerts -->
+	<attr tag="00102000" vr="LO">Medical Alerts</attr>
+	<!-- Contrast Allergies -->
+	<attr tag="00102110" vr="LO">Contrast Allergies</attr>
+	<!-- Pregnancy Status -->
+	<attr tag="001021C0" vr="US">0001</attr>
+	<!-- Study Instance UID -->
+	<attr tag="0020000D" vr="UI">1.2.40.0.13.1.999.1234</attr>
+	<!-- Requesting Physician -->
+	<attr tag="00321032" vr="PN">Requesting^Physician</attr>
+	<!-- Requested Procedure Description -->
+	<attr tag="00321060" vr="LO">Requested Procedure Description</attr>
+	<!-- Requested Procedure Code Sequence -->
+	<attr tag="00321064" vr="SQ">
+		<item number="1">
+			<!-- Code Value -->
+			<attr tag="00080100" vr="SH">PROC-1234</attr>
+			<!-- Coding Scheme Designator -->
+			<attr tag="00080102" vr="SH">99DCM4CHE</attr>
+			<!-- Code Meaning -->
+			<attr tag="00080104" vr="LO">Code Meaning of PROC-1234</attr>
+		</item>
+	</attr>
+	<!-- Admission ID -->
+	<attr tag="00380010" vr="LO">ADM-1234</attr>
+	<!-- Special Needs -->
+	<attr tag="00380050" vr="LO">Special Needs</attr>
+	<!-- Current Patient Location -->
+	<attr tag="00380300" vr="LO">Current Patient Location</attr>
+	<!-- Patient State -->
+	<attr tag="00380500" vr="LO">Patient State</attr>
+	<!-- Scheduled Procedure Step Sequence -->
+	<attr tag="00400100" vr="SQ">
+		<item number="1">
+    		<!-- Modality -->
+			<attr tag="00080060" vr="CS">CT</attr>
+    		<!-- Requested Contrast Agent -->
+			<attr tag="00321070" vr="LO">Requested Contrast Agent</attr>
+    		<!-- Scheduled Station AE Title -->
+			<attr tag="00400001" vr="AE">STATION_AET</attr>
+			<!-- Scheduled Procedure Step Start Date -->
+			<attr tag="00400002" vr="DA">20040210</attr>
+			<!-- Scheduled Procedure Step Start Time -->
+			<attr tag="00400003" vr="TM">0910</attr>
+			<!-- Scheduled Performing Physician's Name (=reading)-->
+			<attr tag="00400006" vr="PN">Performing^Physician</attr>
+			<!-- Scheduled Procedure Step Description -->
+			<attr tag="00400007" vr="LO">Scheduled Procedure Step Description</attr>
+			<!-- Scheduled Protocol Code Sequence -->
+			<attr tag="00400008" vr="SQ">
+				<item number="1">
+					<!-- Code Value -->
+					<attr tag="00080100" vr="SH">PROT-1234</attr>
+					<!-- Coding Scheme Designator -->
+					<attr tag="00080102" vr="SH">99DCM4CHE</attr>
+					<!-- Code Meaning -->
+					<attr tag="00080104" vr="LO">Code Meaning of PROT-1234</attr>
+        		</item>
+      		</attr>
+    		<!-- Scheduled Procedure Step ID -->
+			<attr tag="00400009" vr="SH">SPS-1234</attr>
+			<!-- Scheduled Procedure Step Station Name -->
+			<attr tag="00400010" vr="SH">NX</attr>
+			<!-- Scheduled Procedure Step Location -->
+			<attr tag="00400011" vr="SH">Scheduled Procedure Step Location</attr>
+    		<!-- Pre-Medication -->
+			<attr tag="00400012" vr="LO">Pre-Medication</attr>
+			<!-- Scheduled Procedure Step Status -->
+			<attr tag="00400020" vr="CS">SCHEDULED</attr>
+    	</item>		
+	</attr>
+	<!-- Requested Procedure ID -->
+	<attr tag="00401001" vr="SH">RP-1234</attr>
+	<!-- Requested Procedure Priority -->
+	<attr tag="00401003" vr="SH">MEDIUM</attr>
+	<!-- Confidentiality constraint on patient data -->
+	<attr tag="00403001" vr="LO">V</attr>
 </dataset>

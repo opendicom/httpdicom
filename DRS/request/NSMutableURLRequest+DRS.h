@@ -7,20 +7,57 @@ NSTimeInterval const defaultTimeout=10;
 
 @interface NSMutableURLRequest (core)
 
-//to be used by all categories once the URL part of the request is defined, so that default cachePolicy and timeout are set if necesary
+//completes requests with cachePolicy and timeout
+
 //contentType and accept refer to media-type
-//contentType is of the request
-//accept is what is expected from the response
-//in the case of WADOURI, leave contentType nil and put the value for the eventual parameter "contentType" into accept
+//   contentType is of the request
+//   accept is what is expected from the response
+
+//in the case of WADOURI,
+//   leave contentType empty (@"") and
+//   put the value for the eventual parameter "contentType" into accept
+
 //cachePolicy 0 defaults to NSURLRequestReloadIgnoringCacheData
+
 //timeout 0 defaults to 10 seconds (look at const here above)
+
+typedef NS_ENUM(NSUInteger, HTTPRequestMethod) {
+   GET = 0,
+   HEAD,
+   POST,
+   PUT,
+   DELETE,
+   CONNECT,
+   OPTIONS,
+   TRACE,
+   PATCH
+};
 
 +(NSMutableURLRequest*)DRSRequestPacs:(NSDictionary*)pacs
                             URLString:(NSMutableString*)URLString
-                               method:(NSString*)method
+                               method:(HTTPRequestMethod)method
                           contentType:(NSString*)contentType
                              bodyData:(NSData*)bodyData
                                accept:(NSString*)accept
+;
+
+
++(NSMutableURLRequest*)DRSRequestPacs:(NSDictionary*)pacs
+                            URLString:(NSMutableString*)URLString
+                               method:(HTTPRequestMethod)method
+                          contentType:(NSString*)contentType
+                             bodyData:(NSData*)bodyData
+;
+
++(NSMutableURLRequest*)DRSRequestPacs:(NSDictionary*)pacs
+                            URLString:(NSMutableString*)URLString
+                               method:(HTTPRequestMethod)method
+                               accept:(NSString*)accept
+;
+
++(NSMutableURLRequest*)DRSRequestPacs:(NSDictionary*)pacs
+                            URLString:(NSMutableString*)URLString
+                               method:(HTTPRequestMethod)method
 ;
 
 @end

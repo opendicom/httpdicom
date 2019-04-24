@@ -1,39 +1,67 @@
 /* PARAMETERS
 
+ http://dicom.nema.org/MEDICAL/DICOM/2015a/output/chtml/part03/sect_C.4.10.html
+ 
  Los nombres que empiezan con mayúscula corresponden exactamente a atributos DICOM.
- Los nombres que empiezan con minúscula reciben valores que requieren tratamiento antes de transformarse en atributo DICOM.
+ Los nombres que empiezan con minúscula están transformados a atributos DICOM.
  
  {
  "pacs":"",
- "sala":"",
- "modalidad":"",
+ 
+ "apellido1":"",
+ "apellido2":"",
+ "nombres":"",
+ 
+ "PatientBirthDate":"",
+ "PatientSex":"",
+
+ "PatientID":"",
+ "PatientIDCountry":"",
+ "PatientIDType":"",
+
+ "clave":"",
 
  "AccessionNumber":"",
  "issuerLocal":"",
  "issuerUniversal":"",
  "issuerTipo":"",
  
- "StudyDescription":"",
- "apellido1":"",
- "apellido2":"",
- "nombres":"",
+ "RequestedProcedureID":"", (00401001)
+ "StudyDescription":"", (00321064)
  
- "PatientID":"",
- "PatientIDCountry":"",
- "PatientIDType":"",
- 
- "clave":"",
- 
- "PatientBirthDate":"",
- "PatientSex":"",
- 
- "Priority":"",
+ "RequestedProcedurePriority":"", (00401003)
  "ReferringPhysiciansName":"",
  "NameofPhysicianReadingStudy":"",
  
  "msg":"",
  "enclosurePdf":""
- }
+ 
+ "sps1Location":"", (00400011)
+ "sps1StationName":"" (00400010)
+ "sps1StationAETitle","" (00400001)
+ "sps1Modalidad":"", (00080060)
+ "sps1Technician","" (00400006)
+ "sps1ProtocolCode":"" (00400008)
+ "sps1ID":"" (00400009)
+ 
+ "sps2Sala":"",
+ "sps2Modalidad":"",
+ "sps2StationAETitle",""
+ "sps2Technician",""
+ "sps2ProtocolCode":""
+ 
+ "sps3Sala":"",
+ "sps3Modalidad":"",
+ "sps3StationAETitle",""
+ "sps3Technician",""
+ "sps3ProtocolCode":""
+ 
+ "sps4Sala":"",
+ "sps4Modalidad":"",
+ "sps4StationAETitle",""
+ "sps4Technician",""
+ "sps4ProtocolCode":""
+
  
  modalidad reemplaza Modality en la lista anterior. Es que en la nueva versión se va a examinar en conjunto con sala, y en base a un archivo de mapeo permitirá definir los valores correctos para los atributos DICOM ScheduledProcedureStepSequence.Modality y ScheduledProcedureStepSequence.ScheduledStationAETitle.
  

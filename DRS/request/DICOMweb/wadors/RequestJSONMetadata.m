@@ -1,4 +1,5 @@
 #import "RequestJSONMetadata.h"
+#import "NSMutableURLRequest+DRS.h"
 
 @implementation RequestJSONMetadata
 
@@ -16,12 +17,11 @@
    
    NSMutableString *URLString=[NSMutableString stringWithFormat:@"%@/studies/%@/metadata", pacs[@"wadors"], euid];
    
-      return [NSMutableURLRequest DRSRequestPacs:pacs
-                                       URLString:URLString
-                                          method:@"GET"
-                                     contentType:nil
-                                        bodyData:nil
-                                          accept:@"application/dicom+json​"
+      return [NSMutableURLRequest
+              DRSRequestPacs:pacs
+              URLString:URLString
+              method:GET
+              accept:@"application/dicom+json​"
               ];
 }
 
@@ -45,12 +45,11 @@
                                suid
                                ];
    
-   return [NSMutableURLRequest DRSRequestPacs:pacs
-                                    URLString:URLString
-                                       method:@"GET"
-                                  contentType:nil
-                                     bodyData:nil
-                                       accept:@"application/dicom+json​"
+   return [NSMutableURLRequest
+           DRSRequestPacs:pacs
+           URLString:URLString
+           method:GET
+           accept:@"application/dicom+json​"
            ];
 }
 
@@ -77,12 +76,11 @@
                                iuid
                                ];
    
-   return [NSMutableURLRequest DRSRequestPacs:pacs
-                                    URLString:URLString
-                                       method:@"GET"
-                                  contentType:nil
-                                     bodyData:nil
-                                       accept:@"application/dicom+json​"
+   return [NSMutableURLRequest
+           DRSRequestPacs:pacs
+           URLString:URLString
+           method:GET
+           accept:@"application/dicom+json​"
            ];
 }
 

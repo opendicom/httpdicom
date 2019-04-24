@@ -1,59 +1,52 @@
 #import "RequestStudy.h"
-
 #import "NSMutableURLRequest+DRS.h"
 
 
 @implementation RequestStudy
 
-+(id)existsInPacs:(NSDictionary*)pacs
-  accessionNumber:(NSString*)an
-      issuerLocal:(NSString*)issuerLocal
-  issuerUniversal:(NSString*)issuerUniversal
-       issuerType:(NSString*)issuerType
- returnAttributes:(BOOL)returnAttributes
++(NSMutableURLRequest*)existsInPacs:(NSDictionary*)pacs
+  accessionNumber:(NSString*)accessionNumber
+  accessionIssuer:(NSString*)accessionIssuer
+  accessionType:(NSString*)accessionType
+  returnAttributes:(BOOL)returnAttributes
 {
    NSMutableString *URLString=nil;
-   if (issuerLocal)
-      URLString=[NSMutableString stringWithFormat:@"%@/rs/studies?AccessionNumber=%@&00080051.00400031=%@&includefield=00100021",
-         pacs[@"dcm4cheelocaluri"],
-         an,
-         issuerLocal
-         ];
-   else if (issuerUniversal && issuerType)
+   if ([accessionType length])
       URLString=[NSMutableString stringWithFormat:@"%@/rs/studies?AccessionNumber=%@&00080051.00400032=%@&00080051.00400033=%@&includefield=00100021",
-         pacs[@"dcm4cheelocaluri"],
-         an,
-         issuerUniversal,
-         issuerType
-         ];
+                 pacs[@"dcm4cheelocaluri"],
+                 accessionNumber,
+                 accessionIssuer,
+                 accessionType
+                 ];
+
+   else if ([accessionType length])
+      URLString=[NSMutableString stringWithFormat:@"%@/rs/studies?AccessionNumber=%@&00080051.00400031=%@&includefield=00100021",
+                 pacs[@"dcm4cheelocaluri"],
+                 accessionNumber,
+                 accessionIssuer
+                 ];
    else
       URLString=[NSMutableString stringWithFormat:@"%@/rs/studies?AccessionNumber=%@&includefield=00100021",
          pacs[@"dcm4cheelocaluri"],
-         an
+         accessionNumber
          ];
 
    //GET or HEAD?
    if ((returnAttributes==false) && [pacs[@"headavailable"]boolValue])
       return [NSMutableURLRequest DRSRequestPacs:pacs
                                        URLString:URLString
-                                          method:@"HEAD"
-                                     contentType:nil
-                                        bodyData:nil
-                                          accept:@""
+                                          method:HEAD
               ];
    
    
    return [NSMutableURLRequest DRSRequestPacs:pacs
                                     URLString:URLString
-                                       method:@"GET"
-                                  contentType:nil
-                                     bodyData:nil
-                                       accept:@""
+                                       method:GET
            ];
 }
 
 
-+(NSArray*)existsInPacs:(NSDictionary*)pacs
++(NSMutableURLRequest*)existsInPacs:(NSDictionary*)pacs
                studyUID:(NSString*)studyUID
               seriesUID:(NSString*)seriesUID
                  sopUID:(NSString*)sopUID
@@ -104,19 +97,13 @@
    if ((returnAttributes==false) && [pacs[@"headavailable"]boolValue])
       return [NSMutableURLRequest DRSRequestPacs:pacs
                                        URLString:URLString
-                                          method:@"HEAD"
-                                     contentType:nil
-                                        bodyData:nil
-                                          accept:@""
+                                          method:HEAD
               ];
    
    
    return [NSMutableURLRequest DRSRequestPacs:pacs
                                     URLString:URLString
-                                       method:@"GET"
-                                  contentType:nil
-                                     bodyData:nil
-                                       accept:@""
+                                       method:GET
            ];
 }
 @end
