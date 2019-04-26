@@ -1,6 +1,6 @@
 #import "DRS.h"
 
-@interface DRS (wado)
+@interface DRS (wadouri)
 
 //http://dicom.nema.org/medical/dicom/current/output/chtml/part18/sect_6.2.html
 //http://dicom.nema.org/medical/dicom/current/output/chtml/part18/sect_6.3.html

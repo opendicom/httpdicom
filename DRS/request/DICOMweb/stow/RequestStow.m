@@ -30,7 +30,7 @@ const UInt32        vrULmonovaluedmwl  = 0x044C55;
            ];
 }
 
-+(NSMutableURLRequest*)singleEnclosedDimseToPacs:(NSDictionary*)pacs
++(NSMutableURLRequest*)singleEnclosedDICMToPacs:(NSDictionary*)pacs
                      CS:(NSString*)CS
                      DA:(NSString*)DA
                      TM:(NSString*)TM

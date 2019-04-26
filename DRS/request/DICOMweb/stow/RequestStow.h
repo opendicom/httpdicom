@@ -5,15 +5,17 @@ NS_ASSUME_NONNULL_BEGIN
 @interface RequestStow : NSObject
 
 //multipart/related; type=application/dicom[dicomSubType]; boundary={messageBoundary}
-
 // dicomSubType: @"", @"+xml", @"+json"
+
+//generico
 +(NSMutableURLRequest*)singleBodyToPacs:(NSDictionary*)pacs
                            dicomSubtype:(NSString*)dicomSubType
                          boundaryString:(NSString*)boundaryString
                                bodyData:(NSData*)bodyData
 ;
 
-+(NSMutableURLRequest*)singleEnclosedDimseToPacs:(NSDictionary*)pacs
+//caso particular que crea la instancia DICM (binario)
++(NSMutableURLRequest*)singleEnclosedDICMToPacs:(NSDictionary*)pacs
                      CS:(NSString*)CS
                      DA:(NSString*)DA
                      TM:(NSString*)TM

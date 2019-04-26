@@ -1,8 +1,8 @@
-#import "DRS+wado.h"
+#import "DRS+wadouri.h"
 #import "NSURLComponents+PCS.h"
 #import "DICMTypes.h"
 
-@implementation DRS (wado)
+@implementation DRS (wadouri)
 
 //wado application/dicom ony
 -(void)addWadoHandler

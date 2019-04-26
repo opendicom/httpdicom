@@ -4,14 +4,13 @@
 
 @implementation ResponseStudy
 
-+(id)existsInPacs:(NSDictionary*)pacs
-  accessionNumber:(NSString*)an
-      issuerLocal:(NSString*)issuerLocal
-  issuerUniversal:(NSString*)issuerUniversal
-       issuerType:(NSString*)issuerType
- returnAttributes:(BOOL)returnAttributes
++(NSArray*)existsInPacs:(NSDictionary*)pacs
+        accessionNumber:(NSString*)accessionNumber
+        accessionIssuer:(NSString*)accessionIssuer
+          accessionType:(NSString*)accessionType
+       returnAttributes:(BOOL)returnAttributes
 {
-   if (!an || ![an length])
+   if (!accessionNumber || ![accessionNumber length])
    {
       LOG_WARNING(@"no accession number");
       return nil;
@@ -19,12 +18,12 @@
    
    NSMutableURLRequest *request=[RequestStudy
                                  existsInPacs:pacs
-                                 accessionNumber:an
-                                 issuerLocal:issuerLocal
-                                 issuerUniversal:issuerUniversal
-                                 issuerType:issuerType
+                                 accessionNumber:accessionNumber
+                                 accessionIssuer:accessionIssuer
+                                 accessionType:accessionType
                                  returnAttributes:returnAttributes
                                  ];
+
    NSHTTPURLResponse *response=nil;
    NSError *error=nil;
    NSData *responseData=[NSURLSessionDataTask sendSynchronousRequest:request returningResponse:&response error:&error];
