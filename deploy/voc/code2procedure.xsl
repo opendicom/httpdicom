@@ -13,8 +13,8 @@
     
     <xsl:template match="dict/dict">
         <dict>
-            <key>displayname</key>
-            <string id="displayname"><xsl:value-of select="string[1]/text()"/></string>
+            <key>fullname</key>
+            <string id="fullname"><xsl:value-of select="string[1]/text()"/></string>
             <key>shortname</key>
             <string id="shortname"/>
             <key>scheme</key>

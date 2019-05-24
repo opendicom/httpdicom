@@ -18,7 +18,7 @@
                             <xs:element name="dict">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:group ref="displayname"/>
+                                        <xs:group ref="fullname"/>
                                         <xs:group ref="shortname"/>
                                         <xs:group ref="scheme"/>
                                         <xs:group ref="modality"/>
@@ -39,10 +39,10 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:group name="displayname">
+    <xs:group name="fullname">
         <xs:sequence>
-            <xs:element name="key" fixed="displayname"/>
-            <xs:element ref="string" id="displayname"/>
+            <xs:element name="key" fixed="fullname"/>
+            <xs:element ref="string" id="fullname"/>
         </xs:sequence>
     </xs:group>
     
@@ -99,7 +99,7 @@
     <!-- type polysemy -->
 
     <xs:element name="string" type="idstring">
-        <xs:alternative test="@id = 'displayname'" type="idstring"/>
+        <xs:alternative test="@id = 'fullname'" type="idstring"/>
         <xs:alternative test="@id = 'shortname'" type="shortnameidstring"/>
         <xs:alternative test="@id = 'modality'" type="modality"/>
         <xs:alternative test="@id = 'cagegory'" type="shortnameidstring"/>

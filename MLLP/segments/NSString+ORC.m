@@ -4,39 +4,28 @@
 @implementation NSString(ORC)
 
 +(NSString*)
-   OrderControl        :(NSString*)ORC_1
-   sendingRisName      :(NSString*)ORC_2
-   receivingPacsaet    :(NSString*)ORC_3
-   isrPlacerDT         :(NSString*)ORC_2_
-   isrFillerScheduledDT:(NSString*)ORC_3_
-   spsOrderStatus      :(NSString*)ORC_4
-   spsDateTime         :(NSString*)ORC_7
-   rpPriority          :(NSString*)ORC_7_
-   EnteringDevice      :(NSString*)ORC_18
+   orderControl   :(NSString*)ORC_1
+   isrPlacerNumber:(NSString*)ORC_2
+   isrFillerNumber:(NSString*)ORC_3
+   reqPriority    :(NSString*)ORC_7_
+   spsOrderStatus :(NSString*)ORC_5
+   spsDateTime    :(NSString*)ORC_7
 {
-   NSString *DTnow=[DICMTypes DTStringFromDate:[NSDate date]];
-   
+   if (!ORC_3)return nil;
    if (!ORC_1)ORC_1=@"NW";
-   if (!ORC_2)ORC_2=@"HIS";
-   if (!ORC_2_)ORC_2_=DTnow;
-   if (!ORC_3)ORC_3=@"CUSTODIAN";
-   if (!ORC_3_)ORC_3_=DTnow;
-   if (!ORC_4)ORC_4=@"SC";//SCHEDULED
-   if (!ORC_7)ORC_7=DTnow;
+   if (!ORC_2)ORC_2=@"";
+   if (!ORC_5)ORC_5=@"SC";//SCHEDULED
+   if (!ORC_7)ORC_7=[DICMTypes DTStringFromDate:[NSDate date]];
    if (!ORC_7_)ORC_7_=@"T";//T=Medium, S=STAT A,P,C=HIGH, R=ROUTINE
-   if (!ORC_18)ORC_18=@"IP";
 
    return [NSString stringWithFormat:
-           @"ORC|%@|%@^%@|%@^%@||%@||^^^%@^^%@|||||||||||%@",
+           @"ORC|%@|%@|%@||%@||^^^%@^^%@",
            ORC_1,
            ORC_2,
-           ORC_2_,
            ORC_3,
-           ORC_3_,
-           ORC_4,
+           ORC_5,
            ORC_7,
-           ORC_7_,
-           ORC_18
+           ORC_7_
            ];
 }
 

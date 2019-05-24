@@ -70,74 +70,68 @@ enclosureTransferSyntax:(NSString*)enclosureTransferSyntax
    {
       //minimal format, one step with accessionNumber=procid=stepid=studyiuid
       NSMutableDictionary *metainfo=[NSMutableDictionary dictionary];
-      [metainfo addEntriesFromDictionary:[NSDictionary
-                                          DICM0002ForMediaStorageSOPClassUID:@"1.2.840.10008.5.1.4.1.1.104.2"
-                                          mediaStorageSOPInstanceUID:instanceUID
-                                          implementationClassUID:@""
-                                          implementationVersionName:@""
-                                          sourceApplicationEntityTitle:@""
-                                          privateInformationCreatorUID:@""
-                                          privateInformation:nil]];
+      [metainfo addEntriesFromDictionary:[NSDictionary DICM0002ForMediaStorageSOPClassUID:@"1.2.840.10008.5.1.4.1.1.104.2"
+         mediaStorageSOPInstanceUID:instanceUID
+         implementationClassUID:@""
+         implementationVersionName:@""
+         sourceApplicationEntityTitle:@""
+         privateInformationCreatorUID:@""
+         privateInformation:nil
+      ]];
       NSMutableData *metainfoData=[NSMutableData DICMDataGroup2WithDICMDictionary:metainfo];
       
       NSMutableDictionary *dicm=[NSMutableDictionary dictionary];
       
       //DICMC120100    SOP Common
-      [dicm addEntriesFromDictionary:[NSDictionary
-                                      DICMC120100ForSOPClassUID1:@"1.2.840.10008.5.1.4.1.1.104.2"
-                                      SOPInstanceUID1:instanceUID
-                                      charset1:CS
-                                      DA1:DA
-                                      TM1:TM
-                                      TZ:TZ]];
+      [dicm addEntriesFromDictionary:[NSDictionary DICMC120100ForSOPClassUID1:@"1.2.840.10008.5.1.4.1.1.104.2"
+         SOPInstanceUID1:instanceUID
+         charset1:CS
+         DA1:DA
+         TM1:TM
+         TZ:TZ]];
       
       //DICMC070101    Patient
-      [dicm addEntriesFromDictionary:[NSDictionary
-                                      DICMC070101PatientWithName:name
-                                      pid:pid
-                                      issuer:issuer
-                                      birthdate:birthdate
-                                      sex:sex]];
+      [dicm addEntriesFromDictionary:[NSDictionary DICMC070101PatientWithName:name
+         pid:pid
+         issuer:issuer
+         birthdate:birthdate
+         sex:sex]];
       
       //DICMC070201    General Study
-      [dicm addEntriesFromDictionary:[NSDictionary
-                                      DICMC070201StudyWithUID:studyUID
-                                      DA:DA
-                                      TM:TM
-                                      ID:@""
-                                      AN:accessionNumber
-                                      ANLocal:nil
-                                      ANUniversal:nil
-                                      ANUniversalType:nil
-                                      description:studyDescription
-                                      procedureCodes:procedureCodes
-                                      referring:referring
-                                      reading:reading]];
+      [dicm addEntriesFromDictionary:[NSDictionary DICMC070201StudyWithUID:studyUID
+         DA:DA
+         TM:TM
+         ID:@""
+         AN:accessionNumber
+         ANLocal:nil
+         ANUniversal:nil
+         ANUniversalType:nil
+         description:studyDescription
+         procedureCodes:procedureCodes
+         referring:referring
+         reading:reading]];
       
       
       //DICMC240100    Encapsulated Series
-      [dicm addEntriesFromDictionary:[NSDictionary
-                                      DICMC240100ForModality1:@"OT"
-                                      seriesUID1:seriesUID
-                                      seriesNumber2:@"-32"
-                                      seriesDA3:DA
-                                      seriesTM3:TM
-                                      seriesDescription3:seriesDescription]];
+      [dicm addEntriesFromDictionary:[NSDictionary DICMC240100ForModality1:@"OT"
+         seriesUID1:seriesUID
+         seriesNumber2:@"-32"
+         seriesDA3:DA
+         seriesTM3:TM
+         seriesDescription3:seriesDescription]];
       
       //DICMC070501    General Equipment
       [dicm addEntriesFromDictionary:[NSDictionary DICMC070501ForInstitution:accessionIssuer]];
       
       //DICMC080601    SC Equipment
-      [dicm addEntriesFromDictionary:[NSDictionary
-                                      DICMC080601ForConversionType1:@"WSD"]];
+      [dicm addEntriesFromDictionary:[NSDictionary DICMC080601ForConversionType1:@"WSD"]];
       
       //DICMC240200    Encapsulated Document
-      [dicm addEntriesFromDictionary:[NSDictionary
-                                      DICMC240200EncapsulatedCDAWithDA:DA
-                                      TM:TM
-                                      title:enclosureTitle
-                                      HL7II:enclosureHL7II
-                                      data:enclosureData]];
+      [dicm addEntriesFromDictionary:[NSDictionary DICMC240200EncapsulatedCDAWithDA:DA
+         TM:TM
+         title:enclosureTitle
+         HL7II:enclosureHL7II
+         data:enclosureData]];
       
       
       //MutableDictionary -> NSMutableData

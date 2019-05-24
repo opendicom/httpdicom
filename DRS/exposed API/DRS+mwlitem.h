@@ -98,8 +98,8 @@ Referring= (quien pidió el examen. Formato:   BCBSU^^Apellido (y eventualmente 
 #import "DRS.h"
 
 
-@interface DRS (mwl)
+@interface DRS (mwlitem)
 
--(void)addMWLHandler;
+-(void)addMwlitemHandler;
 
 @end

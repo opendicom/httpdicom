@@ -9,9 +9,9 @@
 #import "NSUUID+DICM.h"
 
 //#import "NSMutableURLRequest+enclosed.h"
-#import "NSMutableURLRequest+patient.h"
+#import "RequestPatients.h"
 //#import "NSMutableURLRequest+instance.h"
-#import "NSMutableURLRequest+html5dicom.h"
+//#import "NSMutableURLRequest+html5dicom.h"
 
 
 @implementation DRS (pdf)
@@ -32,7 +32,8 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
     NSMutableArray *types=[NSMutableArray array];
     NSMutableString *jsonString=[NSMutableString string];
     NSString *errorString=nil;
-    if (!parseRequestParams(request, jsonString, names, values, types, &errorString))
+   
+    if (!parseRequestParams(request, names, values, types, &jsonString, &errorString))
     {
         LOG_WARNING(@"[pdf]<request> <-404: params error: %@",errorString);
         return [RSErrorResponse responseWithClientError:404 message:@"%@",errorString];
@@ -139,7 +140,7 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
         return [RSErrorResponse responseWithClientError:404 message:@"[pdf] PatientIDType '%@' unknown",values[PatientIDTypeIndex]];
     }
     
-    NSString *IssuerOfPatientID1=[NSString stringWithFormat:@"2.16.858.1.%@.%@",(K.iso3166[XXX])[iso3166Index],values[PatientIDTypeIndex]];
+    NSString *patIDIssuer=[NSString stringWithFormat:@"2.16.858.1.%@.%@",(K.iso3166[XXX])[iso3166Index],values[PatientIDTypeIndex]];
     
     
 #pragma mark validation AccessionNumber input
@@ -252,7 +253,7 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
         //check if Patient ID matches
         BOOL IDmatches=[PatientID1 isEqualToString:((existingStudy[@"00100020"])[@"Value"])[0]];
         // !!!!!!!  el pacs no devuelve 00100021 !!!!!!!
-        //if (IssuerOfPatientID1) IDmatches &= [IssuerOfPatientID1 isEqualToString:((existingStudy[@"00100021"])[@"Value"])[0]];
+        //if (patIDIssuer) IDmatches &= [patIDIssuer isEqualToString:((existingStudy[@"00100021"])[@"Value"])[0]];
         
         //Si AccessionNumber corresponde a un estudio presente en el PACS y PatientID a un paciente que no corresponde, el informe está rechazado
         if (!IDmatches)
@@ -452,13 +453,13 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
 #pragma mark - NO
         
 #pragma mark patient in pacs ?
-        NSArray *patients=[NSURLSessionDataTask existsInPacs:pacs pid:PatientID1 issuer:IssuerOfPatientID1 returnAttributes:true];
+        NSArray *patients=[NSURLSessionDataTask existsInPacs:pacs pid:PatientID1 issuer:patIDIssuer returnAttributes:true];
         if (patients)
         {
             if ([patients count]>1)
             {
-                LOG_WARNING(@"[pdf]<request> <-404:  there is more than one patient with pid:%@ and issuer:%@",PatientID1,IssuerOfPatientID1);
-                return [RSErrorResponse responseWithClientError:404 message:@"[pdf] <request> <-404:  there is more than one patient with pid:%@ and issuer:%@",PatientID1,IssuerOfPatientID1];
+                LOG_WARNING(@"[pdf]<request> <-404:  there is more than one patient with pid:%@ and issuer:%@",PatientID1,patIDIssuer);
+                return [RSErrorResponse responseWithClientError:404 message:@"[pdf] <request> <-404:  there is more than one patient with pid:%@ and issuer:%@",PatientID1,patIDIssuer];
             }
             PatientName1=((((patients[0])[@"00100010"])[@"Value"])[0])[@"Alphabetic"];
             PatientBirthdate1=(((patients[0])[@"00100030"])[@"Value"])[0];
@@ -529,7 +530,7 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
             
             NSString *URLString=[NSString stringWithFormat:@"%@/rs/patients/%@%%5E%%5E%%5E%@",
                                  pacs[@"dcm4cheelocaluri"],
-                                 PatientID1,IssuerOfPatientID1
+                                 PatientID1,patIDIssuer
                                  ];
             LOG_VERBOSE(@"[pdf] <Patient> PUT  request %@",URLString);
             NSMutableURLRequest *PUTpatientRequest=
@@ -537,7 +538,7 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
              PUTpatient:URLString
              name:PatientName1
              pid:PatientID1
-             issuer:IssuerOfPatientID1
+             issuer:patIDIssuer
              birthdate:(NSString *)PatientBirthdate1
              sex:PatientSexValue1
              contentType:@"application/json"
@@ -557,10 +558,10 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
                 return [RSErrorResponse responseWithClientError:404 message:@"[pdf] can not PUT patient %@. Error: %@",PatientName1,[error description]];
             }
             //check patient created and get the metadata
-            if (![NSURLSessionDataTask existsInPacs:pacs pid:PatientID1 issuer:IssuerOfPatientID1 returnAttributes:false])
+            if (![NSURLSessionDataTask existsInPacs:pacs pid:PatientID1 issuer:patIDIssuer returnAttributes:false])
             {
-                LOG_WARNING(@"[pdf]<request> <-404:  could not create in pacs patient with pid:%@ and issuer:%@",PatientID1,IssuerOfPatientID1);
-                return [RSErrorResponse responseWithClientError:404 message:@"[pdf] <request> <-404:  could not create in pacs patient with pid:%@ and issuer:%@",PatientID1,IssuerOfPatientID1];
+                LOG_WARNING(@"[pdf]<request> <-404:  could not create in pacs patient with pid:%@ and issuer:%@",PatientID1,patIDIssuer);
+                return [RSErrorResponse responseWithClientError:404 message:@"[pdf] <request> <-404:  could not create in pacs patient with pid:%@ and issuer:%@",PatientID1,patIDIssuer];
             }
         }
         
@@ -626,8 +627,8 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
                     procedureIndex=[pacsProcedureDict[@"shortname"] indexOfObject:thisCode];
                     if (procedureIndex==NSNotFound)
                     {
-                        //try with displayname
-                        procedureIndex=[pacsProcedureDict[@"displayname"] indexOfObject:StudyDescription1Array[2]];
+                        //try with fullname
+                        procedureIndex=[pacsProcedureDict[@"fullname"] indexOfObject:StudyDescription1Array[2]];
                         if (procedureIndex==NSNotFound)
                         {
                             //try with corresponding code and select if there is one correspondance only
@@ -644,7 +645,7 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
                                 }
                             }
                             
-                            procedureIndex=[pacsProcedureDict[@"displayname"] indexOfObject:thisCode];
+                            procedureIndex=[pacsProcedureDict[@"fullname"] indexOfObject:thisCode];
                         }
                     }
                 }
@@ -662,7 +663,7 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
 #pragma mark <recordTarget> +
         
         [dscd appendCDARecordTargetWithPid:PatientID1
-                                    issuer:IssuerOfPatientID1
+                                    issuer:patIDIssuer
                                  apellido1:patientFamily1
                                  apellido2:patientFamily2
                                    nombres:patientNames
@@ -778,7 +779,7 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
          reading:NameofPhysicianReadingStudy1
          name:PatientName1
          pid:PatientID1
-         issuer:IssuerOfPatientID1
+         issuer:patIDIssuer
          birthdate:PatientBirthdate1
          sex:PatientSexValue1
          instanceUID:SOPIUID
@@ -814,7 +815,7 @@ NSRegularExpression *pdfRegex = [NSRegularExpression regularExpressionWithPatter
          reading:NameofPhysicianReadingStudy1
          name:PatientName1
          pid:PatientID1
-         issuer:IssuerOfPatientID1
+         issuer:patIDIssuer
          birthdate:PatientBirthdate1
          sex:PatientSexValue1
          instanceUID:SOPIUID

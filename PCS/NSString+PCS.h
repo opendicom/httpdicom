@@ -10,4 +10,17 @@
 -(NSString*)valueForName:(NSString*)name;
 -(NSString*)dcmDaFromDate;
 -(NSString*)spaceNormalize;
+
+-(NSArray*)componentsSlashOrBackSlashSeparated;
+
+//pacsUID required por requestProcudure, nil for spsxProtocol
+/*
+ verifies if this is a valid codified reqProcedure or spsxProtocol
+ - returns an array of three elements if a code was discovered
+ - returns un array of one element equal to the description it there is no clear correspondence with a code
+ - returns nil if the description contains |
+ */
+-(NSArray*)procedureCodeArrayForContextPacs:(NSString*)pacsUID;
+-(NSArray*)protocolCodeArray;
+
 @end

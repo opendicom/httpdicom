@@ -26,8 +26,8 @@
     <xsl:template match="row" xpath-default-namespace="">
         <key><xsl:value-of select="normalize-space(CodigoInterno)" /></key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname"><xsl:value-of select="normalize-space(Descripcion)"/></string>
+            <key>fullname</key>
+            <string id="fullname"><xsl:value-of select="normalize-space(Descripcion)"/></string>
             <key>shortname</key>
             <string id="shortname"><xsl:value-of select="''"/></string>
             <key>procedurescheme</key>

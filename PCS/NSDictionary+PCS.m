@@ -1,8 +1,9 @@
 #import "NSDictionary+PCS.h"
+#import "ODLog.h"
 
 @implementation NSDictionary (PCS)
 
-+(NSDictionary*)da4dd:(NSDictionary*)dd
++(NSDictionary * )da4dd:(NSDictionary * )dd
 {
     if (![dd count]) return nil;
     NSArray *dkeys=[dd allKeys];
@@ -37,6 +38,31 @@
 
     //create return dictionary of arrays
     return [NSDictionary dictionaryWithDictionary:mda];
+}
+
+/*
+ NSJSONReadingMutableContainers
+ -> Specifies that arrays and dictionaries are created as mutable objects.
+ 
+ NSJSONReadingMutableLeaves
+ -> Specifies that leaf strings in the JSON object graph are created as instances of NSMutableString.
+ 
+ NSJSONReadingAllowFragments
+ -> Specifies that the parser should allow top-level objects that are not an instance of NSArray or NSDictionary.
+ */
+
++(NSDictionary * )dictionaryWithJsonData:(NSData * )data
+{
+   if (!data) return nil;
+   if (![data length]) return @{};
+   NSError *error;
+   NSDictionary *dictionary=[NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+   if (error)
+   {
+      LOG_WARNING(@"json data not dictionary:\r\n%@\r\n%@", [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding],[error description]);
+      return nil;
+   }
+   return dictionary;
 }
 
 @end

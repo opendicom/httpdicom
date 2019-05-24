@@ -97,8 +97,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">MR</string>
                 </dict>
@@ -114,8 +114,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">CT</string>
                 </dict>
@@ -131,8 +131,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">USr</string>
                 </dict>
@@ -148,8 +148,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">US USm</string>
                 </dict>
@@ -165,8 +165,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">US</string>
                 </dict>
@@ -182,8 +182,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">US</string>
                 </dict>
@@ -199,8 +199,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets">FCR_CDS</string>
+                    <key>aetitles</key>
+                    <string id="aetitles">FCR_CDS</string>
                     <key>modalities</key>
                     <string id="modalities">CR</string>
                 </dict>
@@ -216,8 +216,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets">FCR_CSL_MX</string>
+                    <key>aetitles</key>
+                    <string id="aetitles">FCR_CSL_MX</string>
                     <key>modalities</key>
                     <string id="modalities">CR DXm</string>
                 </dict>

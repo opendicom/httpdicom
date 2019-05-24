@@ -50,8 +50,8 @@
 
 -(void)appendCDAInFulfillmentOfOrder:(NSString*)AccessionNumber1 issuerOID:(NSString*)issuerOID;
 
--(void)appendCDADocumentationOfNotCoded:(NSString*)StudyDescription1;
--(void)appendCDADocumentationOf:(NSString*)StudyDescription1 fromPacsProcedureDict:(NSDictionary*)pacsProcedureDict procedureIndex:(NSUInteger)procedureIndex schemeIndex:(NSUInteger)schemeIndex;
+-(void)appendCDADocumentationOfNotCoded:(NSString*)procedure;
+-(void)appendCDADocumentationOf:(NSArray*)procedure;
 
 -(void)appendCDAComponentOfEncompassingEncounterEffectiveTime:(NSString*)DT;
 

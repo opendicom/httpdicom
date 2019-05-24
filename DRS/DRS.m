@@ -2,13 +2,13 @@
 #import "NSData+PCS.h"
 #import "NSString+PCS.h"
 
-#import "DRS+wado.h"
+#import "DRS+wadouri.h"
 #import "DRS+pacs.h"
 //#import "DRS+qido.h"
 #import "DRS+wadors.h"
 #import "DRS+zipped.h"
 
-//#import "DRS+mwl.h"
+#import "RequestMwlitems.h"
 //#import "DRS+pdf.h"
 //#import "DRS+encapsulated.h"
 
@@ -23,12 +23,13 @@
 //- NSData* data              -> HTTPBody (HTTPBodyStream)
 
 
-BOOL parseRequestParams(RSRequest* request,
-                        NSMutableArray  * names,
-                        NSMutableArray  * values,
-                        NSMutableArray  * types,
-                        NSMutableString * jsonString,
-                        NSMutableString * errorString)
+BOOL parseRequestParams(RSRequest       *  request,
+                        NSMutableArray  *  names,
+                        NSMutableArray  *  values,
+                        NSMutableArray  *  types,
+                        NSString        ** jsonString,
+                        NSString        ** errorString
+                        )
 {
    //method
    [names addObject:@"HTTPMethod"];
@@ -51,7 +52,7 @@ BOOL parseRequestParams(RSRequest* request,
          
          NSData *requestData=request.data;
          if (!requestData){
-            [errorString appendString:@"Content-Type:\"application/json\" with no body"];
+            *errorString=@"Content-Type:\"application/json\" with no body";
             return false;
          }
          
@@ -61,21 +62,21 @@ BOOL parseRequestParams(RSRequest* request,
          
          NSString *string=[[NSString alloc]initWithData:requestData encoding:NSUTF8StringEncoding];
          if (!string){
-            [errorString appendString:@"json not readable UTF-8"];
+            *errorString=@"json not readable UTF-8";
             return false;
          }
-         [jsonString appendString:string];
+         *jsonString=string;
          
          
          NSError *requestJsonError=nil;
          id requestJson=[NSJSONSerialization JSONObjectWithData:requestData options:0 error:&requestJsonError];
          if (requestJsonError){
-            [errorString appendFormat:@"%@\r\n%@",string,[requestJsonError description]];
+            *errorString=[NSString stringWithFormat:@"%@\r\n%@",string,[requestJsonError description]];
             return false;
          }
          
          if (![requestJson isKindOfClass:[NSDictionary class]]){
-            [errorString appendFormat:@"json dictionary expected, but got\r\n%@",string];
+            *errorString=[NSString stringWithFormat:@"json dictionary expected, but got\r\n%@",string];
             return false;
          }
          
@@ -90,7 +91,7 @@ BOOL parseRequestParams(RSRequest* request,
       {
          NSString *boundaryString=[request.contentType valueForName:@"boundary"];
          if (!boundaryString || ![boundaryString length]){
-            [errorString appendString:@"multipart/form-data with no boundary"];
+            *errorString=[NSString stringWithFormat:@"multipart/form-data with no boundary"];
             return false;
          }
          
@@ -116,7 +117,7 @@ BOOL parseRequestParams(RSRequest* request,
       }
       
       
-      [errorString appendFormat:@"Content-Type:\"%@\" not accepted",request.contentType];
+      *errorString=[NSString stringWithFormat:@"Content-Type:\"%@\" not accepted",request.contentType];
       return false;
    }
    
@@ -132,10 +133,11 @@ BOOL parseRequestParams(RSRequest* request,
 }
 
 
-NSDictionary * pacsParam(NSMutableArray  * names,
-                         NSMutableArray  * values,
-                         NSMutableString * pacsOID,
-                         NSMutableString * errorString)
+NSDictionary * pacsParam(NSMutableArray  *  names,
+                         NSMutableArray  *  values,
+                         NSMutableString *  pacsOID,
+                         NSString        ** errorString
+                         )
 {
    NSUInteger pacsIndex=[names indexOfObject:@"pacs"];
    if (pacsIndex!=NSNotFound)
@@ -144,14 +146,14 @@ NSDictionary * pacsParam(NSMutableArray  * names,
       [pacsOID appendString:values[pacsIndex]];
       if (![DICMTypes.UIRegex numberOfMatchesInString:pacsOID options:0 range:NSMakeRange(0,[pacsOID length])]){
          LOG_WARNING(@"<-404:  pacsUID '%@' should be an OID",pacsOID);
-         [errorString appendFormat:@" pacsUID '%@' should be an OID",pacsOID];
+         *errorString=[NSString stringWithFormat:@" pacsUID '%@' should be an OID",pacsOID];
          return nil;
       }
       
       
       if (!DRS.pacs[pacsOID]){
          LOG_WARNING(@"<-404:  pacs '%@' not known",pacsOID);
-         [errorString appendFormat:@" pacsUID '%@' not known",pacsOID];
+         *errorString=[NSString stringWithFormat:@" pacsUID '%@' not known",pacsOID];
          return nil;
       }
    }

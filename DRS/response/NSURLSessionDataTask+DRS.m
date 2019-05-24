@@ -1,4 +1,5 @@
 #import "NSURLSessionDataTask+DRS.h"
+#import "NSArray+PCS.h"
 #import "ODLog.h"
 
 @implementation NSURLSessionDataTask (DRS)
@@ -88,22 +89,7 @@
         [request setHTTPMethod:@"GET"];
         NSData *responseData=[self sendSynchronousRequest:request returningResponse:&response error:&error];
         //expected
-        if (response.statusCode==200)
-        {
-            if (![responseData length])
-            {
-                LOG_WARNING(@"[NSURLSessionDataTask+DRS] GETpid empty response");
-                return nil;
-            }
-            NSArray *arrayOfDicts=[NSJSONSerialization JSONObjectWithData:responseData options:0 error:&error];
-            if (error)
-            {
-                LOG_WARNING(@"[NSURLSessionDataTask+DRS] GETpid badly formed json answer: %@", [error description]);
-                return nil;
-            }
-            if ([arrayOfDicts count]>1) LOG_WARNING(@"[NSURLSessionDataTask+DRS] GETAccessionNumber more than one patient identified by pid:%@ issuer:%@", pid, issuer);
-            return arrayOfDicts;
-        }
+        if (response.statusCode==200) return [NSArray arrayWithJsonData:responseData];
         //unexpected
         LOG_WARNING(@"[NSURLSessionDataTask+DRS] GETpid %ld",response.statusCode);
         if (error) LOG_ERROR(@"[NSURLSessionDataTask+DRS] GETpid error:\r\n%@",[error description]);

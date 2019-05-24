@@ -1,19 +1,16 @@
-#import "ResponsePatient.h"
-#import "RequestPatient.h"
+#import "ResponsePatients.h"
+#import "RequestPatients.h"
+#import "NSArray+PCS.h"
 #import "ODLog.h"
 
-@implementation ResponsePatient
-
-// [] no existe
-// [{}] existe y es único
-// [{},{}...] existen y no son únicos
+@implementation ResponsePatients
 
 +(NSArray*)getFromPacs:(NSDictionary*)pacs
-                   pid:(NSString*)pid
+                 patID:(NSString*)patID
                 issuer:(NSString*)issuer
 {
 
-   NSMutableURLRequest *request=[RequestPatient getFromPacs:pacs pid:pid issuer:issuer];
+   NSMutableURLRequest *request=[RequestPatients getFromPacs:pacs patID:patID issuer:issuer];
    if (request==nil) return nil;
    
    NSHTTPURLResponse *response=nil;
@@ -21,43 +18,30 @@
    NSData *responseData=[NSURLSessionDataTask sendSynchronousRequest:request returningResponse:&response error:&error];
 
    //expected
-   if (response.statusCode==200)
-   {
-      //case there is no corresponding patient
-      if (![responseData length]) return @[];
-
-      //other cases
-      NSArray *arrayOfDicts=[NSJSONSerialization JSONObjectWithData:responseData options:0 error:&error];
-      if (error)
-      {
-         LOG_WARNING(@"JSON response is not an array:\r\n%@\r\n%@", [[NSString alloc]initWithData:responseData encoding:NSUTF8StringEncoding],[error description]);
-         return nil;
-      }
-      return arrayOfDicts;
-   }
-   
+   if (response.statusCode==200) return [NSArray arrayWithJsonData:responseData];
    //unexpected
-   LOG_WARNING(@"%@\r\n%ld [ResponsePatient existsInPacs:(description above) pid:%@ issuer:%@ ",pacs, response.statusCode,pid,issuer );
+   LOG_WARNING(@"%@\r\n%ld ResponsePatients getFromPacs:patID:%@ issuer:%@ ",pacs, response.statusCode,patID,issuer );
    if (error) LOG_ERROR(@"%@",[error description]);
    return nil;
 }
 
-//returns nil if the request could not be performed
-//returns @"" when the patient was registered
-//returns @"error message" if the server responded with an error
 +(NSString*)putToPacs:(NSDictionary*)pacs
-                 name:(NSString*)name
-                  pid:(NSString*)pid
+              family1:(NSString*)family1
+              family2:(NSString*)family2
+                given:(NSString*)given
+                patID:(NSString*)patID
                issuer:(NSString*)issuer
             birthdate:(NSString*)birthdate
                   sex:(NSString*)sex
           contentType:(NSString*)contentType
 {
    NSMutableURLRequest *request=
-   [RequestPatient
+   [RequestPatients
     putToPacs:pacs
-    name:name
-    pid:pid
+    family1:family1
+    family2:family2
+    given:given
+    patID:patID
     issuer:issuer
     birthdate:birthdate
     sex:sex
@@ -118,7 +102,7 @@
    }
    
    NSMutableURLRequest *request=
-   [RequestPatient
+   [RequestPatients
     postHtml5dicomuserForPacs:pacs
     institution:institution
     username:username

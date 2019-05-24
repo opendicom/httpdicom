@@ -8,8 +8,8 @@
     <dict>
         <key>1</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ABDOMEN SIMPLE</string>
+            <key>fullname</key>
+            <string id="fullname">ABDOMEN SIMPLE</string>
             <key>shortname</key>
             <string id="">ABDS</string>
             <key>modality</key>
@@ -30,8 +30,8 @@
         </dict>
         <key>2</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ATM</string>
+            <key>fullname</key>
+            <string id="fullname">ATM</string>
             <key>shortname</key>
             <string id="">ATM</string>
             <key>modality</key>
@@ -52,8 +52,8 @@
         </dict>
         <key>3</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">BRAZO</string>
+            <key>fullname</key>
+            <string id="fullname">BRAZO</string>
             <key>shortname</key>
             <string id="">BRA</string>
             <key>modality</key>
@@ -74,8 +74,8 @@
         </dict>
         <key>4</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CADERA</string>
+            <key>fullname</key>
+            <string id="fullname">CADERA</string>
             <key>shortname</key>
             <string id="">CAD</string>
             <key>modality</key>
@@ -96,8 +96,8 @@
         </dict>
         <key>5</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CADERA EXTRA</string>
+            <key>fullname</key>
+            <string id="fullname">CADERA EXTRA</string>
             <key>shortname</key>
             <string id="">CADE</string>
             <key>modality</key>
@@ -118,8 +118,8 @@
         </dict>
         <key>8</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CODO</string>
+            <key>fullname</key>
+            <string id="fullname">CODO</string>
             <key>shortname</key>
             <string id="">COD</string>
             <key>modality</key>
@@ -140,8 +140,8 @@
         </dict>
         <key>11</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA CERVICAL</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA CERVICAL</string>
             <key>shortname</key>
             <string id="">CC</string>
             <key>modality</key>
@@ -162,8 +162,8 @@
         </dict>
         <key>12</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA CERVICAL FUNCIONALES</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA CERVICAL FUNCIONALES</string>
             <key>shortname</key>
             <string id="">CCF</string>
             <key>modality</key>
@@ -184,8 +184,8 @@
         </dict>
         <key>13</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA CERVICAL OBLICUAS</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA CERVICAL OBLICUAS</string>
             <key>shortname</key>
             <string id="">CCO</string>
             <key>modality</key>
@@ -206,8 +206,8 @@
         </dict>
         <key>14</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA DORSAL</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA DORSAL</string>
             <key>shortname</key>
             <string id="">CD</string>
             <key>modality</key>
@@ -228,8 +228,8 @@
         </dict>
         <key>15</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA DORSAL OBLICUAS</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA DORSAL OBLICUAS</string>
             <key>shortname</key>
             <string id="">CDO</string>
             <key>modality</key>
@@ -250,8 +250,8 @@
         </dict>
         <key>16</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA DORSOLUMBAR</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA DORSOLUMBAR</string>
             <key>shortname</key>
             <string id="">CDL</string>
             <key>modality</key>
@@ -272,8 +272,8 @@
         </dict>
         <key>18</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA LUMBOSACRA</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA LUMBOSACRA</string>
             <key>shortname</key>
             <string id="">CLS</string>
             <key>modality</key>
@@ -294,8 +294,8 @@
         </dict>
         <key>19</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA LUMBOSACRA OBLICUAS</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA LUMBOSACRA OBLICUAS</string>
             <key>shortname</key>
             <string id="">CLSO</string>
             <key>modality</key>
@@ -316,8 +316,8 @@
         </dict>
         <key>20</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA TOTAL O DORSOLUMBAR PANORAMICA</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA TOTAL O DORSOLUMBAR PANORAMICA</string>
             <key>shortname</key>
             <string id="">CT</string>
             <key>modality</key>
@@ -338,8 +338,8 @@
         </dict>
         <key>22</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COSTILLAS</string>
+            <key>fullname</key>
+            <string id="fullname">COSTILLAS</string>
             <key>shortname</key>
             <string id="">COS</string>
             <key>modality</key>
@@ -360,8 +360,8 @@
         </dict>
         <key>23</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CP</string>
+            <key>fullname</key>
+            <string id="fullname">CP</string>
             <key>shortname</key>
             <string id="">CP</string>
             <key>modality</key>
@@ -382,8 +382,8 @@
         </dict>
         <key>24</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CRANEO</string>
+            <key>fullname</key>
+            <string id="fullname">CRANEO</string>
             <key>shortname</key>
             <string id="">CRA</string>
             <key>modality</key>
@@ -404,8 +404,8 @@
         </dict>
         <key>25</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CRANEO EXTRA</string>
+            <key>fullname</key>
+            <string id="fullname">CRANEO EXTRA</string>
             <key>shortname</key>
             <string id="">CRAE</string>
             <key>modality</key>
@@ -426,8 +426,8 @@
         </dict>
         <key>29</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ESTERNON</string>
+            <key>fullname</key>
+            <string id="fullname">ESTERNON</string>
             <key>shortname</key>
             <string id="">EST</string>
             <key>modality</key>
@@ -448,8 +448,8 @@
         </dict>
         <key>31</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">FEMUR</string>
+            <key>fullname</key>
+            <string id="fullname">FEMUR</string>
             <key>shortname</key>
             <string id="">FEM</string>
             <key>modality</key>
@@ -470,8 +470,8 @@
         </dict>
         <key>32</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">HOMBRO</string>
+            <key>fullname</key>
+            <string id="fullname">HOMBRO</string>
             <key>shortname</key>
             <string id="">HOM</string>
             <key>modality</key>
@@ -492,8 +492,8 @@
         </dict>
         <key>33</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CAVUM, LARINGE</string>
+            <key>fullname</key>
+            <string id="fullname">CAVUM, LARINGE</string>
             <key>shortname</key>
             <string id="">CVM</string>
             <key>modality</key>
@@ -514,8 +514,8 @@
         </dict>
         <key>36</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MANO</string>
+            <key>fullname</key>
+            <string id="fullname">MANO</string>
             <key>shortname</key>
             <string id="">MAN</string>
             <key>modality</key>
@@ -536,8 +536,8 @@
         </dict>
         <key>37</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MANO EDAD OSEA</string>
+            <key>fullname</key>
+            <string id="fullname">MANO EDAD OSEA</string>
             <key>shortname</key>
             <string id="">MEO</string>
             <key>modality</key>
@@ -558,8 +558,8 @@
         </dict>
         <key>38</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MAXILAR INFERIOR</string>
+            <key>fullname</key>
+            <string id="fullname">MAXILAR INFERIOR</string>
             <key>shortname</key>
             <string id="">MXI</string>
             <key>modality</key>
@@ -580,8 +580,8 @@
         </dict>
         <key>39</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MAXILAR SUPERIOR</string>
+            <key>fullname</key>
+            <string id="fullname">MAXILAR SUPERIOR</string>
             <key>shortname</key>
             <string id="">MXS</string>
             <key>modality</key>
@@ -602,8 +602,8 @@
         </dict>
         <key>40</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MUÑECA</string>
+            <key>fullname</key>
+            <string id="fullname">MUÑECA</string>
             <key>shortname</key>
             <string id="">MUÑ</string>
             <key>modality</key>
@@ -624,8 +624,8 @@
         </dict>
         <key>41</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">NARIZ</string>
+            <key>fullname</key>
+            <string id="fullname">NARIZ</string>
             <key>shortname</key>
             <string id="">NAR</string>
             <key>modality</key>
@@ -646,8 +646,8 @@
         </dict>
         <key>42</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">OIDO</string>
+            <key>fullname</key>
+            <string id="fullname">OIDO</string>
             <key>shortname</key>
             <string id="">OID</string>
             <key>modality</key>
@@ -668,8 +668,8 @@
         </dict>
         <key>43</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ORBITA</string>
+            <key>fullname</key>
+            <string id="fullname">ORBITA</string>
             <key>shortname</key>
             <string id="">ORB</string>
             <key>modality</key>
@@ -690,8 +690,8 @@
         </dict>
         <key>44</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PELVIS</string>
+            <key>fullname</key>
+            <string id="fullname">PELVIS</string>
             <key>shortname</key>
             <string id="">PEL</string>
             <key>modality</key>
@@ -712,8 +712,8 @@
         </dict>
         <key>45</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PIE</string>
+            <key>fullname</key>
+            <string id="fullname">PIE</string>
             <key>shortname</key>
             <string id="">PIE</string>
             <key>modality</key>
@@ -734,8 +734,8 @@
         </dict>
         <key>48</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PIERNA</string>
+            <key>fullname</key>
+            <string id="fullname">PIERNA</string>
             <key>shortname</key>
             <string id="">PIER</string>
             <key>modality</key>
@@ -756,8 +756,8 @@
         </dict>
         <key>49</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PROYECCION ESPECIAL</string>
+            <key>fullname</key>
+            <string id="fullname">PROYECCION ESPECIAL</string>
             <key>shortname</key>
             <string id="">PE</string>
             <key>modality</key>
@@ -778,8 +778,8 @@
         </dict>
         <key>50</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">RENAL SIMPLE</string>
+            <key>fullname</key>
+            <string id="fullname">RENAL SIMPLE</string>
             <key>shortname</key>
             <string id="">RS</string>
             <key>modality</key>
@@ -800,8 +800,8 @@
         </dict>
         <key>51</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">SACROCOXIS</string>
+            <key>fullname</key>
+            <string id="fullname">SACROCOXIS</string>
             <key>shortname</key>
             <string id="">SC</string>
             <key>modality</key>
@@ -822,8 +822,8 @@
         </dict>
         <key>52</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">SACROILIACAS</string>
+            <key>fullname</key>
+            <string id="fullname">SACROILIACAS</string>
             <key>shortname</key>
             <string id="">SI</string>
             <key>modality</key>
@@ -844,8 +844,8 @@
         </dict>
         <key>53</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">SILLA TURCA</string>
+            <key>fullname</key>
+            <string id="fullname">SILLA TURCA</string>
             <key>shortname</key>
             <string id="">ST</string>
             <key>modality</key>
@@ -866,8 +866,8 @@
         </dict>
         <key>54</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">TOBILLO</string>
+            <key>fullname</key>
+            <string id="fullname">TOBILLO</string>
             <key>shortname</key>
             <string id="">TOB</string>
             <key>modality</key>
@@ -888,8 +888,8 @@
         </dict>
         <key>55</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">TORAX SIMPLE</string>
+            <key>fullname</key>
+            <string id="fullname">TORAX SIMPLE</string>
             <key>shortname</key>
             <string id="">TXS</string>
             <key>modality</key>
@@ -910,8 +910,8 @@
         </dict>
         <key>57</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">VESICAL SIMPLE</string>
+            <key>fullname</key>
+            <string id="fullname">VESICAL SIMPLE</string>
             <key>shortname</key>
             <string id="">VS</string>
             <key>modality</key>
@@ -932,8 +932,8 @@
         </dict>
         <key>68</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">RODILLA</string>
+            <key>fullname</key>
+            <string id="fullname">RODILLA</string>
             <key>shortname</key>
             <string id="">ROD</string>
             <key>modality</key>
@@ -954,8 +954,8 @@
         </dict>
         <key>70</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">TORAX AP-L</string>
+            <key>fullname</key>
+            <string id="fullname">TORAX AP-L</string>
             <key>shortname</key>
             <string id="">TXAPL</string>
             <key>modality</key>
@@ -976,8 +976,8 @@
         </dict>
         <key>88</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA LUMBOSACRA FUNCIONALES</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA LUMBOSACRA FUNCIONALES</string>
             <key>shortname</key>
             <string id="">CLSF</string>
             <key>modality</key>
@@ -998,8 +998,8 @@
         </dict>
         <key>264</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MAMOGRAFIAS</string>
+            <key>fullname</key>
+            <string id="fullname">MAMOGRAFIAS</string>
             <key>shortname</key>
             <string id="">MAMO</string>
             <key>modality</key>
@@ -1020,8 +1020,8 @@
         </dict>
         <key>344</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">EED NIÑOS</string>
+            <key>fullname</key>
+            <string id="fullname">EED NIÑOS</string>
             <key>shortname</key>
             <string id="">EED</string>
             <key>modality</key>
@@ -1042,8 +1042,8 @@
         </dict>
         <key>346</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">EDAD OSEA RODILLA</string>
+            <key>fullname</key>
+            <string id="fullname">EDAD OSEA RODILLA</string>
             <key>shortname</key>
             <string id="">EOR</string>
             <key>modality</key>
@@ -1064,8 +1064,8 @@
         </dict>
         <key>347</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MUÑECA F-L OBLICUA</string>
+            <key>fullname</key>
+            <string id="fullname">MUÑECA F-L OBLICUA</string>
             <key>shortname</key>
             <string id="">MTO</string>
             <key>modality</key>
@@ -1086,8 +1086,8 @@
         </dict>
         <key>348</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PLACA EXTRA MAMOGRAFIA C/U</string>
+            <key>fullname</key>
+            <string id="fullname">PLACA EXTRA MAMOGRAFIA C/U</string>
             <key>shortname</key>
             <string id="">MPE</string>
             <key>modality</key>
@@ -1108,8 +1108,8 @@
         </dict>
         <key>349</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">TUNEL INTERCODILEO</string>
+            <key>fullname</key>
+            <string id="fullname">TUNEL INTERCODILEO</string>
             <key>shortname</key>
             <string id="">TI</string>
             <key>modality</key>
@@ -1130,8 +1130,8 @@
         </dict>
         <key>351</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO DOPPLER COLOR</string>
+            <key>fullname</key>
+            <string id="fullname">ECO DOPPLER COLOR</string>
             <key>shortname</key>
             <string id="">EDOC</string>
             <key>modality</key>
@@ -1152,8 +1152,8 @@
         </dict>
         <key>352</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECOCARDIOGRAMA DOPPLER COLOR</string>
+            <key>fullname</key>
+            <string id="fullname">ECOCARDIOGRAMA DOPPLER COLOR</string>
             <key>shortname</key>
             <string id="">ECD</string>
             <key>modality</key>
@@ -1174,8 +1174,8 @@
         </dict>
         <key>353</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO ABDOMINAL</string>
+            <key>fullname</key>
+            <string id="fullname">ECO ABDOMINAL</string>
             <key>shortname</key>
             <string id="">EA</string>
             <key>modality</key>
@@ -1196,8 +1196,8 @@
         </dict>
         <key>354</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO PELVIANA MASCULI</string>
+            <key>fullname</key>
+            <string id="fullname">ECO PELVIANA MASCULI</string>
             <key>shortname</key>
             <string id="">EPM</string>
             <key>modality</key>
@@ -1218,8 +1218,8 @@
         </dict>
         <key>355</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO RENAL BILATERAL</string>
+            <key>fullname</key>
+            <string id="fullname">ECO RENAL BILATERAL</string>
             <key>shortname</key>
             <string id="">ER</string>
             <key>modality</key>
@@ -1240,8 +1240,8 @@
         </dict>
         <key>357</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO TESTICULAR</string>
+            <key>fullname</key>
+            <string id="fullname">ECO TESTICULAR</string>
             <key>shortname</key>
             <string id="">ET</string>
             <key>modality</key>
@@ -1262,8 +1262,8 @@
         </dict>
         <key>359</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO GINECOLOGICA</string>
+            <key>fullname</key>
+            <string id="fullname">ECO GINECOLOGICA</string>
             <key>shortname</key>
             <string id="">EG</string>
             <key>modality</key>
@@ -1284,8 +1284,8 @@
         </dict>
         <key>368</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MAMOGRAFIA UNILATERAL</string>
+            <key>fullname</key>
+            <string id="fullname">MAMOGRAFIA UNILATERAL</string>
             <key>shortname</key>
             <string id="">MAMOU</string>
             <key>modality</key>
@@ -1306,8 +1306,8 @@
         </dict>
         <key>369</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PIELOGRAFIA</string>
+            <key>fullname</key>
+            <string id="fullname">PIELOGRAFIA</string>
             <key>shortname</key>
             <string id="">PIELO</string>
             <key>modality</key>
@@ -1328,8 +1328,8 @@
         </dict>
         <key>370</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CEREBRO</string>
+            <key>fullname</key>
+            <string id="fullname">CEREBRO</string>
             <key>shortname</key>
             <string id="">TC</string>
             <key>modality</key>
@@ -1350,8 +1350,8 @@
         </dict>
         <key>386</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ENDOSCOPIA DIGESTIVA</string>
+            <key>fullname</key>
+            <string id="fullname">ENDOSCOPIA DIGESTIVA</string>
             <key>shortname</key>
             <string id="">EDA</string>
             <key>modality</key>
@@ -1372,8 +1372,8 @@
         </dict>
         <key>390</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO TIROIDEA</string>
+            <key>fullname</key>
+            <string id="fullname">ECO TIROIDEA</string>
             <key>shortname</key>
             <string id="">ETI</string>
             <key>modality</key>
@@ -1394,8 +1394,8 @@
         </dict>
         <key>391</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO PARTES BLANDAS</string>
+            <key>fullname</key>
+            <string id="fullname">ECO PARTES BLANDAS</string>
             <key>shortname</key>
             <string id="">EPB</string>
             <key>modality</key>
@@ -1416,8 +1416,8 @@
         </dict>
         <key>393</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO MAMARIA</string>
+            <key>fullname</key>
+            <string id="fullname">ECO MAMARIA</string>
             <key>shortname</key>
             <string id="">EM</string>
             <key>modality</key>
@@ -1438,8 +1438,8 @@
         </dict>
         <key>395</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CAVIDADES CARDIACAS</string>
+            <key>fullname</key>
+            <string id="fullname">CAVIDADES CARDIACAS</string>
             <key>shortname</key>
             <string id="">CC</string>
             <key>modality</key>
@@ -1460,8 +1460,8 @@
         </dict>
         <key>418</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">EXTREMIDADES INFERIORES</string>
+            <key>fullname</key>
+            <string id="fullname">EXTREMIDADES INFERIORES</string>
             <key>shortname</key>
             <string id="">EI</string>
             <key>modality</key>
@@ -1482,8 +1482,8 @@
         </dict>
         <key>423</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">BIOPSIA</string>
+            <key>fullname</key>
+            <string id="fullname">BIOPSIA</string>
             <key>shortname</key>
             <string id="">BPS</string>
             <key>modality</key>
@@ -1504,8 +1504,8 @@
         </dict>
         <key>426</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">TORAX PLACA EXTRA</string>
+            <key>fullname</key>
+            <string id="fullname">TORAX PLACA EXTRA</string>
             <key>shortname</key>
             <string id="">TXPE</string>
             <key>modality</key>
@@ -1526,8 +1526,8 @@
         </dict>
         <key>428</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ESCAFOIDES</string>
+            <key>fullname</key>
+            <string id="fullname">ESCAFOIDES</string>
             <key>shortname</key>
             <string id="">ESC</string>
             <key>modality</key>
@@ -1548,8 +1548,8 @@
         </dict>
         <key>465</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ABDOMEN SIMPLE PROYECCION COMPLEMENTARIA</string>
+            <key>fullname</key>
+            <string id="fullname">ABDOMEN SIMPLE PROYECCION COMPLEMENTARIA</string>
             <key>shortname</key>
             <string id="">ABDPC</string>
             <key>modality</key>
@@ -1570,8 +1570,8 @@
         </dict>
         <key>467</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO TRANSVAGINAL</string>
+            <key>fullname</key>
+            <string id="fullname">ECO TRANSVAGINAL</string>
             <key>shortname</key>
             <string id="">ETV</string>
             <key>modality</key>
@@ -1592,8 +1592,8 @@
         </dict>
         <key>468</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO OBSTETRICA</string>
+            <key>fullname</key>
+            <string id="fullname">ECO OBSTETRICA</string>
             <key>shortname</key>
             <string id="">EO</string>
             <key>modality</key>
@@ -1614,8 +1614,8 @@
         </dict>
         <key>469</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PELVIS LACTANTE O MENOR SEIS AÑOS</string>
+            <key>fullname</key>
+            <string id="fullname">PELVIS LACTANTE O MENOR SEIS AÑOS</string>
             <key>shortname</key>
             <string id="">PELÑ</string>
             <key>modality</key>
@@ -1636,8 +1636,8 @@
         </dict>
         <key>470</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CADERA O COXOFEMORAL LACTANTE O MENOR SEIS AÑOS</string>
+            <key>fullname</key>
+            <string id="fullname">CADERA O COXOFEMORAL LACTANTE O MENOR SEIS AÑOS</string>
             <key>shortname</key>
             <string id="">CADÑ</string>
             <key>modality</key>
@@ -1658,8 +1658,8 @@
         </dict>
         <key>471</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">DOPPLER GINECOLOGICO</string>
+            <key>fullname</key>
+            <string id="fullname">DOPPLER GINECOLOGICO</string>
             <key>shortname</key>
             <string id="">EDGINE</string>
             <key>modality</key>
@@ -1680,8 +1680,8 @@
         </dict>
         <key>481</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO PELVIANA FEMENINA</string>
+            <key>fullname</key>
+            <string id="fullname">ECO PELVIANA FEMENINA</string>
             <key>shortname</key>
             <string id="">EPF</string>
             <key>modality</key>
@@ -1702,8 +1702,8 @@
         </dict>
         <key>485</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO TV OBSTETRICA</string>
+            <key>fullname</key>
+            <string id="fullname">ECO TV OBSTETRICA</string>
             <key>shortname</key>
             <string id="">ETVO</string>
             <key>modality</key>
@@ -1724,8 +1724,8 @@
         </dict>
         <key>486</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO DOPPLER CAROTIDEO</string>
+            <key>fullname</key>
+            <string id="fullname">ECO DOPPLER CAROTIDEO</string>
             <key>shortname</key>
             <string id="">EDC</string>
             <key>modality</key>
@@ -1746,8 +1746,8 @@
         </dict>
         <key>487</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO DOPPLER VASC VEN</string>
+            <key>fullname</key>
+            <string id="fullname">ECO DOPPLER VASC VEN</string>
             <key>shortname</key>
             <string id="">ED</string>
             <key>modality</key>
@@ -1768,8 +1768,8 @@
         </dict>
         <key>488</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO DOPPLER ABDOMINAL O VASOS TESTICULAR</string>
+            <key>fullname</key>
+            <string id="fullname">ECO DOPPLER ABDOMINAL O VASOS TESTICULAR</string>
             <key>shortname</key>
             <string id="">EDVT</string>
             <key>modality</key>
@@ -1790,8 +1790,8 @@
         </dict>
         <key>489</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ECO DOPPLER VASOS PLACENTARIOS</string>
+            <key>fullname</key>
+            <string id="fullname">ECO DOPPLER VASOS PLACENTARIOS</string>
             <key>shortname</key>
             <string id="">EDVP</string>
             <key>modality</key>
@@ -1812,8 +1812,8 @@
         </dict>
         <key>490</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CEREBRO</string>
+            <key>fullname</key>
+            <string id="fullname">CEREBRO</string>
             <key>shortname</key>
             <string id="">RMCER</string>
             <key>modality</key>
@@ -1834,8 +1834,8 @@
         </dict>
         <key>491</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">SILLA TURCA</string>
+            <key>fullname</key>
+            <string id="fullname">SILLA TURCA</string>
             <key>shortname</key>
             <string id="">RMST</string>
             <key>modality</key>
@@ -1856,8 +1856,8 @@
         </dict>
         <key>492</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ORBITAS</string>
+            <key>fullname</key>
+            <string id="fullname">ORBITAS</string>
             <key>shortname</key>
             <string id="">RMO</string>
             <key>modality</key>
@@ -1878,8 +1878,8 @@
         </dict>
         <key>493</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MAXILOFACIAL</string>
+            <key>fullname</key>
+            <string id="fullname">MAXILOFACIAL</string>
             <key>shortname</key>
             <string id="">RNMX</string>
             <key>modality</key>
@@ -1900,8 +1900,8 @@
         </dict>
         <key>494</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ART. TEMPOROMANDIBULAR</string>
+            <key>fullname</key>
+            <string id="fullname">ART. TEMPOROMANDIBULAR</string>
             <key>shortname</key>
             <string id="">RMAT</string>
             <key>modality</key>
@@ -1922,8 +1922,8 @@
         </dict>
         <key>495</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA CERVICAL</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA CERVICAL</string>
             <key>shortname</key>
             <string id="">RMCC</string>
             <key>modality</key>
@@ -1944,8 +1944,8 @@
         </dict>
         <key>496</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA DORSAL</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA DORSAL</string>
             <key>shortname</key>
             <string id="">RMCD</string>
             <key>modality</key>
@@ -1966,8 +1966,8 @@
         </dict>
         <key>497</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA LUMBAR</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA LUMBAR</string>
             <key>shortname</key>
             <string id="">RMCL</string>
             <key>modality</key>
@@ -1988,8 +1988,8 @@
         </dict>
         <key>498</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANGIO CEREBRAL ARTERIAL Y VENOSA</string>
+            <key>fullname</key>
+            <string id="fullname">ANGIO CEREBRAL ARTERIAL Y VENOSA</string>
             <key>shortname</key>
             <string id="">ANGIORM</string>
             <key>modality</key>
@@ -2010,8 +2010,8 @@
         </dict>
         <key>499</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ABDOMEN TOTAL</string>
+            <key>fullname</key>
+            <string id="fullname">ABDOMEN TOTAL</string>
             <key>shortname</key>
             <string id="">RNA</string>
             <key>modality</key>
@@ -2032,8 +2032,8 @@
         </dict>
         <key>500</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PELVIS SOLO OSEA</string>
+            <key>fullname</key>
+            <string id="fullname">PELVIS SOLO OSEA</string>
             <key>shortname</key>
             <string id="">RMPEL</string>
             <key>modality</key>
@@ -2054,8 +2054,8 @@
         </dict>
         <key>501</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ABDOMEN Y PELVIS</string>
+            <key>fullname</key>
+            <string id="fullname">ABDOMEN Y PELVIS</string>
             <key>shortname</key>
             <string id="">RNAP</string>
             <key>modality</key>
@@ -2076,8 +2076,8 @@
         </dict>
         <key>502</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLANGIORESONANCIA</string>
+            <key>fullname</key>
+            <string id="fullname">COLANGIORESONANCIA</string>
             <key>shortname</key>
             <string id="">COLANG</string>
             <key>modality</key>
@@ -2098,8 +2098,8 @@
         </dict>
         <key>514</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">FOSA POSTERIOR Y/U OIDOS</string>
+            <key>fullname</key>
+            <string id="fullname">FOSA POSTERIOR Y/U OIDOS</string>
             <key>shortname</key>
             <string id="">FPOST</string>
             <key>modality</key>
@@ -2120,8 +2120,8 @@
         </dict>
         <key>515</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CLAVICULA</string>
+            <key>fullname</key>
+            <string id="fullname">CLAVICULA</string>
             <key>shortname</key>
             <string id="">CLA</string>
             <key>modality</key>
@@ -2142,8 +2142,8 @@
         </dict>
         <key>517</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANGULO PONTOCEREBELOSO</string>
+            <key>fullname</key>
+            <string id="fullname">ANGULO PONTOCEREBELOSO</string>
             <key>shortname</key>
             <string id="">RM APC</string>
             <key>modality</key>
@@ -2164,8 +2164,8 @@
         </dict>
         <key>519</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">RM SACROILIACA</string>
+            <key>fullname</key>
+            <string id="fullname">RM SACROILIACA</string>
             <key>shortname</key>
             <string id="">RM SACRO</string>
             <key>modality</key>
@@ -2186,8 +2186,8 @@
         </dict>
         <key>550</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">RNM COL TOTA (C,D,L)</string>
+            <key>fullname</key>
+            <string id="fullname">RNM COL TOTA (C,D,L)</string>
             <key>shortname</key>
             <string id="">RM COL TOT</string>
             <key>modality</key>
@@ -2208,8 +2208,8 @@
         </dict>
         <key>554</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">RODILLA UNILATERAL</string>
+            <key>fullname</key>
+            <string id="fullname">RODILLA UNILATERAL</string>
             <key>shortname</key>
             <string id="">RMROD</string>
             <key>modality</key>
@@ -2230,8 +2230,8 @@
         </dict>
         <key>556</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CUELLO</string>
+            <key>fullname</key>
+            <string id="fullname">CUELLO</string>
             <key>shortname</key>
             <string id="">RMCU</string>
             <key>modality</key>
@@ -2252,8 +2252,8 @@
         </dict>
         <key>558</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MUSLO</string>
+            <key>fullname</key>
+            <string id="fullname">MUSLO</string>
             <key>shortname</key>
             <string id="">RMMUSLO</string>
             <key>modality</key>
@@ -2274,8 +2274,8 @@
         </dict>
         <key>561</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">TOBILLO F-L OBLICUA</string>
+            <key>fullname</key>
+            <string id="fullname">TOBILLO F-L OBLICUA</string>
             <key>shortname</key>
             <string id="">TFLO</string>
             <key>modality</key>
@@ -2296,8 +2296,8 @@
         </dict>
         <key>562</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">HOMBRO</string>
+            <key>fullname</key>
+            <string id="fullname">HOMBRO</string>
             <key>shortname</key>
             <string id="">RMH</string>
             <key>modality</key>
@@ -2318,8 +2318,8 @@
         </dict>
         <key>563</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CODO</string>
+            <key>fullname</key>
+            <string id="fullname">CODO</string>
             <key>shortname</key>
             <string id="">RNCO</string>
             <key>modality</key>
@@ -2340,8 +2340,8 @@
         </dict>
         <key>564</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PIERNA</string>
+            <key>fullname</key>
+            <string id="fullname">PIERNA</string>
             <key>shortname</key>
             <string id="">RMPIERNA</string>
             <key>modality</key>
@@ -2362,8 +2362,8 @@
         </dict>
         <key>565</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PIE</string>
+            <key>fullname</key>
+            <string id="fullname">PIE</string>
             <key>shortname</key>
             <string id="">RMPIE</string>
             <key>modality</key>
@@ -2384,8 +2384,8 @@
         </dict>
         <key>566</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">BRAZO</string>
+            <key>fullname</key>
+            <string id="fullname">BRAZO</string>
             <key>shortname</key>
             <string id="">RNB</string>
             <key>modality</key>
@@ -2406,8 +2406,8 @@
         </dict>
         <key>567</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ESCAPULA</string>
+            <key>fullname</key>
+            <string id="fullname">ESCAPULA</string>
             <key>shortname</key>
             <string id="">RNE</string>
             <key>modality</key>
@@ -2428,8 +2428,8 @@
         </dict>
         <key>568</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANTEBRAZO</string>
+            <key>fullname</key>
+            <string id="fullname">ANTEBRAZO</string>
             <key>shortname</key>
             <string id="">RNA</string>
             <key>modality</key>
@@ -2450,8 +2450,8 @@
         </dict>
         <key>569</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MUÑECA</string>
+            <key>fullname</key>
+            <string id="fullname">MUÑECA</string>
             <key>shortname</key>
             <string id="">RNMU</string>
             <key>modality</key>
@@ -2472,8 +2472,8 @@
         </dict>
         <key>570</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MANO</string>
+            <key>fullname</key>
+            <string id="fullname">MANO</string>
             <key>shortname</key>
             <string id="">RNMA</string>
             <key>modality</key>
@@ -2494,8 +2494,8 @@
         </dict>
         <key>571</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">TOBILLO</string>
+            <key>fullname</key>
+            <string id="fullname">TOBILLO</string>
             <key>shortname</key>
             <string id="">RMTOB</string>
             <key>modality</key>
@@ -2516,8 +2516,8 @@
         </dict>
         <key>572</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CADERA</string>
+            <key>fullname</key>
+            <string id="fullname">CADERA</string>
             <key>shortname</key>
             <string id="">RMCAD</string>
             <key>modality</key>
@@ -2538,8 +2538,8 @@
         </dict>
         <key>573</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MAMOGRAFIA BILATERAL</string>
+            <key>fullname</key>
+            <string id="fullname">MAMOGRAFIA BILATERAL</string>
             <key>shortname</key>
             <string id="">MAMO</string>
             <key>modality</key>
@@ -2560,8 +2560,8 @@
         </dict>
         <key>574</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">MAMOGRAFIA UNILAT</string>
+            <key>fullname</key>
+            <string id="fullname">MAMOGRAFIA UNILAT</string>
             <key>shortname</key>
             <string id="">MU</string>
             <key>modality</key>
@@ -2582,8 +2582,8 @@
         </dict>
         <key>576</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PROYEC. MAMA</string>
+            <key>fullname</key>
+            <string id="fullname">PROYEC. MAMA</string>
             <key>shortname</key>
             <string id="">PM</string>
             <key>modality</key>
@@ -2604,8 +2604,8 @@
         </dict>
         <key>578</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">SILLA TURCA</string>
+            <key>fullname</key>
+            <string id="fullname">SILLA TURCA</string>
             <key>shortname</key>
             <string id="">TST</string>
             <key>modality</key>
@@ -2626,8 +2626,8 @@
         </dict>
         <key>579</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANGULO PONTOCEREBELO</string>
+            <key>fullname</key>
+            <string id="fullname">ANGULO PONTOCEREBELO</string>
             <key>shortname</key>
             <string id="">TAP</string>
             <key>modality</key>
@@ -2648,8 +2648,8 @@
         </dict>
         <key>580</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CORTES CORONALES (eliminado por FNS 01-2017)</string>
+            <key>fullname</key>
+            <string id="fullname">CORTES CORONALES (eliminado por FNS 01-2017)</string>
             <key>shortname</key>
             <string id="">TCC</string>
             <key>modality</key>
@@ -2670,8 +2670,8 @@
         </dict>
         <key>581</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">TEMPORAL OIDO</string>
+            <key>fullname</key>
+            <string id="fullname">TEMPORAL OIDO</string>
             <key>shortname</key>
             <string id="">TTO</string>
             <key>modality</key>
@@ -2692,8 +2692,8 @@
         </dict>
         <key>582</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ORBITAS MAXILOFACIAL</string>
+            <key>fullname</key>
+            <string id="fullname">ORBITAS MAXILOFACIAL</string>
             <key>shortname</key>
             <string id="">TOM</string>
             <key>modality</key>
@@ -2714,8 +2714,8 @@
         </dict>
         <key>583</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA CERVICAL</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA CERVICAL</string>
             <key>shortname</key>
             <string id="">TCC</string>
             <key>modality</key>
@@ -2736,8 +2736,8 @@
         </dict>
         <key>584</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA DORSAL O LUM</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA DORSAL O LUM</string>
             <key>shortname</key>
             <string id="">TCD</string>
             <key>modality</key>
@@ -2758,8 +2758,8 @@
         </dict>
         <key>585</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ESP. ADICIONAL (eliminado por FNS 01-2017)</string>
+            <key>fullname</key>
+            <string id="fullname">ESP. ADICIONAL (eliminado por FNS 01-2017)</string>
             <key>shortname</key>
             <string id="">EA</string>
             <key>modality</key>
@@ -2780,8 +2780,8 @@
         </dict>
         <key>586</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CUELLO, PARTES BLAN</string>
+            <key>fullname</key>
+            <string id="fullname">CUELLO, PARTES BLAN</string>
             <key>shortname</key>
             <string id="">TCPB</string>
             <key>modality</key>
@@ -2802,8 +2802,8 @@
         </dict>
         <key>587</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">TORAX TOTAL</string>
+            <key>fullname</key>
+            <string id="fullname">TORAX TOTAL</string>
             <key>shortname</key>
             <string id="">TT</string>
             <key>modality</key>
@@ -2824,8 +2824,8 @@
         </dict>
         <key>588</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ABDOMEN</string>
+            <key>fullname</key>
+            <string id="fullname">ABDOMEN</string>
             <key>shortname</key>
             <string id="">TA</string>
             <key>modality</key>
@@ -2846,8 +2846,8 @@
         </dict>
         <key>589</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PELVIS</string>
+            <key>fullname</key>
+            <string id="fullname">PELVIS</string>
             <key>shortname</key>
             <string id="">TP</string>
             <key>modality</key>
@@ -2868,8 +2868,8 @@
         </dict>
         <key>590</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">EXTREMIDADES EST LOC</string>
+            <key>fullname</key>
+            <string id="fullname">EXTREMIDADES EST LOC</string>
             <key>shortname</key>
             <string id="">TE</string>
             <key>modality</key>
@@ -2890,8 +2890,8 @@
         </dict>
         <key>592</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANGIOTAC CEREBRO</string>
+            <key>fullname</key>
+            <string id="fullname">ANGIOTAC CEREBRO</string>
             <key>shortname</key>
             <string id="">AG</string>
             <key>modality</key>
@@ -2912,8 +2912,8 @@
         </dict>
         <key>593</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANGIOTAC ABDOMEN</string>
+            <key>fullname</key>
+            <string id="fullname">ANGIOTAC ABDOMEN</string>
             <key>shortname</key>
             <string id="">AA</string>
             <key>modality</key>
@@ -2934,8 +2934,8 @@
         </dict>
         <key>594</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">PIELOTAC</string>
+            <key>fullname</key>
+            <string id="fullname">PIELOTAC</string>
             <key>shortname</key>
             <string id="">PT</string>
             <key>modality</key>
@@ -2956,8 +2956,8 @@
         </dict>
         <key>629</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">DENSITOMETRIA OSEA (verif. datos)</string>
+            <key>fullname</key>
+            <string id="fullname">DENSITOMETRIA OSEA (verif. datos)</string>
             <key>shortname</key>
             <string id="">DO</string>
             <key>modality</key>
@@ -2978,8 +2978,8 @@
         </dict>
         <key>749</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">CAVIDADES PERINASALE</string>
+            <key>fullname</key>
+            <string id="fullname">CAVIDADES PERINASALE</string>
             <key>shortname</key>
             <string id="">TCP</string>
             <key>modality</key>
@@ -3000,8 +3000,8 @@
         </dict>
         <key>752</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANGIO TAC CUELLO</string>
+            <key>fullname</key>
+            <string id="fullname">ANGIO TAC CUELLO</string>
             <key>shortname</key>
             <string id="">ATC</string>
             <key>modality</key>
@@ -3022,8 +3022,8 @@
         </dict>
         <key>761</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA DORSAL</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA DORSAL</string>
             <key>shortname</key>
             <string id="">TCD</string>
             <key>modality</key>
@@ -3044,8 +3044,8 @@
         </dict>
         <key>762</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">COLUMNA LUMBAR</string>
+            <key>fullname</key>
+            <string id="fullname">COLUMNA LUMBAR</string>
             <key>shortname</key>
             <string id="">TCL</string>
             <key>modality</key>
@@ -3066,8 +3066,8 @@
         </dict>
         <key>763</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ABDOMEN PELVIS</string>
+            <key>fullname</key>
+            <string id="fullname">ABDOMEN PELVIS</string>
             <key>shortname</key>
             <string id="">TABDPEL</string>
             <key>modality</key>
@@ -3088,8 +3088,8 @@
         </dict>
         <key>765</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANGIOTAC PELVIS</string>
+            <key>fullname</key>
+            <string id="fullname">ANGIOTAC PELVIS</string>
             <key>shortname</key>
             <string id="">ATP</string>
             <key>modality</key>
@@ -3110,8 +3110,8 @@
         </dict>
         <key>946</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANGIORESONANCIA DE CUELLO</string>
+            <key>fullname</key>
+            <string id="fullname">ANGIORESONANCIA DE CUELLO</string>
             <key>shortname</key>
             <string id="">ANCUELLO</string>
             <key>modality</key>
@@ -3132,8 +3132,8 @@
         </dict>
         <key>947</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANGIORESONANCIA ABDOMEN</string>
+            <key>fullname</key>
+            <string id="fullname">ANGIORESONANCIA ABDOMEN</string>
             <key>shortname</key>
             <string id="">ANGIOABD</string>
             <key>modality</key>
@@ -3154,8 +3154,8 @@
         </dict>
         <key>950</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANGIORESONANCIA PELVIS</string>
+            <key>fullname</key>
+            <string id="fullname">ANGIORESONANCIA PELVIS</string>
             <key>shortname</key>
             <string id="">AMGIOPEL</string>
             <key>modality</key>
@@ -3176,8 +3176,8 @@
         </dict>
         <key>951</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANGIORESONANCIA EXTREMIDAD SUPERIOR UNILATERAL</string>
+            <key>fullname</key>
+            <string id="fullname">ANGIORESONANCIA EXTREMIDAD SUPERIOR UNILATERAL</string>
             <key>shortname</key>
             <string id="">ANESUNI</string>
             <key>modality</key>
@@ -3198,8 +3198,8 @@
         </dict>
         <key>952</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">ANGIORESONANCIA EXTREMIDAD INFERIOR BILATERAL</string>
+            <key>fullname</key>
+            <string id="fullname">ANGIORESONANCIA EXTREMIDAD INFERIOR BILATERAL</string>
             <key>shortname</key>
             <string id="">ANEEIIBIL</string>
             <key>modality</key>
@@ -3220,8 +3220,8 @@
         </dict>
         <key>953</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">RESONANCIA MAGNETICA TORAX</string>
+            <key>fullname</key>
+            <string id="fullname">RESONANCIA MAGNETICA TORAX</string>
             <key>shortname</key>
             <string id="">RMTX</string>
             <key>modality</key>
@@ -3242,8 +3242,8 @@
         </dict>
         <key>954</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">RESONANCIA MAGNETICA DE MAMA (BILATERAL)</string>
+            <key>fullname</key>
+            <string id="fullname">RESONANCIA MAGNETICA DE MAMA (BILATERAL)</string>
             <key>shortname</key>
             <string id="">RMMAMA</string>
             <key>modality</key>

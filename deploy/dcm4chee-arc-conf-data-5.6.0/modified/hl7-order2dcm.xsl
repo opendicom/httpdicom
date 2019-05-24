@@ -26,16 +26,99 @@
         </xsl:call-template>
     </xsl:template>
     <xsl:template match="ORC[1]">
-        <!-- 02 Placer Issuer^Number (sendingRisName^^aaaammddhhmmssfff current)-->
+        
+        
+        <!-- Placer Issuer^Number ... not used yet -->
         <xsl:call-template name="ei2attr">
             <xsl:with-param name="tag" select="'00402016'"/>
             <xsl:with-param name="ei" select="field[2]"/>
         </xsl:call-template>
-        <!-- 03 Filler Issuer^Number (receivingPacsaet^aaaammddhhmmssfff scheduled)-->
-        <xsl:call-template name="ei2attr">
-            <xsl:with-param name="tag" select="'00402017'"/>
-            <xsl:with-param name="ei" select="field[3]"/>
-        </xsl:call-template>        
+        
+        
+        <!-- 
+            03 Filler Issuer^Number AN(^ANLocal|^^ANUniversal^ANType)
+            
+            en lugar de
+            
+            <xsl:call-template name="ei2attr">
+                <xsl:with-param name="tag" select="'00402017'"/>
+                <xsl:with-param name="ei" select="field[3]"/>
+            </xsl:call-template>        
+        -->
+        <xsl:variable name="an" select="substring-before(ORC[3],'^')"/>        
+        <xsl:if test="string-length($an) > 0">
+            <DicomAttribute tag="'00080050'" vr="SH">
+                <Value number="1">
+                    <xsl:value-of select="$an"/>
+                </Value>
+            </DicomAttribute>
+            <DicomAttribute tag="'00402017'" vr="LO">
+                <Value number="1">
+                    <xsl:value-of select="$an"/>
+                </Value>
+            </DicomAttribute>
+            <xsl:variable name="ORC3234" select="substring-after(ORC[3],'^')"/>
+            <xsl:variable name="anlocal" select="substring-before($ORC3234,'^')"/>        
+            <xsl:choose>
+                <xsl:when test="string-length($anlocal) > 0">
+                    <DicomAttribute tag="'00080051'" vr="SQ">
+                        <Item number="1">
+                            <DicomAttribute tag="'00400031'" vr="UT">
+                                <Value number="1">
+                                    <xsl:value-of select="$anlocal"/>
+                                </Value>
+                            </DicomAttribute>
+                        </Item>
+                    </DicomAttribute>
+                    <DicomAttribute tag="'00402027'" vr="SQ">
+                        <Item number="1">
+                            <DicomAttribute tag="'00400031'" vr="UT">
+                                <Value number="1">
+                                    <xsl:value-of select="$anlocal"/>
+                                </Value>
+                            </DicomAttribute>
+                        </Item>
+                    </DicomAttribute>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:variable name="ORC334" select="substring-after($ORC3234,'^')"/>
+                    <xsl:variable name="anuniversal" select="substring-before($ORC334,'^')"/>        
+                    <xsl:variable name="ORC34" select="substring-after($ORC334,'^')"/>
+                    <xsl:variable name="antype" select="substring-before($ORC34,'^')"/>        
+                    <xsl:if test="(string-length($anuniversal) > 0) and ( ($antype = 'DNS') or ($antype = 'EUI64') or ($antype = 'ISO') or ($antype = 'URI') or ($antype = 'UUID') or ($antype = 'X400') or ($antype = 'X500') )">
+                        <DicomAttribute tag="'00080051'" vr="SQ">
+                            <Item number="1">
+                                <DicomAttribute tag="'00400032'" vr="UT">
+                                    <Value number="1">
+                                        <xsl:value-of select="$anuniversal"/>
+                                    </Value>
+                                </DicomAttribute>
+                                <DicomAttribute tag="'00400033'" vr="CS">
+                                    <Value number="1">
+                                        <xsl:value-of select="$antype"/>
+                                    </Value>
+                                </DicomAttribute>
+                            </Item>
+                        </DicomAttribute>
+                        <DicomAttribute tag="'00402027'" vr="SQ">
+                            <Item number="1">
+                                <DicomAttribute tag="'00400032'" vr="UT">
+                                    <Value number="1">
+                                        <xsl:value-of select="$anuniversal"/>
+                                    </Value>
+                                </DicomAttribute>
+                                <DicomAttribute tag="'00400033'" vr="CS">
+                                    <Value number="1">
+                                        <xsl:value-of select="$antype"/>
+                                    </Value>
+                                </DicomAttribute>
+                            </Item>
+                        </DicomAttribute>
+                    </xsl:if>                    
+                </xsl:otherwise>
+            </xsl:choose>            
+        </xsl:if>
+            
         <!-- 07_ Priority -->
         <xsl:call-template name="procedurePriority">
             <xsl:with-param name="priority" select="string(field[7]/component[5]/text())"/>
@@ -57,12 +140,12 @@
         </xsl:if>
     </xsl:template>
     <xsl:template match="OBR[1]">
-        <!-- 18 Accession Number -->
+        <!-- 18 Accession Number read from ORC-3
         <xsl:call-template name="attr">
             <xsl:with-param name="tag" select="'00080050'"/>
             <xsl:with-param name="vr" select="'SH'"/>
             <xsl:with-param name="val" select="string(field[18]/text())"/>
-        </xsl:call-template>
+        </xsl:call-template>-->
         <!-- 13 RelevantCLinicalInfo, Medical Alerts -->
         <xsl:call-template name="attr">
             <xsl:with-param name="tag" select="'00102000'"/>

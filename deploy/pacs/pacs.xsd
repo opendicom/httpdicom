@@ -456,7 +456,7 @@
                                     <xs:group ref="location"/>
                                     <xs:group ref="html5dicomuserserviceuri"/>
                                     <xs:group ref="html5dicomuseractive"/>
-                                    <xs:group ref="aets"/>
+                                    <xs:group ref="aetitles"/>
                                     <xs:group ref="modalities"/>
                                 </xs:sequence>
                             </xs:complexType>
@@ -524,14 +524,14 @@
         </xs:sequence>
     </xs:group>
    
-    <xs:group name="aets">
+    <xs:group name="aetitles">
         <xs:sequence>
-            <xs:element name="key" fixed="aets">
+            <xs:element name="key" fixed="aetitles">
                 <xs:annotation>
                     <xs:documentation></xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="aets"/>
+            <xs:element ref="string" id="aetitles"/>
         </xs:sequence>
     </xs:group>
     
@@ -573,7 +573,7 @@
         <xs:alternative test="@id = 'mllpip'"                      type="ipidstring"/>
         <xs:alternative test="@id = 'mllpport'"                    type="portidstring"/>
         
-        <xs:alternative test="@id = 'aets'"                        type="titlesidstring"/>
+        <xs:alternative test="@id = 'aetitles'"                        type="titlesidstring"/>
         <xs:alternative test="@id = 'modalities'"                  type="modalitiesidstring"/>
 
     </xs:element>

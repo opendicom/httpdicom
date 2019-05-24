@@ -17,7 +17,7 @@
             <co:string id="id">string2</co:string>
             <co:key>codesystem</co:key>
             <co:string id="id">string3</co:string>
-            <co:key>displayname</co:key>
+            <co:key>fullname</co:key>
             <co:string id="id">string4</co:string>
             <co:key>category</co:key>
             <co:string id="id">string5</co:string>

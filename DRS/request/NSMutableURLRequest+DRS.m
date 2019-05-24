@@ -2,6 +2,8 @@
 
 @implementation NSMutableURLRequest (DRS)
 
+NSTimeInterval const defaultTimeout=10;
+
 static NSData *emptyData;
 static NSString *emptyString;
 +(void)initialize {

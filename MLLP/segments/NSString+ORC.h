@@ -39,15 +39,12 @@
 //we define it with IP of the sender (as in sending facility MSH-4)
 
 +(NSString*)
-   OrderControl        :(NSString*)ORC_1  //? NW
-   sendingRisName      :(NSString*)ORC_2  //? HIS
-   receivingPacsaet    :(NSString*)ORC_3  //? CUSTODIAN
-   isrPlacerDT         :(NSString*)ORC_2_ //? now
-   isrFillerScheduledDT:(NSString*)ORC_3_ //? now
-   spsOrderStatus      :(NSString*)ORC_4  //? SC
-   spsDateTime         :(NSString*)ORC_7  //? now
-   rpPriority          :(NSString*)ORC_7_ //? T
-   EnteringDevice      :(NSString*)ORC_18 //? IP
+   orderControl   :(NSString*)ORC_1
+   isrPlacerNumber:(NSString*)ORC_2
+   isrFillerNumber:(NSString*)ORC_3
+   reqPriority    :(NSString*)ORC_7_
+   spsOrderStatus :(NSString*)ORC_5
+   spsDateTime    :(NSString*)ORC_7
 ;
 
 @end

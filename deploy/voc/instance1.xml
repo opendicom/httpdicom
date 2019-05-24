@@ -6,67 +6,67 @@
     <dict>
         <key>50</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">string0</string>
+            <key>fullname</key>
+            <string id="fullname">string0</string>
             <key>shortname</key>
-            <string id="displayname">string1</string>
+            <string id="fullname">string1</string>
             <key>modality</key>
-            <string id="displayname">string2</string>
+            <string id="fullname">string2</string>
             <key>category</key>
-            <string id="displayname">string3</string>
+            <string id="fullname">string3</string>
             <key>codes</key>
             <array>
                 <key>code</key>
                 <dict>
                     <key>code</key>
-                    <string id="displayname">string4</string>
+                    <string id="fullname">string4</string>
                     <key>scheme</key>
                     <integer>50</integer>
                     <key>qualifier</key>
                     <array>
                         <key>linkcode</key>
-                        <string id="displayname">string5</string>
+                        <string id="fullname">string5</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string6</string>
+                        <string id="fullname">string6</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
                         <array/>
                         <key>linkcode</key>
-                        <string id="displayname">string7</string>
+                        <string id="fullname">string7</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string8</string>
+                        <string id="fullname">string8</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
                         <array/>
                     </array>
                     <key>code</key>
-                    <string id="displayname">string9</string>
+                    <string id="fullname">string9</string>
                     <key>scheme</key>
                     <integer>50</integer>
                     <key>qualifier</key>
                     <array>
                         <key>linkcode</key>
-                        <string id="displayname">string10</string>
+                        <string id="fullname">string10</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string11</string>
+                        <string id="fullname">string11</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
                         <array/>
                         <key>linkcode</key>
-                        <string id="displayname">string12</string>
+                        <string id="fullname">string12</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string13</string>
+                        <string id="fullname">string13</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
@@ -76,54 +76,54 @@
                 <key>code</key>
                 <dict>
                     <key>code</key>
-                    <string id="displayname">string14</string>
+                    <string id="fullname">string14</string>
                     <key>scheme</key>
                     <integer>50</integer>
                     <key>qualifier</key>
                     <array>
                         <key>linkcode</key>
-                        <string id="displayname">string15</string>
+                        <string id="fullname">string15</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string16</string>
+                        <string id="fullname">string16</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
                         <array/>
                         <key>linkcode</key>
-                        <string id="displayname">string17</string>
+                        <string id="fullname">string17</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string18</string>
+                        <string id="fullname">string18</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
                         <array/>
                     </array>
                     <key>code</key>
-                    <string id="displayname">string19</string>
+                    <string id="fullname">string19</string>
                     <key>scheme</key>
                     <integer>50</integer>
                     <key>qualifier</key>
                     <array>
                         <key>linkcode</key>
-                        <string id="displayname">string20</string>
+                        <string id="fullname">string20</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string21</string>
+                        <string id="fullname">string21</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
                         <array/>
                         <key>linkcode</key>
-                        <string id="displayname">string22</string>
+                        <string id="fullname">string22</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string23</string>
+                        <string id="fullname">string23</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
@@ -134,67 +134,67 @@
         </dict>
         <key>50</key>
         <dict>
-            <key>displayname</key>
-            <string id="displayname">string24</string>
+            <key>fullname</key>
+            <string id="fullname">string24</string>
             <key>shortname</key>
-            <string id="displayname">string25</string>
+            <string id="fullname">string25</string>
             <key>modality</key>
-            <string id="displayname">string26</string>
+            <string id="fullname">string26</string>
             <key>category</key>
-            <string id="displayname">string27</string>
+            <string id="fullname">string27</string>
             <key>codes</key>
             <array>
                 <key>code</key>
                 <dict>
                     <key>code</key>
-                    <string id="displayname">string28</string>
+                    <string id="fullname">string28</string>
                     <key>scheme</key>
                     <integer>50</integer>
                     <key>qualifier</key>
                     <array>
                         <key>linkcode</key>
-                        <string id="displayname">string29</string>
+                        <string id="fullname">string29</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string30</string>
+                        <string id="fullname">string30</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
                         <array/>
                         <key>linkcode</key>
-                        <string id="displayname">string31</string>
+                        <string id="fullname">string31</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string32</string>
+                        <string id="fullname">string32</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
                         <array/>
                     </array>
                     <key>code</key>
-                    <string id="displayname">string33</string>
+                    <string id="fullname">string33</string>
                     <key>scheme</key>
                     <integer>50</integer>
                     <key>qualifier</key>
                     <array>
                         <key>linkcode</key>
-                        <string id="displayname">string34</string>
+                        <string id="fullname">string34</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string35</string>
+                        <string id="fullname">string35</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
                         <array/>
                         <key>linkcode</key>
-                        <string id="displayname">string36</string>
+                        <string id="fullname">string36</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string37</string>
+                        <string id="fullname">string37</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
@@ -204,54 +204,54 @@
                 <key>code</key>
                 <dict>
                     <key>code</key>
-                    <string id="displayname">string38</string>
+                    <string id="fullname">string38</string>
                     <key>scheme</key>
                     <integer>50</integer>
                     <key>qualifier</key>
                     <array>
                         <key>linkcode</key>
-                        <string id="displayname">string39</string>
+                        <string id="fullname">string39</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string40</string>
+                        <string id="fullname">string40</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
                         <array/>
                         <key>linkcode</key>
-                        <string id="displayname">string41</string>
+                        <string id="fullname">string41</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string42</string>
+                        <string id="fullname">string42</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
                         <array/>
                     </array>
                     <key>code</key>
-                    <string id="displayname">string43</string>
+                    <string id="fullname">string43</string>
                     <key>scheme</key>
                     <integer>50</integer>
                     <key>qualifier</key>
                     <array>
                         <key>linkcode</key>
-                        <string id="displayname">string44</string>
+                        <string id="fullname">string44</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string45</string>
+                        <string id="fullname">string45</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>
                         <array/>
                         <key>linkcode</key>
-                        <string id="displayname">string46</string>
+                        <string id="fullname">string46</string>
                         <key>linkscheme</key>
                         <integer>50</integer>
                         <key>qualifiercode</key>
-                        <string id="displayname">string47</string>
+                        <string id="fullname">string47</string>
                         <key>qualifierscheme</key>
                         <integer>50</integer>
                         <key>qualifier</key>

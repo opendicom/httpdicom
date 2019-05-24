@@ -1,6 +1,7 @@
 #import "NSString+PCS.h"
 #import <netdb.h>
 #import <CommonCrypto/CommonDigest.h>
+#import "K.h"
 
 @implementation NSString (PCS)
 
@@ -168,6 +169,142 @@
             ];
 }
 
+-(NSArray*)componentsSlashOrBackSlashSeparated
+{
+   NSArray *array=[[self spaceNormalize]
+                   componentsSeparatedByCharactersInSet:
+                   [NSCharacterSet characterSetWithCharactersInString:@"/\\"]
+                   ];
+   NSMutableArray *mutableArray=[NSMutableArray array];
+   for (NSString *component in array)
+   {
+      if ([component length]) [mutableArray addObject:component];
+   }
+   return [NSArray arrayWithArray:mutableArray];
+}
+
+/*
+ verifies if this is a valid codified reqProcedure or spsxProtocol
+ - returns an array of three elements if a code was discovered
+ - returns un array of one element equal to the description it there is no clear correspondence with a code
+ - returns nil if the description contains |
+ */
+-(NSArray*)procedureCodeArrayForContextPacs:(NSString*)pacsUID
+{
+   if (![self containsString:@"|"])
+   {
+      NSArray *array=[[self spaceNormalize]componentsSeparatedByString:@"^"];
+
+      switch ([array count]) {
+         case 0://impossible
+            NSLog(@"componentsSeparatedByString ^error with: %@",self);
+         case 1://includes empty string
+            return array;
+            break;
+            
+         case 3:
+         {
+            //verify order meaning scheme
+            //scheme is by means of index number and found in array[2] *
+            NSString *code=array[0];
+            NSString *description;
+            NSString *scheme;
+            if ([array[1]integerValue]!=0)
+            {
+               //scheme and description inverted
+               description=array[2];
+               scheme=array[1];
+            }
+            else
+            {
+               description=array[1];
+               scheme=array[2];
+            }
+            
+            //verify if it is a known scheme
+            NSUInteger schemeIndex=[K.schemeindexes[@"key"] indexOfObject:scheme];
+            if (schemeIndex==NSNotFound)
+            {
+               schemeIndex=[K.schemeindexes[@"oid"] indexOfObject:scheme];
+               if (schemeIndex==NSNotFound)
+               {
+                  schemeIndex=[K.schemeindexes[@"shortname"] indexOfObject:scheme];
+                  if (schemeIndex==NSNotFound)
+                  {
+                     schemeIndex=[K.schemeindexes[@"dcm"] indexOfObject:scheme];
+                     if (schemeIndex==NSNotFound) schemeIndex=[K.schemeindexes[@"hl7v2"] indexOfObject:scheme];
+                  }
+               }
+            }
+            if (schemeIndex==NSNotFound)
+            {
+               NSLog(@"scheme '%@' not known",scheme);
+               //array with one element
+               return @[[self stringByReplacingOccurrencesOfString:@"^"withString:@"_"]];
+            }
+            
+            //scheme found
+            
+            //verify if it is a known reqProcedure code^*^scheme for the pacs of the context
+            if (pacsUID)
+            {
+               NSDictionary *pacsProcedureDict=K.procedureindexes[pacsUID];
+               NSUInteger procedureIndex=[pacsProcedureDict[@"key"] indexOfObject:code];
+               
+               if (procedureIndex==NSNotFound)
+               {
+                  NSLog(@"procedure '%@' not known in pacs %@",self, pacsUID);
+                  return @[[self stringByReplacingOccurrencesOfString:@"^"withString:@"_"]];
+               }
+               
+               if ([(pacsProcedureDict[@"scheme"])[procedureIndex]integerValue] != schemeIndex)
+               {
+                  NSLog(@"%@ found in pacs %@, but scheme does not match",self,pacsUID);
+                  return @[[self stringByReplacingOccurrencesOfString:@"^"withString:@"_"]];
+               }
+
+               if ((pacsProcedureDict[@"shortname"])[procedureIndex] || [(pacsProcedureDict[@"shortname"])[procedureIndex] length])
+               return @[
+                        (pacsProcedureDict[@"code"])[procedureIndex],
+                        (pacsProcedureDict[@"shortname"])[procedureIndex],
+                        (pacsProcedureDict[@"scheme"])[procedureIndex]
+                        ];
+               return @[
+                        (pacsProcedureDict[@"code"])[procedureIndex],
+                        [[(pacsProcedureDict[@"longname"])[procedureIndex] substringToIndex:32] stringByAppendingString:@"..."],
+                        (pacsProcedureDict[@"scheme"])[procedureIndex]
+                        ];
+            }
+            
+            //verify if it is a known spsxprotocol code^*^scheme
+            NSUInteger codeIndex=[(K.codeindexes[scheme])[@"key"] indexOfObject:code];
+            if (codeIndex !=NSNotFound)
+            {
+               return @[
+                        code,
+                        (K.codeindexes[scheme])[@"meaning"],
+                        scheme
+                        ];
+            }
+            NSLog(@"code '%@' not known",self);
+            return @[[self stringByReplacingOccurrencesOfString:@"^"withString:@"_"]];
+         }
+            break;
+         
+         default:
+            NSLog(@"Not a code^meaning^scheme (%lu ^ in %@)",[array count]-1,self);
+            return @[[self stringByReplacingOccurrencesOfString:@"^"withString:@"_"]];
+            break;
+      }
+   }
+   NSLog(@"| not authorized in study description");
+   return nil;
+}
+
+-(NSArray*)protocolCodeArray
+{
+   return [self procedureCodeArrayForContextPacs:nil];
+}
 
 @end
 

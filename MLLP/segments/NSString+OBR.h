@@ -31,20 +31,16 @@
 @interface NSString(OBR)
 
 +(NSString*)
-   spsProtocolCode                :(NSString*)OBR_4  //?
-   isrDangerCode                  :(NSString*)OBR_12 //?
-   isrRelevantClinicalInfo        :(NSString*)OBR_13 //?
-   isrReferringPhysician          :(NSString*)OBR_16 //?
-   isrAccessionNumber             :(NSString*)OBR_18 //?
-   rpID                           :(NSString*)OBR_19 //?
-   spsID                          :(NSString*)OBR_20 //?
-   spsStationAETitle              :(NSString*)OBR_21 //?
-   spsModality                    :(NSString*)OBR_24
-   rpTransportationMode           :(NSString*)OBR_30 //?
-   rpReasonForStudy               :(NSString*)OBR_31 //?
-   isrNameOfPhysiciansReadingStudy:(NSString*)OBR_32 //?
-   spsTechnician                  :(NSString*)OBR_34 //?
-   rpUniversalStudyCode           :(NSString*)OBR_44 //?
+   isrReferring :(NSString*)OBR_16
+   isrAN        :(NSString*)OBR_18
+   isrReading   :(NSString*)OBR_32
+   reqID        :(NSString*)OBR_19
+   reqProcedure :(NSString*)OBR_44
+   spsPerforming:(NSString*)OBR_34
+   spsID        :(NSString*)OBR_20
+   spsModality  :(NSString*)OBR_24
+   spsAET       :(NSString*)OBR_21
+   spsProtocol  :(NSString*)OBR_4
 ;
 
 @end

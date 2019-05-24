@@ -101,7 +101,7 @@
                             </row>
                             <row>
                                 <entry>HTTPDICOM</entry>
-                                <entry>nuestro programa que vincula  equipos de gestión con equipos
+                                <entry>nuestro programa que vincula equipos de gestión con equipos
                                     imagenologicos, y guarda y distribuye las imágenes. Facilita el
                                     uso de imágenes DICOM gracias al protocolo de comunicación
                                     universal HTTP</entry>
@@ -190,7 +190,7 @@
                             para cualquier navegador web que permite registrar el paciente
                             directamente en HTTPDICOM.</li>
                     </ol></li>
-                <li>HTTPDICOM crea una tarea  MWL  en un servidor DICOM que pone la información del
+                <li>HTTPDICOM crea una tarea MWL en un servidor DICOM que pone la información del
                     paciente y estudio a disposición del equipo imagenológico.</li>
                 <li>HTTPDICOM crea un objeto DICOM OT de solicitud que será el primer documento del
                     estudio imagenologico.</li>
@@ -208,7 +208,7 @@
             </ol>
         </section>
         <section id="section_v4y_gbr_tdb">
-            <title>Comunicación de los datos del paciente y  estudio a HTTPDICOM</title>
+            <title>Comunicación de los datos del paciente y estudio a HTTPDICOM</title>
             <p>HTTPDICOM acepta tres formatos:</p>
             <p>
                 <ul id="ul_hhp_lbr_tdb">
@@ -290,14 +290,15 @@
                 </table>
                 <table frame="all" rowsep="1" colsep="1" id="table_uss_ty2_3hb">
                     <title>Paciente</title>
-                    <tgroup cols="7">
+                    <tgroup cols="8">
                         <colspec colname="c1" colnum="1" colwidth="1*"/>
                         <colspec colname="c2" colnum="2" colwidth="1*"/>
                         <colspec colname="c3" colnum="3" colwidth="1*"/>
                         <colspec colname="c4" colnum="4" colwidth="1*"/>
                         <colspec colname="c5" colnum="5" colwidth="1*"/>
                         <colspec colname="c6" colnum="6" colwidth="1*"/>
-                        <colspec colname="newCol7" colnum="7" colwidth="1*"/>
+                        <colspec colname="newCol8" colnum="7" colwidth="1*"/>
+                        <colspec colname="newCol7" colnum="8" colwidth="1*"/>
                         <thead>
                             <row>
                                 <entry>nombre</entry>
@@ -306,36 +307,40 @@
                                 <entry>formato</entry>
                                 <entry>comentario</entry>
                                 <entry>=ORMO01</entry>
+                                <entry>=OMIO23</entry>
                                 <entry>=DICOM</entry>
                             </row>
                         </thead>
                         <tbody>
                             <row>
-                                <entry>patFamily1</entry>
+                                <entry>patFamily1Name</entry>
                                 <entry>apellido1</entry>
                                 <entry>1</entry>
                                 <entry>mayusculas</entry>
                                 <entry/>
                                 <entry>PID_5</entry>
+                                <entry/>
                                 <entry>00100010</entry>
                             </row>
                             <row>
-                                <entry>patFamily2</entry>
-                                <entry>apellido2, motherMaiden</entry>
+                                <entry>patFamily2Name</entry>
+                                <entry>apellido2, motherMaidenName</entry>
                                 <entry>?</entry>
                                 <entry>mayusculas</entry>
                                 <entry>en httpdicom, viene luego de apellido1 separado por >, en la
                                     mwl usamos el tag 00101060 para que no aparezca el ></entry>
-                                <entry>PID_2</entry>
+                                <entry>PID_6</entry>
+                                <entry/>
                                 <entry>00100010>| 00101060</entry>
                             </row>
                             <row>
-                                <entry>patGiven</entry>
+                                <entry>patGivenNames</entry>
                                 <entry>nombres</entry>
                                 <entry>?</entry>
                                 <entry>mayusculas</entry>
                                 <entry/>
                                 <entry>PID_5</entry>
+                                <entry/>
                                 <entry>00100010^</entry>
                             </row>
                             <row>
@@ -345,6 +350,7 @@
                                 <entry>aaaammdd</entry>
                                 <entry/>
                                 <entry>PID_7</entry>
+                                <entry/>
                                 <entry>00100030</entry>
                             </row>
                             <row>
@@ -354,33 +360,37 @@
                                 <entry>M | F | O</entry>
                                 <entry>masculino, feminino, otro</entry>
                                 <entry>PID_8</entry>
+                                <entry/>
                                 <entry>00100040</entry>
                             </row>
                             <row>
-                                <entry>patId</entry>
+                                <entry>patID</entry>
                                 <entry>PatientID</entry>
                                 <entry>1</entry>
                                 <entry>SH</entry>
                                 <entry/>
-                                <entry>PID_3</entry>
+                                <entry>PID_3.1</entry>
+                                <entry/>
                                 <entry>00100020</entry>
                             </row>
                             <row>
-                                <entry>patIdCountry</entry>
+                                <entry>patIDCountry</entry>
                                 <entry>PatientIDCountry</entry>
                                 <entry>1</entry>
                                 <entry>ISO3166</entry>
                                 <entry>2 o 3 letras</entry>
-                                <entry>PID_3</entry>
+                                <entry>PID_3.3</entry>
+                                <entry/>
                                 <entry>00100021</entry>
                             </row>
                             <row>
-                                <entry>patIdType</entry>
+                                <entry>patIDType</entry>
                                 <entry>PatientIDType</entry>
                                 <entry>1</entry>
                                 <entry>ICAO</entry>
                                 <entry/>
-                                <entry>PID_3</entry>
+                                <entry>PID_3.3</entry>
+                                <entry/>
                                 <entry>00100021</entry>
                             </row>
                             <row>
@@ -388,6 +398,7 @@
                                 <entry>clave</entry>
                                 <entry>?</entry>
                                 <entry>min 7 caracteres</entry>
+                                <entry>se envia a htmldicom (ausencia->no se crea el usuario</entry>
                                 <entry/>
                                 <entry/>
                                 <entry/>
@@ -397,14 +408,15 @@
                 </table>
                 <table frame="all" rowsep="1" colsep="1" id="table_p1h_5y2_3hb">
                     <title>Solicitud</title>
-                    <tgroup cols="7">
+                    <tgroup cols="8">
                         <colspec colname="c1" colnum="1" colwidth="1*"/>
                         <colspec colname="c2" colnum="2" colwidth="1*"/>
                         <colspec colname="c3" colnum="3" colwidth="1*"/>
                         <colspec colname="c4" colnum="4" colwidth="1*"/>
                         <colspec colname="c5" colnum="5" colwidth="1*"/>
                         <colspec colname="c6" colnum="6" colwidth="1*"/>
-                        <colspec colname="newCol7" colnum="7" colwidth="1*"/>
+                        <colspec colname="newCol8" colnum="7" colwidth="1*"/>
+                        <colspec colname="newCol7" colnum="8" colwidth="1*"/>
                         <thead>
                             <row>
                                 <entry>nombre</entry>
@@ -413,68 +425,85 @@
                                 <entry>formato</entry>
                                 <entry>comentario</entry>
                                 <entry>=ORMO01</entry>
+                                <entry>=OMIO23</entry>
                                 <entry>=DICOM</entry>
                             </row>
                         </thead>
                         <tbody>
                             <row>
-                                <entry>reqAN</entry>
+                                <entry>isrInsurance</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry/>
+                                <entry>no usado</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry>isrPlacerNumber</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry/>
+                                <entry>libre para referencia del lado del referring</entry>
+                                <entry>ORC_2</entry>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry>isrFillerNumber</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry>AN ( ^ANLocal | ^^ANUniversal^ANType )</entry>
+                                <entry>repite AN pero con Issuer </entry>
+                                <entry>ORC_3.1^2^3^4</entry>
+                                <entry/>
+                                <entry>00402017 00402027.00400031 00402027.00400032
+                                    00402027.00400033 </entry>
+                            </row>
+                            <row>
+                                <entry>isrAN</entry>
                                 <entry>AccessionNumber</entry>
                                 <entry>1</entry>
                                 <entry>SH</entry>
+                                <entry>Para ORMO01, igualamos AN con Filler Issuer and Number, no
+                                    parseamos OBR_18</entry>
+                                <entry>OBR_18,ORC_3.1</entry>
                                 <entry/>
-                                <entry/>
-                                <entry/>
+                                <entry>00080050</entry>
                             </row>
                             <row>
-                                <entry>reqANIssuer</entry>
-                                <entry>issuerLocal, issuerUniversal</entry>
-                                <entry>1</entry>
-                                <entry/>
-                                <entry>en caso de AN local, nombre corto del servicio o de la
-                                    institución</entry>
-                                <entry/>
-                                <entry/>
-                            </row>
-                            <row>
-                                <entry>reqANType</entry>
-                                <entry>issuerTipo</entry>
-                                <entry>?</entry>
-                                <entry>DNS, EUI64, ISO (=OID), URI, UUID, X400, X500</entry>
-                                <entry>en caso de AN local,vacío</entry>
-                                <entry/>
-                                <entry/>
-                            </row>
-                            <row>
-                                <entry>reqId</entry>
-                                <entry>RequestedProcedureID</entry>
-                                <entry>?(generador de números consecutivos)</entry>
+                                <entry morerows="1">isrANIssuer</entry>
+                                <entry>issuerLocal</entry>
+                                <entry morerows="1">0</entry>
                                 <entry>SH</entry>
-                                <entry>puede ser buena opción copiar ahí el AN</entry>
+                                <entry>nombre corto del servicio o de la institución</entry>
+                                <entry>ORC_3.2</entry>
                                 <entry/>
-                                <entry>00401001</entry>
+                                <entry>00080051.00400031</entry>
                             </row>
                             <row>
-                                <entry>reqStudy</entry>
-                                <entry>StudyDescription</entry>
-                                <entry>?</entry>
-                                <entry>código^titulo^vocabulario</entry>
+                                <entry>issuerUniversal</entry>
+                                <entry>OID</entry>
+                                <entry>usamos OID</entry>
+                                <entry>ORC_3.3</entry>
                                 <entry/>
-                                <entry/>
-                                <entry>00321060 &amp; 00321064</entry>
+                                <entry>00080051.00400032</entry>
                             </row>
                             <row>
-                                <entry>reqPriority</entry>
-                                <entry>RequestedProcedurePriority</entry>
+                                <entry>isrANType</entry>
+                                <entry>issuerTipo</entry>
+                                <entry>0</entry>
+                                <entry>DNS, EUI64, ISO (=OID), URI, UUID, X400, X500</entry>
+                                <entry>local->vacío, universal, ISO</entry>
+                                <entry>ORC_3.4</entry>
                                 <entry/>
-                                <entry/>
-                                <entry/>
-                                <entry/>
-                                <entry>00401003</entry>
+                                <entry>00080051.00400033</entry>
                             </row>
                             <row>
-                                <entry>reqPhysician</entry>
+                                <entry>isrReferring</entry>
                                 <entry>ReferringPhysiciansName</entry>
+                                <entry>?</entry>
                                 <entry/>
                                 <entry/>
                                 <entry/>
@@ -482,8 +511,9 @@
                                 <entry>00321032</entry>
                             </row>
                             <row>
-                                <entry>reqReading</entry>
+                                <entry>isrReading</entry>
                                 <entry>NameOfPhysicianReadingStudy</entry>
+                                <entry>?</entry>
                                 <entry/>
                                 <entry/>
                                 <entry/>
@@ -491,8 +521,49 @@
                                 <entry>00081060</entry>
                             </row>
                             <row>
+                                <entry>isrStudyIUID</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry/>
+                                <entry>no usado</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry>reqID</entry>
+                                <entry>RequestedProcedureID</entry>
+                                <entry>?(generador de números consecutivos)</entry>
+                                <entry>SH</entry>
+                                <entry>puede ser buena opción copiar ahí el AN</entry>
+                                <entry/>
+                                <entry/>
+                                <entry>00401001</entry>
+                            </row>
+                            <row>
+                                <entry>reqProcedure</entry>
+                                <entry>StudyDescription</entry>
+                                <entry>+</entry>
+                                <entry>código^titulo^vocabulario ( no | en la descripción )</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00321060 &amp; 00321064</entry>
+                            </row>
+                            <row>
+                                <entry>reqPriority</entry>
+                                <entry>RequestedProcedurePriority</entry>
+                                <entry>?</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00401003</entry>
+                            </row>
+                            <row>
                                 <entry>reqMsg</entry>
                                 <entry/>
+                                <entry>?</entry>
                                 <entry/>
                                 <entry/>
                                 <entry/>
@@ -502,6 +573,7 @@
                             <row>
                                 <entry>reqPdf</entry>
                                 <entry/>
+                                <entry>?</entry>
                                 <entry/>
                                 <entry/>
                                 <entry/>
@@ -513,14 +585,15 @@
                 </table>
                 <table frame="all" rowsep="1" colsep="1" id="table_bjj_5y2_3hb">
                     <title>Paso 1 del protocolo</title>
-                    <tgroup cols="7">
+                    <tgroup cols="8">
                         <colspec colname="c1" colnum="1" colwidth="1*"/>
                         <colspec colname="c2" colnum="2" colwidth="1*"/>
                         <colspec colname="c3" colnum="3" colwidth="1*"/>
                         <colspec colname="c4" colnum="4" colwidth="1*"/>
                         <colspec colname="c5" colnum="5" colwidth="1*"/>
                         <colspec colname="c6" colnum="6" colwidth="1*"/>
-                        <colspec colname="newCol7" colnum="7" colwidth="1*"/>
+                        <colspec colname="newCol8" colnum="7" colwidth="1*"/>
+                        <colspec colname="newCol7" colnum="8" colwidth="1*"/>
                         <thead>
                             <row>
                                 <entry>nombre</entry>
@@ -529,6 +602,7 @@
                                 <entry>formato</entry>
                                 <entry>comentario</entry>
                                 <entry>=ORMO01</entry>
+                                <entry>=OMIO23</entry>
                                 <entry>=DICOM</entry>
                             </row>
                         </thead>
@@ -540,13 +614,15 @@
                                 <entry>(**) CR, CT, MR,NM, US, PT, XA, RF, DX, MG, SR</entry>
                                 <entry/>
                                 <entry/>
+                                <entry/>
                                 <entry>00080060</entry>
                             </row>
                             <row>
-                                <entry>sps1StationAETitle</entry>
+                                <entry>sps1AET</entry>
                                 <entry/>
                                 <entry>(*)</entry>
                                 <entry>SH</entry>
+                                <entry/>
                                 <entry/>
                                 <entry/>
                                 <entry>00400001</entry>
@@ -554,8 +630,9 @@
                             <row>
                                 <entry>sps1Date</entry>
                                 <entry/>
-                                <entry/>
+                                <entry>0</entry>
                                 <entry>aaaammdd</entry>
+                                <entry/>
                                 <entry/>
                                 <entry/>
                                 <entry>00400002</entry>
@@ -563,8 +640,9 @@
                             <row>
                                 <entry>sps1Time</entry>
                                 <entry/>
-                                <entry/>
+                                <entry>0</entry>
                                 <entry>hhmmss</entry>
+                                <entry/>
                                 <entry/>
                                 <entry/>
                                 <entry>00400003</entry>
@@ -572,6 +650,7 @@
                             <row>
                                 <entry>sps1Technician</entry>
                                 <entry/>
+                                <entry>0</entry>
                                 <entry/>
                                 <entry/>
                                 <entry/>
@@ -585,12 +664,14 @@
                                 <entry/>
                                 <entry/>
                                 <entry/>
+                                <entry/>
                                 <entry>00400011</entry>
                             </row>
                             <row>
                                 <entry>sps1StationName</entry>
                                 <entry/>
-                                <entry>?</entry>
+                                <entry>0</entry>
+                                <entry/>
                                 <entry/>
                                 <entry/>
                                 <entry/>
@@ -599,19 +680,21 @@
                             <row>
                                 <entry>sps1Protocol</entry>
                                 <entry/>
-                                <entry>1</entry>
-                                <entry>código^titulo^vocabulario</entry>
+                                <entry>?</entry>
+                                <entry>código^titulo^vocabulario ( no | )</entry>
+                                <entry/>
                                 <entry/>
                                 <entry/>
                                 <entry>00400007 &amp; 00400008</entry>
                             </row>
                             <row>
-                                <entry>sps1Id</entry>
+                                <entry>sps1ID</entry>
                                 <entry/>
-                                <entry>?(generador de números consecutivos)</entry>
+                                <entry>0</entry>
                                 <entry/>
                                 <entry>No se puede copiar ahí el AN si el request contiene varios
                                     steps (pasos)</entry>
+                                <entry/>
                                 <entry/>
                                 <entry>00400009</entry>
                             </row>
@@ -619,6 +702,10 @@
                     </tgroup>
                 </table>
             </p>
+            <p><b>Eventuales Paso 2, Paso 3 y Paso 4 del protocolo</b></p>
+            <p>Repite paso 1 pero con prefijo sps2, sps3 y sps4 respectivamente, en lugar de
+                sps1.</p>
+            <p/>
         </section>
         <section id="section_k5b_vwb_jhb">
             <p>(*) complete list: CR, CT, MR,NM, US, OT,DG, ES, LS, PT, RG, TG, XA, RF, RTIMAGE,

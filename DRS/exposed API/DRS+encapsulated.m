@@ -799,8 +799,8 @@ bodyData:stowData
                       procedureIndex=[pacsProcedureDict[@"shortname"] indexOfObject:thisCode];
                       if (procedureIndex==NSNotFound)
                       {
-                         //try with displayname
-                         procedureIndex=[pacsProcedureDict[@"displayname"] indexOfObject:StudyDescription1Array[2]];
+                         //try with fullname
+                         procedureIndex=[pacsProcedureDict[@"fullname"] indexOfObject:StudyDescription1Array[2]];
                          if (procedureIndex==NSNotFound)
                          {
                             //try with corresponding code and select if there is one correspondance only
@@ -817,7 +817,7 @@ bodyData:stowData
                                }
                             }
                             
-                            procedureIndex=[pacsProcedureDict[@"displayname"] indexOfObject:thisCode];
+                            procedureIndex=[pacsProcedureDict[@"fullname"] indexOfObject:thisCode];
                          }
                       }
                    }

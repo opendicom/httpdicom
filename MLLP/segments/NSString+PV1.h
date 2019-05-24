@@ -12,9 +12,8 @@
 //19 VisitNumber
 
 +(NSString*)
-   VisitNumber      :(NSString*)PV1_8  //?
-   ReferringDoctor  :(NSString*)PV1_15 //?
-   AmbultatoryStatus:(NSString*)PV1_19 //?
+   isrInsurance:(NSString*)PV1_8
+   isrReferring:(NSString*)PV1_15
 ;
 
 @end

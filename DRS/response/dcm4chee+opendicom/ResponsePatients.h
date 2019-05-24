@@ -2,16 +2,24 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ResponsePatient : NSObject
+@interface ResponsePatients : NSObject
 
+// [] no existe
+// [{}] existe y es único
+// [{},{}...] existen y no son únicos
 +(NSArray*)getFromPacs:(NSDictionary*)pacs
-                   pid:(NSString*)pid
+                 patID:(NSString*)patID
                 issuer:(NSString*)issuer
 ;
 
+//returns nil if the request could not be performed
+//returns @"" when the patient was registered
+//returns @"error message" if the server responded with an error
 +(NSString*)putToPacs:(NSDictionary*)pacs
-                 name:(NSString*)name
-                  pid:(NSString*)pid
+              family1:(NSString*)family1
+              family2:(NSString*)family2
+                given:(NSString*)given
+                patID:(NSString*)patID
                issuer:(NSString*)issuer
             birthdate:(NSString*)birthdate
                   sex:(NSString*)sex

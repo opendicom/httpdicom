@@ -249,8 +249,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">MR</string>
                 </dict>
@@ -266,8 +266,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">CT</string>
                 </dict>
@@ -283,8 +283,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">US</string>
                 </dict>
@@ -300,8 +300,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">MG</string>
                 </dict>
@@ -317,8 +317,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">DX</string>
                 </dict>
@@ -334,8 +334,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">CR</string>
                 </dict>
@@ -431,8 +431,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">MR</string>
                 </dict>
@@ -448,8 +448,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">CT</string>
                 </dict>
@@ -465,8 +465,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">US</string>
                 </dict>
@@ -482,8 +482,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">MG</string>
                 </dict>
@@ -499,8 +499,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">DX</string>
                 </dict>
@@ -516,8 +516,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">CR</string>
                 </dict>
@@ -613,8 +613,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">MR</string>
                 </dict>
@@ -630,8 +630,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">CT</string>
                 </dict>
@@ -647,8 +647,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">US</string>
                 </dict>
@@ -664,8 +664,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">MG</string>
                 </dict>
@@ -681,8 +681,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">DX</string>
                 </dict>
@@ -698,8 +698,8 @@
                     <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
-                    <key>aets</key>
-                    <string id="aets"></string>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
                     <key>modalities</key>
                     <string id="modalities">CR</string>
                 </dict>

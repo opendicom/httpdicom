@@ -103,12 +103,12 @@ void qidoAccession(
 @implementation RequestQido
 
 //full (URLString ya contiene todos los filtros
-+(NSMutableURLRequest*)inPacs:(NSDictionary*)pacs
-                    URLString:(NSMutableString*)URLString
-                fuzzymatching:(BOOL)fuzzymatching
-                        limit:(unsigned int)limit
-                       offset:(unsigned int)offset
-                       accept:(qidoAccept)accept
++(NSMutableURLRequest*)foundInPacs:(NSDictionary*)pacs
+                         URLString:(NSMutableString*)URLString
+                     fuzzymatching:(BOOL)fuzzymatching
+                             limit:(unsigned int)limit
+                            offset:(unsigned int)offset
+                            accept:(qidoAccept)accept
 {
    if (fuzzymatching) [URLString appendString:@"&fuzzymatching=true"];
    if (limit!=UINT_MAX) [URLString appendFormat:@"&limit=%d",limit];
@@ -141,24 +141,24 @@ void qidoAccession(
 }
 
 //basic (invoca full con valores por defecto para los parametros avanzados
-+(NSMutableURLRequest*)inPacs:(NSDictionary*)pacs
-                    URLString:(NSMutableString*)URLString
++(NSMutableURLRequest*)foundInPacs:(NSDictionary*)pacs
+                         URLString:(NSMutableString*)URLString
 {
-   return [RequestQido inPacs:pacs
-                    URLString:URLString
-                fuzzymatching:false
-                        limit:UINT_MAX
-                       offset:0
-                       accept:qidoDefault
+   return [RequestQido foundInPacs:pacs
+                         URLString:URLString
+                     fuzzymatching:false
+                             limit:UINT_MAX
+                            offset:0
+                            accept:qidoDefault
            ];
 }
 
 #pragma mark - requests específicos
 
-+(NSMutableURLRequest*)studiesInPacs:(NSDictionary*)pacs
-                     accessionNumber:(NSString*)accessionNumber
-                     accessionIssuer:(NSString*)accessionIssuer
-                       accessionType:(NSString*)accessionType
++(NSMutableURLRequest*)studiesFoundInPacs:(NSDictionary*)pacs
+                          accessionNumber:(NSString*)accessionNumber
+                          accessionIssuer:(NSString*)accessionIssuer
+                            accessionType:(NSString*)accessionType
 {
    if (!pacs[@"qido"] || ![pacs[@"qido"] length]) return nil;
    
@@ -166,7 +166,7 @@ void qidoAccession(
    qidoAccession(URLString,accessionNumber,accessionIssuer,accessionType);
    if ([URLString length])
       return [RequestQido
-              inPacs:pacs
+              foundInPacs:pacs
               URLString:URLString
               fuzzymatching:false
               limit:UINT_MAX
@@ -177,10 +177,10 @@ void qidoAccession(
 }
 
 
-+(NSMutableURLRequest*)objectsInPacs:(NSDictionary*)pacs
-                            studyUID:(NSString*)studyUID
-                           seriesUID:(NSString*)seriesUID
-                              sopUID:(NSString*)sopUID
++(NSMutableURLRequest*)objectsFoundInPacs:(NSDictionary*)pacs
+                                 studyUID:(NSString*)studyUID
+                                seriesUID:(NSString*)seriesUID
+                                   sopUID:(NSString*)sopUID
 {
    if (!pacs[@"qido"] || ![pacs[@"qido"] length]) return nil;
 
@@ -188,7 +188,7 @@ void qidoAccession(
    qidoUID(URLString,studyUID,seriesUID,sopUID);
    if ([URLString length])
       return [RequestQido
-              inPacs:pacs
+              foundInPacs:pacs
               URLString:URLString
               fuzzymatching:false
               limit:UINT_MAX

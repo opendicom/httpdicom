@@ -81,7 +81,7 @@ else [K setDefaultTimezone:args[4]];
         
 
 // /voc/scheme
-NSDictionary *scheme=[NSDictionary dictionaryWithContentsOfFile:[deployPath stringByAppendingPathComponent:@"voc/scheme.plist"]];
+NSDictionary *scheme=[NSDictionary dictionaryWithContentsOfFile:[deployPath stringByAppendingPathComponent:@"voc/scheme.xml"]];
 if (!scheme) [K loadScheme:@{}];
 else [K loadScheme:scheme];
 
@@ -95,7 +95,7 @@ else
      for (NSString *code in codes)
     {
         if ([code hasPrefix:@"."]) continue;
-        [K loadCode:[NSDictionary dictionaryWithContentsOfFile:[[deployPath stringByAppendingPathComponent:@"voc/code"] stringByAppendingPathComponent:code]] forKey:[code stringByDeletingPathExtension]];
+        [K loadCode:[NSDictionary dictionaryWithContentsOfFile:[[deployPath stringByAppendingPathComponent:@"voc/code"] stringByAppendingPathComponent:code]] forKey:[[code stringByDeletingPathExtension]stringByDeletingPathExtension]];
     }
     
 }
@@ -109,7 +109,7 @@ else
     for (NSString *procedure in procedures)
     {
         if ([procedure hasPrefix:@"."]) continue;
-        [K loadProcedure:[NSDictionary dictionaryWithContentsOfFile:[[deployPath stringByAppendingPathComponent:@"voc/procedure"]stringByAppendingPathComponent:procedure]] forKey:[procedure stringByDeletingPathExtension]];
+        [K loadProcedure:[NSDictionary dictionaryWithContentsOfFile:[[deployPath stringByAppendingPathComponent:@"voc/procedure"]stringByAppendingPathComponent:procedure]] forKey:[[procedure stringByDeletingPathExtension] stringByDeletingPathExtension]];
 
     }
 }
@@ -146,12 +146,12 @@ NSDictionary *pacs=[NSDictionary dictionaryWithContentsOfFile:
                     [[[deployPath
                        stringByAppendingPathComponent:@"pacs"]
                       stringByAppendingPathComponent:defaultpacsoid]
-                     stringByAppendingPathExtension:@"pacs.plist.xml"]
+                     stringByAppendingPathExtension:@"pacs.xml"]
                     ];
 
 if (!pacs)
 {
-   NSLog(@"could not get contents of pacs/%@.pacs.plist.xml",defaultpacsoid);
+   NSLog(@"could not get contents of pacs/%@.pacs.xml",defaultpacsoid);
    return 1;
 }
        

@@ -25,7 +25,7 @@
     <xsl:template match="row">
         <key><xsl:value-of select="key/text()"/></key>
         <dict>
-            <key>displayname</key><string id="displayname"><xsl:value-of select="normalize-space(displayname/text())"/></string>
+            <key>fullname</key><string id="fullname"><xsl:value-of select="normalize-space(fullname/text())"/></string>
             <key>shortname</key><string id=""><xsl:value-of select="shortname/text()"/></string>
             <key>modality</key><string id="modality"><xsl:choose>
                 <xsl:when test="modalidad='Rayos'">CR</xsl:when>

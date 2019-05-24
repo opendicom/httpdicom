@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NSString(ZDS)
 
 +(NSString*)
-   StudyInstanceUID:(NSString*)ZDS_1 //?
+   isrStudyIUID:(NSString*)ZDS_1 //?
 ;
 
 @end

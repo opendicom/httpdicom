@@ -1,26 +1,26 @@
-#import "RequestPatient.h"
+#import "RequestPatients.h"
 #import "NSMutableURLRequest+DRS.h"
 
-@implementation RequestPatient
+@implementation RequestPatients
 
 +(NSMutableURLRequest*)getFromPacs:(NSDictionary*)pacs
-                               pid:(NSString*)pid
+                             patID:(NSString*)patID
                             issuer:(NSString*)issuer
 {
    if (!pacs[@"dcm4cheelocaluri"] || ![pacs[@"dcm4cheelocaluri"] length]) return nil;
-   if (!pid || ![pid length]) return nil;
+   if (!patID || ![patID length]) return nil;
 
    NSMutableString *URLString=nil;
    if (issuer && [issuer length])
       URLString=[NSMutableString stringWithFormat:@"%@/rs/patients?PatientID=%@&IssuerOfPatientID=%@&includefield=00100021&includefield=00080090",
          pacs[@"dcm4cheelocaluri"],
-         pid,
+         patID,
          issuer
          ];
    else
       URLString=[NSMutableString stringWithFormat:@"%@/rs/patients?PatientID=%@&includefield=00100021&includefield=00080090",
          pacs[@"dcm4cheelocaluri"],
-         pid
+         patID
          ];
    
    return [NSMutableURLRequest DRSRequestPacs:pacs
@@ -32,21 +32,23 @@
 //DO NOT USE because dcm4chee-arc rest patient API doesn´t support latin1 encoding
 //USE instead HL7 MLLP ADT
 +(NSMutableURLRequest*)putToPacs:(NSDictionary*)pacs
-                            name:(NSString*)name
-                             pid:(NSString*)pid
+                         family1:(NSString*)family1
+                         family2:(NSString*)family2
+                           given:(NSString*)given
+                           patID:(NSString*)patID
                           issuer:(NSString*)issuer
                        birthdate:(NSString*)birthdate
                              sex:(NSString*)sex
                      contentType:(NSString*)contentType
 {
    if (!pacs[@"dcm4cheelocaluri"] || !pacs[@"dcm4cheelocaluri"]) return nil;
-   if (!pid || ![pid length]) return nil;
+   if (!patID || ![patID length]) return nil;
    if (!issuer || ![issuer length]) return nil;
 
    NSMutableString *URLString=[NSMutableString
     stringWithFormat:@"%@/rs/patients/%@%%5E%%5E%%5E%@",
     pacs[@"dcm4cheelocaluri"],
-    pid,
+    patID,
     issuer
     ];
 
@@ -54,12 +56,17 @@
    {
       NSMutableString *json=[NSMutableString string];
       [json appendString:@"{\"00080005\": {\"vr\":\"CS\",\"Value\":[\"ISO_IR 192\"]},"];//utf8
+      NSMutableString *name=[NSMutableString stringWithString:family1];
+      if ([family2 length]) [name appendFormat:@">%@",family2];
+      if ([given length]) [name appendFormat:@"^%@",given];
       [json appendFormat:@"\"00100010\":{\"vr\":\"PN\",\"Value\":[{\"Alphabetic\":\"%@\"}]},",name];
-      [json appendFormat:@"\"00100020\":{\"vr\":\"SH\",\"Value\":[\"%@\"]},",pid];
+      [json appendFormat:@"\"00100020\":{\"vr\":\"SH\",\"Value\":[\"%@\"]},",patID];
       [json appendFormat:@"\"00100021\":{\"vr\":\"LO\",\"Value\":[\"%@\"]},",issuer];
       [json appendFormat:@"\"00100030\":{\"vr\":\"DA\",\"Value\":[\"%@\"]},",birthdate];
       [json appendFormat:@"\"00100040\":{\"vr\":\"CS\",\"Value\":[\"%@\"]}}",sex];
-      
+      if ([family2 length])
+         [json appendFormat:@"\"00101060\":{\"vr\":\"PN\",\"Value\":[{\"Alphabetic\":\"%@\"}]},",family2];
+
       return [NSMutableURLRequest
               DRSRequestPacs:pacs
               URLString:URLString

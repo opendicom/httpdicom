@@ -11,19 +11,21 @@
 
 //RSRequest
 
-BOOL parseRequestParams(RSRequest       * request,
-                        NSMutableArray  * names,
-                        NSMutableArray  * values,
-                        NSMutableArray  * types,
-                        NSMutableString * jsonString,
-                        NSMutableString * errorString)
+BOOL parseRequestParams(RSRequest       *  request,
+                        NSMutableArray  *  names,
+                        NSMutableArray  *  values,
+                        NSMutableArray  *  types,
+                        NSString        ** jsonString,
+                        NSString        ** errorString
+                        )
 ;
 
 //pacs
-NSDictionary * pacsParam(NSMutableArray  * names,
-                         NSMutableArray  * values,
-                         NSMutableString * pacsOID,
-                         NSMutableString * errorString)
+NSDictionary * pacsParam(NSMutableArray  *  names,
+                         NSMutableArray  *  values,
+                         NSMutableString *  pacsOID,
+                         NSString        ** errorString
+                         )
 ;
 
 

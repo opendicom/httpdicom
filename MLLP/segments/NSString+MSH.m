@@ -4,16 +4,16 @@
 @implementation NSString(MSH)
 
 +(NSString*)
-   SendingApplication  :(NSString*)MSH_3
-   SendingFacility     :(NSString*)MSH_4
-   ReceivingApplication:(NSString*)MSH_5
-   ReceivingFacility   :(NSString*)MSH_6
-   MessageType         :(NSString*)MSH_9
-   MessageControlID    :(NSString*)MSH_10
-   VersionID           :(NSString*)MSH_12
-   CountryCode         :(NSString*)MSH_17
-   CharacterSet        :(NSStringEncoding)stringEncoding
-   PrincipalLanguage   :(NSString*)MSH_19
+   sendingApplication  :(NSString*)MSH_3
+   sendingFacility     :(NSString*)MSH_4
+   receivingApplication:(NSString*)MSH_5
+   receivingFacility   :(NSString*)MSH_6
+   messageType         :(NSString*)MSH_9
+   messageControlID    :(NSString*)MSH_10
+   versionID           :(NSString*)MSH_12
+   countryCode         :(NSString*)MSH_17
+   stringEncoding      :(NSStringEncoding)stringEncoding
+   principalLanguage   :(NSString*)MSH_19
 {
    //message type needs to be specified
    if (!MSH_9) return nil;

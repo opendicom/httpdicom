@@ -2,18 +2,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RequestPatient : NSObject
+@interface RequestPatients : NSObject
 
 +(NSMutableURLRequest*)getFromPacs:(NSDictionary*)pacs
-                               pid:(NSString*)pid
+                             patID:(NSString*)patID
                             issuer:(NSString*)issuer
 ;
 
 //DO NOT USE because dcm4chee-arc rest patient API doesn´t support latin1 encoding
 //USE instead HL7 MLLP ADT
 +(NSMutableURLRequest*)putToPacs:(NSDictionary*)pacs
-                            name:(NSString*)name
-                             pid:(NSString*)pid
+                         family1:(NSString*)family1
+                         family2:(NSString*)family2
+                           given:(NSString*)given
+                           patID:(NSString*)patID
                           issuer:(NSString*)issuer
                        birthdate:(NSString*)birthdate
                              sex:(NSString*)sex
