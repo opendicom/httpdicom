@@ -205,9 +205,13 @@ NSString* correctedModality(NSString* spaceNormalized)
    
    //sps1Modality in the message (may be also written modalidad or modality)
    NSUInteger sps1Modality1Index=[names indexOfObject:@"sps1Modality"];
-   if (sps1Modality1Index!=NSNotFound)
-      sps1Modality1Index=[names indexOfObject:@"modalidad"];
-   if (sps1Modality1Index!=NSNotFound)
+   if (sps1Modality1Index==NSNotFound) sps1Modality1Index=[names indexOfObject:@"modalidad"];
+       /*
+       sps1Modality1Index=[names indexOfObjectPassingTest:^(id s, NSUInteger idx, BOOL *stop){
+           return [s isEqualToString:@"modalidad"];
+       }];
+        */
+   if (sps1Modality1Index==NSNotFound)
       sps1Modality1Index=[names indexOfObject:@"modality"];
    if (sps1Modality1Index!=NSNotFound)
    sps1Modality1=correctedModality([values[sps1Modality1Index]spaceNormalize]);
@@ -493,7 +497,7 @@ NSString* correctedModality(NSString* spaceNormalized)
    NSString *reqProcedureDescription=nil;
 
    NSUInteger reqProcedure1Index=[names indexOfObject:@"reqProcedure"];
-   if (reqProcedure1Index!=NSNotFound) reqProcedure1Index=[names indexOfObject:@"studyDescription"];
+   if (reqProcedure1Index==NSNotFound) reqProcedure1Index=[names indexOfObject:@"StudyDescription"];
    if (reqProcedure1Index==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"reqProcedure required"];
 
    reqProcedure1Array=[values[reqProcedure1Index] procedureCodeArrayForContextPacs:pacsUID1];

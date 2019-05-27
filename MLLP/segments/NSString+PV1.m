@@ -12,7 +12,7 @@ isrReferring:(NSString*)PV1_15
    return [NSString
            stringWithFormat:@"PV1||||||||%@|||||||%@",
            PV1_8,
-           PV1_15,
+           PV1_15
            ];
 }
 

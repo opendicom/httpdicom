@@ -100,7 +100,6 @@ sps1Protocol           :(NSString*)sps1_OBR_4
 sps2Protocol           :(NSString*)sps2_OBR_4
 sps3Protocol           :(NSString*)sps3_OBR_4
 sps4Protocol           :(NSString*)sps4_OBR_4
-
 {
    NSMutableString *message=[NSMutableString string];
    
@@ -145,7 +144,7 @@ sps4Protocol           :(NSString*)sps4_OBR_4
     isrPlacerNumber:ORC_2
     isrFillerNumber:ORC_3
     reqPriority    :ORC_7_
-    spsOrderStatus :ORC_5
+    spsOrderStatus :@"ARRIVED"
     spsDateTime    :ORC_7
     ];
    if (!ORC) return nil;

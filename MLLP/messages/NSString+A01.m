@@ -22,26 +22,26 @@
 {
    
     NSString * MSH = [NSString
-     SendingApplication  :MSH_3
-     SendingFacility     :MSH_4
-     ReceivingApplication:MSH_5
-     ReceivingFacility   :MSH_6
-     MessageType         :@"ADT^A01^ADT_A01"
-     MessageControlID    :MSH_10
-     VersionID           :VersionID
-     CountryCode         :MSH_17
-     CharacterSet        :stringEncoding
-     PrincipalLanguage   :MSH_19
+     sendingApplication  :MSH_3
+     sendingFacility     :MSH_4
+     receivingApplication:MSH_5
+     receivingFacility   :MSH_6
+     messageType         :@"ADT^A01^ADT_A01"
+     messageControlID    :MSH_10
+     versionID           :VersionID
+     countryCode         :MSH_17
+     stringEncoding      :stringEncoding
+     principalLanguage   :MSH_19
      ];
    if (!MSH)return nil;
    
    
    NSString * PID = [NSString
-     PatientIdentifierList   :PID_3
-     PatientName             :PID_5
-     MotherMaidenName        :nil
-     PatientBirthDate        :PID_7
-     PatientAdministrativeSex:PID_8
+     patIdentifierList      :PID_3
+     patName                :PID_5
+     patMotherMaidenName    :nil
+     patBirthDate           :PID_7
+     patAdministrativeGender:PID_8
      ];
    if (!PID) return nil;
 

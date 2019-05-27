@@ -8,7 +8,7 @@
 #import "DRS+wadors.h"
 #import "DRS+zipped.h"
 
-#import "RequestMwlitems.h"
+#import "DRS+mwlitem.h"
 //#import "DRS+pdf.h"
 //#import "DRS+encapsulated.h"
 
@@ -520,7 +520,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
        LOG_DEBUG(@"added handler /custodians");
 
 #pragma mark /mwlitem
-//        [self addMWLHandler];
+       [self addMwlitemHandler];
 //        LOG_DEBUG(@"added handler /mwlitem");
 
 #pragma mark /encapsulated
@@ -538,7 +538,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 +(NSDictionary*)sqls                 { return _sqls;}
 +(NSDictionary*)pacs                 { return _pacs;}
 +(long long)drsport                  { return _drsport;}
-+(NSString*)defaultpacsoid                  { return _defaultpacsoid;}
++(NSString*)defaultpacsoid           { return _defaultpacsoid;}
 
 +(NSDictionary*)oids                 { return _oids;}
 +(NSDictionary*)titles               { return _titles;}
@@ -547,7 +547,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 +(NSDictionary*)oidsaeis             { return _oidsaeis;}
 +(NSDictionary*)titlesaets           { return _titlesaets;}
 +(NSDictionary*)titlesaetsstrings    { return _titlesaetsstrings;}
-+(NSDictionary*)pacsaetDictionary  { return _pacsaetDictionary;}
++(NSDictionary*)pacsaetDictionary    { return _pacsaetDictionary;}
 +(NSArray*)localoids                 { return _localoids;}
 +(NSDictionary*)custodianDictionary  { return _custodianDictionary;}
 

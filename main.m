@@ -1,6 +1,6 @@
 /*
  syntax:
- [0] htmldicom
+ [0] httpdicom
  [1] defaultPacsOID (which is also the name of the file in deploy/device)
  [2] httpdicomport
  [3] loglevel [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION]
@@ -34,7 +34,7 @@ if ([args count]!=5)
         
         
 //arg [1] deploypath
-NSString *deployPath=@"/Users/Shared/GitHub/httpdicom/deploy";
+NSString *deployPath=@"/Users/Shared/GitHub/httpdicomNew/deploy";
 BOOL isDirectory=FALSE;
 if (![[NSFileManager defaultManager]fileExistsAtPath:deployPath isDirectory:&isDirectory] || !isDirectory)
 {
