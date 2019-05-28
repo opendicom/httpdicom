@@ -4,12 +4,12 @@
 #import "NSData+PCS.h"
 #import "NSString+PCS.h"
 #import "NSURLSessionDataTask+DRS.h"
+#import "NSUUID+DICM.h"
 #import "DICMTypes.h"
 #import "NSMutableString+DSCD.h"
-#import "NSUUID+DICM.h"
 
-#import "NSString+O01.h"
-#import "mllpSend.h"
+#import <MLLP/NSString+O01.h>
+#import <MLLP/mllpSend.h>
 
 #import "ResponsePatients.h"
 #import "ResponseMwlitems.h"
@@ -766,6 +766,10 @@ NSString* correctedModality(NSString* spaceNormalized)
                      sps2Protocol:sps2Protocol1OBR4
                      sps3Protocol:sps3Protocol1OBR4
                      sps4Protocol:sps4Protocol1OBR4
+                     sps1OrderStatus:@"ARRIVED"
+                     sps2OrderStatus:@"ARRIVED"
+                     sps3OrderStatus:@"ARRIVED"
+                     sps4OrderStatus:@"ARRIVED"
          ];
 
       LOG_DEBUG(@"MLLP ->\r\n%@",msg);

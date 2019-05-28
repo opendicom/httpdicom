@@ -100,6 +100,10 @@ sps1Protocol           :(NSString*)sps1_OBR_4
 sps2Protocol           :(NSString*)sps2_OBR_4
 sps3Protocol           :(NSString*)sps3_OBR_4
 sps4Protocol           :(NSString*)sps4_OBR_4
+sps1OrderStatus        :(NSString*)sps1_ORC_5
+sps2OrderStatus        :(NSString*)sps2_ORC_5
+sps3OrderStatus        :(NSString*)sps3_ORC_5
+sps4OrderStatus        :(NSString*)sps4_ORC_5
 {
    NSMutableString *message=[NSMutableString string];
    
@@ -139,17 +143,17 @@ sps4Protocol           :(NSString*)sps4_OBR_4
 
 
    
-   NSString * ORC = [NSString
+   NSString * ORC1 = [NSString
     orderControl   :@"NW"
     isrPlacerNumber:ORC_2
     isrFillerNumber:ORC_3
     reqPriority    :ORC_7_
-    spsOrderStatus :@"ARRIVED"
+    spsOrderStatus :sps1_ORC_5
     spsDateTime    :ORC_7
     ];
-   if (!ORC) return nil;
+   if (!ORC1) return nil;
    [message appendString:@"\r"];
-   [message appendString:ORC];
+   [message appendString:ORC1];
 
    NSString * OBR1= [NSString
     isrReferring :OBR_16
@@ -170,12 +174,21 @@ sps4Protocol           :(NSString*)sps4_OBR_4
    
    if ([sps2_OBR_24 length])
    {
-      NSString *commonRpID=nil;
-      if ([rpID length]) commonRpID=rpID;
-      else commonRpID=[OBR1 componentsSeparatedByString:@"|"][19];
-      
+      NSString * ORC2 = [NSString
+                         orderControl   :@"NW"
+                         isrPlacerNumber:ORC_2
+                         isrFillerNumber:ORC_3
+                         reqPriority    :ORC_7_
+                         spsOrderStatus :sps2_ORC_5
+                         spsDateTime    :ORC_7
+                         ];
+      if (!ORC2) return nil;
       [message appendString:@"\r"];
-      [message appendString:ORC];
+      [message appendString:ORC2];
+
+      NSString *commonReqID=nil;
+      if ([OBR_19 length]) commonReqID=OBR_19;
+      else commonReqID=[OBR1 componentsSeparatedByString:@"|"][19];
       
       NSString * OBR2= [NSString
                         isrReferring :OBR_16
@@ -195,10 +208,19 @@ sps4Protocol           :(NSString*)sps4_OBR_4
       
       if ([sps3_OBR_24 length])
       {
+         NSString * ORC3 = [NSString
+                            orderControl   :@"NW"
+                            isrPlacerNumber:ORC_2
+                            isrFillerNumber:ORC_3
+                            reqPriority    :ORC_7_
+                            spsOrderStatus :sps3_ORC_5
+                            spsDateTime    :ORC_7
+                            ];
+         if (!ORC3) return nil;
          [message appendString:@"\r"];
-         [message appendString:ORC];
+         [message appendString:ORC3];
          
-         NSString * OBR2= [NSString
+         NSString * OBR3= [NSString
                            isrReferring :OBR_16
                            isrAN        :OBR_18
                            isrReading   :OBR_32
@@ -216,10 +238,19 @@ sps4Protocol           :(NSString*)sps4_OBR_4
          
          if ([sps4_OBR_24 length])
          {
+            NSString * ORC4 = [NSString
+                               orderControl   :@"NW"
+                               isrPlacerNumber:ORC_2
+                               isrFillerNumber:ORC_3
+                               reqPriority    :ORC_7_
+                               spsOrderStatus :sps4_ORC_5
+                               spsDateTime    :ORC_7
+                               ];
+            if (!ORC4) return nil;
             [message appendString:@"\r"];
-            [message appendString:ORC];
-            
-            NSString * OBR2= [NSString
+            [message appendString:ORC4];
+
+            NSString * OBR4= [NSString
                               isrReferring :OBR_16
                               isrAN        :OBR_18
                               isrReading   :OBR_32
@@ -233,7 +264,7 @@ sps4Protocol           :(NSString*)sps4_OBR_4
                               ];
             if (!OBR4) return nil;
             [message appendString:@"\r"];
-            [message appendString:OBR3];
+            [message appendString:OBR4];
 
          }
          
@@ -243,7 +274,7 @@ sps4Protocol           :(NSString*)sps4_OBR_4
    
 
    NSString * ZDS = [NSString
-    StudyInstanceUID:ZDS_1
+    isrStudyIUID:ZDS_1
     ];
    if (!ZDS) return nil;
    [message appendString:@"\r"];

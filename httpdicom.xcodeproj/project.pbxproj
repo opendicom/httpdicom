@@ -194,7 +194,7 @@
 		2A31F5E51C87295A00A78C7C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4A0426D122329E8300E78FEA /* mllpSend */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = mllpSend; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A0426D322329E8300E78FEA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		4A0426DD2232A39300E78FEA /* mllp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = mllp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4A0426DD2232A39300E78FEA /* MLLP.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MLLP.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A0426DF2232A39300E78FEA /* mllp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mllp.h; sourceTree = "<group>"; };
 		4A0426E02232A39300E78FEA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4A04270022389ADE00E78FEA /* NSString+A01.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+A01.h"; sourceTree = "<group>"; };
@@ -399,7 +399,7 @@
 			children = (
 				2A31F5E21C87295A00A78C7C /* httpdicom */,
 				4A0426D122329E8300E78FEA /* mllpSend */,
-				4A0426DD2232A39300E78FEA /* mllp.framework */,
+				4A0426DD2232A39300E78FEA /* MLLP.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -833,8 +833,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A0426E12232A39300E78FEA /* mllp.h in Headers */,
+				4A042733223AC06C00E78FEA /* NSUUID+DICM.h in Headers */,
 				4A0426F42232A7E000E78FEA /* DICMTypes.h in Headers */,
-				4A042737223BF29A00E78FEA /* NSString+A04.h in Headers */,
 				4A0426E72232A5F900E78FEA /* NSString+MSH.h in Headers */,
 				4A0426E82232A5FC00E78FEA /* NSString+PID.h in Headers */,
 				4A042728223AB3AE00E78FEA /* NSString+PV1.h in Headers */,
@@ -842,10 +843,9 @@
 				4A042729223AB3AE00E78FEA /* NSString+OBR.h in Headers */,
 				4A042727223AB3AE00E78FEA /* NSString+ZDS.h in Headers */,
 				4A04271222389ADF00E78FEA /* NSString+A01.h in Headers */,
+				4A042737223BF29A00E78FEA /* NSString+A04.h in Headers */,
 				4A042731223ABE4C00E78FEA /* NSString+O01.h in Headers */,
-				4A0426E12232A39300E78FEA /* mllp.h in Headers */,
 				4A0426E52232A5EC00E78FEA /* mllpSend.h in Headers */,
-				4A042733223AC06C00E78FEA /* NSUUID+DICM.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -888,9 +888,9 @@
 			productReference = 4A0426D122329E8300E78FEA /* mllpSend */;
 			productType = "com.apple.product-type.tool";
 		};
-		4A0426DC2232A39300E78FEA /* mllp */ = {
+		4A0426DC2232A39300E78FEA /* MLLP */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4A0426E22232A39400E78FEA /* Build configuration list for PBXNativeTarget "mllp" */;
+			buildConfigurationList = 4A0426E22232A39400E78FEA /* Build configuration list for PBXNativeTarget "MLLP" */;
 			buildPhases = (
 				4A0426D82232A39300E78FEA /* Headers */,
 				4A0426D92232A39300E78FEA /* Sources */,
@@ -901,9 +901,9 @@
 			);
 			dependencies = (
 			);
-			name = mllp;
+			name = MLLP;
 			productName = mllp;
-			productReference = 4A0426DD2232A39300E78FEA /* mllp.framework */;
+			productReference = 4A0426DD2232A39300E78FEA /* MLLP.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -930,11 +930,11 @@
 			};
 			buildConfigurationList = 2A31F5DD1C87295A00A78C7C /* Build configuration list for PBXProject "httpdicom" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
+				Base,
 			);
 			mainGroup = 2A31F5D91C87295A00A78C7C;
 			productRefGroup = 2A31F5E31C87295A00A78C7C /* Products */;
@@ -943,7 +943,7 @@
 			targets = (
 				2A31F5E11C87295A00A78C7C /* httpdicom */,
 				4A0426D022329E8300E78FEA /* mllpSend */,
-				4A0426DC2232A39300E78FEA /* mllp */,
+				4A0426DC2232A39300E78FEA /* MLLP */,
 			);
 		};
 /* End PBXProject section */
@@ -1037,17 +1037,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A0426F52232A7EB00E78FEA /* DICMTypes.m in Sources */,
 				4A042734223AC09800E78FEA /* NSUUID+DICM.m in Sources */,
+				4A0426F52232A7EB00E78FEA /* DICMTypes.m in Sources */,
 				4A0426ED2232A62200E78FEA /* NSString+MSH.m in Sources */,
 				4A0426EE2232A62600E78FEA /* NSString+PID.m in Sources */,
 				4A04272C223AB3AE00E78FEA /* NSString+PV1.m in Sources */,
-				4A042738223BF29A00E78FEA /* NSString+A04.m in Sources */,
 				4A04272D223AB3AE00E78FEA /* NSString+ORC.m in Sources */,
 				4A04272E223AB3AE00E78FEA /* NSString+OBR.m in Sources */,
 				4A04272A223AB3AE00E78FEA /* NSString+ZDS.m in Sources */,
-				4A042732223ABE4C00E78FEA /* NSString+O01.m in Sources */,
 				4A04271722389ADF00E78FEA /* NSString+A01.m in Sources */,
+				4A042738223BF29A00E78FEA /* NSString+A04.m in Sources */,
+				4A042732223ABE4C00E78FEA /* NSString+O01.m in Sources */,
 				4A0426E62232A5F100E78FEA /* mllpSend.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1057,7 +1057,7 @@
 /* Begin PBXTargetDependency section */
 		4A04273B223BFFD400E78FEA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4A0426DC2232A39300E78FEA /* mllp */;
+			target = 4A0426DC2232A39300E78FEA /* MLLP */;
 			targetProxy = 4A04273A223BFFD400E78FEA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -1349,7 +1349,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4A0426E22232A39400E78FEA /* Build configuration list for PBXNativeTarget "mllp" */ = {
+		4A0426E22232A39400E78FEA /* Build configuration list for PBXNativeTarget "MLLP" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4A0426E32232A39400E78FEA /* Debug */,

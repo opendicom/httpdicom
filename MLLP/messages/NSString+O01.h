@@ -37,22 +37,26 @@ reqProcedure           :(NSString*)OBR_44 //00321064(00321060)
 reqPriority            :(NSString*)ORC_7_ //00401003
 spsDateTime            :(NSString*)ORC_7 //00400002+00400003
 spsPerforming          :(NSString*)OBR_34 //00400006
-sps1ID                 :(NSString*)sps1_OBR_20 //00400009
-sps2ID                 :(NSString*)sps2_OBR_20 //00400009
-sps3ID                 :(NSString*)sps3_OBR_20 //00400009
-sps4ID                 :(NSString*)sps4_OBR_20 //00400009
-sps1Modality           :(NSString*)sps1_OBR_24 //00080060
-sps2Modality           :(NSString*)sps2_OBR_24 //00080060
-sps3Modality           :(NSString*)sps3_OBR_24 //00080060
-sps4Modality           :(NSString*)sps4_OBR_24 //00080060
-sps1AET                :(NSString*)sps1_OBR_21 //00400001
-sps2AET                :(NSString*)sps2_OBR_21 //00400001
-sps3AET                :(NSString*)sps3_OBR_21 //00400001
-sps4AET                :(NSString*)sps4_OBR_21 //00400001
-sps1Protocol           :(NSString*)sps1_OBR_4  //00400008(00040007)
-sps2Protocol           :(NSString*)sps2_OBR_4  //00400008(00040007)
-sps3Protocol           :(NSString*)sps3_OBR_4  //00400008(00040007)
-sps4Protocol           :(NSString*)sps4_OBR_4  //00400008(00040007)
+sps1ID                 :(NSString*)sps1_OBR_20 //00321064.00400009
+sps2ID                 :(NSString*)sps2_OBR_20 //00321064.00400009
+sps3ID                 :(NSString*)sps3_OBR_20 //00321064.00400009
+sps4ID                 :(NSString*)sps4_OBR_20 //00321064.00400009
+sps1Modality           :(NSString*)sps1_OBR_24 //00321064.00080060
+sps2Modality           :(NSString*)sps2_OBR_24 //00321064.00080060
+sps3Modality           :(NSString*)sps3_OBR_24 //00321064.00080060
+sps4Modality           :(NSString*)sps4_OBR_24 //00321064.00080060
+sps1AET                :(NSString*)sps1_OBR_21 //00321064.00400001
+sps2AET                :(NSString*)sps2_OBR_21 //00321064.00400001
+sps3AET                :(NSString*)sps3_OBR_21 //00321064.00400001
+sps4AET                :(NSString*)sps4_OBR_21 //00321064.00400001
+sps1Protocol           :(NSString*)sps1_OBR_4  //00321064.00400008(00040007)
+sps2Protocol           :(NSString*)sps2_OBR_4  //00321064.00400008(00040007)
+sps3Protocol           :(NSString*)sps3_OBR_4  //00321064.00400008(00040007)
+sps4Protocol           :(NSString*)sps4_OBR_4  //00321064.00400008(00040007)
+sps1OrderStatus        :(NSString*)sps1_ORC_5  //00321064.00400020
+sps2OrderStatus        :(NSString*)sps2_ORC_5  //00321064.00400020
+sps3OrderStatus        :(NSString*)sps3_ORC_5  //00321064.00400020
+sps4OrderStatus        :(NSString*)sps4_ORC_5  //00321064.00400020
 ;
 
 @end
