@@ -166,6 +166,13 @@
 			remoteGlobalIDString = 4A0426DC2232A39300E78FEA;
 			remoteInfo = mllp;
 		};
+		4A57EE54229D75D800EB3962 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A31F5DA1C87295A00A78C7C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A0426DC2232A39300E78FEA;
+			remoteInfo = MLLP;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -864,6 +871,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4A57EE55229D75D800EB3962 /* PBXTargetDependency */,
 			);
 			name = httpdicom;
 			productName = BIRproxy;
@@ -1059,6 +1067,11 @@
 			isa = PBXTargetDependency;
 			target = 4A0426DC2232A39300E78FEA /* MLLP */;
 			targetProxy = 4A04273A223BFFD400E78FEA /* PBXContainerItemProxy */;
+		};
+		4A57EE55229D75D800EB3962 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A0426DC2232A39300E78FEA /* MLLP */;
+			targetProxy = 4A57EE54229D75D800EB3962 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
