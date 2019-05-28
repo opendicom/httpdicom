@@ -37,9 +37,9 @@
 
 #import <Foundation/Foundation.h>
 #import <MLLP/mllpSend.h>
-#import <mllp/NSString+A01.h>
-#import <mllp/NSString+A04.h>
-#import <mllp/NSString+O01.h>
+#import <MLLP/NSString+A01.h>
+#import <MLLP/NSString+A04.h>
+#import <MLLP/NSString+O01.h>
 
 int main(int argc, const char * argv[]) {
    int returnValue=-1;
