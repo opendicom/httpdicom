@@ -68,7 +68,7 @@
    //expected
    if (response.statusCode==200) return [NSArray arrayWithJsonData:responseData];
    //unexpected
-   LOG_WARNING(@"%@\r\n%ld ResponseQido srtudiesFoundInPacs:studyUID:%@ ",pacs, response.statusCode,studyUID );
+   LOG_WARNING(@"<-%ld (NO studiesFoundInPacs:studyUID:%@)", response.statusCode,studyUID );
    if (error) LOG_ERROR(@"%@",[error description]);
    
    return nil;

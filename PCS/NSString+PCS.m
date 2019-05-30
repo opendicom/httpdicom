@@ -2,6 +2,7 @@
 #import <netdb.h>
 #import <CommonCrypto/CommonDigest.h>
 #import "K.h"
+#import "ODLog.h"
 
 @implementation NSString (PCS)
 
@@ -259,7 +260,7 @@
                
                if ([(pacsProcedureDict[@"scheme"])[procedureIndex]integerValue] != schemeIndex)
                {
-                  NSLog(@"%@ found in pacs %@, but scheme does not match",self,pacsUID);
+                  LOG_VERBOSE(@"%@ found in pacs %@, but scheme does not match",self,pacsUID);
                   return @[[self stringByReplacingOccurrencesOfString:@"^"withString:@"_"]];
                }
 
