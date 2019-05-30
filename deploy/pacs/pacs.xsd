@@ -60,9 +60,9 @@
                                             <!--mllp-->
                                             <xs:group ref="mllpip"/>
                                             <xs:group ref="mllpport"/>
-                                            <!--dimse-->
-                                            <xs:group ref="dimseip"/>
-                                            <xs:group ref="dimseport"/>
+                                            <!--DICM-->
+                                            <xs:group ref="DICMip"/>
+                                            <xs:group ref="DICMport"/>
                                             <!--dicomweb-->
                                             <xs:group ref="cachepolicy"/>
                                             <xs:group ref="timeoutinterval"/>
@@ -73,8 +73,7 @@
                                             <xs:group ref="stow"/>
                                             <!--dcm4chee-arc-->
                                             <xs:group ref="dcm4cheelocaluri"/>
-                                            <xs:group ref="headavailable"/>
-                                            <xs:group ref="dcm4cheedimseproxytitle"/>
+                                            <xs:group ref="dcm4cheeDICMproxytitle"/>
                                             <xs:group ref="html5dicomuserserviceuri"/>
                                             <xs:group ref="html5dicomuseractive"/>
                                             <!--modality and aet lists-->
@@ -324,26 +323,26 @@
     </xs:group>
 
     
-    <xs:group name="dimseip">
+    <xs:group name="DICMip">
         <xs:sequence>
-            <xs:element name="key" fixed="dimseip">
+            <xs:element name="key" fixed="DICMip">
                 <xs:annotation>
                     <xs:documentation></xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="dimseip"/>
+            <xs:element ref="string" id="DICMip"/>
         </xs:sequence>
     </xs:group>
 
 
-    <xs:group name="dimseport">
+    <xs:group name="DICMport">
         <xs:sequence>
-            <xs:element name="key" fixed="dimseport">
+            <xs:element name="key" fixed="DICMport">
                 <xs:annotation>
                     <xs:documentation></xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="dimseport"/>
+            <xs:element ref="string" id="DICMport"/>
         </xs:sequence>
     </xs:group>
 
@@ -417,26 +416,16 @@
             <xs:element ref="string" id="dcm4cheelocaluri"/>
         </xs:sequence>
     </xs:group>
+
     
-    <xs:group name="headavailable">
+    <xs:group name="dcm4cheeDICMproxytitle">
         <xs:sequence>
-            <xs:element name="key" fixed="headavailable">
-                <xs:annotation>
-                    <xs:documentation>use HEAD instead of GET when just checking for existence</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:group ref="truefalse"/>
-        </xs:sequence>
-    </xs:group>
-    
-    <xs:group name="dcm4cheedimseproxytitle">
-        <xs:sequence>
-            <xs:element name="key" fixed="dcm4cheedimseproxytitle">
+            <xs:element name="key" fixed="dcm4cheeDICMproxytitle">
                 <xs:annotation>
                     <xs:documentation>nombre corto (máx 16 chars) del PCS custodian</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="dcm4cheedimseproxytitle"/>            
+            <xs:element ref="string" id="dcm4cheeDICMproxytitle"/>            
         </xs:sequence>
     </xs:group>
     
@@ -567,8 +556,8 @@
         <xs:alternative test="@id = 'stow'"                        type="httpidstring"/>
 
         <xs:alternative test="@id = 'pacsaet'"                     type="titleidstring"/>
-        <xs:alternative test="@id = 'dimseip'"                     type="ipidstring"/>
-        <xs:alternative test="@id = 'dimseport'"                   type="portidstring"/>
+        <xs:alternative test="@id = 'DICMip'"                     type="ipidstring"/>
+        <xs:alternative test="@id = 'DICMport'"                   type="portidstring"/>
 
         <xs:alternative test="@id = 'mllpip'"                      type="ipidstring"/>
         <xs:alternative test="@id = 'mllpport'"                    type="portidstring"/>
@@ -663,7 +652,8 @@
     <xs:complexType name="mwlidstring">
        <xs:simpleContent>
           <xs:restriction base="idstring">
-             <xs:enumeration value="sql"/>
+              <xs:enumeration value="none"/>
+              <xs:enumeration value="sql"/>
              <xs:enumeration value="rest"/>
              <xs:enumeration value="mllp"/>
           </xs:restriction>
