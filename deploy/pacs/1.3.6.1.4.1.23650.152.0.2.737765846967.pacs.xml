@@ -74,8 +74,6 @@
 
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC</string>
-            <key>headavailable</key>
-            <false/>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
@@ -150,8 +148,6 @@
             
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri"></string>
-            <key>headavailable</key>
-            <false/>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
@@ -226,8 +222,6 @@
             
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_LASERENA</string>
-            <key>headavailable</key>
-            <false/>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
@@ -408,8 +402,6 @@
             
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_OVALLE</string>
-            <key>headavailable</key>
-            <false/>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
@@ -590,8 +582,6 @@
             
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_VALLENAR</string>
-            <key>headavailable</key>
-            <false/>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>

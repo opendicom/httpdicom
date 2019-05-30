@@ -74,8 +74,6 @@
             
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS</string>
-            <key>headavailable</key>
-            <false/>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
