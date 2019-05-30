@@ -171,6 +171,7 @@
 		842BF691229D82C800E19DA2 /* NSString+A04.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A042735223BF29A00E78FEA /* NSString+A04.h */; };
 		842BF692229D82C800E19DA2 /* NSString+O01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04272F223ABE4C00E78FEA /* NSString+O01.h */; };
 		842BF693229D82C800E19DA2 /* NSString+A01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04270022389ADE00E78FEA /* NSString+A01.h */; };
+		842BF6A922A0027D00E19DA2 /* MLLP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A0426DD2232A39300E78FEA /* MLLP.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -192,15 +193,6 @@
 
 /* Begin PBXCopyFilesBuildPhase section */
 		2A31F5E01C87295A00A78C7C /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		4A0426CF22329E8300E78FEA /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -377,6 +369,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				842BF6A922A0027D00E19DA2 /* MLLP.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -906,7 +899,6 @@
 			buildPhases = (
 				4A0426CD22329E8300E78FEA /* Sources */,
 				4A0426CE22329E8300E78FEA /* Frameworks */,
-				4A0426CF22329E8300E78FEA /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -925,7 +917,6 @@
 				4A0426D82232A39300E78FEA /* Headers */,
 				4A0426D92232A39300E78FEA /* Sources */,
 				4A0426DA2232A39300E78FEA /* Frameworks */,
-				4A0426DB2232A39300E78FEA /* Resources */,
 			);
 			buildRules = (
 			);
@@ -977,16 +968,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXResourcesBuildPhase section */
-		4A0426DB2232A39300E78FEA /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2A31F5DE1C87295A00A78C7C /* Sources */ = {
