@@ -52,10 +52,10 @@
             <key>mllpport</key>
             <string id="mllpport">2575</string>
             
-            <key>dimseip</key>
-            <string id="dimseip">127.0.0.1</string>
-            <key>dimseport</key>
-            <string id="dimseport">11113</string>
+            <key>DICMip</key>
+            <string id="DICMip">127.0.0.1</string>
+            <key>DICMport</key>
+            <string id="DICMport">11113</string>
             
             <key>cachepolicy</key>
             <string id="cachepolicy">1</string>
@@ -74,10 +74,8 @@
 
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC</string>
-            <key>headavailable</key>
-            <false/>
-            <key>dcm4cheedimseproxytitle</key>
-            <string id="dcm4cheedimseproxytitle"></string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
             <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
             <key>html5dicomuseractive</key>
@@ -128,10 +126,10 @@
             <key>mllpport</key>
             <string id="mllpport">2575</string>
             
-            <key>dimseip</key>
-            <string id="dimseip">192.168.4.15</string>
-            <key>dimseport</key>
-            <string id="dimseport">11112</string>
+            <key>DICMip</key>
+            <string id="DICMip">192.168.4.15</string>
+            <key>DICMport</key>
+            <string id="DICMport">11112</string>
 
             <key>cachepolicy</key>
             <string id="cachepolicy">1</string>
@@ -150,10 +148,8 @@
             
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri"></string>
-            <key>headavailable</key>
-            <false/>
-            <key>dcm4cheedimseproxytitle</key>
-            <string id="dcm4cheedimseproxytitle"></string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
             <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
             <key>html5dicomuseractive</key>
@@ -204,10 +200,10 @@
             <key>mllpport</key>
             <string id="mllpport">2575</string>
 
-            <key>dimseip</key>
-            <string id="dimseip">127.0.0.1</string>
-            <key>dimseport</key>
-            <string id="dimseport">11113</string>
+            <key>DICMip</key>
+            <string id="DICMip">127.0.0.1</string>
+            <key>DICMport</key>
+            <string id="DICMport">11113</string>
             
             <key>cachepolicy</key>
             <string id="cachepolicy">1</string>
@@ -226,10 +222,8 @@
             
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_LASERENA</string>
-            <key>headavailable</key>
-            <false/>
-            <key>dcm4cheedimseproxytitle</key>
-            <string id="dcm4cheedimseproxytitle"></string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
             <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
             <key>html5dicomuseractive</key>
@@ -386,10 +380,10 @@
             <key>mllpport</key>
             <string id="mllpport">2575</string>
             
-            <key>dimseip</key>
-            <string id="dimseip">127.0.0.1</string>
-            <key>dimseport</key>
-            <string id="dimseport">11113</string>
+            <key>DICMip</key>
+            <string id="DICMip">127.0.0.1</string>
+            <key>DICMport</key>
+            <string id="DICMport">11113</string>
 
             <key>cachepolicy</key>
             <string id="cachepolicy">1</string>
@@ -408,10 +402,8 @@
             
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_OVALLE</string>
-            <key>headavailable</key>
-            <false/>
-            <key>dcm4cheedimseproxytitle</key>
-            <string id="dcm4cheedimseproxytitle"></string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
             <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
             <key>html5dicomuseractive</key>
@@ -568,10 +560,10 @@
             <key>mllpport</key>
             <string id="mllpport">2575</string>
             
-            <key>dimseip</key>
-            <string id="dimseip">127.0.0.1</string>
-            <key>dimseport</key>
-            <string id="dimseport">11113</string>
+            <key>DICMip</key>
+            <string id="DICMip">127.0.0.1</string>
+            <key>DICMport</key>
+            <string id="DICMport">11113</string>
 
             <key>cachepolicy</key>
             <string id="cachepolicy">1</string>
@@ -590,10 +582,8 @@
             
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_VALLENAR</string>
-            <key>headavailable</key>
-            <false/>
-            <key>dcm4cheedimseproxytitle</key>
-            <string id="dcm4cheedimseproxytitle"></string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
             <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
             <key>html5dicomuseractive</key>
