@@ -12,6 +12,13 @@ stringEncoding:(NSStringEncoding)stringEncoding
 ;
 
 
++(bool)sendIP:ipString
+         port:portString
+  messageData:(NSData*)messageData
+  payloadData:(NSMutableData*)payloadData
+;
+
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -156,6 +156,22 @@
 		4AF40DCE2224317400103F99 /* NSString+MSH.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DCC2224317400103F99 /* NSString+MSH.m */; };
 		4AF40DD5222431B000103F99 /* NSString+PID.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DD3222431B000103F99 /* NSString+PID.h */; };
 		4AF40DD6222431B000103F99 /* NSString+PID.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD4222431B000103F99 /* NSString+PID.m */; };
+		842BF685229D825700E19DA2 /* NSString+OBR.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042726223AB3AE00E78FEA /* NSString+OBR.m */; };
+		842BF686229D825700E19DA2 /* NSString+ORC.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042725223AB3AE00E78FEA /* NSString+ORC.m */; };
+		842BF687229D825700E19DA2 /* NSString+PV1.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042724223AB3AD00E78FEA /* NSString+PV1.m */; };
+		842BF688229D825700E19DA2 /* NSString+ZDS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042722223AB3AD00E78FEA /* NSString+ZDS.m */; };
+		842BF689229D825700E19DA2 /* NSString+PID.h in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD3222431B000103F99 /* NSString+PID.h */; };
+		842BF68A229D825700E19DA2 /* NSString+A04.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042736223BF29A00E78FEA /* NSString+A04.m */; };
+		842BF68B229D825700E19DA2 /* NSString+O01.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042730223ABE4C00E78FEA /* NSString+O01.m */; };
+		842BF68C229D825700E19DA2 /* NSString+A01.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A04270522389ADF00E78FEA /* NSString+A01.m */; };
+		842BF68D229D82C800E19DA2 /* NSString+OBR.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A042721223AB3AD00E78FEA /* NSString+OBR.h */; };
+		842BF68E229D82C800E19DA2 /* NSString+ORC.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A042723223AB3AD00E78FEA /* NSString+ORC.h */; };
+		842BF68F229D82C800E19DA2 /* NSString+PV1.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A042720223AB3AD00E78FEA /* NSString+PV1.h */; };
+		842BF690229D82C800E19DA2 /* NSString+ZDS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04271F223AB3AD00E78FEA /* NSString+ZDS.h */; };
+		842BF691229D82C800E19DA2 /* NSString+A04.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A042735223BF29A00E78FEA /* NSString+A04.h */; };
+		842BF692229D82C800E19DA2 /* NSString+O01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04272F223ABE4C00E78FEA /* NSString+O01.h */; };
+		842BF693229D82C800E19DA2 /* NSString+A01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04270022389ADE00E78FEA /* NSString+A01.h */; };
+		842BF6A922A0027D00E19DA2 /* MLLP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A0426DD2232A39300E78FEA /* MLLP.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -177,15 +193,6 @@
 
 /* Begin PBXCopyFilesBuildPhase section */
 		2A31F5E01C87295A00A78C7C /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		4A0426CF22329E8300E78FEA /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -362,6 +369,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				842BF6A922A0027D00E19DA2 /* MLLP.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -770,6 +778,13 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				842BF68D229D82C800E19DA2 /* NSString+OBR.h in Headers */,
+				842BF68E229D82C800E19DA2 /* NSString+ORC.h in Headers */,
+				842BF68F229D82C800E19DA2 /* NSString+PV1.h in Headers */,
+				842BF690229D82C800E19DA2 /* NSString+ZDS.h in Headers */,
+				842BF691229D82C800E19DA2 /* NSString+A04.h in Headers */,
+				842BF692229D82C800E19DA2 /* NSString+O01.h in Headers */,
+				842BF693229D82C800E19DA2 /* NSString+A01.h in Headers */,
 				4A57EE4622957BB100EB3962 /* NSArray+PCS.h in Headers */,
 				4A57EE4E229580DA00EB3962 /* NSMutableDictionary+PCS.h in Headers */,
 				4A0FDF641E910C1D001E3426 /* RSGZipDecoder.h in Headers */,
@@ -884,7 +899,6 @@
 			buildPhases = (
 				4A0426CD22329E8300E78FEA /* Sources */,
 				4A0426CE22329E8300E78FEA /* Frameworks */,
-				4A0426CF22329E8300E78FEA /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -903,7 +917,6 @@
 				4A0426D82232A39300E78FEA /* Headers */,
 				4A0426D92232A39300E78FEA /* Sources */,
 				4A0426DA2232A39300E78FEA /* Frameworks */,
-				4A0426DB2232A39300E78FEA /* Resources */,
 			);
 			buildRules = (
 			);
@@ -956,21 +969,19 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXResourcesBuildPhase section */
-		4A0426DB2232A39300E78FEA /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		2A31F5DE1C87295A00A78C7C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				842BF685229D825700E19DA2 /* NSString+OBR.m in Sources */,
+				842BF686229D825700E19DA2 /* NSString+ORC.m in Sources */,
+				842BF687229D825700E19DA2 /* NSString+PV1.m in Sources */,
+				842BF688229D825700E19DA2 /* NSString+ZDS.m in Sources */,
+				842BF689229D825700E19DA2 /* NSString+PID.h in Sources */,
+				842BF68A229D825700E19DA2 /* NSString+A04.m in Sources */,
+				842BF68B229D825700E19DA2 /* NSString+O01.m in Sources */,
+				842BF68C229D825700E19DA2 /* NSString+A01.m in Sources */,
 				4A2D90762183455100371484 /* LFCGzipUtility.m in Sources */,
 				4A0FDF461E91078C001E3426 /* RSGZipEncoder.m in Sources */,
 				4AF40D60221C3FCF00103F99 /* RequestPatients.m in Sources */,

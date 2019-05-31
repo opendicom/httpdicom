@@ -517,11 +517,11 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 
 #pragma mark /wado-rs
        [self addWadorsHandler];//
-       LOG_DEBUG(@"added handler /custodians");
+       LOG_DEBUG(@"added handler wadors");
 
 #pragma mark /mwlitem
-       [self addMwlitemHandler];
-//        LOG_DEBUG(@"added handler /mwlitem");
+        [self addMwlitemHandler];
+        LOG_DEBUG(@"added handler /mwlitem");
 
 #pragma mark /encapsulated
 //        [self GETencapsulated];

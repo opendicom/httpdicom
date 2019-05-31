@@ -39,11 +39,21 @@ NSString* correctedModality(NSString* spaceNormalized)
     NSString *errorString;
     if (!parseRequestParams(request, names, values, types, &jsonString, &errorString))
     {
-        LOG_WARNING(@"mwlitem params error: %@",errorString);
+        LOG_WARNING(@"mwlitem PARAMS error: %@",errorString);
         return [RSErrorResponse responseWithClientError:404 message:@"%@",errorString];
     }
-    LOG_DEBUG(@"mwlitem \r\n%@",[[NSDictionary dictionaryWithObjects:values forKeys:names]description]);
-
+    for (NSUInteger idx=0;idx<[names count];idx++)
+    {
+        if ([values[idx]length]<256)
+        {
+            LOG_VERBOSE(@"mwlitem PARAM \"%@\" = \"%@\"",names[idx],values[idx]);
+        }
+        else
+        {
+            LOG_VERBOSE(@"mwlitem PARAM \"%@\" = ...",names[idx]);
+            LOG_DEBUG(@"%@",values[idx]);
+        }
+    }
     
 #pragma mark pacs
     NSString *pacsUID1=nil;
@@ -55,15 +65,15 @@ NSString* correctedModality(NSString* spaceNormalized)
         if (![DICMTypes.UIRegex numberOfMatchesInString:pacsUID1 options:0 range:NSMakeRange(0,[pacsUID1 length])])
             return [RSErrorResponse responseWithClientError:404 message:@"mwlitem pacsUID '%@' should be an OID",pacsUID1];
         pacs=DRS.pacs[pacsUID1];
-        if (!pacs) return [RSErrorResponse responseWithClientError:404 message:@"mwlitem pacs '%@' not known",pacsUID1];
+        if (!pacs) return [RSErrorResponse responseWithClientError:404 message:@"mwlitem PACS '%@' not known",pacsUID1];
         
-        LOG_INFO(@"mwlitem pacs %@",pacsUID1);
+        LOG_VERBOSE(@"mwlitem PACS %@",pacs[@"pacsaet"]);
     }
     else
     {
         pacsUID1=DRS.defaultpacsoid;
         pacs=DRS.pacs[DRS.defaultpacsoid];
-        LOG_INFO(@"mwlitem pacs %@ (default)",pacsUID1);
+        LOG_VERBOSE(@"mwlitem PACS (default) %@",pacs[@"pacsaet"]);
     }
 
    //dcm4cheelocaluri available?
@@ -88,11 +98,11 @@ NSString* correctedModality(NSString* spaceNormalized)
    
    //Already exists in the PACS?
    NSArray *mwlitemArray=[ResponseMwlitems getFromPacs:pacs accessionNumber:isrAN1];
-   if (!mwlitemArray) return [RSErrorResponse responseWithClientError:404 message:@"can not check pre existence of mwlitem isrAN '%@' in pacs '%@'",isrAN1,pacsUID1];
+   if (!mwlitemArray) return [RSErrorResponse responseWithClientError:404 message:@"can not check pre existence of mwlitem isrAN '%@' in pacs '%@'",isrAN1,pacs[@"pacsaet"]];
    if ([mwlitemArray count])
    {
-      LOG_ERROR(@"mwlitem isrAN '%@' already exists in pacs '%@'\r\n%@",isrAN1,pacsUID1,[mwlitemArray description]);
-         return [RSErrorResponse responseWithClientError:404 message:@"mwlitem isrAN '%@' already exists in pacs '%@'",isrAN1,pacsUID1];
+      LOG_ERROR(@"mwlitem AN '%@' already exists in pacs '%@'\r\n%@",isrAN1,pacs[@"pacsaet"],[mwlitemArray description]);
+         return [RSErrorResponse responseWithClientError:404 message:@"mwlitem isrAN '%@' already exists in pacs '%@'",isrAN1,pacs[@"pacsaet"]];
    }
    
    NSUInteger isrANIssuer1Index=[names indexOfObject:@"isrANIssuer"];
@@ -159,7 +169,7 @@ NSString* correctedModality(NSString* spaceNormalized)
       
    
    
-   LOG_VERBOSE(@"mwlitem new isrAN:%@ isrANIssuer:%@ isrANType:%@",isrAN1,isrANIssuer1,isrANType1);
+    LOG_VERBOSE(@"mwlitem NEW# %@ %@ %@",isrAN1,isrANType1,isrANIssuer1);
 
 
 #pragma mark sps1
@@ -628,7 +638,7 @@ NSString* correctedModality(NSString* spaceNormalized)
 
    switch ([patientMetadata count]) {
       case 1:
-            LOG_VERBOSE(@"patient exists: %@ %@ %@ %@ %@\r\n",patID1, patIDIssuer1, ((((patientMetadata[0])[@"00100010"])[@"Value"])[0])[@"Alphabetic"],  (((patientMetadata[0])[@"00100030"])[@"Value"])[0],  (((patientMetadata[0])[@"00100040"])[@"Value"])[0]);
+            LOG_VERBOSE(@"mwlitem PAT %@^^^%@ %@ %@ %@\r\n",patID1, patIDIssuer1, ((((patientMetadata[0])[@"00100010"])[@"Value"])[0])[@"Alphabetic"],  (((patientMetadata[0])[@"00100030"])[@"Value"])[0],  (((patientMetadata[0])[@"00100040"])[@"Value"])[0]);
             break;
             
          case 0://create patient
@@ -650,13 +660,13 @@ NSString* correctedModality(NSString* spaceNormalized)
                                 
            if ([response length]) return [RSErrorResponse responseWithClientError:404 message:@"can not create patient %@. %@",patID1,response];
                                 
-           LOG_VERBOSE(@"patient created: %@^^^%@",patID1, patIDIssuer1);
+           LOG_VERBOSE(@"PAT new: %@^^^%@",patID1, patIDIssuer1);
          }
            break;
             
         default:
-            LOG_ERROR(@"patient ambiguity in pacs: %@^^^%@",patID1, patIDIssuer1);
-            return [RSErrorResponse responseWithClientError:404 message:@"patient ambiguity in pacs:\r\n%@",[patientMetadata description]];
+            LOG_ERROR(@"mwlitem PAT ambiguity %@^^^%@",patID1, patIDIssuer1);
+           return [RSErrorResponse responseWithClientError:404 message:@"patient ambiguity: %@",[patientMetadata description]];
             break;
       }
 
@@ -772,7 +782,7 @@ NSString* correctedModality(NSString* spaceNormalized)
                      sps4OrderStatus:@"ARRIVED"
          ];
 
-      LOG_DEBUG(@"MLLP ->\r\n%@",msg);
+      LOG_DEBUG(@"mwlitem MLLP ->\r\n%@",msg);
       
       NSMutableString * payload=[NSMutableString string];
 
@@ -797,10 +807,10 @@ NSString* correctedModality(NSString* spaceNormalized)
                        payload:(NSMutableString*)payload])
       {
          //could not send mllp
-         LOG_ERROR(@"%@",payload);
+         LOG_ERROR(@"mwlitem MLLP <-\r\n%@",payload);
          return [RSErrorResponse responseWithClientError:404 message:@"%@",payload];
       }
-      LOG_DEBUG(@"%@",payload);
+      LOG_DEBUG(@"mwlitem MLLP <-\r\n%@",payload);
    }
 
    
@@ -938,7 +948,7 @@ NSString* correctedModality(NSString* spaceNormalized)
     [dscd appendSCDsuffix];
     [dscd appendDSCDsuffix];
     
-    
+/*
 #pragma mark - TODO create array procedureCode {code, scheme meaning, traduction}
     NSDictionary *pacsProcedureDict=K.procedureindexes[pacsUID1];
     if (reqProcedure1Index!=NSNotFound)
@@ -955,7 +965,7 @@ NSString* correctedModality(NSString* spaceNormalized)
             }
         }
     }
-    
+*/
     NSString *seriesUID=[[NSUUID UUID]ITUTX667UIDString];
     NSString *SOPIUID=[[NSUUID UUID]ITUTX667UIDString];
 

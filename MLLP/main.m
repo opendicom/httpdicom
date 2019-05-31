@@ -53,18 +53,19 @@ int main(int argc, const char * argv[]) {
             encoding=(NSStringEncoding)[args[2]intValue];
          case 2:
          {
-            NSData *inputStream=[[NSFileHandle fileHandleWithStandardInput] readDataToEndOfFile];
-            if (inputStream && [inputStream length])
+            NSData *inputStreamData=[[NSFileHandle fileHandleWithStandardInput] readDataToEndOfFile];
+            if (inputStreamData && [inputStreamData length])
             {
-               NSString *hl7String=nil;
- 
+               NSString * hl7String=nil;
+               NSData * hl7Data=nil;
+
                char firstByte=0;
-               [inputStream getBytes:&firstByte length:1];
+               [inputStreamData getBytes:&firstByte length:1];
                if ( firstByte == 123) //123={  -> json contents
                {
                   
                   NSError *error=nil;
-                  NSDictionary *json=[NSJSONSerialization JSONObjectWithData:inputStream options:0 error:&error];
+                  NSDictionary *json=[NSJSONSerialization JSONObjectWithData:inputStreamData options:0 error:&error];
                   if (error) NSLog(@"%@",[error description]);
                   else
                   {
@@ -165,21 +166,25 @@ else if ([json[@"Message"] isEqualToString:@"O01"])
 }
 else NSLog(@"Class %@ not implemented",json[@"Class"]);
                      }
+                      hl7Data=[hl7String dataUsingEncoding:encoding];
                   }
                }
-               else hl7String=[[NSString alloc]initWithData:inputStream encoding:NSUTF8StringEncoding];
+               else
+               {
+                   hl7Data=inputStreamData;
+                   NSLog(@"message length: %lu",(unsigned long)[hl7Data length]);
+               }
 #pragma mark hl7String
-               if (hl7String && ![hl7String length])
+               if (hl7Data && [hl7Data length])
                {
                   NSArray *ipport=[args[1] componentsSeparatedByString:@":"];
-                  NSMutableString *payload=[NSMutableString string];
+                  NSMutableData *payloadData=[NSMutableData data];
                   returnValue=(![mllpSend sendIP:ipport[0]
                                             port:ipport[1]
-                                         message:hl7String
-                                  stringEncoding:encoding
-                                         payload:payload]
+                                         messageData:hl7Data
+                                         payloadData:payloadData]
                                );
-                  NSLog(@"%@",payload);
+                   NSLog(@"%@",[[NSString alloc]initWithData:payloadData encoding:NSASCIIStringEncoding]);
                }
                else
                   NSLog(@"unreadable or empty message in stdin");
@@ -190,7 +195,7 @@ else NSLog(@"Class %@ not implemented",json[@"Class"]);
             break;
             
          default:
-            NSLog(@"\r\n\r\nsyntax    : cat/echo json/hl7utf8\r\n                 > mllpSend ip:port [encoding (default:5)]\r\n                      > hl7payload\r\n\r\nreturns   : 0 when succes payload was received\r\n\r\nencodings : NSASCIIStringEncoding = 1\r\n            NSUTF8StringEncoding = 4\r\n            NSISOLatin1StringEncoding = 5\r\n\r\njson      : (ver message header files of mllp library)\r\n            O01\r\n            A01\r\n            A04");
+            NSLog(@"\r\n\r\nsyntax    : cat/echo json/hl7utf8\r\n                 | mllpSend ip:port [encoding (default:5)]\r\n                      > hl7payload\r\n\r\nreturns   : 0 when succes payload was received\r\n\r\nencodings : NSASCIIStringEncoding = 1\r\n            NSUTF8StringEncoding = 4\r\n            NSISOLatin1StringEncoding = 5\r\n\r\njson      : (ver message header files of mllp library)\r\n            O01\r\n            A01\r\n            A04");
             break;
       }
    }
