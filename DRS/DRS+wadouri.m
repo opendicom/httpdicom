@@ -26,30 +26,32 @@
              for (NSURLQueryItem* i in urlComponents.queryItems)
              {
                  if (!requestType && [i.name isEqualToString:@"requestType"] && [i.value isEqualToString:@"WADO"]) requestType=true;
-                 else if (!contentType && [i.name isEqualToString:@"contentType"] && [i.value isEqualToString:@"application/dicom"]) contentType=true;
+                 else if (!contentType && [i.name isEqualToString:@"contentType"]) contentType=true;
                  else if (!studyUID && [i.name isEqualToString:@"studyUID"] && [DICMTypes.UIRegex numberOfMatchesInString:i.value options:0 range:NSMakeRange(0,[i.value length])]) studyUID=true;
                  else if (!seriesUID && [i.name isEqualToString:@"seriesUID"] && [DICMTypes.UIRegex numberOfMatchesInString:i.value options:0 range:NSMakeRange(0,[i.value length])]) seriesUID=true;
                  else if (!objectUID && [i.name isEqualToString:@"objectUID"] && [DICMTypes.UIRegex numberOfMatchesInString:i.value options:0 range:NSMakeRange(0,[i.value length])]) objectUID=true;
              }
 
+            //content type can be different
+            // && [i.value isEqualToString:@"application/dicom"]
+            
              if (!(requestType && contentType && studyUID && seriesUID && objectUID))
              {
-                 if (contentType==false) LOG_DEBUG(@"[wado+any] 'contentType' parameter not found");
-                 if (studyUID==false)    LOG_DEBUG(@"[wado+any] 'studyUID parameter not found");
-                 if (seriesUID==false)   LOG_DEBUG(@"[wado+any] 'seriesUID parameter not found");
-                 if (objectUID==false)   LOG_DEBUG(@"[wado+any] 'objectUID parameter not found");
+                 if (contentType==false) LOG_WARNING(@"wado 'contentType' parameter not found");
+                 if (studyUID==false)    LOG_WARNING(@"wado 'studyUID parameter not found");
+                 if (seriesUID==false)   LOG_WARNING(@"wado 'seriesUID parameter not found");
+                 if (objectUID==false)   LOG_WARNING(@"wado 'objectUID parameter not found");
 
-                 LOG_DEBUG(@"[wado+any] Path: %@",urlComponents.path);
-                 LOG_DEBUG(@"[wado+any] Query: %@",urlComponents.query);
-                 LOG_DEBUG(@"[wado+any] Content-Type:\"%@\"",request.contentType);
-                 return [RSErrorResponse responseWithClientError:404 message:@"[wado+any]<br/> unkwnown path y/o query:<br/>%@?%@",urlComponents.path,urlComponents.query];
-
+                 LOG_DEBUG(@"wado Path: %@",urlComponents.path);
+                 LOG_DEBUG(@"wado Query: %@",urlComponents.query);
+                 LOG_DEBUG(@"wado Content-Type:\"%@\"",request.contentType);
+                return [RSErrorResponse responseWithClientError:404 message:@"bad wado: %@",[request.URL absoluteString]];
              }
              
              
              //additional routing parameter pacs
              NSString *pacsUID=[urlComponents firstQueryItemNamed:@"pacs"];
-
+/*
              if (!pacsUID)
              {
 #pragma mark ningún pacs especificado
@@ -65,10 +67,10 @@
                  }
                  return [RSErrorResponse responseWithClientError:404 message:@"[wado] not found locally: %@",urlComponents.query];
              }
-             
+*/
 #pragma mark existing pacs?
              NSDictionary *pacs=DRS.pacs[pacsUID];
-             if (!pacs) return [RSErrorResponse responseWithClientError:404 message:@"[wado] pacs %@ not known]",pacsUID];
+             if (!pacs) return [RSErrorResponse responseWithClientError:404 message:@"pacs %@ not known]",pacsUID];
              
              
              //(b) sql+filesystem?
@@ -76,7 +78,7 @@
                  && [pacs[@"select"] isEqualToString:@"sql"])
              {
 #pragma mark TODO wado simulated by sql+filesystem
-                 return [RSErrorResponse responseWithClientError:404 message:@"%@ [wado] sql+filesystem not available]",urlComponents.path];
+                 return [RSErrorResponse responseWithClientError:404 message:@"wado por sql+filesystem not available yet"];
              }
              
              
@@ -87,7 +89,7 @@
                                       pacs[@"wadouri"],
                                       [urlComponents queryWithoutItemNamed:@"pacs"]
                                       ];
-                 LOG_VERBOSE(@"[wado] proxying localmente to:\r\n%@",uriString);
+                 LOG_VERBOSE(@"wado proxying localmente to:\r\n%@",uriString);
                  
                  
                  NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:uriString]];
