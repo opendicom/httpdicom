@@ -11,7 +11,7 @@
 #import "DRS+mwlitem.h"
 //#import "DRS+pdf.h"
 //#import "DRS+encapsulated.h"
-
+#import "DRS+studyToken.h"
 
 //RSRequest properties:      NSMutableURLRequest
 //- NSString* method          -> HTTPMethod
@@ -495,7 +495,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         
 #pragma mark / =wado-uri
         [self addWadoHandler];//(default handler)
-       LOG_DEBUG(@"added handler / (=wado-uri)");
+       LOG_DEBUG(@"added handler GET / (=wado-uri)");
 
 #pragma mark /echo
         [self addHandler:@"GET" path:@"/echo" processBlock:
@@ -505,11 +505,11 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         }(request));}];
        //            return [RSDataResponse responseWithText:[NSString stringWithFormat:@"echo time:%@ to:%@", [DICMTypes DTStringFromDate:[NSDate date]], request.remoteAddressString]];
 
-        LOG_DEBUG(@"added handler /echo");
+        LOG_DEBUG(@"added handler GET /echo");
        
 #pragma mark /(custodians|pacs/titles|pacs/oids)
         [self addCustodiansHandler];//
-        LOG_DEBUG(@"added handler /custodians");
+        LOG_DEBUG(@"added handler GET /custodians");
        
 #pragma mark /qido
        //[self addMWLHandler];
@@ -517,16 +517,21 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 
 #pragma mark /wado-rs
        [self addWadorsHandler];//
-       LOG_DEBUG(@"added handler wadors");
+       LOG_DEBUG(@"added handler GET wadors");
 
 #pragma mark /mwlitem
         [self addMwlitemHandler];
-        LOG_DEBUG(@"added handler /mwlitem");
+        LOG_DEBUG(@"added handler POST /mwlitem");
 
 #pragma mark /encapsulated
 //        [self GETencapsulated];
 //        [self POSTencapsulated];
 //        LOG_DEBUG(@"added handlers GETencapsulated and POSTencapsulated");
+
+#pragma mark /studyToken
+        [self addStudyTokenHandler];
+        LOG_DEBUG(@"added handler POST /studyToken");
+
     }
     return self;
 }

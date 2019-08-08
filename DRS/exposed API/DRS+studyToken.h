@@ -5,7 +5,7 @@
    "user":"",
    "password":"",
    "pacs":"",
-   "accessType":"cornerstone|weasis|dicomzip",
+   "accessType":"cornerstone|weasis|dicomzip|osirix",
 
  - "StudyInstanceUID":"1.2\...",
  - "AccessionNumber":"único",

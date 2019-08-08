@@ -6,7 +6,7 @@
 @implementation DRS (studyToken)
 
 
-static NSString *sqlConnect=@"mysql --raw --skip-column-names -upcs -ppacs -h 192.168.250.1 -b pacsdb2 -e \"";
+static NSString *sqlConnect=@"export MYSQL_PWD=pcs; /usr/local/mysql/bin/mysql --raw --skip-column-names -upcs -h 192.168.250.1 -b pacsdb2 -e \"";
 
 // pkstudy.pkpatient/
 static NSString *sqlTwoPks=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\".\";}{print $1, $2}'";
@@ -30,7 +30,7 @@ static NSString *sqlPE4Ean=@"%@SELECT pk,patient_fk FROM study WHERE accession_n
 
 static NSString *sqlPE4Euid=@"%@SELECT pk,patient_fk FROM study WHERE study_iuid='%@'%@";
 
-static NSString *sqlPE4PidEda=@"%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' DATE(study.study_datetime)='%@' limit 10%@";
+static NSString *sqlPE4PidEda=@"%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime)='%@' limit 10%@";
 
 //patient fields
 static NSString *sqlP=@"%@SELECT pk,pat_id,pat_name,pat_id_issuer,pat_birthdate,pat_sex FROM patient WHERE pk='%@'%@";
@@ -50,7 +50,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM series instan
 -(void)addStudyTokenHandler
 {
 NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWithPattern:@"/studyToken" options:0 error:NULL];
-[self addHandler:@"GET" regex:studyTokenRegex processBlock:
+[self addHandler:@"POST" regex:studyTokenRegex processBlock:
  ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
 {
    //read json
@@ -96,6 +96,7 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
     */
    NSMutableDictionary *EPDict=[NSMutableDictionary dictionary];
    NSMutableData *mutableData=[NSMutableData data];
+    NSMutableString *sqlBash=[NSMutableString string];
 
 #pragma mark -
 #pragma mark StudyInstanceUID
@@ -111,8 +112,10 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
       {
          if (![DICMTypes isSingleUIString:uid])[RSErrorResponse responseWithClientError:404 message:@"studyToken no StudyInstanceUID found in %@",uid];
          //find patient fk
+          [sqlBash setString:[NSString stringWithFormat:sqlPE4Euid,sqlConnect,uid,sqlTwoPks]];
+          LOG_VERBOSE(@"%@",sqlBash);
          [mutableData setData:[NSData data]];
-         if (!task(@"/bin/bash",@[@"-s"],[[NSString stringWithFormat:sqlPE4Euid,sqlConnect,uid,sqlTwoPks] dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+         if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
             [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken StudyInstanceUID db error"];
          if (![mutableData length]) [RSErrorResponse responseWithClientError:404 message:@"studyToken StudyInstanceUID  %@ does not exist",uid];
          NSString *EPString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
@@ -131,8 +134,10 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
          //issuer?
          
          //find corresponding EP
+          [sqlBash setString:[NSString stringWithFormat:sqlPE4Ean, sqlConnect, values[AccessionNumberIndex],sqlTwoPks]];
+          LOG_VERBOSE(@"%@",sqlBash);
          [mutableData setData:[NSData data]];
-         if (!task(@"/bin/bash",@[@"-s"],[[NSString stringWithFormat:sqlPE4Ean, sqlConnect, values[AccessionNumberIndex],sqlTwoPks] dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+         if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
             [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken accessionNumber error"];
       }
       else if ((PatientIDIndex!=NSNotFound)&&(StudyDateIndex!=NSNotFound))
@@ -141,8 +146,11 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
          //issuer?
          
          //find corresponding EP
+          [sqlBash setString:[NSString stringWithFormat:sqlPE4PidEda, sqlConnect, values[PatientIDIndex], values[StudyDateIndex], sqlTwoPks]];
+          LOG_VERBOSE(@"%@",sqlBash);
          [mutableData setData:[NSData data]];
-         if (!task(@"/bin/bash",@[@"-s"],[[NSString stringWithFormat:sqlPE4PidEda, sqlConnect, values[PatientIDIndex], values[StudyDateIndex], sqlTwoPks] dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+          
+         if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
             [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken PatientID or StudyDate error"];
       }
       else [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken one of StudyInstanceUID, AccessionNumber or PatientID+StudyDate should be present"];
@@ -151,7 +159,7 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
       //for both AccessionNumber or PatientID+StudyDate, check if mutableData
       if ([mutableData length]<2) [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken AccessionNumber or PatientID+StudyDate did not select any study"];
       
-      for (NSString *EPString in [[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent] pathComponents])
+      for (NSString *EPString in [[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] pathComponents])
       {
          [EPDict setObject:[EPString pathExtension] forKey:[EPString stringByDeletingPathExtension]];
       }

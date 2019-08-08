@@ -34,7 +34,7 @@ if ([args count]!=5)
         
         
 //arg [1] deploypath
-NSString *deployPath=@"/Users/Shared/GitHub/httpdicomNew/deploy";
+NSString *deployPath=@"/Users/Shared/httpdicom/deploy";//@"/Users/Shared/GitHub/httpdicomNew/deploy"
 BOOL isDirectory=FALSE;
 if (![[NSFileManager defaultManager]fileExistsAtPath:deployPath isDirectory:&isDirectory] || !isDirectory)
 {
