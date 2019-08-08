@@ -10,6 +10,9 @@ static NSData *semicolon=nil;
 static NSData *rnrn=nil;
 static NSData *rn=nil;
 
+static NSData *recordSeparator=nil;
+static NSData *unitSeparator=nil;
+
 
 +(NSData*)jsonpCallback:(NSString*)callback
          withDictionary:(NSDictionary*)dictionary
@@ -39,6 +42,11 @@ static NSData *rn=nil;
     semicolon=[@";" dataUsingEncoding:NSASCIIStringEncoding];
     rnrn=[@"\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
     rn=[@"\r\n" dataUsingEncoding:NSASCIIStringEncoding];
+   uint16 recordSeparatorNewLine=0x0A0E;
+   recordSeparator=[NSData dataWithBytes:&recordSeparatorNewLine length:2];
+   uint16 unitSeparatorVerticalBar=0x7C0F;
+   unitSeparator=[NSData dataWithBytes:&unitSeparatorVerticalBar length:2];
+
 }
 
 -(NSDictionary*)parseNamesValuesTypesInBodySeparatedBy:(NSData*)separator
@@ -233,4 +241,59 @@ void generateCRC32Table(uint32_t *pTable, uint32_t poly)
    return crc ^ 0xFFFFFFFFL;
 }
 
+-(NSArray*)arrayOfRecordsOfStringUnitsEncoding:(NSStringEncoding)encoding orderedByUnitIndex:(NSUInteger)index decreasing:(BOOL)decreasing
+{
+   NSUInteger dataLength=[self length];
+   if (dataLength==0)return @[];
+   
+   NSMutableArray *recordArray=[NSMutableArray array];
+   NSRange dataRange=NSMakeRange(0, [self length]);
+   NSRange currentRecordSeparator=NSMakeRange(0,0);
+   while (currentRecordSeparator.location+currentRecordSeparator.length < dataLength)
+   {
+      currentRecordSeparator=[self rangeOfData:recordSeparator options:0 range:dataRange];
+      if (currentRecordSeparator.location==NSNotFound) return nil;//error
+
+      [recordArray addObject:[self arrayOfStringUnitsForRecordRange:NSMakeRange(dataRange.location,currentRecordSeparator.location - dataRange.location) encoding:encoding]];
+      
+      dataRange=NSMakeRange(currentRecordSeparator.location + currentRecordSeparator.length, dataLength - currentRecordSeparator.location - currentRecordSeparator.length);
+   }
+   
+   if (index != NSNotFound)
+   {
+      if (decreasing) [recordArray sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
+         return [obj2[index] compare:obj1[index]];}];
+      else [recordArray sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
+         return [obj1[index] compare:obj2[index]];}];
+   }
+   
+   return [NSArray arrayWithArray:recordArray];
+}
+      
+-(NSArray*)arrayOfStringUnitsForRecordRange:(NSRange)recordRange encoding:(NSStringEncoding)encoding
+{
+   if (recordRange.length==0) return @[];
+   
+   NSRange remainingRecordRange=recordRange;
+   
+   NSMutableArray *unitArray=[NSMutableArray array];
+
+   NSRange currentUnitSeparator=NSMakeRange(remainingRecordRange.location,0);
+   while ((currentUnitSeparator.location + currentUnitSeparator.length) < (recordRange.location + recordRange.length))
+   {
+      currentUnitSeparator=[self rangeOfData:unitSeparator options:0 range:recordRange];
+      if (currentUnitSeparator.location!=NSNotFound)
+      {
+         [unitArray addObject:[[NSString alloc]initWithData:[self subdataWithRange:NSMakeRange(remainingRecordRange.location,currentUnitSeparator.location)] encoding:encoding]];
+         remainingRecordRange=NSMakeRange(currentUnitSeparator.location + currentUnitSeparator.length, recordRange.location + recordRange.length - currentUnitSeparator.location - currentUnitSeparator.length);
+      }
+      else
+      {
+         [unitArray addObject:[[NSString alloc]initWithData:[self subdataWithRange:NSMakeRange(remainingRecordRange.location,remainingRecordRange.length)] encoding:encoding]];
+         remainingRecordRange=NSMakeRange(remainingRecordRange.location + remainingRecordRange.length, 0);
+      }
+   }
+   return [NSArray arrayWithArray:unitArray];
+
+}
 @end

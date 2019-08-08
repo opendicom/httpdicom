@@ -15,4 +15,8 @@
 +(NSString*)DTStringFromDate:(NSDate*)date;
 +(NSString*)ASSinceDate:(NSDate*)sinceDate untilDate:(NSDate*)untilDate;
 +(NSString*)ASSinceDA:(NSString*)sinceDA untilDA:(NSString*)untilDA;
++(bool)isSingleUIString:(NSString*)string;
++(bool)isSingleSHString:(NSString*)string;
++(bool)isSingleDAString:(NSString*)string;
+
 @end

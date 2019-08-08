@@ -20,4 +20,6 @@
 -(uint32_t) crc32UsingPolynomial:(uint32_t)poly;
 -(uint32_t) crc32WithSeed:(uint32_t)seed usingPolynomial:(uint32_t)poly;
 
+-(NSArray*)arrayOfRecordsOfStringUnitsEncoding:(NSStringEncoding)encoding orderedByUnitIndex:(NSUInteger)index decreasing:(BOOL)decreasing;
+-(NSArray*)arrayOfStringUnitsForRecordRange:(NSRange)recordRange encoding:(NSStringEncoding)encoding;
 @end

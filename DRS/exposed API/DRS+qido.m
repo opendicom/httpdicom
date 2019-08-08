@@ -37,13 +37,14 @@
 
 -(void)addQidoHandler
 {
+   /*
     NSArray *pathSuffixTopFilterNumber=@[@patientTopFilterNumber,@studyTopFilterNumber,@seriesTopFilterNumber,@instanceTopFilterNumber];
     NSCharacterSet *weakCharacters=[NSCharacterSet characterSetWithCharactersInString:@" ^<>-_$%&@*.;:,+¿?!¡[](){}'\"\\#"];
     NSRegularExpression *qidoRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/(studies|series|instances)$" options:NSRegularExpressionCaseInsensitive error:NULL];
     [self addHandler:@"GET" regex:qidoRegex processBlock:
      ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
          {
-/*
+
              //LOG_DEBUG(@"[qido] client: %@",request.remoteAddressString);
              NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
              NSUInteger level=[K.levels indexOfObject:urlComponents.path];

@@ -86,6 +86,8 @@
 		4A2F37F022884855004BE2A2 /* RequestMwlitems.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A2F37EE22884855004BE2A2 /* RequestMwlitems.m */; };
 		4A2F37F322884AC2004BE2A2 /* ResponseMwlitems.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A2F37F122884AC1004BE2A2 /* ResponseMwlitems.m */; };
 		4A2F37F422884AC2004BE2A2 /* ResponseMwlitems.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2F37F222884AC2004BE2A2 /* ResponseMwlitems.h */; };
+		4A34618D22F0ACC300368276 /* DRS+studyToken.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A34618B22F0ACC300368276 /* DRS+studyToken.h */; };
+		4A34618E22F0ACC300368276 /* DRS+studyToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A34618C22F0ACC300368276 /* DRS+studyToken.m */; };
 		4A57EE422295442400EB3962 /* ResponseQido.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A57EE402295442400EB3962 /* ResponseQido.m */; };
 		4A57EE432295442400EB3962 /* ResponseQido.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A57EE412295442400EB3962 /* ResponseQido.h */; };
 		4A57EE4622957BB100EB3962 /* NSArray+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A57EE4422957BB100EB3962 /* NSArray+PCS.h */; };
@@ -283,6 +285,8 @@
 		4A2F37EE22884855004BE2A2 /* RequestMwlitems.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RequestMwlitems.m; sourceTree = "<group>"; };
 		4A2F37F122884AC1004BE2A2 /* ResponseMwlitems.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResponseMwlitems.m; sourceTree = "<group>"; };
 		4A2F37F222884AC2004BE2A2 /* ResponseMwlitems.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResponseMwlitems.h; sourceTree = "<group>"; };
+		4A34618B22F0ACC300368276 /* DRS+studyToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+studyToken.h"; sourceTree = "<group>"; };
+		4A34618C22F0ACC300368276 /* DRS+studyToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+studyToken.m"; sourceTree = "<group>"; };
 		4A57EE402295442400EB3962 /* ResponseQido.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResponseQido.m; sourceTree = "<group>"; };
 		4A57EE412295442400EB3962 /* ResponseQido.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResponseQido.h; sourceTree = "<group>"; };
 		4A57EE4422957BB100EB3962 /* NSArray+PCS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSArray+PCS.h"; sourceTree = "<group>"; };
@@ -431,6 +435,8 @@
 		4A07FB6721F24EF900007B8B /* exposed API */ = {
 			isa = PBXGroup;
 			children = (
+				4A34618B22F0ACC300368276 /* DRS+studyToken.h */,
+				4A34618C22F0ACC300368276 /* DRS+studyToken.m */,
 				4A625A6D226F4C87005AEBF4 /* DRS+mwlitem.h */,
 				4A625A6C226F4C87005AEBF4 /* DRS+mwlitem.m */,
 				4AF40D2E21F8FA8A00103F99 /* DRS+qido.h */,
@@ -795,6 +801,7 @@
 				4A2D906C2181E37D00371484 /* DRS+wadouri.h in Headers */,
 				4AE49DF2200D153000B8F321 /* DRS+pacs.h in Headers */,
 				4A2F37F422884AC2004BE2A2 /* ResponseMwlitems.h in Headers */,
+				4A34618D22F0ACC300368276 /* DRS+studyToken.h in Headers */,
 				4A0FDF471E91078C001E3426 /* RSResponse.h in Headers */,
 				4A57EE432295442400EB3962 /* ResponseQido.h in Headers */,
 				4AE49DDB2008F1F600B8F321 /* DRS.h in Headers */,
@@ -1007,6 +1014,7 @@
 				4A57EE4B22957BDA00EB3962 /* NSMutableArray+PCS.m in Sources */,
 				4AF40DCE2224317400103F99 /* NSString+MSH.m in Sources */,
 				4A0FDF521E91078C001E3426 /* RS.m in Sources */,
+				4A34618E22F0ACC300368276 /* DRS+studyToken.m in Sources */,
 				4A2F37F322884AC2004BE2A2 /* ResponseMwlitems.m in Sources */,
 				4A2D90642181E37D00371484 /* DRS+datatables.m in Sources */,
 				4A0FDF501E91078C001E3426 /* RSStreamedResponse.m in Sources */,

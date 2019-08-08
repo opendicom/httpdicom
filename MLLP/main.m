@@ -172,7 +172,7 @@ else NSLog(@"Class %@ not implemented",json[@"Class"]);
                else
                {
                    hl7Data=inputStreamData;
-                   NSLog(@"message length: %lu",(unsigned long)[hl7Data length]);
+                   NSLog(@"input hl7v2 message length: %lu",(unsigned long)[hl7Data length]);
                }
 #pragma mark hl7String
                if (hl7Data && [hl7Data length])

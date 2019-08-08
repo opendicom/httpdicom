@@ -1,5 +1,18 @@
 #import "mllpSend.h"
 
+/*
+ https://stackoverflow.com/questions/34828257/how-to-find-if-hl7-segment-has-ended-or-not-if-carriage-return-is-not-present
+ 
+ delimiters:
+ 
+ (1) Segment delimiter: 0x0D (or 13 in ASCII), which is the Carriage Return. It's the segment separator, as per HL7v2 standard;
+ (2) Message start delimiter: 0x0B (ASCII 11 - Vertical Tab);
+ (3) Message finish delimiter: 0x1C0D. My guess is that this value is supposed to be the concatenation of 0x1C (ASCII 28 - File Separator) and 0x0D (ASCII 13 - Carriage Return).
+ 
+ With #1 you get HL7v2 messages standard-compliant. With #2 and #3 you are able to clearly define delimiters for the message so that it can be processed and parsed later by some custom processor.
+ */
+
+
 const uint8 SB=0x0B;
 const uint8 EB=0x1C;
 const uint8 CR=0x0D;

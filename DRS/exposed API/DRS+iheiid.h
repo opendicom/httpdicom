@@ -4,8 +4,10 @@
 //&viewerType=IHE_BIR
 //&diagnosticQuality=true
 //&keyImagesOnly=false
+
 //&custodianOID=xxx
 //&proxyURI=yyy
+
 
 #import "DRS.h"
 

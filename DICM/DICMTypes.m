@@ -109,4 +109,18 @@ static NSRegularExpression *_TZRegex=nil;
 +(NSRegularExpression*)UIRegex       { return _UIRegex;}
 +(NSRegularExpression*)TZRegex       { return _TZRegex;}
 
++(bool)isSingleUIString:(NSString*)string
+{
+   return (bool)[DICMTypes.UIRegex numberOfMatchesInString:string options:0 range:NSMakeRange(0,[string length])];
+}
+
++(bool)isSingleSHString:(NSString*)string
+{
+   return (bool)[DICMTypes.SHRegex numberOfMatchesInString:string options:0 range:NSMakeRange(0,[string length])];
+}
++(bool)isSingleDAString:(NSString*)string
+{
+   return (bool)[DICMTypes.DARegex numberOfMatchesInString:string options:0 range:NSMakeRange(0,[string length])];
+}
+
 @end
