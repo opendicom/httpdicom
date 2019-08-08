@@ -30,6 +30,7 @@ NSDictionary * pacsParam(NSMutableArray  *  names,
 
 
 //task
+int readBashUTF8Task(NSArray *args, NSMutableData *readData);
 int bash(NSData *writeData, NSMutableData *readData);
 int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData);
 
@@ -59,8 +60,6 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType);
 @property (class, nonatomic, readonly) NSDictionary          *pacsaetDictionary;
 @property (class, nonatomic, readonly) NSArray               *localoids;
 @property (class, nonatomic, readonly) NSDictionary          *custodianDictionary;
-
-int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData);
 
 -(id)initWithSqls:(NSDictionary*)sqls
              pacs:(NSDictionary*)pacs

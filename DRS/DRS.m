@@ -165,11 +165,6 @@ NSDictionary * pacsParam(NSMutableArray  *  names,
 
 
 
-int bash(NSData *writeData, NSMutableData *readData)
-{
-   return task(@"/bin/bash",@[@"-s"], writeData, readData);
-}
-
 
 
 NSMutableArray *jsonMutableArray(NSString *scriptString, NSStringEncoding encoding)
@@ -313,6 +308,38 @@ static NSDictionary        *_pacsaetDictionary=nil;
 static NSArray             *_localoids=nil;
 static NSDictionary        *_custodianDictionary=nil;
 
+int readBashUTF8Task(NSArray *args, NSMutableData *readData)
+{
+   LOG_WARNING(@"%@",[args description]);
+   
+   NSTask *task=[[NSTask alloc]init];
+   [task setLaunchPath:@"/bin/bash"];
+   [task setArguments:[@[@"-s"] arrayByAddingObjectsFromArray:args]];
+   
+   NSPipe* readPipe = [NSPipe pipe];
+   NSFileHandle *readingFileHandle=[readPipe fileHandleForReading];
+   [task setStandardOutput:readPipe];
+   [task setStandardError:readPipe];
+   
+   [task launch];
+   
+   NSData *dataPiped = nil;
+   while((dataPiped = [readingFileHandle availableData]) && [dataPiped length])
+   {
+      [readData appendData:dataPiped];
+   }
+   
+   [task waitUntilExit];
+   int terminationStatus = [task terminationStatus];
+   if (terminationStatus!=0) LOG_INFO(@"ERROR task terminationStatus: %d",terminationStatus);
+   return terminationStatus;
+}
+
+
+int bash(NSData *writeData, NSMutableData *readData)
+{
+   return task(@"/bin/bash",@[@"-s"], writeData, readData);
+}
 
 int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
 {

@@ -76,7 +76,7 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
 #pragma mark TODO
       if ([DRS.localoids indexOfObject:values[pacsIndex]]==NSNotFound)
       {
-         LOG_WARNING(@"to be proxied to another httpdicom");
+         LOG_WARNING(@"stuyToken to be proxied to another httpdicom");
          return [RSErrorResponse responseWithClientError:404 message:@"to be proxied to another httpdicom"];
       }
    }
@@ -150,8 +150,11 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
           LOG_VERBOSE(@"%@",sqlBash);
          [mutableData setData:[NSData data]];
           
-         if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
-            [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken PatientID or StudyDate error"];
+         //if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+         //   [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken PatientID or StudyDate error"];
+         
+         if (!readBashUTF8Task(@[[NSString stringWithFormat:sqlPE4PidEda, sqlConnect, values[PatientIDIndex], values[StudyDateIndex], sqlTwoPks]], mutableData))
+                   [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken PatientID or StudyDate error"];
       }
       else [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken one of StudyInstanceUID, AccessionNumber or PatientID+StudyDate should be present"];
 
@@ -186,11 +189,12 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
    BOOL doCornerstone=[accessTypeString isEqualToString:@"cornerstone"];
    BOOL doDicomzip=[accessTypeString isEqualToString:@"dicomzip"];
    if (!doWeasis && !doCornerstone && !doDicomzip) [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType should be either weasis, cornerstone or dicomzip"];
-   if (doCornerstone && ([EPDict count]>1))
+   /*
+    if (doCornerstone && ([EPDict count]>1))
    {
        [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType cornerstone can not be applied to more than a study"];
    }
-   
+   */
    
 #pragma mark SeriesDescription
    NSArray *SeriesDescriptionArray=nil;
@@ -264,8 +268,10 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
 #pragma mark patient loop
      for (NSString *P in PSet)
      {
+        [sqlBash setString:[NSString stringWithFormat:sqlP,sqlConnect,P,sqlRecordSixUnits]];
+        LOG_VERBOSE(@"%@",sqlBash);
         [mutableData setData:[NSData data]];
-        if (!task(@"/bin/bash",@[@"-s"],[[NSString stringWithFormat:sqlP,sqlConnect,P,sqlRecordSixUnits] dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+        if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
            [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken patient db error"];
         NSArray *patientPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
         /*
@@ -299,8 +305,10 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
         {
            if ([EPDict[E] isEqualToString:P])
            {
+              [sqlBash setString:[NSString stringWithFormat:sqlE,sqlConnect,E,sqlRecordTenUnits]];
+              LOG_VERBOSE(@"%@",sqlBash);
               [mutableData setData:[NSData data]];
-              if (!task(@"/bin/bash",@[@"-s"],[[NSString stringWithFormat:sqlE,sqlConnect,E,sqlRecordTenUnits] dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+              if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
                  [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken study db error"];
               NSArray *EPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
               /*
@@ -369,8 +377,10 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
               
               //series
 
+              [sqlBash setString:[NSString stringWithFormat:sqlS,sqlConnect,E,sqlRecordFiveUnits]];
+              LOG_VERBOSE(@"%@",sqlBash);
               [mutableData setData:[NSData data]];
-              if (!task(@"/bin/bash",@[@"-s"],[[NSString stringWithFormat:sqlS,sqlConnect,E,sqlRecordFiveUnits] dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+              if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
                  [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken series db error"];
               NSArray *SPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
 
@@ -393,9 +403,10 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
                  
 
                  //instances
-                 
+                 [sqlBash setString:[NSString stringWithFormat:sqlI,sqlConnect,SProperties[0],sqlRecordFourUnits]];
+                 LOG_VERBOSE(@"%@",sqlBash);
                  [mutableData setData:[NSData data]];
-                 if (!task(@"/bin/bash",@[@"-s"],[[NSString stringWithFormat:sqlI,sqlConnect,SProperties[0],sqlRecordFourUnits] dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+                 if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
                     [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken instance db error"];
                  NSArray *IPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
 
