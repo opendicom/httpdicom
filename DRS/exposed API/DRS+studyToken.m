@@ -5,11 +5,10 @@
 
 @implementation DRS (studyToken)
 
-
-static NSString *sqlConnect=@"export MYSQL_PWD=pcs; /usr/local/mysql/bin/mysql --raw --skip-column-names -upcs -h 192.168.250.1 -b pacsdb2 -e \"";
+static NSString *sqlConnect=@"/usr/local/mysql/bin/mysql --raw --skip-column-names -upcs -h 192.168.250.1 -b pacsdb2 -e \"";
 
 // pkstudy.pkpatient/
-static NSString *sqlTwoPks=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\".\";}{print $1, $2}'";
+static NSString *sqlTwoPks=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\".\";}{print $1, $2}' | sed -e 's/\\/$//'";
 
 
 
@@ -49,6 +48,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM series instan
 
 -(void)addStudyTokenHandler
 {
+   NSDictionary *password=@{@"MYSQL_PWD":@"pcs"};
 NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWithPattern:@"/studyToken" options:0 error:NULL];
 [self addHandler:@"POST" regex:studyTokenRegex processBlock:
  ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
@@ -112,10 +112,11 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
       {
          if (![DICMTypes isSingleUIString:uid])[RSErrorResponse responseWithClientError:404 message:@"studyToken no StudyInstanceUID found in %@",uid];
          //find patient fk
-          [sqlBash setString:[NSString stringWithFormat:sqlPE4Euid,sqlConnect,uid,sqlTwoPks]];
-          LOG_VERBOSE(@"%@",sqlBash);
          [mutableData setData:[NSData data]];
-         if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+         if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+                           [NSString stringWithFormat:sqlPE4Euid,sqlConnect,uid,sqlTwoPks],
+                           mutableData)
+             )
             [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken StudyInstanceUID db error"];
          if (![mutableData length]) [RSErrorResponse responseWithClientError:404 message:@"studyToken StudyInstanceUID  %@ does not exist",uid];
          NSString *EPString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
@@ -134,10 +135,11 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
          //issuer?
          
          //find corresponding EP
-          [sqlBash setString:[NSString stringWithFormat:sqlPE4Ean, sqlConnect, values[AccessionNumberIndex],sqlTwoPks]];
-          LOG_VERBOSE(@"%@",sqlBash);
          [mutableData setData:[NSData data]];
-         if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+         if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+                           [NSString stringWithFormat:sqlPE4Ean, sqlConnect, values[AccessionNumberIndex],sqlTwoPks],
+                           mutableData)
+             )
             [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken accessionNumber error"];
       }
       else if ((PatientIDIndex!=NSNotFound)&&(StudyDateIndex!=NSNotFound))
@@ -147,11 +149,7 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
          
          //find corresponding EP
          [mutableData setData:[NSData data]];
-          
-         //if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
-         //   [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken PatientID or StudyDate error"];
-         
-         if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+         if (!execUTF8Bash(password,
                            [NSString stringWithFormat:sqlPE4PidEda, sqlConnect, values[PatientIDIndex], values[StudyDateIndex], sqlTwoPks],
                            mutableData)
              ) [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken PatientID or StudyDate error"];
@@ -268,10 +266,11 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
 #pragma mark patient loop
      for (NSString *P in PSet)
      {
-        [sqlBash setString:[NSString stringWithFormat:sqlP,sqlConnect,P,sqlRecordSixUnits]];
-        LOG_VERBOSE(@"%@",sqlBash);
         [mutableData setData:[NSData data]];
-        if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+        if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+                          [NSString stringWithFormat:sqlP,sqlConnect,P,sqlRecordSixUnits],
+                          mutableData)
+            )
            [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken patient db error"];
         NSArray *patientPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
         /*
@@ -305,10 +304,11 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
         {
            if ([EPDict[E] isEqualToString:P])
            {
-              [sqlBash setString:[NSString stringWithFormat:sqlE,sqlConnect,E,sqlRecordTenUnits]];
-              LOG_VERBOSE(@"%@",sqlBash);
               [mutableData setData:[NSData data]];
-              if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+              if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+                                [NSString stringWithFormat:sqlE,sqlConnect,E,sqlRecordTenUnits],
+                                mutableData)
+                  )
                  [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken study db error"];
               NSArray *EPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
               /*
@@ -376,11 +376,11 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
               
               
               //series
-
-              [sqlBash setString:[NSString stringWithFormat:sqlS,sqlConnect,E,sqlRecordFiveUnits]];
-              LOG_VERBOSE(@"%@",sqlBash);
               [mutableData setData:[NSData data]];
-              if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+              if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+                                [NSString stringWithFormat:sqlS,sqlConnect,E,sqlRecordFiveUnits],
+                                mutableData)
+                  )
                  [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken series db error"];
               NSArray *SPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
 
@@ -403,10 +403,11 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
                  
 
                  //instances
-                 [sqlBash setString:[NSString stringWithFormat:sqlI,sqlConnect,SProperties[0],sqlRecordFourUnits]];
-                 LOG_VERBOSE(@"%@",sqlBash);
                  [mutableData setData:[NSData data]];
-                 if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
+                 if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+                                   [NSString stringWithFormat:sqlI,sqlConnect,SProperties[0],sqlRecordFourUnits],
+                                   mutableData)
+                     )
                     [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken instance db error"];
                  NSArray *IPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
 
