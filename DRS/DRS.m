@@ -311,7 +311,7 @@ static NSDictionary        *_custodianDictionary=nil;
 
 int execUTF8Bash(NSDictionary *environment, NSString *writeString, NSMutableData *readData)
 {
-   LOG_VERBOSE(@"%@",writeString);
+   LOG_DEBUG(@"%@",writeString);
    return execTask(environment, @"/bin/bash",@[@"-s"], [writeString dataUsingEncoding:NSUTF8StringEncoding], readData);
 }
 
@@ -323,7 +323,6 @@ int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArg
    
    [task setLaunchPath:launchPath];
    [task setArguments:launchArgs];
-   //LOG_INFO(@"%@",[task arguments]);
    NSPipe *writePipe = [NSPipe pipe];
    NSFileHandle *writeHandle = [writePipe fileHandleForWriting];
    [task setStandardInput:writePipe];

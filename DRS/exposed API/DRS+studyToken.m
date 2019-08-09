@@ -44,7 +44,7 @@ static NSString *sqlS=@"%@SELECT pk,series_iuid,series_desc,series_no,modality F
 
 
 //instancesFields
-static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM series instance WHERE series_fk='%@'%@";
+static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHERE series_fk='%@'%@";
 
 
 
@@ -505,7 +505,7 @@ sessionString,
      }
      [manifest appendString:@"</wado_query>\r"];
      [manifest appendString:@"</manifest>\r"];
-     LOG_INFO(@"%@",manifest);
+     LOG_DEBUG(@"%@",manifest);
    
    if (doWeasis)
    {
