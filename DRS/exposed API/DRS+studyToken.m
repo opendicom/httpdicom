@@ -12,16 +12,18 @@ static NSString *sqlTwoPks=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\".\";}{prin
 
 
 
-//recordSeparator+/r+/n  unitSeparator+|
-static NSString *sqlRecordFourUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x0F\\x0A\";OFS=\"\\x0E|\";}{print $1, $2, $3, $4}'";
+//recordSeparator+/n  unitSeparator+|
+// | sed -e 's/\\x0F\\x0A$//'  (no necesario
 
-static NSString *sqlRecordFiveUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x0F\\x0A\";OFS=\"\\x0E|\";}{print $1, $2, $3, $4, $5}'";
+static NSString *sqlRecordFourUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4}'";
 
-static NSString *sqlRecordSixUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x0F\\x0A\";OFS=\"\\x0E|\";}{print $1, $2, $3, $4, $5, $6}'";
+static NSString *sqlRecordFiveUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5}'";
 
-static NSString *sqlRecordEightUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x0F\\x0A\";OFS=\"\\x0E|\";}{print $1, $2, $3, $4, $5, $6, $7, $8}'";
+static NSString *sqlRecordSixUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6}'";
 
-static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x0F\\x0A\";OFS=\"\\x0E|\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}' | sed -e 's/\\x0F\\x0A$//'";
+static NSString *sqlRecordEightUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8}'";
+
+static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}'";
 
 
 

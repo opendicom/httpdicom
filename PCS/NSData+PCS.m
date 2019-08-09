@@ -42,9 +42,9 @@ static NSData *unitSeparator=nil;
     semicolon=[@";" dataUsingEncoding:NSASCIIStringEncoding];
     rnrn=[@"\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
     rn=[@"\r\n" dataUsingEncoding:NSASCIIStringEncoding];
-   uint16 recordSeparatorNewLine=0x0A0E;
+   uint16 recordSeparatorNewLine=0x0A1E;
    recordSeparator=[NSData dataWithBytes:&recordSeparatorNewLine length:2];
-   uint16 unitSeparatorVerticalBar=0x7C0F;
+   uint16 unitSeparatorVerticalBar=0x7C1F;
    unitSeparator=[NSData dataWithBytes:&unitSeparatorVerticalBar length:2];
 
 }
