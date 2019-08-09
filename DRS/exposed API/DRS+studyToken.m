@@ -71,18 +71,21 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
       LOG_VERBOSE(@"stuyToken PARAM \"%@\" = \"%@\"",names[idx],values[idx]);
    }
 
-#pragma mark proxy to pacs?
-   NSUInteger pacsIndex=[names indexOfObject:@"pacs"];
-   if (pacsIndex!=NSNotFound)
+#pragma mark custodianOID?
+   NSUInteger custodianOIDIndex=[names indexOfObject:@"custodianOID"];
+   NSString *custodianOIDString=nil;
+   if (custodianOIDIndex!=NSNotFound)
    {
 #pragma mark TODO
-      if ([DRS.localoids indexOfObject:values[pacsIndex]]==NSNotFound)
+      custodianOIDString=values[custodianOIDIndex];
+      if ([DRS.localoids indexOfObject:custodianOIDString]==NSNotFound)
       {
          LOG_WARNING(@"stuyToken to be proxied to another httpdicom");
          return [RSErrorResponse responseWithClientError:404 message:@"to be proxied to another httpdicom"];
       }
    }
 
+   
 #pragma mark processing by this httpdicom
 
    NSUInteger StudyInstanceUIDsIndex=[names indexOfObject:@"StudyInstanceUID"];
@@ -173,6 +176,12 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
 
    NSSet *PSet=[NSSet setWithArray:[EPDict allValues]];
    
+#pragma mark proxyURI
+   NSString *proxyURIString=nil;
+   NSUInteger proxyURIIndex=[names indexOfObject:@"proxyURI"];
+   if (proxyURIIndex!=NSNotFound) proxyURIString=values[proxyURIIndex];
+   else proxyURIString=@"whatIsTheURLToBeInvoked?";
+
 #pragma mark session
    NSString *sessionString=nil;
    NSUInteger sessionIndex=[names indexOfObject:@"session"];
@@ -252,12 +261,12 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
       <xsd:attribute name="overrideDicomTagsList" type="dicomTagsList" />
       */
      [manifest appendFormat:@"<arcQuery arcId=\"%@\" baseUrl=\"%@\" webLogin=\"%@\" requireOnlySOPInstanceUID=\"%@\" additionnalParameters=\"&amp;session=%@&amp;custodianOID=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@\" overrideDicomTagsList=\"%@\">\r",
-      @"2.16.858.0.1.4.0.72769.217215590012.2",
-      @"http://192.168.250.1:8080/dcm4chee",
+      custodianOIDString,
+      proxyURIString,
       @"",
       @"false",
       sessionString,
-      @"2.16.858.0.1.4.0",
+      custodianOIDString,
       [SeriesDescriptionArray componentsJoinedByString:@"\\"],
       [ModalityArray componentsJoinedByString:@"\\"],
       [SOPClassArray componentsJoinedByString:@"\\"],
@@ -503,7 +512,7 @@ sessionString,
         
         [manifest appendString:@"</Patient>\r"];
      }
-     [manifest appendString:@"</wado_query>\r"];
+     [manifest appendString:@"</arcQuery>\r"];
      [manifest appendString:@"</manifest>\r"];
      LOG_DEBUG(@"%@",manifest);
    
