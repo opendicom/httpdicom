@@ -21,7 +21,7 @@ static NSString *sqlRecordSixUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x0F\\x0A\";
 
 static NSString *sqlRecordEightUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x0F\\x0A\";OFS=\"\\x0E|\";}{print $1, $2, $3, $4, $5, $6, $7, $8}'";
 
-static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x0F\\x0A\";OFS=\"\\x0E|\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}'";
+static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x0F\\x0A\";OFS=\"\\x0E|\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}' | sed -e 's/\\x0F\\x0A$//'";
 
 
 
@@ -96,7 +96,6 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
     */
    NSMutableDictionary *EPDict=[NSMutableDictionary dictionary];
    NSMutableData *mutableData=[NSMutableData data];
-    NSMutableString *sqlBash=[NSMutableString string];
 
 #pragma mark -
 #pragma mark StudyInstanceUID
@@ -267,8 +266,8 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
      for (NSString *P in PSet)
      {
         [mutableData setData:[NSData data]];
-        if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
-                          [NSString stringWithFormat:sqlP,sqlConnect,P,sqlRecordSixUnits],
+        if (!execUTF8Bash(password,
+                          [NSString stringWithFormat:sqlP,sqlConnect,P,sqlRecordTenUnits],
                           mutableData)
             )
            [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken patient db error"];
