@@ -112,7 +112,7 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
          if (![DICMTypes isSingleUIString:uid])[RSErrorResponse responseWithClientError:404 message:@"studyToken no StudyInstanceUID found in %@",uid];
          //find patient fk
          [mutableData setData:[NSData data]];
-         if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+         if (!execUTF8Bash(password,
                            [NSString stringWithFormat:sqlPE4Euid,sqlConnect,uid,sqlTwoPks],
                            mutableData)
              )
@@ -135,7 +135,7 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
          
          //find corresponding EP
          [mutableData setData:[NSData data]];
-         if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+         if (!execUTF8Bash(password,
                            [NSString stringWithFormat:sqlPE4Ean, sqlConnect, values[AccessionNumberIndex],sqlTwoPks],
                            mutableData)
              )
@@ -267,7 +267,7 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
      {
         [mutableData setData:[NSData data]];
         if (!execUTF8Bash(password,
-                          [NSString stringWithFormat:sqlP,sqlConnect,P,sqlRecordTenUnits],
+                          [NSString stringWithFormat:sqlP,sqlConnect,P,sqlRecordSixUnits],
                           mutableData)
             )
            [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken patient db error"];
@@ -304,7 +304,7 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
            if ([EPDict[E] isEqualToString:P])
            {
               [mutableData setData:[NSData data]];
-              if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+              if (!execUTF8Bash(password,
                                 [NSString stringWithFormat:sqlE,sqlConnect,E,sqlRecordTenUnits],
                                 mutableData)
                   )
@@ -376,7 +376,7 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
               
               //series
               [mutableData setData:[NSData data]];
-              if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+              if (!execUTF8Bash(password,
                                 [NSString stringWithFormat:sqlS,sqlConnect,E,sqlRecordFiveUnits],
                                 mutableData)
                   )
@@ -403,7 +403,7 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
 
                  //instances
                  [mutableData setData:[NSData data]];
-                 if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+                 if (!execUTF8Bash(password,
                                    [NSString stringWithFormat:sqlI,sqlConnect,SProperties[0],sqlRecordFourUnits],
                                    mutableData)
                      )
