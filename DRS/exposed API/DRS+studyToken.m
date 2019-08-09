@@ -323,14 +323,14 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
                <xsd:attribute name="ReferringPhysicianName" type="dicomVrPN" />
                */
               NSString *StudyDateString=[NSString stringWithFormat:@"%@%@%@",
-                                         [(EPropertiesArray[0])[3]subarrayWithRange:NSMakeRange(0,4)],
-                                         [(EPropertiesArray[0])[3]subarrayWithRange:NSMakeRange(5,2)],
-                                         [(EPropertiesArray[0])[3]subarrayWithRange:NSMakeRange(8,2)]
+                                         [(EPropertiesArray[0])[3]substringWithRange:NSMakeRange(0,4)],
+                                         [(EPropertiesArray[0])[3]substringWithRange:NSMakeRange(5,2)],
+                                         [(EPropertiesArray[0])[3]substringWithRange:NSMakeRange(8,2)]
                                          ];
               NSString *StudyTimeString=[NSString stringWithFormat:@"%@%@%@",
-                                         [(EPropertiesArray[0])[4]subarrayWithRange:NSMakeRange(0,2)],
-                                         [(EPropertiesArray[0])[4]subarrayWithRange:NSMakeRange(3,2)],
-                                         [(EPropertiesArray[0])[4]subarrayWithRange:NSMakeRange(6,2)]
+                                         [(EPropertiesArray[0])[4]substringWithRange:NSMakeRange(0,2)],
+                                         [(EPropertiesArray[0])[4]substringWithRange:NSMakeRange(3,2)],
+                                         [(EPropertiesArray[0])[4]substringWithRange:NSMakeRange(6,2)]
                                          ];
               [manifest appendFormat:
                @"<Study StudyInstanceUID=\"%@\" StudyDescription=\"%@\" StudyDate=\"%@\" StudyTime=\"%@\" AccessionNumber=\"%@\" StudyID=\"%@\" ReferringPhysicianName=\"%@\" numImages=\"%@\" modality=\"%@\">\r",

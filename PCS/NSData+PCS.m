@@ -259,12 +259,12 @@ void generateCRC32Table(uint32_t *pTable, uint32_t poly)
       dataRange=NSMakeRange(currentRecordSeparator.location + currentRecordSeparator.length, dataLength - currentRecordSeparator.location - currentRecordSeparator.length);
    }
    
-   if (index != NSNotFound)
+   if ((index != NSNotFound) && ([recordArray count]>1))
    {
       if (decreasing) [recordArray sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
-         return [obj2[index] compare:obj1[index]];}];
+          return [obj2[index] compare:obj1[index] options:(NSCaseInsensitiveSearch | NSNumericSearch | NSDiacriticInsensitiveSearch)];}];
       else [recordArray sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
-         return [obj1[index] compare:obj2[index]];}];
+         return [obj1[index] compare:obj2[index] options:(NSCaseInsensitiveSearch | NSNumericSearch | NSDiacriticInsensitiveSearch)];}];
    }
    
    return [NSArray arrayWithArray:recordArray];
@@ -281,15 +281,16 @@ void generateCRC32Table(uint32_t *pTable, uint32_t poly)
    NSRange currentUnitSeparator=NSMakeRange(remainingRecordRange.location,0);
    while ((currentUnitSeparator.location + currentUnitSeparator.length) < (recordRange.location + recordRange.length))
    {
-      currentUnitSeparator=[self rangeOfData:unitSeparator options:0 range:recordRange];
+      currentUnitSeparator=[self rangeOfData:unitSeparator options:0 range:remainingRecordRange];
       if (currentUnitSeparator.location!=NSNotFound)
       {
-         [unitArray addObject:[[NSString alloc]initWithData:[self subdataWithRange:NSMakeRange(remainingRecordRange.location,currentUnitSeparator.location)] encoding:encoding]];
+         [unitArray addObject:[[NSString alloc]initWithData:[self subdataWithRange:NSMakeRange(remainingRecordRange.location,currentUnitSeparator.location-remainingRecordRange.location)] encoding:encoding]];
          remainingRecordRange=NSMakeRange(currentUnitSeparator.location + currentUnitSeparator.length, recordRange.location + recordRange.length - currentUnitSeparator.location - currentUnitSeparator.length);
       }
       else
       {
          [unitArray addObject:[[NSString alloc]initWithData:[self subdataWithRange:NSMakeRange(remainingRecordRange.location,remainingRecordRange.length)] encoding:encoding]];
+          
          remainingRecordRange=NSMakeRange(remainingRecordRange.location + remainingRecordRange.length, 0);
       }
    }
