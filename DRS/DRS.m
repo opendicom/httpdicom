@@ -402,6 +402,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
           drsport:(long long)drsport
           defaultpacsoid:(NSString*)defaultpacsoid
 {
+   [NSData initPCS];
     self = [super init];
     if(self) {
         _sqls=sqls;

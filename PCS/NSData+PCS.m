@@ -247,7 +247,7 @@ void generateCRC32Table(uint32_t *pTable, uint32_t poly)
    if (dataLength==0)return @[];
    
    NSMutableArray *recordArray=[NSMutableArray array];
-   NSRange dataRange=NSMakeRange(0, [self length]);
+   NSRange dataRange=NSMakeRange(0, dataLength);
    NSRange currentRecordSeparator=NSMakeRange(0,0);
    while (currentRecordSeparator.location+currentRecordSeparator.length < dataLength)
    {

@@ -5,3 +5,4 @@ httpdicom.xcodeproj/xcuserdata/*
 *.xcbkptlist
 *.DS_Store
 deploy/local/httpdicom/httpdicom
+deploy/local/httpdicom/httpdicom
