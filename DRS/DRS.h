@@ -30,7 +30,9 @@ NSDictionary * pacsParam(NSMutableArray  *  names,
 
 
 //task
-int readBashUTF8Task(NSArray *args, NSMutableData *readData);
+int execUTF8Bash(NSDictionary *environment, NSString *writeString, NSMutableData *readData);
+int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData);
+
 int bash(NSData *writeData, NSMutableData *readData);
 int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData);
 

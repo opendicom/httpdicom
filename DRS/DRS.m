@@ -308,13 +308,25 @@ static NSDictionary        *_pacsaetDictionary=nil;
 static NSArray             *_localoids=nil;
 static NSDictionary        *_custodianDictionary=nil;
 
-int readBashUTF8Task(NSArray *args, NSMutableData *readData)
+
+int execUTF8Bash(NSDictionary *environment, NSString *writeString, NSMutableData *readData)
 {
-   LOG_WARNING(@"%@",[args description]);
-   
+   LOG_VERBOSE(@"%@",writeString);
+   return execTask(environment, @"/bin/bash",@[@"-s"], [writeString dataUsingEncoding:NSUTF8StringEncoding], readData);
+}
+
+int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
+{
    NSTask *task=[[NSTask alloc]init];
-   [task setLaunchPath:@"/bin/bash"];
-   [task setArguments:[@[@"-s"] arrayByAddingObjectsFromArray:args]];
+   
+   task.environment=environment;
+   
+   [task setLaunchPath:launchPath];
+   [task setArguments:launchArgs];
+   //LOG_INFO(@"%@",[task arguments]);
+   NSPipe *writePipe = [NSPipe pipe];
+   NSFileHandle *writeHandle = [writePipe fileHandleForWriting];
+   [task setStandardInput:writePipe];
    
    NSPipe* readPipe = [NSPipe pipe];
    NSFileHandle *readingFileHandle=[readPipe fileHandleForReading];
@@ -322,12 +334,17 @@ int readBashUTF8Task(NSArray *args, NSMutableData *readData)
    [task setStandardError:readPipe];
    
    [task launch];
+   [writeHandle writeData:writeData];
+   [writeHandle closeFile];
    
    NSData *dataPiped = nil;
    while((dataPiped = [readingFileHandle availableData]) && [dataPiped length])
    {
       [readData appendData:dataPiped];
    }
+   //while( [task isRunning]) [NSThread sleepForTimeInterval: 0.1];
+   //[task waitUntilExit];      // <- This is VERY DANGEROUS : the main runloop is continuing...
+   //[aTask interrupt];
    
    [task waitUntilExit];
    int terminationStatus = [task terminationStatus];

@@ -146,15 +146,15 @@ NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWit
          //issuer?
          
          //find corresponding EP
-          [sqlBash setString:[NSString stringWithFormat:sqlPE4PidEda, sqlConnect, values[PatientIDIndex], values[StudyDateIndex], sqlTwoPks]];
-          LOG_VERBOSE(@"%@",sqlBash);
          [mutableData setData:[NSData data]];
           
          //if (!task(@"/bin/bash",@[@"-s"],[sqlBash dataUsingEncoding:NSUTF8StringEncoding],mutableData))
          //   [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken PatientID or StudyDate error"];
          
-         if (!readBashUTF8Task(@[[NSString stringWithFormat:sqlPE4PidEda, sqlConnect, values[PatientIDIndex], values[StudyDateIndex], sqlTwoPks]], mutableData))
-                   [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken PatientID or StudyDate error"];
+         if (!execUTF8Bash(@{@"MYSQL_PWD":@"pcs"},
+                           [NSString stringWithFormat:sqlPE4PidEda, sqlConnect, values[PatientIDIndex], values[StudyDateIndex], sqlTwoPks],
+                           mutableData)
+             ) [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken PatientID or StudyDate error"];
       }
       else [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken one of StudyInstanceUID, AccessionNumber or PatientID+StudyDate should be present"];
 
