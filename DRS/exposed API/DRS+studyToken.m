@@ -48,13 +48,38 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
 
 
 
--(void)addStudyTokenHandler
+-(void)addPOSTStudyTokenHandler
+{
+   
+   NSRegularExpression *studyTokenRegex = ;
+   
+   [self
+    addHandler:@"POST"
+    regex:[NSRegularExpression regularExpressionWithPattern:@"/studyToken" options:0 error:NULL]
+    processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
+    {
+       completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
+    }
+   ];
+}
+
+-(void)addGETStudyTokenHandler
+{
+   [self
+    addHandler:@"GET"
+    regex:[NSRegularExpression regularExpressionWithPattern:@"/studyToken" options:0 error:NULL]
+    processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
+    {
+       completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
+    }
+   ];
+}
+
+
++(RSResponse*)studyToken:(RSRequest*)request
 {
    NSDictionary *password=@{@"MYSQL_PWD":@"pcs"};
-NSRegularExpression *studyTokenRegex = [NSRegularExpression regularExpressionWithPattern:@"/studyToken" options:0 error:NULL];
-[self addHandler:@"POST" regex:studyTokenRegex processBlock:
- ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
-{
+   
    //read json
    NSMutableArray *names=[NSMutableArray array];
    NSMutableArray *values=[NSMutableArray array];
@@ -542,10 +567,6 @@ sessionString,
 #pragma mark dicomzip
 //use responseArray to stream the zipped imageId objects
    return [RSErrorResponse responseWithClientError:404 message:@"%@",@"falta programar dicomzip"];
-
-   
-}
-(request));}];
 }
 
 @end

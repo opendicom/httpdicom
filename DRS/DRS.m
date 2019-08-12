@@ -573,8 +573,9 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 //        LOG_DEBUG(@"added handlers GETencapsulated and POSTencapsulated");
 
 #pragma mark /studyToken
-        [self addStudyTokenHandler];
-        LOG_DEBUG(@"added handler POST /studyToken");
+        [self addPOSTStudyTokenHandler];
+       [self addGETStudyTokenHandler];
+        LOG_DEBUG(@"added handler POST+GET /studyToken");
 
     }
     return self;

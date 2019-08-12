@@ -29,6 +29,9 @@
 
 @interface DRS (studyToken)
 
--(void)addStudyTokenHandler;
+-(void)addPOSTStudyTokenHandler;
+-(void)addGETStudyTokenHandler;
+
++(RSResponse*)studyToken:(RSRequest*)request;
 
 @end
