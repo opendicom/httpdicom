@@ -62,7 +62,7 @@
             <key>timeoutinterval</key>
             <string id="timeoutinterval">60</string>
             <key>wadouri</key>
-            <string id="wadouri">http://192.168.250.1:8080/dcm4chee</string>
+            <string id="wadouri">http://192.168.250.1:8080/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters"></string>            
             <key>wadors</key>

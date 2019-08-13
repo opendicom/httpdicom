@@ -72,6 +72,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "VERBOSE"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "DEBUG"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
