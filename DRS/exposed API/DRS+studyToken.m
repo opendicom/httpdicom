@@ -64,7 +64,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
 {
    [self
     addHandler:@"GET"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/studyToken.xml$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/studyToken$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -540,22 +540,23 @@ sessionString,
    
    if (doWeasis)
    {
-     /*return [RSDataResponse
+     return [RSDataResponse
              responseWithData:[LFCGzipUtility gzipData:[manifest dataUsingEncoding:NSUTF8StringEncoding]]
              contentType:@"application/x-gzip"
-             ];*/
+             ];
        
        /*
+       //base64 dicom:get -i does not work
+
        RSDataResponse *response=[RSDataResponse responseWithData:[[[LFCGzipUtility gzipData:[manifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
-     [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
-     return response;
-       */
-       
-       
-       return [RSDataResponse
+        [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
+        return response;
+ 
+        //xml dicom:get -iw works also, like with gzip
+        return [RSDataResponse
                responseWithData:[manifest dataUsingEncoding:NSUTF8StringEncoding]
                contentType:@"text/xml"];
-        
+*/
 
    }
    else if (doCornerstone)
