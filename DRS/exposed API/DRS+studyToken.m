@@ -93,12 +93,14 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
       LOG_VERBOSE(@"stuyToken PARAM \"%@\" = \"%@\"",names[idx],values[idx]);
    }
 
+   
+   
 #pragma mark custodianOID?
    NSUInteger custodianOIDIndex=[names indexOfObject:@"custodianOID"];
    NSString *custodianOIDString=nil;
    if (custodianOIDIndex!=NSNotFound)
    {
-#pragma mark TODO
+#pragma mark TODO proxying to another PCS if no localoid
       custodianOIDString=values[custodianOIDIndex];
       if ([DRS.localoids indexOfObject:custodianOIDString]==NSNotFound)
       {
@@ -107,8 +109,23 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
       }
    }
 
+#pragma mark accessType
+   NSString *accessTypeString=nil;
+   NSUInteger accessTypeIndex=[names indexOfObject:@"accessType"];
+   if (accessTypeIndex!=NSNotFound) accessTypeString=values[accessTypeIndex];
+   else [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType required"];
+   BOOL doWeasis=[accessTypeString isEqualToString:@"weasis"];
+   BOOL doCornerstone=[accessTypeString isEqualToString:@"cornerstone"];
+   BOOL doDicomzip=[accessTypeString isEqualToString:@"dicomzip"];
+   BOOL doOsiriX=[accessTypeString isEqualToString:@"OsiriX"];
+   if (!doWeasis && !doCornerstone && !doDicomzip && !doOsiriX) [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType should be either weasis, cornerstone or dicomzip"];
    
-#pragma mark processing by this httpdicom
+   
+
+   
+   
+#pragma mark check filter validity:
+   //no sql performed at that point
 
    NSUInteger StudyInstanceUIDsIndex=[names indexOfObject:@"StudyInstanceUID"];
    NSUInteger AccessionNumberIndex=[names indexOfObject:@"AccessionNumber"];
@@ -124,7 +141,6 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
    NSMutableDictionary *EPDict=[NSMutableDictionary dictionary];
    NSMutableData *mutableData=[NSMutableData data];
 
-#pragma mark -
 #pragma mark StudyInstanceUID
    
    if (StudyInstanceUIDsIndex!=NSNotFound)
@@ -191,7 +207,13 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
          [EPDict setObject:[EPString pathExtension] forKey:[EPString stringByDeletingPathExtension]];
       }
    }
+
    
+   if (doCornerstone && ([EPDict count]>1))
+   {
+      [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType cornerstone can not be applied to more than a study"];
+   }
+
    
 #pragma mark -
 #pragma mark patient set
@@ -210,22 +232,6 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
    if (sessionIndex!=NSNotFound) sessionString=values[sessionIndex];
    else sessionString=@"";
 
-#pragma mark accessType
-   NSString *accessTypeString=nil;
-   NSUInteger accessTypeIndex=[names indexOfObject:@"accessType"];
-   if (accessTypeIndex!=NSNotFound) accessTypeString=values[accessTypeIndex];
-   else [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType required"];
-   BOOL doWeasis=[accessTypeString isEqualToString:@"weasis"];
-   BOOL doCornerstone=[accessTypeString isEqualToString:@"cornerstone"];
-   BOOL doDicomzip=[accessTypeString isEqualToString:@"dicomzip"];
-   BOOL doOsiriX=[accessTypeString isEqualToString:@"OsiriX"];
-   if (!doWeasis && !doCornerstone && !doDicomzip && !doOsiriX) [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType should be either weasis, cornerstone or dicomzip"];
-   /*
-    if (doCornerstone && ([EPDict count]>1))
-   {
-       [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType cornerstone can not be applied to more than a study"];
-   }
-   */
    
 #pragma mark SeriesDescription
    NSArray *SeriesDescriptionArray=nil;
