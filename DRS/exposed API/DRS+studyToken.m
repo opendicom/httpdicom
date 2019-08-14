@@ -470,14 +470,13 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                     if (!hasSOPClassRestriction || [SOPClassArray indexOfObject:((IPropertiesArray[0])[3])]==NSNotFound)
                     {
                        [manifest appendFormat:
-                        @"<Series SeriesInstanceUID=\"%@\" SeriesDescription=\"%@\" SeriesNumber=\"%@\" Modality=\"%@\"  WadoTransferSyntaxUID=\"%@\" DirectDownloadThumbnail=\"%@\">\r",
+                        @"<Series SeriesInstanceUID=\"%@\" SeriesDescription=\"%@\" SeriesNumber=\"%@\" Modality=\"%@\"  WadoTransferSyntaxUID=\"%@\" >\r",
                         SProperties[1],
                         SProperties[2],
                         SProperties[3],
                         SProperties[4],
-                        @"*",
-                        @""
-                        ];
+                        @"*"
+                        ];//DirectDownloadThumbnail=\"%@\"
                        
 /*
    seriesList
@@ -501,7 +500,6 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                                 @"SeriesInstanceUID":SProperties[1],
                                 @"Modality":SProperties[4],
                                 @"WadoTransferSyntaxUID":@"*",
-                                @"DirectDownloadThumbnail":@"",
                                 @"instanceList":instanceArray
                            }];
                        }
@@ -513,11 +511,10 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
    <xsd:attribute name="DirectDownloadFile" type="xsd:string" />
 */
                           [manifest appendFormat:
-                           @"<Instance SOPInstanceUID=\"%@\" InstanceNumber=\"%@\" DirectDownloadFile=\"%@\"/>\r",
+                           @"<Instance SOPInstanceUID=\"%@\" InstanceNumber=\"%@\" />\r",
                            IProperties[1],
-                           IProperties[2],
-                           @""
-                           ];
+                           IProperties[2]
+                           ];//DirectDownloadFile=\"%@\"
                           
                           
                           if (addCornerstoneSeries)
