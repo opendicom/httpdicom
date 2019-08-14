@@ -218,7 +218,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
    BOOL doWeasis=[accessTypeString isEqualToString:@"weasis"];
    BOOL doCornerstone=[accessTypeString isEqualToString:@"cornerstone"];
    BOOL doDicomzip=[accessTypeString isEqualToString:@"dicomzip"];
-   if (!doWeasis && !doCornerstone && !doDicomzip) [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType should be either weasis, cornerstone or dicomzip"];
+   BOOL doOsiriX=[accessTypeString isEqualToString:@"OsiriX"];
+   if (!doWeasis && !doCornerstone && !doDicomzip && !doOsiriX) [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType should be either weasis, cornerstone or dicomzip"];
    /*
     if (doCornerstone && ([EPDict count]>1))
    {
@@ -264,24 +265,25 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
      && [SOPClassArray[0] length]
      );
 
-   NSMutableString *manifest=[NSMutableString string];
-   NSMutableArray *responseArray=[NSMutableArray array];
-
 #pragma mark -
 #pragma mark processing
+
+   NSMutableString *manifest=[NSMutableString string];
+   NSMutableArray *responseArray=[NSMutableArray array];
+   
      [manifest appendString:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r"];
      [manifest appendString:@"<manifest xmlns=\"http://www.weasis.org/xsd/2.5\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r"];
 
-     /*
-      <xsd:attribute name="arcId" type="xsd:string" use="required" />
-      <xsd:attribute name="baseUrl" type="xsd:anyURI" use="required" />
-      <xsd:attribute name="webLogin" type="xsd:string" />
-      <xsd:attribute name="requireOnlySOPInstanceUID" type="xsd:boolean" />
-      <xsd:attribute name="additionnalParameters" type="xsd:string" />
-      <!-- &session (in additionnalParameters)-->
-      <!-- &custodianOID (in additionnalParameters) -->
-      <xsd:attribute name="overrideDicomTagsList" type="dicomTagsList" />
-      */
+/*
+   <xsd:attribute name="arcId" type="xsd:string" use="required" />
+   <xsd:attribute name="baseUrl" type="xsd:anyURI" use="required" />
+   <xsd:attribute name="webLogin" type="xsd:string" />
+   <xsd:attribute name="requireOnlySOPInstanceUID" type="xsd:boolean" />
+   <xsd:attribute name="additionnalParameters" type="xsd:string" />
+   <!-- &session (in additionnalParameters)-->
+   <!-- &custodianOID (in additionnalParameters) -->
+   <xsd:attribute name="overrideDicomTagsList" type="dicomTagsList" />
+*/
      [manifest appendFormat:@"<arcQuery arcId=\"%@\" baseUrl=\"%@\" webLogin=\"%@\" requireOnlySOPInstanceUID=\"%@\" additionnalParameters=\"&amp;session=%@&amp;custodianOID=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@\" overrideDicomTagsList=\"%@\">\r",
       custodianOIDString,
       proxyURIString,
@@ -294,7 +296,27 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
       [SOPClassArray componentsJoinedByString:@"\\"],
       @""
       ];
-     
+
+   NSMutableArray *patientArray=[NSMutableArray array];
+   [responseArray addObject:
+  @{
+    @"arcId":custodianOIDString,
+    @"baseUrl":proxyURIString,
+    @"webLogin":@"",
+    @"requireOnlySOPInstanceUID":@"false",
+    @"additionnalParameters":[NSString stringWithFormat:@"&amp;session=%@&amp;custodianOID=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@",
+           sessionString,
+           custodianOIDString,
+           [SeriesDescriptionArray componentsJoinedByString:@"\\"],
+           [ModalityArray componentsJoinedByString:@"\\"],
+           [SOPClassArray componentsJoinedByString:@"\\"]
+       ],
+    @"overrideDicomTagsList":@"",
+    @"studyList":patientArray
+   }
+    ];
+
+   
 #pragma mark patient loop
      for (NSString *P in PSet)
      {
@@ -305,15 +327,15 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
             )
            [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken patient db error"];
         NSArray *patientPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
-        /*
-         <!-- pk (added in our implementation -->
-         <xsd:attribute name="PatientID" type="dicomVrLO" use="required" />
-         <xsd:attribute name="PatientName" type="dicomVrPN" use="required" />
-         <xsd:attribute name="IssuerOfPatientID" type="dicomVrLO" />
-         <xsd:attribute name="PatientBirthDate" type="dicomVrDA" />
-         <!--<xsd:attribute name="PatientBirthTime" type="dicomVrTM" /> (not present in our implementation)-->
-         <xsd:attribute name="PatientSex" type="dicomPatientSex" />
-         */
+/*
+ <!-- pk (added in our implementation -->
+ <xsd:attribute name="PatientID" type="dicomVrLO" use="required" />
+ <xsd:attribute name="PatientName" type="dicomVrPN" use="required" />
+ <xsd:attribute name="IssuerOfPatientID" type="dicomVrLO" />
+ <xsd:attribute name="PatientBirthDate" type="dicomVrDA" />
+ <!--<xsd:attribute name="PatientBirthTime" type="dicomVrTM" /> (not present in our implementation)-->
+ <xsd:attribute name="PatientSex" type="dicomPatientSex" />
+*/
         [manifest appendFormat:
          @"<Patient PatientID=\"%@\" PatientName=\"%@\" IssuerOfPatientID=\"%@\" PatientBirthDate=\"%@\" PatientSex=\"%@\">\r",
          (patientPropertiesArray[0])[1],
@@ -323,7 +345,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
          (patientPropertiesArray[0])[5]
          ];
         NSMutableArray *studyArray=[NSMutableArray array];
-        [responseArray addObject:@{
+        [patientArray addObject:@{
          @"PatientID":(patientPropertiesArray[0])[1],
          @"PatientName":(patientPropertiesArray[0])[2],
          @"IssuerOfPatientID":(patientPropertiesArray[0])[3],
@@ -343,16 +365,15 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                   )
                  [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken study db error"];
               NSArray *EPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
-              /*
-               <xsd:attribute name="StudyInstanceUID" type="dicomVrUI"
-               use="required" />
-               <xsd:attribute name="StudyDescription" type="dicomVrLO" />
-               <xsd:attribute name="StudyDate" type="dicomVrDA" />
-               <xsd:attribute name="StudyTime" type="dicomVrTM" />
-               <xsd:attribute name="AccessionNumber" type="dicomVrSH" />
-               <xsd:attribute name="StudyID" type="dicomVrSH" />
-               <xsd:attribute name="ReferringPhysicianName" type="dicomVrPN" />
-               */
+/*
+   <xsd:attribute name="StudyInstanceUID" type="dicomVrUI" use="required" />
+   <xsd:attribute name="StudyDescription" type="dicomVrLO" />
+   <xsd:attribute name="StudyDate" type="dicomVrDA" />
+   <xsd:attribute name="StudyTime" type="dicomVrTM" />
+   <xsd:attribute name="AccessionNumber" type="dicomVrSH" />
+   <xsd:attribute name="StudyID" type="dicomVrSH" />
+   <xsd:attribute name="ReferringPhysicianName" type="dicomVrPN" />
+*/
               NSString *StudyDateString=[NSString stringWithFormat:@"%@%@%@",
                                          [(EPropertiesArray[0])[3]substringWithRange:NSMakeRange(0,4)],
                                          [(EPropertiesArray[0])[3]substringWithRange:NSMakeRange(5,2)],
@@ -449,24 +470,23 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                     if (!hasSOPClassRestriction || [SOPClassArray indexOfObject:((IPropertiesArray[0])[3])]==NSNotFound)
                     {
                        [manifest appendFormat:
-                        @"<Series SeriesInstanceUID=\"%@\" SeriesDescription=\"%@\" SeriesNumber=\"%@\" Modality=\"%@\"  WadoTransferSyntaxUID=\"%@\">\r",
+                        @"<Series SeriesInstanceUID=\"%@\" SeriesDescription=\"%@\" SeriesNumber=\"%@\" Modality=\"%@\"  WadoTransferSyntaxUID=\"%@\" DirectDownloadThumbnail=\"%@\">\r",
                         SProperties[1],
                         SProperties[2],
                         SProperties[3],
                         SProperties[4],
-                        @"*"
+                        @"*",
+                        @""
                         ];
-                       //@"<Series SeriesInstanceUID=\"%@\" SeriesDescription=\"%@\" SeriesNumber=\"%@\" Modality=\"%@\"  WadoTransferSyntaxUID=\"%@\" WadoCompressionRate=\"%@\" DirectDownloadThumbnail=\"%@\">\r"
                        
-                       
-                       /*
-                        seriesList
-                        ==========
-                        not for OT nor DOC
+/*
+   seriesList
+   ==========
+   not for OT nor DOC
                         
-                        seriesDescription
-                        seriesNumber
-                        */
+   seriesDescription
+   seriesNumber
+*/
                        NSMutableArray *instanceArray=[NSMutableArray array];
                        BOOL addCornerstoneSeries=
                        (   ![SProperties[4] isEqualToString:@"OT"]
@@ -476,37 +496,40 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                        {
                           [seriesArray addObject:
                            @{
-                                @"SeriesInstanceUID":SProperties[1],
                                 @"seriesDescription":SProperties[2],
                                 @"seriesNumber":SProperties[3],
+                                @"SeriesInstanceUID":SProperties[1],
                                 @"Modality":SProperties[4],
-                                @"instanceList":instanceArray,
+                                @"WadoTransferSyntaxUID":@"*",
+                                @"DirectDownloadThumbnail":@"",
+                                @"instanceList":instanceArray
                            }];
                        }
                        for (NSArray *IProperties in IPropertiesArray)
                        {
-                          /*
-                           <xsd:attribute name="SOPInstanceUID" type="dicomVrUI"
-                           use="required" />
-                           <xsd:attribute name="InstanceNumber" type="dicomVrIS" />
-                           ---<xsd:attribute name="DirectDownloadFile" type="xsd:string" />
-                           
-                           */
+/*
+   <xsd:attribute name="SOPInstanceUID" type="dicomVrUI" use="required" />
+   <xsd:attribute name="InstanceNumber" type="dicomVrIS" />
+   <xsd:attribute name="DirectDownloadFile" type="xsd:string" />
+*/
                           [manifest appendFormat:
-                           @"<Instance SOPInstanceUID=\"%@\" InstanceNumber=\"%@\"/>\r",
+                           @"<Instance SOPInstanceUID=\"%@\" InstanceNumber=\"%@\" DirectDownloadFile=\"%@\"/>\r",
                            IProperties[1],
-                           IProperties[2]
+                           IProperties[2],
+                           @""
                            ];
                           
                           
                           if (addCornerstoneSeries)
                           {
-                             /*
-                              instanceList
-                              ============
-                              classified by instanceNumber
-                              imageId:wadouri
-                              */
+/*
+   instanceList
+   ============
+   imageId = (weasis) DirectDownloadFile
+ 
+   SOPInstanceUID
+   InstanceNumber
+*/
 
                              
                              NSString *wadouriInstance=[NSString stringWithFormat:
@@ -517,8 +540,12 @@ SProperties[1],
 IProperties[1],
 sessionString,
 @"2.16.858.0.1.4.0"];
-                              [instanceArray addObject:@{@"imageId":wadouriInstance
-                                                          }];
+                              [instanceArray addObject:@{
+                                 @"imageId":wadouriInstance,
+                                 @"SOPInstanceUID":IProperties[1],
+                                 @"InstanceNumber":IProperties[2]
+                                 }
+                               ];
                            }
                        }
                        [manifest appendString:@"</Series>\r"];
