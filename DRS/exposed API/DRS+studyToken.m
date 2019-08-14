@@ -511,7 +511,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                              
                              NSString *wadouriInstance=[NSString stringWithFormat:
 @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&transferSyntax=*&session=%@&custodianOID=%@",
-@"http://192.168.250.1:8080/dcm4chee",
+@"http://192.168.250.1:8080/wado",
 (EPropertiesArray[0])[1],
 SProperties[1],
 IProperties[1],
@@ -564,12 +564,7 @@ sessionString,
 #pragma mark cornerstone
      
      //cornerstone
-     NSMutableDictionary *cornerstone=[NSMutableDictionary dictionary];
-     
- 
-     
-     
-      NSData *cornerstoneJson=[NSJSONSerialization dataWithJSONObject:cornerstone options:0 error:nil];
+     NSData *cornerstoneJson=[NSJSONSerialization dataWithJSONObject:responseArray options:0 error:nil];
      LOG_DEBUG(@"cornerstone manifest :\r\n%@",[[NSString alloc] initWithData:cornerstoneJson encoding:NSUTF8StringEncoding]);
      return [RSDataResponse responseWithData:cornerstoneJson contentType:@"application/json"];
    }
