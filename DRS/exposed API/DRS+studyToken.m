@@ -318,7 +318,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
            [SOPClassArray componentsJoinedByString:@"\\"]
        ],
     @"overrideDicomTagsList":@"",
-    @"studyList":patientArray
+    @"patientList":patientArray
    }
     ];
 
@@ -536,8 +536,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
 
                              
                              NSString *wadouriInstance=[NSString stringWithFormat:
-@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&transferSyntax=*&session=%@&custodianOID=%@",
-@"http://192.168.250.1:8080/wado",
+@"wadouri:%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&transferSyntax=*&session=%@&custodianOID=%@",
+proxyURIString,
 (EPropertiesArray[0])[1],
 SProperties[1],
 IProperties[1],
