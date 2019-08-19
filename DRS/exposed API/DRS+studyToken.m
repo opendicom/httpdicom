@@ -26,25 +26,29 @@ static NSString *sqlRecordEightUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\
 static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}'";
 
 
+//prolog
+//filters...
+//limit (or anything else in the MYSQL SELECT after filters)
+//epilog
 
-static NSString *sqlPE4Ean=@"%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' limit 10%@";
+static NSString *sqlPE4Ean=@"%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' %@ %@";//limit 10
 
-static NSString *sqlPE4Euid=@"%@SELECT pk,patient_fk FROM study WHERE study_iuid='%@'%@";
+static NSString *sqlPE4Euid=@"%@SELECT pk,patient_fk FROM study WHERE study_iuid='%@' %@ %@";
 
-static NSString *sqlPE4PidEda=@"%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime)='%@' limit 10%@";
+static NSString *sqlPE4PidEda=@"%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime)='%@' %@ %@";//limit 10
 
 //patient fields
-static NSString *sqlP=@"%@SELECT pk,pat_id,pat_name,pat_id_issuer,pat_birthdate,pat_sex FROM patient WHERE pk='%@'%@";
+static NSString *sqlP=@"%@SELECT pk,pat_id,pat_name,pat_id_issuer,pat_birthdate,pat_sex FROM patient WHERE pk='%@' %@ %@";
 
 //studyFields
-static NSString *sqlE=@"%@SELECT pk,study_iuid,study_desc,DATE(study_datetime),TIME(study_datetime),accession_no,study_id,ref_physician,num_instances,mods_in_study FROM study WHERE pk='%@'%@";
+static NSString *sqlE=@"%@SELECT pk,study_iuid,study_desc,DATE(study_datetime),TIME(study_datetime),accession_no,study_id,ref_physician,num_instances,mods_in_study FROM study WHERE pk='%@' %@ %@";
 
 //seriesFields
-static NSString *sqlS=@"%@SELECT pk,series_iuid,series_desc,series_no,modality FROM series WHERE study_fk='%@'%@";
+static NSString *sqlS=@"%@SELECT pk,series_iuid,series_desc,series_no,modality FROM series WHERE study_fk='%@' %@ %@";
 
 
 //instancesFields
-static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHERE series_fk='%@'%@";
+static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHERE series_fk='%@' %@ %@";
 
 
 
@@ -156,7 +160,13 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
          //find patient fk
          [mutableData setData:[NSData data]];
          if (!execUTF8Bash(password,
-                           [NSString stringWithFormat:sqlPE4Euid,sqlConnect,uid,sqlTwoPks],
+                           [NSString stringWithFormat:
+                            sqlPE4Euid,
+                            sqlConnect,
+                            uid,
+                            @"",
+                            sqlTwoPks
+                            ],
                            mutableData)
              )
             [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken StudyInstanceUID db error"];
@@ -179,7 +189,13 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
          //find corresponding EP
          [mutableData setData:[NSData data]];
          if (!execUTF8Bash(password,
-                           [NSString stringWithFormat:sqlPE4Ean, sqlConnect, values[AccessionNumberIndex],sqlTwoPks],
+                           [NSString stringWithFormat:
+                            sqlPE4Ean,
+                            sqlConnect,
+                            values[AccessionNumberIndex],
+                            @"",
+                            sqlTwoPks
+                            ],
                            mutableData)
              )
             [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken accessionNumber error"];
@@ -192,7 +208,14 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
          //find corresponding EP
          [mutableData setData:[NSData data]];
          if (!execUTF8Bash(password,
-                           [NSString stringWithFormat:sqlPE4PidEda, sqlConnect, values[PatientIDIndex], values[StudyDateIndex], sqlTwoPks],
+                           [NSString stringWithFormat:
+                            sqlPE4PidEda,
+                            sqlConnect,
+                            values[PatientIDIndex],
+                            values[StudyDateIndex],
+                            @"",
+                            sqlTwoPks
+                            ],
                            mutableData)
              ) [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken PatientID or StudyDate error"];
       }
@@ -233,25 +256,20 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
    else sessionString=@"";
 
    
-#pragma mark SeriesDescription
+#pragma mark series restriction in query?
+   
    NSArray *SeriesDescriptionArray=nil;
    NSUInteger SeriesDescriptionIndex=[names indexOfObject:@"SeriesDescription"];
    if (SeriesDescriptionIndex!=NSNotFound) SeriesDescriptionArray=[values[SeriesDescriptionIndex] componentsSeparatedByString:@"\\"];
 
-
-#pragma mark Modality
    NSArray *ModalityArray=nil;
    NSUInteger ModalityIndex=[names indexOfObject:@"Modality"];
    if (ModalityIndex!=NSNotFound) ModalityArray=[values[ModalityIndex]componentsSeparatedByString:@"\\"];
 
-
-#pragma mark SOPClass
    NSArray *SOPClassArray=nil;
    NSUInteger SOPClassIndex=[names indexOfObject:@"SOPClass"];
    if (SOPClassIndex!=NSNotFound) SOPClassArray=[values[SOPClassIndex]componentsSeparatedByString:@"\\"];
-
-                                                 
-#pragma mark series restriction
+   
    BOOL hasSeriesDescriptionRestriction=
         (
             SeriesDescriptionArray
@@ -270,8 +288,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
      && [SOPClassArray count]
      && [SOPClassArray[0] length]
      );
-
-#pragma mark -
+   BOOL hasRestriction=hasSeriesDescriptionRestriction || hasModalityRestriction || hasSOPClassRestriction;
 #pragma mark processing
 
    NSMutableString *manifest=[NSMutableString string];
@@ -324,7 +341,13 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
      {
         [mutableData setData:[NSData data]];
         if (!execUTF8Bash(password,
-                          [NSString stringWithFormat:sqlP,sqlConnect,P,sqlRecordSixUnits],
+                          [NSString stringWithFormat:
+                           sqlP,
+                           sqlConnect,
+                           P,
+                           @"",
+                           sqlRecordSixUnits
+                           ],
                           mutableData)
             )
            [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken patient db error"];
@@ -362,7 +385,13 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
            {
               [mutableData setData:[NSData data]];
               if (!execUTF8Bash(password,
-                                [NSString stringWithFormat:sqlE,sqlConnect,E,sqlRecordTenUnits],
+                                [NSString stringWithFormat:
+                                 sqlE,
+                                 sqlConnect,
+                                 E,
+                                 @"",
+                                 sqlRecordTenUnits
+                                 ],
                                 mutableData)
                   )
                  [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken study db error"];
@@ -433,7 +462,13 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
               //series
               [mutableData setData:[NSData data]];
               if (!execUTF8Bash(password,
-                                [NSString stringWithFormat:sqlS,sqlConnect,E,sqlRecordFiveUnits],
+                                [NSString stringWithFormat:
+                                 sqlS,
+                                 sqlConnect,
+                                 E,
+                                 @"",
+                                 sqlRecordFiveUnits
+                                 ],
                                 mutableData)
                   )
                  [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken series db error"];
@@ -451,87 +486,109 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                */
               for (NSArray *SProperties in SPropertiesArray)
               {
+                 //for SOPClassUID check on the first instance
+                 [mutableData setData:[NSData data]];
+                 if (!execUTF8Bash(password,
+                                   [NSString stringWithFormat:
+                                    sqlI,
+                                    sqlConnect,
+                                    SProperties[0],
+                                    @"limit 1",
+                                    sqlRecordFourUnits
+                                    ],
+                                   mutableData)
+                     )
+                    [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken instance db error"];
+                 NSArray *IPropertiesFirstRecord=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
                  
-                 if (hasSeriesDescriptionRestriction && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound) continue;
+                 if ([IPropertiesFirstRecord count]==0) continue;
+                 
+                 
+                 if (
+                         hasRestriction
+                      &&(hasSeriesDescriptionRestriction && [SeriesDescriptionArray indexOfObject:SProperties[2]]==NSNotFound)
+                      &&(hasModalityRestriction && [ModalityArray indexOfObject:SProperties[4]]==NSNotFound)
+                      &&(hasSOPClassRestriction && [SOPClassArray indexOfObject:IPropertiesFirstRecord[3]]==NSNotFound)
+                     ) continue;
                     
-                 if (hasModalityRestriction && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound) continue;
                  
 
                  //instances
                  [mutableData setData:[NSData data]];
                  if (!execUTF8Bash(password,
-                                   [NSString stringWithFormat:sqlI,sqlConnect,SProperties[0],sqlRecordFourUnits],
+                                   [NSString stringWithFormat:
+                                    sqlI,
+                                    sqlConnect,
+                                    SProperties[0],
+                                    @"",
+                                    sqlRecordFourUnits
+                                    ],
                                    mutableData)
                      )
                     [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken instance db error"];
                  NSArray *IPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
 
-                 if ([IPropertiesArray count]!=0)
-                 {
-                    //SOPClass?
-                    if (!hasSOPClassRestriction || [SOPClassArray indexOfObject:((IPropertiesArray[0])[3])]==NSNotFound)
-                    {
-                       [manifest appendFormat:
-                        @"<Series SeriesInstanceUID=\"%@\" SeriesDescription=\"%@\" SeriesNumber=\"%@\" Modality=\"%@\"  WadoTransferSyntaxUID=\"%@\" >\r",
-                        SProperties[1],
-                        SProperties[2],
-                        SProperties[3],
-                        SProperties[4],
-                        @"*"
-                        ];//DirectDownloadThumbnail=\"%@\"
-                       
+                 [manifest appendFormat:
+                  @"<Series SeriesInstanceUID=\"%@\" SeriesDescription=\"%@\" SeriesNumber=\"%@\" Modality=\"%@\"  WadoTransferSyntaxUID=\"%@\" >\r",
+                  SProperties[1],
+                  SProperties[2],
+                  SProperties[3],
+                  SProperties[4],
+                  @"*"
+                  ];//DirectDownloadThumbnail=\"%@\"
+                 
 /*
-   seriesList
-   ==========
-   not for OT nor DOC
-                        
-   seriesDescription
-   seriesNumber
-*/
-                       NSMutableArray *instanceArray=[NSMutableArray array];
-                       BOOL addCornerstoneSeries=
-                       (   ![SProperties[4] isEqualToString:@"OT"]
-                        && ![SProperties[4] isEqualToString:@"DOC"]
-                       );
-                       if (addCornerstoneSeries)
-                       {
-                          [seriesArray addObject:
-                           @{
-                                @"seriesDescription":SProperties[2],
-                                @"seriesNumber":SProperties[3],
-                                @"SeriesInstanceUID":SProperties[1],
-                                @"Modality":SProperties[4],
-                                @"WadoTransferSyntaxUID":@"*",
-                                @"instanceList":instanceArray
-                           }];
-                       }
-                       for (NSArray *IProperties in IPropertiesArray)
-                       {
-/*
-   <xsd:attribute name="SOPInstanceUID" type="dicomVrUI" use="required" />
-   <xsd:attribute name="InstanceNumber" type="dicomVrIS" />
-   <xsd:attribute name="DirectDownloadFile" type="xsd:string" />
-*/
-                          [manifest appendFormat:
-                           @"<Instance SOPInstanceUID=\"%@\" InstanceNumber=\"%@\" />\r",
-                           IProperties[1],
-                           IProperties[2]
-                           ];//DirectDownloadFile=\"%@\"
-                          
-                          
-                          if (addCornerstoneSeries)
-                          {
-/*
-   instanceList
-   ============
-   imageId = (weasis) DirectDownloadFile
+seriesList
+==========
+not for OT nor DOC
  
-   SOPInstanceUID
-   InstanceNumber
+seriesDescription
+seriesNumber
+*/
+                 NSMutableArray *instanceArray=[NSMutableArray array];
+                 BOOL addCornerstoneSeries=
+                 (   ![SProperties[4] isEqualToString:@"OT"]
+                  && ![SProperties[4] isEqualToString:@"DOC"]
+                 );
+                 if (addCornerstoneSeries)
+                 {
+                    [seriesArray addObject:
+                     @{
+                          @"seriesDescription":SProperties[2],
+                          @"seriesNumber":SProperties[3],
+                          @"SeriesInstanceUID":SProperties[1],
+                          @"Modality":SProperties[4],
+                          @"WadoTransferSyntaxUID":@"*",
+                          @"instanceList":instanceArray
+                     }];
+                 }
+                 for (NSArray *IProperties in IPropertiesArray)
+                 {
+/*
+<xsd:attribute name="SOPInstanceUID" type="dicomVrUI" use="required" />
+<xsd:attribute name="InstanceNumber" type="dicomVrIS" />
+<xsd:attribute name="DirectDownloadFile" type="xsd:string" />
+*/
+                    [manifest appendFormat:
+                     @"<Instance SOPInstanceUID=\"%@\" InstanceNumber=\"%@\" />\r",
+                     IProperties[1],
+                     IProperties[2]
+                     ];//DirectDownloadFile=\"%@\"
+                    
+                    
+                    if (addCornerstoneSeries)
+                    {
+/*
+instanceList
+============
+imageId = (weasis) DirectDownloadFile
+
+SOPInstanceUID
+InstanceNumber
 */
 
-                             
-                             NSString *wadouriInstance=[NSString stringWithFormat:
+                       
+                       NSString *wadouriInstance=[NSString stringWithFormat:
 @"wadouri:%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom&transferSyntax=*&session=%@&custodianOID=%@",
 proxyURIString,
 (EPropertiesArray[0])[1],
@@ -539,17 +596,15 @@ SProperties[1],
 IProperties[1],
 sessionString,
 @"2.16.858.0.1.4.0"];
-                              [instanceArray addObject:@{
-                                 @"imageId":wadouriInstance,
-                                 @"SOPInstanceUID":IProperties[1],
-                                 @"InstanceNumber":IProperties[2]
-                                 }
-                               ];
+                        [instanceArray addObject:@{
+                           @"imageId":wadouriInstance,
+                           @"SOPInstanceUID":IProperties[1],
+                           @"InstanceNumber":IProperties[2]
                            }
-                       }
-                       [manifest appendString:@"</Series>\r"];
-                    }//end no SOPClass restriction
-                 }//end no instances in series
+                         ];
+                     }
+                 }
+                 [manifest appendString:@"</Series>\r"];
 
                                   
 
