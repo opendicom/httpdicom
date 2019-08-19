@@ -141,8 +141,7 @@ else [K loadPersonIDTypes:personIDTypes];
        
 //arg [1] defaultpacsoid
 NSString *defaultpacsoid=args[1];
-// /pacs (also called device)
-NSDictionary *pacs=[NSDictionary dictionaryWithContentsOfFile:
+NSArray *pacs=[NSArray arrayWithContentsOfFile:
                     [[[deployPath
                        stringByAppendingPathComponent:@"pacs"]
                       stringByAppendingPathComponent:defaultpacsoid]
@@ -154,17 +153,11 @@ if (!pacs)
    NSLog(@"could not get contents of pacs/%@.pacs.xml",defaultpacsoid);
    return 1;
 }
-       
-if (!pacs[defaultpacsoid])
-{
-   NSLog(@"defaultpacsoid not defined in pacs dictionary");
-   return 1;
-}
 
         
 // /sql/map
 NSMutableSet *sqlset=[NSMutableSet set];
-for (NSDictionary *d in [pacs allValues])
+for (NSDictionary *d in pacs)
 {
     if (![d[@"sqlmap"] isEqualToString:@""]) [sqlset addObject:d[@"sqlmap"]];
 }

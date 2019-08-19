@@ -293,7 +293,6 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType)
 @implementation DRS
 
 static NSDictionary        *_sqls=nil;
-static NSDictionary        *_pacs=nil;
 static long long           _drsport;
 static NSString            *_defaultpacsoid;
 
@@ -304,9 +303,10 @@ static NSData              *_titlesdata=nil;
 static NSDictionary        *_oidsaeis=nil;
 static NSDictionary        *_titlesaets=nil;
 static NSDictionary        *_titlesaetsstrings=nil;
-static NSDictionary        *_pacsaetDictionary=nil;
-static NSArray             *_localoids=nil;
-static NSDictionary        *_custodianDictionary=nil;
+
+static NSDictionary        *_pacs=nil;//pacsDictionary
+static NSArray             *_pacskeys=nil;
+static NSData              *_pacskeysdata=nil;
 
 
 int execUTF8Bash(NSDictionary *environment, NSString *writeString, NSMutableData *readData)
@@ -397,7 +397,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 }
 
 -(id)initWithSqls:(NSDictionary*)sqls
-             pacs:(NSDictionary*)pacs
+             pacs:(NSArray*)pacsArray
           drsport:(long long)drsport
           defaultpacsoid:(NSString*)defaultpacsoid
 {
@@ -405,17 +405,16 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
     self = [super init];
     if(self) {
         _sqls=sqls;
-        _pacs=pacs;
         _drsport=drsport;
         _defaultpacsoid=defaultpacsoid;
 
-#pragma mark pacs
+#pragma mark custodians
 
 //TODO classify pacs (sql, dicomweb, dicom, custodian)
         
         NSMutableDictionary *oids=[NSMutableDictionary dictionary];
         NSMutableDictionary *titles=[NSMutableDictionary dictionary];
-        for (NSDictionary *d in [pacs allValues])
+        for (NSDictionary *d in pacsArray)
         {
             NSString *newtitle=d[@"custodiantitle"];
             if (
@@ -473,14 +472,14 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         for (NSString *oid in [oids allKeys])
         {
             NSMutableArray *oidaeis=[NSMutableArray array];
-            for (NSString *k in [pacs allKeys])
+            for (NSDictionary *d in pacsArray)
             {
-                NSDictionary *d=[pacs objectForKey:k];
-                if ([[d objectForKey:@"custodianoid"]isEqualToString:oid])[oidaeis addObject:k];
+                if ([d[@"custodianoid"] isEqualToString:oid])
+                   [oidaeis addObject:d[@"pacsoid"]];
             }
             [oidsaeis setValue:oidaeis forKey:oid];
         }
-        NSLog(@"\r\nknown pacs OID classified by corresponding custodian OID:\r\n%@",[oidsaeis description]);
+        LOG_DEBUG(@"\r\nknown pacs OID classified by corresponding custodian OID:\r\n%@",[oidsaeis description]);
         
         
         
@@ -492,46 +491,47 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
             NSMutableArray *titleaets=[NSMutableArray array];
             NSMutableString *s=[NSMutableString stringWithString:@"("];
             
-            for (NSString *k in [pacs allKeys])
+            for (NSDictionary *d in pacsArray)
             {
-                NSDictionary *d=[pacs objectForKey:k];
-                if ([[d objectForKey:@"custodiantitle"]isEqualToString:title])
+                if ([d[@"custodiantitle"] isEqualToString:title])
                 {
-                    [titleaets addObject:[d objectForKey:@"pacsaet"]];
+                    [titleaets addObject:d[@"pacsaet"]];
                     if ([s isEqualToString:@"("])
-                        [s appendFormat:@"'%@'",[d objectForKey:@"pacsaet"]];
-                    else [s appendFormat:@",'%@'",[d objectForKey:@"pacsaet"]];
+                        [s appendFormat:@"'%@'",d[@"pacsaet"]];
+                    else [s appendFormat:@",'%@'",d[@"pacsaet"]];
                 }
             }
             [titlesaets setObject:titleaets forKey:title];
             [s appendString:@")"];
             [titlesaetsStrings setObject:s forKey:title];
         }
-        NSLog(@"\r\nknown pacs aet classified by corresponding custodian title:\r\n%@",[titlesaets description]);
-        
-        
-        NSMutableDictionary *pacsaetDictionary=[NSMutableDictionary dictionary];
-        NSMutableArray      *localOIDs=[NSMutableArray array];
-        NSMutableDictionary *custodianDictionary=nil;
-        for (NSString *key in [pacs allKeys])
-        {
-            [pacsaetDictionary setObject:key forKey:[(pacs[key])[@"custodiantitle"] stringByAppendingPathExtension:(pacs[key])[@"pacsaet"]]];
-            
-            if ([(pacs[key])[@"sqlprolog"] length]||[(pacs[key])[@"dcm4cheelocaluri"] length])
-            {
-                [localOIDs addObject:key];
-                if ([(pacs[key])[@"custodianoid"] isEqualToString:key]) custodianDictionary=pacs[key];
-            }
-        }
+        LOG_DEBUG(@"\r\nknown pacs aet classified by corresponding custodian title:\r\n%@",[titlesaets description]);
+       
+       _oids=[NSDictionary dictionaryWithDictionary:oids];
+       _titles=[NSDictionary dictionaryWithDictionary:titles];
+       _oidsaeis=[NSDictionary dictionaryWithDictionary:oidsaeis];
+       _titlesaets=[NSDictionary dictionaryWithDictionary:titlesaets];
+       _titlesaetsstrings=[NSDictionary dictionaryWithDictionary:titlesaetsStrings];
 
-        _oids=[NSDictionary dictionaryWithDictionary:oids];
-        _titles=[NSDictionary dictionaryWithDictionary:titles];
-        _oidsaeis=[NSDictionary dictionaryWithDictionary:oidsaeis];
-        _titlesaets=[NSDictionary dictionaryWithDictionary:titlesaets];
-        _titlesaetsstrings=[NSDictionary dictionaryWithDictionary:titlesaetsStrings];
-        _pacsaetDictionary=[NSDictionary dictionaryWithDictionary:_pacsaetDictionary];
-        _localoids=[NSArray arrayWithArray:localOIDs];
-        _custodianDictionary=[NSDictionary dictionaryWithDictionary:custodianDictionary];
+       
+//_pacs (pacsoidDictionary) and pacsaetDictionary (custodianaet.pacsaet)
+       NSMutableDictionary *pacsDictionary=[NSMutableDictionary dictionary];
+       NSUInteger pacsIndex=NSNotFound;
+       for (pacsIndex=0; pacsIndex<[pacsArray count];pacsIndex++)
+       {
+          NSDictionary *d=pacsArray[pacsIndex];
+          [pacsDictionary setObject:d forKey:d[@"pacsoid"]];
+          [pacsDictionary
+           setObject:d
+           forKey:[d[@"custodiantitle"] stringByAppendingPathExtension:d[@"pacsaet"]]
+             ];
+          [pacsDictionary setObject:d forKey:[NSString stringWithFormat:@"%ld",(long)pacsIndex]];
+        }
+       _pacs=[NSDictionary dictionaryWithDictionary:pacsDictionary];
+       _pacskeys=[pacsDictionary allKeys];
+       LOG_DEBUG(@"\r\npacs dictionary entries:\r\n%@",_pacskeys);
+       _pacskeysdata=[NSJSONSerialization dataWithJSONObject:_pacskeys options:0 error:nil];
+
 
 #pragma mark -
 #pragma mark handlers
@@ -552,8 +552,9 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         LOG_DEBUG(@"added handler GET /echo");
        
 #pragma mark /(custodians|pacs/titles|pacs/oids)
-        [self addCustodiansHandler];//
-        LOG_DEBUG(@"added handler GET /custodians");
+        [self addGETCustodiansHandler];//
+        [self addGETPacsHandler];//
+        LOG_DEBUG(@"added handler GET /custodians and /pacs");
        
 #pragma mark /qido
        //[self addMWLHandler];
@@ -586,7 +587,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 #pragma mark getters
 
 +(NSDictionary*)sqls                 { return _sqls;}
-+(NSDictionary*)pacs                 { return _pacs;}
+
 +(long long)drsport                  { return _drsport;}
 +(NSString*)defaultpacsoid           { return _defaultpacsoid;}
 
@@ -597,8 +598,9 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 +(NSDictionary*)oidsaeis             { return _oidsaeis;}
 +(NSDictionary*)titlesaets           { return _titlesaets;}
 +(NSDictionary*)titlesaetsstrings    { return _titlesaetsstrings;}
-+(NSDictionary*)pacsaetDictionary    { return _pacsaetDictionary;}
-+(NSArray*)localoids                 { return _localoids;}
-+(NSDictionary*)custodianDictionary  { return _custodianDictionary;}
+
++(NSDictionary*)pacs                 { return _pacs;}
++(NSArray*)pacskeys                  { return _pacskeys;}
++(NSData*)pacskeysdata               { return _pacskeysdata;}
 
 @end

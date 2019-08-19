@@ -12,28 +12,19 @@
     <xs:element name="plist">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="dict">
+                <xs:element name="array">
+                   <xs:annotation>
+                      <xs:documentation>the first pacs of the array shall always be the httpdicom. The pacsoid of the httpdicom is also the name of the configuration file. The index of a pacs in the array used as a custodianOID indicates that httpdicom shall be responder of wado requests and others and will proxy to the pacs found at the index.</xs:documentation>
+                   </xs:annotation>
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            
-
-                            <xs:element name="key">
-                                <xs:annotation>
-                                    <xs:documentation>oid of the pacs</xs:documentation>
-                                </xs:annotation>
-                                <xs:simpleType>
-                                    <xs:restriction base="xs:string">
-                                        <xs:pattern value="[1-2](\d)*(\.0|\.[1-9](\d)*)*"/>
-                                        <xs:maxLength value="64"/>
-                                    </xs:restriction>
-                                </xs:simpleType>                                
-                            </xs:element>
-                            <xs:element name="dict">
+                             <xs:element name="dict">
                                 <xs:annotation>
                                     <xs:documentation>properties of the pacs</xs:documentation>
                                 </xs:annotation>
                                 <xs:complexType>
                                     <xs:sequence>
+                                        <xs:group ref="pacsoid"/>
                                         <xs:group ref="pacsaet"/>
                                         <xs:group ref="local"/>
                                         <xs:group ref="preferredstudyidentificator"/>
@@ -94,6 +85,17 @@
 
 <!-- groups -->
     
+    <xs:group name="pacsoid">
+        <xs:sequence>
+            <xs:element name="key" fixed="pacsoid">
+                <xs:annotation>
+                    <xs:documentation>oid asociado al pacs</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="pacsoid"/>
+        </xs:sequence>
+    </xs:group>
+    
     <xs:group name="pacsaet">
         <xs:sequence>
             <xs:element name="key" fixed="pacsaet">
@@ -109,7 +111,7 @@
         <xs:sequence>
             <xs:element name="key" fixed="local">
                 <xs:annotation>
-                    <xs:documentation>pertenece a la red DICOM local</xs:documentation>
+                    <xs:documentation>es accesible directamente en la red DICOM local de httpdicom. Es decir que por ejemplo, puede recibir requests wado directamente desde html5dicom. De lo contrario, el wado está recibido por httpdicom, que sirve de proxy</xs:documentation>
                 </xs:annotation>
             </xs:element>
             <xs:group ref="truefalse"/>
@@ -155,7 +157,7 @@
         <xs:sequence>
             <xs:element name="key" fixed="custodianoid">
                 <xs:annotation>
-                    <xs:documentation>oid del custodian (representa en internet el conjunto de los aets locales vinculados al custodian)</xs:documentation>
+                    <xs:documentation>oid del custodian (representa en internet el conjunto de los aets locales vinculados al httpdicom)</xs:documentation>
                 </xs:annotation>
             </xs:element>
             <xs:element ref="string" id="custodianoid"/>
@@ -556,13 +558,14 @@
         <xs:alternative test="@id = 'stow'"                        type="httpidstring"/>
 
         <xs:alternative test="@id = 'pacsaet'"                     type="titleidstring"/>
-        <xs:alternative test="@id = 'DICMip'"                     type="ipidstring"/>
-        <xs:alternative test="@id = 'DICMport'"                   type="portidstring"/>
+        <xs:alternative test="@id = 'pacsoid'"                     type="oididstring"/>
+        <xs:alternative test="@id = 'DICMip'"                      type="ipidstring"/>
+        <xs:alternative test="@id = 'DICMport'"                    type="portidstring"/>
 
         <xs:alternative test="@id = 'mllpip'"                      type="ipidstring"/>
         <xs:alternative test="@id = 'mllpport'"                    type="portidstring"/>
         
-        <xs:alternative test="@id = 'aetitles'"                        type="titlesidstring"/>
+        <xs:alternative test="@id = 'aetitles'"                    type="titlesidstring"/>
         <xs:alternative test="@id = 'modalities'"                  type="modalitiesidstring"/>
 
     </xs:element>

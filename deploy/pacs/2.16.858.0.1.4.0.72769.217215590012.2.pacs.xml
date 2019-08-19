@@ -7,9 +7,11 @@
     
     version="1.0"
     >
-    <dict><!-- CUDIM -->
-        <key>2.16.858.0.1.4.0.72769.217215590012.2</key>
+    <array><!-- CUDIM -->
+        
         <dict>
+            <key>pacsoid</key>
+            <string id="pacsoid">2.16.858.0.1.4.0.72769.217215590012.2</string>
             <key>pacsaet</key>
             <string id="pacsaet">CUDIM</string>
             <key>local</key>
@@ -81,5 +83,5 @@
             <key>html5dicomuseractive</key>
             <false/>            
          </dict>
-    </dict>
+    </array>
 </plist>

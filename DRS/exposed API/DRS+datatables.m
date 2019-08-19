@@ -115,7 +115,7 @@ static NSMutableDictionary *sStudyDescription;
 #pragma mark --different context
 #pragma mark reemplazar org por custodianTitle e institucion por aet
              //find dest
-             NSString *destOID=DRS.pacsaetDictionary[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
+             NSString *destOID=DRS.pacs[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
              NSDictionary *entityDict=DRS.pacs[destOID];
              
              NSDictionary *destSql=DRS.sqls[entityDict[@"sqlmap"]];
@@ -519,7 +519,7 @@ NSRegularExpression *dtpatientRegex = [NSRegularExpression regularExpressionWith
          //following filters use formats like " AND a like 'b'"
          
          //find dest
-         NSString *destOID=DRS.pacsaetDictionary[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
+         NSString *destOID=DRS.pacs[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
          NSDictionary *entityDict=DRS.pacs[destOID];
          
          NSDictionary *destSql=DRS.sqls[entityDict[@"sqlmap"]];
@@ -592,7 +592,7 @@ NSRegularExpression *dtseriesRegex = [NSRegularExpression regularExpressionWithP
          
          
          //find dest
-         NSString *destOID=DRS.pacsaetDictionary[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
+         NSString *destOID=DRS.pacs[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
          NSDictionary *entityDict=DRS.pacs[destOID];
          
          NSDictionary *destSql=DRS.sqls[entityDict[@"sqlmap"]];

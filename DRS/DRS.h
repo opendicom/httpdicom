@@ -48,23 +48,25 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType);
 
 @interface DRS : RS
 
-@property (class, nonatomic, readonly) NSDictionary          *sqls;
-@property (class, nonatomic, readonly) NSDictionary          *pacs;
-@property (class, nonatomic, readonly, assign) long long      drsport;
-@property (class, nonatomic, readonly) NSString              *defaultpacsoid;
-@property (class, nonatomic, readonly) NSDictionary          *oids;
-@property (class, nonatomic, readonly) NSDictionary          *titles;
-@property (class, nonatomic, readonly) NSData                *oidsdata;
-@property (class, nonatomic, readonly) NSData                *titlesdata;
-@property (class, nonatomic, readonly) NSDictionary          *oidsaeis;
-@property (class, nonatomic, readonly) NSDictionary          *titlesaets;
-@property (class, nonatomic, readonly) NSDictionary          *titlesaetsstrings;
-@property (class, nonatomic, readonly) NSDictionary          *pacsaetDictionary;
-@property (class, nonatomic, readonly) NSArray               *localoids;
-@property (class, nonatomic, readonly) NSDictionary          *custodianDictionary;
+@property (class, nonatomic, readonly) NSDictionary      *sqls;
+@property (class, nonatomic, readonly, assign) long long  drsport;
+@property (class, nonatomic, readonly) NSString          *defaultpacsoid;
+
+@property (class, nonatomic, readonly) NSDictionary      *oids;
+@property (class, nonatomic, readonly) NSDictionary      *titles;
+@property (class, nonatomic, readonly) NSData            *oidsdata;
+@property (class, nonatomic, readonly) NSData            *titlesdata;
+@property (class, nonatomic, readonly) NSDictionary      *oidsaeis;
+@property (class, nonatomic, readonly) NSDictionary      *titlesaets;
+@property (class, nonatomic, readonly) NSDictionary      *titlesaetsstrings;
+
+@property (class, nonatomic, readonly) NSDictionary      *pacs;
+@property (class, nonatomic, readonly) NSArray           *pacskeys;
+@property (class, nonatomic, readonly) NSData            *pacskeysdata;
+//triple key oid, custodianAet.aet, index
 
 -(id)initWithSqls:(NSDictionary*)sqls
-             pacs:(NSDictionary*)pacs
+             pacs:(NSArray*)pacs
           drsport:(long long)drsport
           defaultpacsoid:(NSString*)defaultpacsoid;
 

@@ -40,6 +40,38 @@
     return [NSDictionary dictionaryWithDictionary:mda];
 }
 
++(NSDictionary * )da4ad:(NSArray * )ad
+{
+   if (![ad count]) return nil;
+   NSArray *keys=[ad[0] allKeys];
+   
+   //create mutabledictionary of mutablearrays
+   NSMutableDictionary *mdma=[NSMutableDictionary dictionary];
+   for (NSString *k in keys)
+   {
+      [mdma setObject:[NSMutableArray array] forKey:k];
+   }
+   
+   //fill up mutablearrays
+   for (NSDictionary *d in ad)
+   {
+      for (NSString *k in keys)
+      {
+         [mdma[k] addObject:d[k]];
+      }
+   }
+   
+   //create mutabledictionary of arrays
+   NSMutableDictionary *mda=[NSMutableDictionary dictionary];
+   for (NSString *k in keys)
+   {
+      [mda setObject:[NSArray arrayWithArray:mdma[k]] forKey:k];
+   }
+   
+   //create return dictionary of arrays
+   return [NSDictionary dictionaryWithDictionary:mda];
+}
+
 /*
  NSJSONReadingMutableContainers
  -> Specifies that arrays and dictionaries are created as mutable objects.

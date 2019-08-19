@@ -4,9 +4,9 @@
 
 @implementation DRS (pacs)
 
--(void)addCustodiansHandler
+-(void)addGETCustodiansHandler
 {
-    NSRegularExpression *custodiansRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/(custodians|pacs)" options:0 error:NULL];
+    NSRegularExpression *custodiansRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/custodians" options:0 error:NULL];
     [self addHandler:@"GET" regex:custodiansRegex processBlock:
      ^(RSRequest* request, RSCompletionBlock completionBlock)
      {completionBlock(^RSResponse* (RSRequest* request){
@@ -18,7 +18,7 @@
         NSUInteger pCount=[pComponents count];
         if ([[pComponents lastObject]isEqualToString:@""]) pCount--;
         
-        if (pCount<3) return [RSErrorResponse responseWithClientError:400 message:@"%@ [no handler]",urlComponents.path];
+        if (pCount<3) return [RSErrorResponse responseWithClientError:400 message:@"path should start with /custodians/titles or /custodians/oids"];
         
         if ([pComponents[2]isEqualToString:@"titles"])
         {
@@ -115,5 +115,55 @@
         return [RSErrorResponse responseWithClientError:404 message:@"%@ [no handler]",urlComponents.path];
         
     }(request));}];
+}
+
+-(void)addGETPacsHandler
+{
+   NSRegularExpression *pacsRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs" options:0 error:NULL];
+   [self addHandler:@"GET" regex:pacsRegex processBlock:
+    ^(RSRequest* request, RSCompletionBlock completionBlock)
+    {completionBlock(^RSResponse* (RSRequest* request){
+      
+      //using NSURLComponents instead of RSRequest
+      NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
+      
+      NSArray *pComponents=[urlComponents.path componentsSeparatedByString:@"/"];
+      NSUInteger pCount=[pComponents count];
+      if ([[pComponents lastObject]isEqualToString:@""]) pCount--;
+      
+      //  /pacs
+      if (pCount==2) return [RSDataResponse responseWithData:DRS.pacskeysdata contentType:@"application/json"];
+      
+      //pacs/{key}
+      NSDictionary *pacsproperties=DRS.pacs[pComponents[2]];
+      if (!pacsproperties) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown pacs]",pComponents[2]];
+      
+      if (pCount==3) return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:pacsproperties options:0 error:nil] contentType:@"application/json"];
+      
+      //pacs/{key}/{property}
+      id pacsproperty=pacsproperties[pComponents[3]];
+      if (!pacsproperty) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown property]",pComponents[3]];
+      
+      if (pCount==4)
+      {
+         if ([pacsproperty isKindOfClass:[NSString class]])
+            return [RSDataResponse responseWithData:[pacsproperty dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+         
+         if ([pacsproperty isKindOfClass:[NSNumber class]])
+         {
+            if ([pacsproperty boolValue]==true)
+               return [RSDataResponse responseWithData:[@"true" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+            return [RSDataResponse responseWithData:[@"false" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+         }
+         
+         if ([pacsproperty isKindOfClass:[NSDictionary class]])
+         {
+            return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:pacsproperty options:0 error:nil] contentType:@"application/json"];
+         }
+      }
+
+      return [RSErrorResponse responseWithClientError:404 message:@"%@ [no handler]",urlComponents.path];
+      
+   }(request));}];
 }
 @end

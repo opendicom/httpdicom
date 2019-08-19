@@ -60,7 +60,7 @@
                  LOG_VERBOSE(@"[wado] no param named \"pacs\" in: %@",urlComponents.query);
                  
                  //Find wado in any of the local device (recursive)
-                 for (NSString *oid in DRS.localoids)
+                 for (NSString *oid in local oids)
                  {
                      NSData *wadoResp=[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://127.0.0.1:%lld/%@?%@&pacs=%@", DRS.drsport, urlComponents.path, urlComponents.query, oid]]];
                      if (wadoResp && [wadoResp length] > 512) return [RSDataResponse responseWithData:wadoResp contentType:@"application/dicom"];

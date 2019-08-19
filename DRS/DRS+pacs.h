@@ -14,10 +14,10 @@
 
 //do we want this exposed on the net.... ???
 
-//pacs/{oid|aei}/services
-//pacs/{oid|aei}/services/{service}
-//pacs/{oid|aei}/procedures?{textSearch} -> procedure Key:title dictionary
-//pacs/{oid|aei}/procedures/{key}
+//pacs/{pacsoid}/services
+//pacs/{pacsoid}/services/{service}
+//pacs/{pacsoid}/procedures?{textSearch} -> procedure Key:title dictionary
+//pacs/{pacsoid}/procedures/{key}
 
 
 
@@ -25,6 +25,8 @@
 
 @interface DRS (pacs)
 
--(void)addCustodiansHandler;
+-(void)addGETCustodiansHandler;
+
+-(void)addGETPacsHandler;
 
 @end

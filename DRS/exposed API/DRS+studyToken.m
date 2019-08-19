@@ -98,15 +98,15 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
 #pragma mark custodianOID?
    NSUInteger custodianOIDIndex=[names indexOfObject:@"custodianOID"];
    NSString *custodianOIDString=nil;
-   if (custodianOIDIndex!=NSNotFound)
+   if (custodianOIDIndex==NSNotFound)
+   {
+      LOG_WARNING(@"stuyToken custloianOID not available");
+      return [RSErrorResponse responseWithClientError:404 message:@"stuyToken custloianOID not available"];
+   }
+   else
    {
 #pragma mark TODO proxying to another PCS if no localoid
       custodianOIDString=values[custodianOIDIndex];
-      if ([DRS.localoids indexOfObject:custodianOIDString]==NSNotFound)
-      {
-         LOG_WARNING(@"stuyToken to be proxied to another httpdicom");
-         return [RSErrorResponse responseWithClientError:404 message:@"to be proxied to another httpdicom"];
-      }
    }
 
 #pragma mark accessType
@@ -208,7 +208,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
       }
    }
 
-   
+#pragma mark TODO remove limitation cornerstone
    if (doCornerstone && ([EPDict count]>1))
    {
       [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType cornerstone can not be applied to more than a study"];
@@ -290,11 +290,9 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
    <!-- &custodianOID (in additionnalParameters) -->
    <xsd:attribute name="overrideDicomTagsList" type="dicomTagsList" />
 */
-     [manifest appendFormat:@"<arcQuery arcId=\"%@\" baseUrl=\"%@\" webLogin=\"%@\" requireOnlySOPInstanceUID=\"%@\" additionnalParameters=\"&amp;session=%@&amp;custodianOID=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@\" overrideDicomTagsList=\"%@\">\r",
+     [manifest appendFormat:@"<arcQuery arcId=\"%@\" baseUrl=\"%@\" additionnalParameters=\"&amp;session=%@&amp;custodianOID=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@\" overrideDicomTagsList=\"%@\">\r",
       custodianOIDString,
       proxyURIString,
-      @"",
-      @"false",
       sessionString,
       custodianOIDString,
       [SeriesDescriptionArray componentsJoinedByString:@"\\"],
@@ -308,8 +306,6 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
   @{
     @"arcId":custodianOIDString,
     @"baseUrl":proxyURIString,
-    @"webLogin":@"",
-    @"requireOnlySOPInstanceUID":@"false",
     @"additionnalParameters":[NSString stringWithFormat:@"&amp;session=%@&amp;custodianOID=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@",
            sessionString,
            custodianOIDString,
@@ -536,7 +532,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
 
                              
                              NSString *wadouriInstance=[NSString stringWithFormat:
-@"wadouri:%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&transferSyntax=*&session=%@&custodianOID=%@",
+@"wadouri:%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom&transferSyntax=*&session=%@&custodianOID=%@",
 proxyURIString,
 (EPropertiesArray[0])[1],
 SProperties[1],
