@@ -166,4 +166,55 @@
       
    }(request));}];
 }
+
+-(void)addGETSqlsHandler
+{
+   NSRegularExpression *sqlsRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/sqls" options:0 error:NULL];
+   [self addHandler:@"GET" regex:sqlsRegex processBlock:
+    ^(RSRequest* request, RSCompletionBlock completionBlock)
+    {completionBlock(^RSResponse* (RSRequest* request){
+      
+      //using NSURLComponents instead of RSRequest
+      NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
+      
+      NSArray *pComponents=[urlComponents.path componentsSeparatedByString:@"/"];
+      NSUInteger pCount=[pComponents count];
+      if ([[pComponents lastObject]isEqualToString:@""]) pCount--;
+      
+      //  /sqls
+      if (pCount==2) return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[DRS.sqls allKeys] options:0 error:nil] contentType:@"application/json"];
+      
+      //pacs/{key}
+      NSDictionary *sqlproperties=DRS.sqls[pComponents[2]];
+      if (!sqlproperties) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown sql]",pComponents[2]];
+      
+      if (pCount==3) return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:sqlproperties options:0 error:nil] contentType:@"application/json"];
+      
+      //pacs/{key}/{property}
+      id sqlproperty=sqlproperties[pComponents[3]];
+      if (!sqlproperty) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown property]",pComponents[3]];
+      
+      if (pCount==4)
+      {
+         if ([sqlproperty isKindOfClass:[NSString class]])
+            return [RSDataResponse responseWithData:[sqlproperty dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+         
+         if ([sqlproperty isKindOfClass:[NSNumber class]])
+         {
+            if ([sqlproperty boolValue]==true)
+               return [RSDataResponse responseWithData:[@"true" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+            return [RSDataResponse responseWithData:[@"false" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+         }
+         
+         if ([sqlproperty isKindOfClass:[NSDictionary class]])
+         {
+            return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:sqlproperty options:0 error:nil] contentType:@"application/json"];
+         }
+      }
+      
+      return [RSErrorResponse responseWithClientError:404 message:@"%@ [no handler]",urlComponents.path];
+      
+   }(request));}];
+}
+
 @end

@@ -32,10 +32,15 @@
             
             <key>select</key>
             <string id="select">qido</string>
-
+            <key>get</key>
+            <string id="get">wado</string>
             <key>mwl</key>
             <string id="mwl">mllp</string>
             
+            <key>sqluser</key>
+            <string id="sqluser">MYSQL_PWD</string>
+            <key>sqlpassword</key>
+            <string id="sqlpassword">pcs</string>
             <key>sqlprolog</key>
             <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e &quot;</string>
             <key>sqlstringencoding</key>

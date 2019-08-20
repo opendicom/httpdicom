@@ -27,7 +27,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 
 
 //prolog
-//filters...
+//filters...(including eventual IOCM
 //limit (or anything else in the MYSQL SELECT after filters)
 //epilog
 
@@ -79,8 +79,6 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
 
 +(RSResponse*)studyToken:(RSRequest*)request
 {
-   NSDictionary *password=@{@"MYSQL_PWD":@"pcs"};
-   
    //read json
    NSMutableArray *names=[NSMutableArray array];
    NSMutableArray *values=[NSMutableArray array];
@@ -107,12 +105,23 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
       LOG_WARNING(@"stuyToken custloianOID not available");
       return [RSErrorResponse responseWithClientError:404 message:@"stuyToken custloianOID not available"];
    }
-   else
-   {
 #pragma mark TODO proxying to another PCS if no localoid
-      custodianOIDString=values[custodianOIDIndex];
+   custodianOIDString=values[custodianOIDIndex];
+   NSDictionary *sqlcredentials=nil;
+   NSDictionary *sqlDictionary=nil;
+
+   if ([(DRS.pacs[custodianOIDString])[@"select"] isEqualToString:@"sql"])
+   {
+     sqlcredentials=
+    @{
+      (DRS.pacs[custodianOIDString])[@"sqluser"]:
+      (DRS.pacs[custodianOIDString])[@"sqlpassword"]
+    };
+      sqlDictionary=DRS.sqls[(DRS.pacs[custodianOIDString])[@"sqlmap"]];
    }
 
+   
+   
 #pragma mark accessType
    NSString *accessTypeString=nil;
    NSUInteger accessTypeIndex=[names indexOfObject:@"accessType"];
@@ -159,7 +168,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
          if (![DICMTypes isSingleUIString:uid])[RSErrorResponse responseWithClientError:404 message:@"studyToken no StudyInstanceUID found in %@",uid];
          //find patient fk
          [mutableData setData:[NSData data]];
-         if (!execUTF8Bash(password,
+         
+         if (!execUTF8Bash(sqlcredentials,
                            [NSString stringWithFormat:
                             sqlPE4Euid,
                             sqlConnect,
@@ -188,7 +198,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
          
          //find corresponding EP
          [mutableData setData:[NSData data]];
-         if (!execUTF8Bash(password,
+         if (!execUTF8Bash(sqlcredentials,
                            [NSString stringWithFormat:
                             sqlPE4Ean,
                             sqlConnect,
@@ -207,7 +217,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
          
          //find corresponding EP
          [mutableData setData:[NSData data]];
-         if (!execUTF8Bash(password,
+         if (!execUTF8Bash(sqlcredentials,
                            [NSString stringWithFormat:
                             sqlPE4PidEda,
                             sqlConnect,
@@ -340,7 +350,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
      for (NSString *P in PSet)
      {
         [mutableData setData:[NSData data]];
-        if (!execUTF8Bash(password,
+        if (!execUTF8Bash(sqlcredentials,
                           [NSString stringWithFormat:
                            sqlP,
                            sqlConnect,
@@ -384,7 +394,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
            if ([EPDict[E] isEqualToString:P])
            {
               [mutableData setData:[NSData data]];
-              if (!execUTF8Bash(password,
+              if (!execUTF8Bash(sqlcredentials,
                                 [NSString stringWithFormat:
                                  sqlE,
                                  sqlConnect,
@@ -461,7 +471,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
               
               //series
               [mutableData setData:[NSData data]];
-              if (!execUTF8Bash(password,
+              if (!execUTF8Bash(sqlcredentials,
                                 [NSString stringWithFormat:
                                  sqlS,
                                  sqlConnect,
@@ -488,7 +498,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
               {
                  //for SOPClassUID check on the first instance
                  [mutableData setData:[NSData data]];
-                 if (!execUTF8Bash(password,
+                 if (!execUTF8Bash(sqlcredentials,
                                    [NSString stringWithFormat:
                                     sqlI,
                                     sqlConnect,
@@ -515,7 +525,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
 
                  //instances
                  [mutableData setData:[NSData data]];
-                 if (!execUTF8Bash(password,
+                 if (!execUTF8Bash(sqlcredentials,
                                    [NSString stringWithFormat:
                                     sqlI,
                                     sqlConnect,

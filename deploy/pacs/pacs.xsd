@@ -39,8 +39,11 @@
                                         <!-- mandatory if local -->
                                         <xs:sequence minOccurs="0">
                                             <xs:group ref="select"/>
+                                            <xs:group ref="get"/>
                                             <xs:group ref="mwl"/>
                                             <!--sql/files-->
+                                            <xs:group ref="sqluser"/>
+                                            <xs:group ref="sqlpassword"/>
                                             <xs:group ref="sqlprolog"/>
                                             <xs:group ref="sqlstringencoding"/>
                                             <xs:group ref="sqlmap"/>
@@ -209,6 +212,17 @@
         </xs:sequence>
     </xs:group>
     
+    <xs:group name="get">
+        <xs:sequence>
+            <xs:element name="key" fixed="get">
+                <xs:annotation>
+                    <xs:documentation>file, folder, wado, wadors</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="get" />
+        </xs:sequence>
+    </xs:group>
+    
     <xs:group name="mwl">
        <xs:sequence>
           <xs:element name="key" fixed="mwl">
@@ -233,6 +247,27 @@
         </xs:sequence>
     </xs:group>
     
+    <xs:group name="sqluser">
+        <xs:sequence>
+            <xs:element name="key" fixed="sqluser">
+                <xs:annotation>
+                    <xs:documentation>should be invisible from GUI?</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="sqluser"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="sqlpassword">
+       <xs:sequence>
+          <xs:element name="key" fixed="sqlpassword">
+             <xs:annotation>
+                 <xs:documentation>should be invisible from GUI?</xs:documentation>
+             </xs:annotation>
+          </xs:element>
+          <xs:element ref="string" id="sqlpassword"/>
+       </xs:sequence>
+    </xs:group>
 
     <xs:group name="sqlprolog">
         <xs:sequence>
@@ -548,8 +583,11 @@
         <xs:alternative test="@id = 'principallanguage'"           type="principallanguageidstring"/>
         
         <xs:alternative test="@id = 'select'"                      type="selectidstring"/>
+        <xs:alternative test="@id = 'get'"                         type="getidstring"/>
         <xs:alternative test="@id = 'mwl'"                         type="mwlidstring"/>
 
+        <xs:alternative test="@id = 'sqluser'"                     type="titleidstring"/>
+        <xs:alternative test="@id = 'sqlpassword'"                 type="titleidstring"/>
         <xs:alternative test="@id = 'sqlstringencoding'"           type="stringencodingidstring"/>
 
         <xs:alternative test="@id = 'wadouri'"                     type="httpidstring"/>
@@ -648,6 +686,17 @@
                 <xs:enumeration value="sql"/>
                 <xs:enumeration value="qido"/>
                 <!--<xs:enumeration value="cfind"/>-->
+            </xs:restriction>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <xs:complexType name="getidstring">
+        <xs:simpleContent>
+            <xs:restriction base="idstring">
+                <!-- <xs:enumeration value="file"/> -->
+                <!-- <xs:enumeration value="folder"/> -->
+                <xs:enumeration value="wado"/>
+                <!-- <xs:enumeration value="wadors"/> -->
             </xs:restriction>
         </xs:simpleContent>
     </xs:complexType>

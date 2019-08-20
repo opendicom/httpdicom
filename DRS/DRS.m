@@ -554,7 +554,8 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 #pragma mark /(custodians|pacs/titles|pacs/oids)
         [self addGETCustodiansHandler];//
         [self addGETPacsHandler];//
-        LOG_DEBUG(@"added handler GET /custodians and /pacs");
+       [self addGETSqlsHandler];//
+        LOG_DEBUG(@"added handler GET /custodians and /pacs /sqls");
        
 #pragma mark /qido
        //[self addMWLHandler];

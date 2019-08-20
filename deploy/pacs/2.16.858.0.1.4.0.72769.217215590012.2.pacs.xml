@@ -33,16 +33,22 @@
             
             <key>select</key>
             <string id="select">sql</string>
-
+            <key>get</key>
+            <string id="get">wado</string>
             <key>mwl</key>
             <string id="mwl">none</string>
             
+            <key>sqluser</key>
+            <string id="sqluser">MYSQL_PWD</string>
+            <key>sqlpassword</key>
+            <string id="sqlpassword">pcs</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=pcs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upcs -h 192.168.250.1 -b pacsdb2 -e &quot;</string>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upcs -h 192.168.250.1 -b pacsdb2 -e &quot;</string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
             <string id="sqlmap">dcm4chee2147mysql.plist</string>
+            
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
             

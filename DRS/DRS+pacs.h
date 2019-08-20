@@ -29,4 +29,6 @@
 
 -(void)addGETPacsHandler;
 
+-(void)addGETSqlsHandler;
+
 @end
