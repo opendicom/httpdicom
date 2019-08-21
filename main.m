@@ -164,9 +164,11 @@ for (NSDictionary *d in pacs)
 NSMutableDictionary *sqls=[NSMutableDictionary dictionary];
 for (NSString *sqlname in sqlset)
 {
-    NSString *sqlpath=[[deployPath
-                        stringByAppendingPathComponent:@"sql/map"]
-                       stringByAppendingPathComponent:sqlname];
+    NSString *sqlpath=[[[[deployPath
+                          stringByAppendingPathComponent:@"sql/map"]
+                         stringByAppendingPathComponent:sqlname]
+                        stringByAppendingPathExtension:@"sql"]
+                       stringByAppendingPathExtension:@"xml"];
     NSDictionary *sqlDict=[[NSDictionary alloc] initWithContentsOfFile:sqlpath];
     if (!sqlDict)
     {

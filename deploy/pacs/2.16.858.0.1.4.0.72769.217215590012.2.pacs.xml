@@ -47,7 +47,7 @@
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dcm4chee2147mysql.plist</string>
+            <string id="sqlmap">dcm4chee2147mysql</string>
             
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>

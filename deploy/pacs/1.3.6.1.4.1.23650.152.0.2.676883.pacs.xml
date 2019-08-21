@@ -46,7 +46,7 @@
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dal55mysql.plist</string>
+            <string id="sqlmap">dal55mysql</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
             
