@@ -23,6 +23,8 @@
 //- NSData* data              -> HTTPBody (HTTPBodyStream)
 
 
+
+
 BOOL parseRequestParams(RSRequest       *  request,
                         NSMutableArray  *  names,
                         NSMutableArray  *  values,
@@ -575,8 +577,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 //        LOG_DEBUG(@"added handlers GETencapsulated and POSTencapsulated");
 
 #pragma mark /studyToken
-        [self addPOSTStudyTokenHandler];
-       [self addGETStudyTokenHandler];
+        [self addPostAndGetStudyTokenHandler];
         LOG_DEBUG(@"added handler POST+GET /studyToken");
 
     }

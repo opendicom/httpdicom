@@ -12,10 +12,10 @@
  - "StudyDate":"aaaa-mm-dd", "PatientID":"",
  
    ("issuer":"oid")
+   ("SeriesNumber":"\")}
    ("SeriesDescription":"\")
    ("Modality":"\")
    ("SOPClass":"\")
-}
  
  -> 200 text/xml manifiesto weasis
  -> 200 application/json manifiesto cornerstone
@@ -29,8 +29,7 @@
 
 @interface DRS (studyToken)
 
--(void)addPOSTStudyTokenHandler;
--(void)addGETStudyTokenHandler;
+-(void)addPostAndGetStudyTokenHandler;
 
 +(RSResponse*)studyToken:(RSRequest*)request;
 
