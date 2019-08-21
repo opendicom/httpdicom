@@ -495,13 +495,15 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                                     [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken instance db error"];
                                  NSArray *IPropertiesFirstRecord=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
                                  
-                                 //dicom cda
-                                 if ([IPropertiesFirstRecord[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
-                                 //SR
-                                 if ([IPropertiesFirstRecord[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
                                  //do not add empty series
                                  if ([IPropertiesFirstRecord count]==0) continue;
-                                 //if there is restriction and does't match
+
+                                  //dicom cda
+                                 if ([(IPropertiesFirstRecord[0])[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
+                                 //SR
+                                 if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
+                                
+                                //if there is restriction and does't match
                                  if (
                                      hasRestriction
                                      &&(hasSeriesDescriptionRestriction && [SeriesDescriptionArray indexOfObject:SProperties[2]]==NSNotFound)
@@ -716,13 +718,14 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                                      )
                                     [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken instance db error"];
                                  NSArray *IPropertiesFirstRecord=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
-                                 
+
+                                  //do not add empty series
+                                  if ([IPropertiesFirstRecord count]==0) continue;
+
                                  //dicom cda
-                                 if ([IPropertiesFirstRecord[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
+                                 if ([(IPropertiesFirstRecord[0])[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
                                  //SR
-                                 if ([IPropertiesFirstRecord[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
-                                 //do not add empty series
-                                 if ([IPropertiesFirstRecord count]==0) continue;
+                                 if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
                                  //if there is restriction and does't match
                                  if (
                                      hasRestriction
@@ -779,7 +782,7 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                                     
                                     
                                     NSString *wadouriInstance=[NSString stringWithFormat:
-                                                               @"wadouri:%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom&transferSyntax=*&session=%@&custodianOID=%@",
+                                                               @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom&transferSyntax=*&session=%@&custodianOID=%@",
                                                                proxyURIString,
                                                                (EPropertiesArray[0])[1],
                                                                SProperties[1],
