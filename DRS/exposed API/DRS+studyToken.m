@@ -46,26 +46,6 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 //limit (or anything else in the MYSQL SELECT after filters)
 //epilog
 
-/*
-static NSString *sqlPE4Ean=@"%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' %@ %@";//limit 10
-
-static NSString *sqlPE4Euid=@"%@SELECT pk,patient_fk FROM study WHERE study_iuid='%@' %@ %@";
-
-static NSString *sqlPE4PidEda=@"%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime)='%@' %@ %@";//limit 10
-
-//patient fields
-static NSString *sqlP=@"%@SELECT pk,pat_id,pat_name,pat_id_issuer,pat_birthdate,pat_sex FROM patient WHERE pk='%@' %@ %@";
-
-//studyFields
-static NSString *sqlE=@"%@SELECT pk,study_iuid,study_desc,DATE(study_datetime),TIME(study_datetime),accession_no,study_id,ref_physician,num_instances,mods_in_study FROM study WHERE pk='%@' %@ %@";
-
-//seriesFields
-static NSString *sqlS=@"%@SELECT pk,series_iuid,series_desc,series_no,modality FROM series WHERE study_fk='%@' %@ %@";
-
-
-//instancesFields
-static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHERE series_fk='%@' %@ %@";
-*/
 
 
 -(void)addPostAndGetStudyTokenHandler

@@ -5,7 +5,21 @@
 
 @implementation DRS (zipped)
 
+
 -(void)addZippedHandler
+{
+   [self
+    addHandler:@"GET"
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/dcm.zip" options:0 error:NULL]
+    processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
+    {
+       completionBlock(^RSResponse* (RSRequest* request) {return [DRS dcmzip:request];}(request));
+    }
+    ];
+}
+
+
++(RSResponse*)dcmzip:(RSRequest*)request
 {
    NSData *ctad=[@"Content-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
    
@@ -16,11 +30,7 @@
    uint32 zipFileHeader=0x02014B50;
    uint32 zipEndOfCentralDirectory=0x06054B50;
 
-   
-    [self addHandler:@"GET"  path:@"/dcm.zip" processBlock:
-     ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
-{
-    //LOG_DEBUG(@"client: %@",request.remoteAddressString);
+   //LOG_DEBUG(@"client: %@",request.remoteAddressString);
     
     //using NSURLComponents instead of RSRequest
     NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
@@ -302,10 +312,5 @@
       
       return response;
    }
-   
-}(request));}];
-
-    
-
 }
 @end

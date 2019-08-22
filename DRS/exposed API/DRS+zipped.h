@@ -8,5 +8,6 @@
 @interface DRS (zipped)
 
 -(void)addZippedHandler;
++(RSResponse*)dcmzip:(RSRequest*)request;
 
 @end
