@@ -21,9 +21,8 @@ const NSInteger accessTypeOsirix=3;
 
 @implementation DRS (studyToken)
 
-static NSString *sqlConnect=@"/usr/local/mysql/bin/mysql --raw --skip-column-names -upcs -h 192.168.250.1 -b pacsdb2 -e \"";
 
-// pkstudy.pkpatient/
+// pk.pk/
 static NSString *sqlTwoPks=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\".\";}{print $1, $2}' | sed -e 's/\\/$//'";
 
 
@@ -47,6 +46,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 //limit (or anything else in the MYSQL SELECT after filters)
 //epilog
 
+/*
 static NSString *sqlPE4Ean=@"%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' %@ %@";//limit 10
 
 static NSString *sqlPE4Euid=@"%@SELECT pk,patient_fk FROM study WHERE study_iuid='%@' %@ %@";
@@ -65,7 +65,7 @@ static NSString *sqlS=@"%@SELECT pk,series_iuid,series_desc,series_no,modality F
 
 //instancesFields
 static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHERE series_fk='%@' %@ %@";
-
+*/
 
 
 -(void)addPostAndGetStudyTokenHandler
@@ -153,6 +153,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
 #pragma mark · SQL
    
          NSDictionary *sqlcredentials=@{(DRS.pacs[custodianOIDString])[@"sqluser"]:(DRS.pacs[custodianOIDString])[@"sqlpassword"]};
+         
+         NSString *sqlprolog=(DRS.pacs[custodianOIDString])[@"sqlprolog"];
 
          NSDictionary *sqlDictionary=DRS.sqls[(DRS.pacs[custodianOIDString])[@"sqlmap"]];
 
@@ -183,8 +185,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
          
          if (!execUTF8Bash(sqlcredentials,
                            [NSString stringWithFormat:
-                            sqlPE4Euid,
-                            sqlConnect,
+                            sqlDictionary[@"sqlPE4Euid"],
+                            sqlprolog,
                             uid,
                             @"",
                             sqlTwoPks
@@ -212,8 +214,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
          [mutableData setData:[NSData data]];
          if (!execUTF8Bash(sqlcredentials,
                            [NSString stringWithFormat:
-                            sqlPE4Ean,
-                            sqlConnect,
+                            sqlDictionary[@"sqlPE4Ean"],
+                            sqlprolog,
                             values[AccessionNumberIndex],
                             @"",
                             sqlTwoPks
@@ -231,8 +233,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
          [mutableData setData:[NSData data]];
          if (!execUTF8Bash(sqlcredentials,
                            [NSString stringWithFormat:
-                            sqlPE4PidEda,
-                            sqlConnect,
+                            sqlDictionary[@"sqlPE4PidEda"],
+                            sqlprolog,
                             values[PatientIDIndex],
                             values[StudyDateIndex],
                             @"",
@@ -375,8 +377,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                         [mutableData setData:[NSData data]];
                         if (!execUTF8Bash(sqlcredentials,
                                           [NSString stringWithFormat:
-                                           sqlP,
-                                           sqlConnect,
+                                           sqlDictionary[@"sqlP"],
+                                           sqlprolog,
                                            P,
                                            @"",
                                            sqlRecordSixUnits
@@ -411,8 +413,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                               [mutableData setData:[NSData data]];
                               if (!execUTF8Bash(sqlcredentials,
                                                 [NSString stringWithFormat:
-                                                 sqlE,
-                                                 sqlConnect,
+                                                 sqlDictionary[@"sqlE"],
+                                                 sqlprolog,
                                                  E,
                                                  @"",
                                                  sqlRecordTenUnits
@@ -458,8 +460,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                               [mutableData setData:[NSData data]];
                               if (!execUTF8Bash(sqlcredentials,
                                                 [NSString stringWithFormat:
-                                                 sqlS,
-                                                 sqlConnect,
+                                                 sqlDictionary[@"sqlS"],
+                                                 sqlprolog,
                                                  E,
                                                  @"",
                                                  sqlRecordFiveUnits
@@ -484,8 +486,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                                  [mutableData setData:[NSData data]];
                                  if (!execUTF8Bash(sqlcredentials,
                                                    [NSString stringWithFormat:
-                                                    sqlI,
-                                                    sqlConnect,
+                                                    sqlDictionary[@"sqlI"],
+                                                    sqlprolog,
                                                     SProperties[0],
                                                     @"limit 1",
                                                     sqlRecordFourUnits
@@ -517,8 +519,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                                  [mutableData setData:[NSData data]];
                                  if (!execUTF8Bash(sqlcredentials,
                                                    [NSString stringWithFormat:
-                                                    sqlI,
-                                                    sqlConnect,
+                                                    sqlDictionary[@"sqlI"],
+                                                    sqlprolog,
                                                     SProperties[0],
                                                     @"",
                                                     sqlRecordFourUnits
@@ -608,8 +610,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                         [mutableData setData:[NSData data]];
                         if (!execUTF8Bash(sqlcredentials,
                                           [NSString stringWithFormat:
-                                           sqlP,
-                                           sqlConnect,
+                                           sqlDictionary[@"sqlP"],
+                                           sqlprolog,
                                            P,
                                            @"",
                                            sqlRecordSixUnits
@@ -637,8 +639,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                               [mutableData setData:[NSData data]];
                               if (!execUTF8Bash(sqlcredentials,
                                                 [NSString stringWithFormat:
-                                                 sqlE,
-                                                 sqlConnect,
+                                                 sqlDictionary[@"sqlE"],
+                                                 sqlprolog,
                                                  E,
                                                  @"",
                                                  sqlRecordTenUnits
@@ -691,8 +693,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                               [mutableData setData:[NSData data]];
                               if (!execUTF8Bash(sqlcredentials,
                                                 [NSString stringWithFormat:
-                                                 sqlS,
-                                                 sqlConnect,
+                                                 sqlDictionary[@"sqlS"],
+                                                 sqlprolog,
                                                  E,
                                                  @"",
                                                  sqlRecordFiveUnits
@@ -708,8 +710,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                                  [mutableData setData:[NSData data]];
                                  if (!execUTF8Bash(sqlcredentials,
                                                    [NSString stringWithFormat:
-                                                    sqlI,
-                                                    sqlConnect,
+                                                    sqlDictionary[@"sqlI"],
+                                                    sqlprolog,
                                                     SProperties[0],
                                                     @"limit 1",
                                                     sqlRecordFourUnits
@@ -740,8 +742,8 @@ static NSString *sqlI=@"%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHER
                                  [mutableData setData:[NSData data]];
                                  if (!execUTF8Bash(sqlcredentials,
                                                    [NSString stringWithFormat:
-                                                    sqlI,
-                                                    sqlConnect,
+                                                    sqlDictionary[@"sqlI"],
+                                                    sqlprolog,
                                                     SProperties[0],
                                                     @"",
                                                     sqlRecordFourUnits
