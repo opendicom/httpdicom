@@ -764,7 +764,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                                     
                                     
                                     NSString *wadouriInstance=[NSString stringWithFormat:
-                                                               @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom&transferSyntax=*&session=%@&custodianOID=%@",
+                                                               @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@",
                                                                proxyURIString,
                                                                (EPropertiesArray[0])[1],
                                                                SProperties[1],

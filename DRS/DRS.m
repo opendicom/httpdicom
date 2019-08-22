@@ -581,6 +581,10 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         [self addPostAndGetStudyTokenHandler];
         LOG_DEBUG(@"added handler POST+GET /studyToken");
 
+#pragma mark /dcm.zip
+        [self addZippedHandler];
+        LOG_DEBUG(@"added handler GET /dcm.zip");
+
     }
     return self;
 }
