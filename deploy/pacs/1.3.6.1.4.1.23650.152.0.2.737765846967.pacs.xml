@@ -14,8 +14,6 @@
             <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
             <key>pacsaet</key>
             <string id="pacsaet">IMATEC</string>
-            <key>local</key>
-            <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
             <key>timezoneoffsetfromutc</key>
@@ -95,8 +93,6 @@
             <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.737765846967.4</string>
             <key>pacsaet</key>
             <string id="pacsaet">IMATEC_HISTORICO</string>
-            <key>local</key>
-            <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
             <key>timezoneoffsetfromutc</key>
@@ -176,8 +172,6 @@
             <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.737765846967.1</string>
             <key>pacsaet</key>
             <string id="pacsaet">IMATEC_LASERENA</string>
-            <key>local</key>
-            <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
             <key>timezoneoffsetfromutc</key>
@@ -363,8 +357,6 @@
             <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.737765846967.2</string>
             <key>pacsaet</key>
             <string id="pacsaet">IMATEC_OVALLE</string>
-            <key>local</key>
-            <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
             <key>timezoneoffsetfromutc</key>
@@ -550,8 +542,6 @@
             <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.737765846967.3</string>
             <key>pacsaet</key>
             <string id="pacsaet">IMATEC_VALLENAR</string>
-            <key>local</key>
-            <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
             <key>timezoneoffsetfromutc</key>

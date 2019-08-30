@@ -100,6 +100,20 @@
 		4A94BEA5209228E10009C4AB /* NSDictionary+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94BEA3209228E10009C4AB /* NSDictionary+PCS.m */; };
 		4A96C55F1E843C9E002EB09E /* RFC822.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A96C55E1E843C9E002EB09E /* RFC822.m */; };
 		4A96C5611E843CBD002EB09E /* RFC822.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A96C5601E843CBD002EB09E /* RFC822.h */; };
+		4AA20C4D23101B98005BD76D /* WeasisManifest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA20C4B23101B98005BD76D /* WeasisManifest.h */; };
+		4AA20C4E23101B98005BD76D /* WeasisManifest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA20C4C23101B98005BD76D /* WeasisManifest.m */; };
+		4AA20C5123101BE2005BD76D /* WeasisArcQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA20C4F23101BE2005BD76D /* WeasisArcQuery.h */; };
+		4AA20C5223101BE2005BD76D /* WeasisArcQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA20C5023101BE2005BD76D /* WeasisArcQuery.m */; };
+		4AA20C5523101C58005BD76D /* WeasisPatient.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA20C5323101C58005BD76D /* WeasisPatient.h */; };
+		4AA20C5623101C58005BD76D /* WeasisPatient.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA20C5423101C58005BD76D /* WeasisPatient.m */; };
+		4AA20C5923101C72005BD76D /* WeasisStudy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA20C5723101C72005BD76D /* WeasisStudy.h */; };
+		4AA20C5A23101C72005BD76D /* WeasisStudy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA20C5823101C72005BD76D /* WeasisStudy.m */; };
+		4AA20C5D23101C91005BD76D /* WeasisSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA20C5B23101C91005BD76D /* WeasisSeries.h */; };
+		4AA20C5E23101C91005BD76D /* WeasisSeries.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA20C5C23101C91005BD76D /* WeasisSeries.m */; };
+		4AA20C6123101E1B005BD76D /* WeasisInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA20C5F23101E1B005BD76D /* WeasisInstance.h */; };
+		4AA20C6223101E1B005BD76D /* WeasisInstance.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA20C6023101E1B005BD76D /* WeasisInstance.m */; };
+		4AA20C6523102AFA005BD76D /* WeasisDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA20C6323102AFA005BD76D /* WeasisDocument.h */; };
+		4AA20C6623102AFA005BD76D /* WeasisDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA20C6423102AFA005BD76D /* WeasisDocument.m */; };
 		4ABF11DC1FE5C11C000B8DE6 /* NSString+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11D21FE5C11B000B8DE6 /* NSString+PCS.m */; };
 		4ABF11DE1FE5C11C000B8DE6 /* NSData+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11D41FE5C11B000B8DE6 /* NSData+PCS.h */; };
 		4ABF11DF1FE5C11C000B8DE6 /* NSString+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11D51FE5C11B000B8DE6 /* NSString+PCS.h */; };
@@ -295,6 +309,20 @@
 		4A94BEA3209228E10009C4AB /* NSDictionary+PCS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+PCS.m"; sourceTree = "<group>"; };
 		4A96C55E1E843C9E002EB09E /* RFC822.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RFC822.m; path = RS/RFC822.m; sourceTree = SOURCE_ROOT; };
 		4A96C5601E843CBD002EB09E /* RFC822.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RFC822.h; path = RS/RFC822.h; sourceTree = SOURCE_ROOT; };
+		4AA20C4B23101B98005BD76D /* WeasisManifest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeasisManifest.h; sourceTree = "<group>"; };
+		4AA20C4C23101B98005BD76D /* WeasisManifest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeasisManifest.m; sourceTree = "<group>"; };
+		4AA20C4F23101BE2005BD76D /* WeasisArcQuery.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeasisArcQuery.h; sourceTree = "<group>"; };
+		4AA20C5023101BE2005BD76D /* WeasisArcQuery.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeasisArcQuery.m; sourceTree = "<group>"; };
+		4AA20C5323101C58005BD76D /* WeasisPatient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeasisPatient.h; sourceTree = "<group>"; };
+		4AA20C5423101C58005BD76D /* WeasisPatient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeasisPatient.m; sourceTree = "<group>"; };
+		4AA20C5723101C72005BD76D /* WeasisStudy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeasisStudy.h; sourceTree = "<group>"; };
+		4AA20C5823101C72005BD76D /* WeasisStudy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeasisStudy.m; sourceTree = "<group>"; };
+		4AA20C5B23101C91005BD76D /* WeasisSeries.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeasisSeries.h; sourceTree = "<group>"; };
+		4AA20C5C23101C91005BD76D /* WeasisSeries.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeasisSeries.m; sourceTree = "<group>"; };
+		4AA20C5F23101E1B005BD76D /* WeasisInstance.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeasisInstance.h; sourceTree = "<group>"; };
+		4AA20C6023101E1B005BD76D /* WeasisInstance.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeasisInstance.m; sourceTree = "<group>"; };
+		4AA20C6323102AFA005BD76D /* WeasisDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeasisDocument.h; sourceTree = "<group>"; };
+		4AA20C6423102AFA005BD76D /* WeasisDocument.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeasisDocument.m; sourceTree = "<group>"; };
 		4AA28D2D1D94569400B223CA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4ABF11D21FE5C11B000B8DE6 /* NSString+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+PCS.m"; sourceTree = "<group>"; };
 		4ABF11D41FE5C11B000B8DE6 /* NSData+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+PCS.h"; sourceTree = "<group>"; };
@@ -399,6 +427,7 @@
 				4AF40D902222D03000103F99 /* MLLP */,
 				4A19C9171E8F15B700DDD35D /* RS */,
 				4AE49DEF2009E3F200B8F321 /* DRS */,
+				4AA20C4923101B0A005BD76D /* XML */,
 				2A31F5E41C87295A00A78C7C /* Frameworks */,
 				2A31F5E31C87295A00A78C7C /* Products */,
 				4A2D905021802EDC00371484 /* test */,
@@ -524,6 +553,35 @@
 				4AF40D3F220ECF3B00103F99 /* wadouri */,
 			);
 			path = DICOMweb;
+			sourceTree = "<group>";
+		};
+		4AA20C4923101B0A005BD76D /* XML */ = {
+			isa = PBXGroup;
+			children = (
+				4AA20C4A23101B31005BD76D /* weasis */,
+			);
+			path = XML;
+			sourceTree = "<group>";
+		};
+		4AA20C4A23101B31005BD76D /* weasis */ = {
+			isa = PBXGroup;
+			children = (
+				4AA20C6323102AFA005BD76D /* WeasisDocument.h */,
+				4AA20C6423102AFA005BD76D /* WeasisDocument.m */,
+				4AA20C4B23101B98005BD76D /* WeasisManifest.h */,
+				4AA20C4C23101B98005BD76D /* WeasisManifest.m */,
+				4AA20C4F23101BE2005BD76D /* WeasisArcQuery.h */,
+				4AA20C5023101BE2005BD76D /* WeasisArcQuery.m */,
+				4AA20C5323101C58005BD76D /* WeasisPatient.h */,
+				4AA20C5423101C58005BD76D /* WeasisPatient.m */,
+				4AA20C5723101C72005BD76D /* WeasisStudy.h */,
+				4AA20C5823101C72005BD76D /* WeasisStudy.m */,
+				4AA20C5B23101C91005BD76D /* WeasisSeries.h */,
+				4AA20C5C23101C91005BD76D /* WeasisSeries.m */,
+				4AA20C5F23101E1B005BD76D /* WeasisInstance.h */,
+				4AA20C6023101E1B005BD76D /* WeasisInstance.m */,
+			);
+			path = weasis;
 			sourceTree = "<group>";
 		};
 		4AB07BA322709573003E4C56 /* DICOMweb */ = {
@@ -788,12 +846,14 @@
 				4A0FDF451E91078C001E3426 /* RSGZipEncoder.h in Headers */,
 				4A2D906C2181E37D00371484 /* DRS+wadouri.h in Headers */,
 				4AE49DF2200D153000B8F321 /* DRS+pacs.h in Headers */,
+				4AA20C5123101BE2005BD76D /* WeasisArcQuery.h in Headers */,
 				4A2F37F422884AC2004BE2A2 /* ResponseMwlitems.h in Headers */,
 				4A34618D22F0ACC300368276 /* DRS+studyToken.h in Headers */,
 				4A0FDF471E91078C001E3426 /* RSResponse.h in Headers */,
 				4A57EE432295442400EB3962 /* ResponseQido.h in Headers */,
 				4AE49DDB2008F1F600B8F321 /* DRS.h in Headers */,
 				4A0E60441E81C01B005D7F2B /* ODLog.h in Headers */,
+				4AA20C6123101E1B005BD76D /* WeasisInstance.h in Headers */,
 				4A57EE5222961E8800EB3962 /* ResponseStow.h in Headers */,
 				4ABF11F81FE5C13B000B8DE6 /* NSMutableDictionary+DICM.h in Headers */,
 				4A0FDF491E91078C001E3426 /* RSDataResponse.h in Headers */,
@@ -825,11 +885,16 @@
 				4AD38B322062D47200CA1ECC /* K.h in Headers */,
 				4AF40D932222D08200103F99 /* mllpSend.h in Headers */,
 				4A0FDF5C1E9109EB001E3426 /* RSRequest.h in Headers */,
+				4AA20C5523101C58005BD76D /* WeasisPatient.h in Headers */,
+				4AA20C5D23101C91005BD76D /* WeasisSeries.h in Headers */,
+				4AA20C6523102AFA005BD76D /* WeasisDocument.h in Headers */,
+				4AA20C4D23101B98005BD76D /* WeasisManifest.h in Headers */,
 				4A2D90792183455100371484 /* zconf.h in Headers */,
 				4A0FDF5B1E9109EB001E3426 /* RSBodyWriterProtocol.h in Headers */,
 				4ABF11F31FE5C13B000B8DE6 /* NSDictionary+DICM.h in Headers */,
 				4AF40D49220ED1F400103F99 /* RequestXMLMetadata.h in Headers */,
 				4AF40D3221F8FA8B00103F99 /* DRS+qido.h in Headers */,
+				4AA20C5923101C72005BD76D /* WeasisStudy.h in Headers */,
 				4A0FDF4B1E91078C001E3426 /* RSErrorResponse.h in Headers */,
 				4AF40DCD2224317400103F99 /* NSString+MSH.h in Headers */,
 				4ABF12041FE89413000B8DE6 /* iconv.h in Headers */,
@@ -927,7 +992,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1010;
-				ORGANIZATIONNAME = ridi.salud.uy;
+				ORGANIZATIONNAME = opendicom.com;
 				TargetAttributes = {
 					2A31F5E11C87295A00A78C7C = {
 						LastSwiftMigration = 1010;
@@ -984,6 +1049,7 @@
 				4AE49DF3200D153000B8F321 /* DRS+pacs.m in Sources */,
 				4A2D90622181E37D00371484 /* DRS+wadouri.m in Sources */,
 				4AF40D3321F8FA8B00103F99 /* DRS+qido.m in Sources */,
+				4AA20C5E23101C91005BD76D /* WeasisSeries.m in Sources */,
 				4A0FDF4C1E91078C001E3426 /* RSErrorResponse.m in Sources */,
 				4A0FDF4A1E91078C001E3426 /* RSDataResponse.m in Sources */,
 				4A0FDF4E1E91078C001E3426 /* RSFileResponse.m in Sources */,
@@ -1002,6 +1068,8 @@
 				4A34618E22F0ACC300368276 /* DRS+studyToken.m in Sources */,
 				4A2F37F322884AC2004BE2A2 /* ResponseMwlitems.m in Sources */,
 				4A2D90642181E37D00371484 /* DRS+datatables.m in Sources */,
+				4AA20C6223101E1B005BD76D /* WeasisInstance.m in Sources */,
+				4AA20C5223101BE2005BD76D /* WeasisArcQuery.m in Sources */,
 				4A0FDF501E91078C001E3426 /* RSStreamedResponse.m in Sources */,
 				4A0FDF481E91078C001E3426 /* RSResponse.m in Sources */,
 				4ABF11FE1FE6879C000B8DE6 /* NSMutableString+DSCD.m in Sources */,
@@ -1017,6 +1085,8 @@
 				4A57EE5322961E8800EB3962 /* ResponseStow.m in Sources */,
 				4A96C55F1E843C9E002EB09E /* RFC822.m in Sources */,
 				4ABF11F41FE5C13B000B8DE6 /* NSDictionary+DICM.m in Sources */,
+				4AA20C6623102AFA005BD76D /* WeasisDocument.m in Sources */,
+				4AA20C5A23101C72005BD76D /* WeasisStudy.m in Sources */,
 				4A0FDF541E91078C001E3426 /* RSConnection.m in Sources */,
 				4A07FB6521F2235B00007B8B /* RequestQido.m in Sources */,
 				4ABF11F91FE5C13B000B8DE6 /* NSMutableDictionary+DICM.m in Sources */,
@@ -1026,6 +1096,7 @@
 				4AE49DE62009D11800B8F321 /* ODLog.m in Sources */,
 				4AF40D5B2219EE6C00103F99 /* RequestStow.m in Sources */,
 				4AF40D4A220ED1F400103F99 /* RequestXMLMetadata.m in Sources */,
+				4AA20C5623101C58005BD76D /* WeasisPatient.m in Sources */,
 				4ABF11F21FE5C13B000B8DE6 /* NSMutableData+DICM.m in Sources */,
 				4AE49DDC2008F1F600B8F321 /* DRS.m in Sources */,
 				4A94BEA5209228E10009C4AB /* NSDictionary+PCS.m in Sources */,
@@ -1033,6 +1104,7 @@
 				4ABF11F11FE5C13B000B8DE6 /* NSUUID+DICM.m in Sources */,
 				4A57EE4F229580DA00EB3962 /* NSMutableDictionary+PCS.m in Sources */,
 				4ABF11E21FE5C11C000B8DE6 /* NSURLComponents+PCS.m in Sources */,
+				4AA20C4E23101B98005BD76D /* WeasisManifest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

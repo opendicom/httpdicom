@@ -14,8 +14,6 @@
             <string id="pacsoid">2.16.858.0.1.4.0.72769.217215590012.2</string>
             <key>pacsaet</key>
             <string id="pacsaet">CUDIM</string>
-            <key>local</key>
-            <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
             <key>timezoneoffsetfromutc</key>

@@ -304,12 +304,15 @@ static NSData              *_oidsdata=nil;
 static NSData              *_titlesdata=nil;
 static NSDictionary        *_oidsaeis=nil;
 static NSDictionary        *_titlesaets=nil;
+static NSDictionary        *_titlestitlesaets=nil;
 static NSDictionary        *_titlesaetsstrings=nil;
 
 static NSDictionary        *_pacs=nil;//pacsDictionary
-static NSArray             *_pacskeys=nil;
 static NSData              *_pacskeysdata=nil;
 
+static NSArray             *_wan=nil;
+static NSArray             *_lan=nil;
+static NSArray             *_dev=nil;
 
 
 int execUTF8Bash(NSDictionary *environment, NSString *writeString, NSMutableData *readData)
@@ -488,23 +491,28 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         
         //pacs titles grouped on custodian
         NSMutableDictionary *titlesaets=[NSMutableDictionary dictionary];
+        NSMutableDictionary *titlestitlesaets=[NSMutableDictionary dictionary];
         NSMutableDictionary *titlesaetsStrings=[NSMutableDictionary dictionary];
         for (NSString *title in [titles allKeys])
         {
             NSMutableArray *titleaets=[NSMutableArray array];
+            NSMutableArray *titletitleaets=[NSMutableArray array];
             NSMutableString *s=[NSMutableString stringWithString:@"("];
             
             for (NSDictionary *d in pacsArray)
             {
                 if ([d[@"custodiantitle"] isEqualToString:title])
                 {
-                    [titleaets addObject:d[@"pacsaet"]];
+                   [titleaets addObject:d[@"pacsaet"]];
+                   [titletitleaets addObject:[title stringByAppendingPathExtension:d[@"pacsaet"]]];
+
                     if ([s isEqualToString:@"("])
                         [s appendFormat:@"'%@'",d[@"pacsaet"]];
                     else [s appendFormat:@",'%@'",d[@"pacsaet"]];
                 }
             }
             [titlesaets setObject:titleaets forKey:title];
+            [titlestitlesaets setObject:titletitleaets forKey:title];
             [s appendString:@")"];
             [titlesaetsStrings setObject:s forKey:title];
         }
@@ -514,27 +522,77 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
        _titles=[NSDictionary dictionaryWithDictionary:titles];
        _oidsaeis=[NSDictionary dictionaryWithDictionary:oidsaeis];
        _titlesaets=[NSDictionary dictionaryWithDictionary:titlesaets];
+       _titlestitlesaets=[NSDictionary dictionaryWithDictionary:titlestitlesaets];
        _titlesaetsstrings=[NSDictionary dictionaryWithDictionary:titlesaetsStrings];
 
        
-//_pacs (pacsoidDictionary) and pacsaetDictionary (custodianaet.pacsaet)
+//_pacs receives two entries for each dev:
+//- oid (get access direct)
+//- custodianaet.pacsaet (get access proxied by pcs)
        NSMutableDictionary *pacsDictionary=[NSMutableDictionary dictionary];
        NSUInteger pacsIndex=NSNotFound;
+       NSMutableString *pacsKeys=[NSMutableString stringWithString:@"["];
+ 
+       
+       _lan=@[(pacsArray[0])[@"custodianoid"],(pacsArray[0])[@"custodiantitle"]];
+       NSMutableArray *wan=[NSMutableArray array];
+       NSMutableArray *dev=[NSMutableArray array];
+       
        for (pacsIndex=0; pacsIndex<[pacsArray count];pacsIndex++)
        {
           NSDictionary *d=pacsArray[pacsIndex];
+
+          if (pacsIndex!=0)[pacsKeys appendString:@","];
+             
+          if (
+                [d[@"custodianoid"] isEqualToString:(pacsArray[0])[@"custodianoid"]]
+              ||[d[@"custodiantitle"] isEqualToString:(pacsArray[0])[@"custodiantitle"]]
+              )
+          {
+             //dev (pacs local)
+             [dev addObject:d[@"pacsoid"]];
+             [dev addObject:[d[@"custodiantitle"] stringByAppendingPathExtension:d[@"pacsaet"]]];
+          }
+          else
+          {
+             //wan (pacs proxied by another pcs)
+             [wan addObject:d[@"pacsoid"]];
+             if ([d[@"pacsaet"] isEqualToString:d[@"custodiantitle"]])
+             {
+                //another pcs
+                [wan addObject:d[@"custodiantitle"]];
+             }
+             else
+             {
+                //dev of another pcs
+                [wan addObject:[d[@"custodiantitle"] stringByAppendingPathExtension:d[@"pacsaet"]]];
+             }
+
+          }
+          
+          
           [pacsDictionary setObject:d forKey:d[@"pacsoid"]];
           [pacsDictionary
            setObject:d
            forKey:[d[@"custodiantitle"] stringByAppendingPathExtension:d[@"pacsaet"]]
              ];
           [pacsDictionary setObject:d forKey:[NSString stringWithFormat:@"%ld",(long)pacsIndex]];
+          [pacsKeys appendFormat:
+           @"{\"direct\":\"%@\",\"proxied\":\"%@\"}",
+           d[@"pacsoid"],
+           [d[@"custodiantitle"] stringByAppendingPathExtension:d[@"pacsaet"]]
+           ];
         }
+       [pacsKeys appendString:@"]"];
+       LOG_DEBUG(@"\r\nlan:\r\n%@",[_lan description]);
        _pacs=[NSDictionary dictionaryWithDictionary:pacsDictionary];
-       _pacskeys=[pacsDictionary allKeys];
-       LOG_DEBUG(@"\r\npacs dictionary entries:\r\n%@",_pacskeys);
-       _pacskeysdata=[NSJSONSerialization dataWithJSONObject:_pacskeys options:0 error:nil];
+       _pacskeysdata=[pacsKeys dataUsingEncoding:NSUTF8StringEncoding];
 
+       _wan=[NSArray arrayWithArray:wan];
+       _dev=[NSArray arrayWithArray:dev];
+       LOG_DEBUG(@"\r\nwan:\r\n%@",[_wan description]);
+       LOG_DEBUG(@"\r\nlan:\r\n%@",[_lan description]);
+       LOG_DEBUG(@"\r\ndev:\r\n%@",[_dev description]);
 
 #pragma mark -
 #pragma mark handlers
@@ -604,10 +662,13 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 +(NSData*)titlesdata                 { return _titlesdata;}
 +(NSDictionary*)oidsaeis             { return _oidsaeis;}
 +(NSDictionary*)titlesaets           { return _titlesaets;}
++(NSDictionary*)titlestitlesaets     { return _titlestitlesaets;}
 +(NSDictionary*)titlesaetsstrings    { return _titlesaetsstrings;}
 
 +(NSDictionary*)pacs                 { return _pacs;}
-+(NSArray*)pacskeys                  { return _pacskeys;}
 +(NSData*)pacskeysdata               { return _pacskeysdata;}
 
++(NSArray*)wan                       { return _wan;}
++(NSArray*)lan                       { return _lan;}
++(NSArray*)dev                       { return _dev;}
 @end

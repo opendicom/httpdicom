@@ -60,12 +60,17 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType);
 @property (class, nonatomic, readonly) NSData            *titlesdata;
 @property (class, nonatomic, readonly) NSDictionary      *oidsaeis;
 @property (class, nonatomic, readonly) NSDictionary      *titlesaets;
+@property (class, nonatomic, readonly) NSDictionary      *titlestitlesaets;
 @property (class, nonatomic, readonly) NSDictionary      *titlesaetsstrings;
 
-@property (class, nonatomic, readonly) NSDictionary      *pacs;
-@property (class, nonatomic, readonly) NSArray           *pacskeys;
-@property (class, nonatomic, readonly) NSData            *pacskeysdata;
 //triple key oid, custodianAet.aet, index
+
+@property (class, nonatomic, readonly) NSDictionary      *pacs;
+@property (class, nonatomic, readonly) NSData            *pacskeysdata;
+
+@property (class, nonatomic, readonly) NSArray           *wan;//proxying to pcs
+@property (class, nonatomic, readonly) NSArray           *lan;//every local
+@property (class, nonatomic, readonly) NSArray           *dev;//a specific local
 
 -(id)initWithSqls:(NSDictionary*)sqls
              pacs:(NSArray*)pacs

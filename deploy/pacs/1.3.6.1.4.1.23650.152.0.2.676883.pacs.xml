@@ -13,8 +13,6 @@
             <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.676883</string>
             <key>pacsaet</key>
             <string id="pacsaet">CDS</string>
-            <key>local</key>
-            <true/>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
             <key>timezoneoffsetfromutc</key>
