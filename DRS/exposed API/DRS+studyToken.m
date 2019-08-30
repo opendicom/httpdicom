@@ -27,7 +27,7 @@ enum accessType{accessTypeWeasis, accessTypeCornerstone, accessTypeDicomzip, acc
 
 
 // pk.pk/
-static NSString *sqlTwoPks=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\".\";}{print $1, $2}' | sed -e 's/\\/$//'";
+static NSString *sqlTwoPks=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\".\";}{print $1, $2}'";
 
 
 
@@ -382,57 +382,57 @@ NSMutableArray *patientArray=nil;
                   [EPDict setObject:[EPString pathExtension] forKey:[EPString stringByDeletingPathExtension]];
                }
             }
-            else if (AccessionNumberIndex!=NSNotFound)
+            else //AccessionNumber or PatientID + StudyDate
             {
-               [mutableData setData:[NSData data]];
-               if (execUTF8Bash(sqlcredentials,
-                                 [NSString stringWithFormat:
-                                  sqlDictionary[@"sqlPE4Ean"],
-                                  sqlprolog,
-                                  values[AccessionNumberIndex],
-                                  @"",
-                                  sqlTwoPks
-                                  ],
-                                 mutableData)
-                   !=0)
-               {
-                  LOG_ERROR(@"studyToken accessionNumber db error");
+                if (AccessionNumberIndex!=NSNotFound)
+                {
+                   [mutableData setData:[NSData data]];
+                   if (execUTF8Bash(sqlcredentials,
+                                     [NSString stringWithFormat:
+                                      sqlDictionary[@"sqlPE4Ean"],
+                                      sqlprolog,
+                                      values[AccessionNumberIndex],
+                                      @"",
+                                      sqlTwoPks
+                                      ],
+                                     mutableData)
+                       !=0)
+                   {
+                      LOG_ERROR(@"studyToken accessionNumber db error");
+                      continue;
+                   }
+                }
+                else if ((PatientIDIndex!=NSNotFound)&&(StudyDateIndex!=NSNotFound))
+                {
+                    //issuer?
+                    [mutableData setData:[NSData data]];
+                    if (execUTF8Bash(sqlcredentials,
+                                     [NSString stringWithFormat:
+                                      sqlDictionary[@"sqlPE4PidEda"],
+                                      sqlprolog,
+                                      values[PatientIDIndex],
+                                      values[StudyDateIndex],
+                                      @"",
+                                      sqlTwoPks
+                                      ],
+                                     mutableData)
+                        !=0)
+                    {
+                        LOG_ERROR(@"studyToken PatientID or StudyDate db error");
+                        continue;
+                    }
+                }
+            
+                if ([mutableData length]==0)
+                {
+                  LOG_VERBOSE(@"studyToken empty response");
                   continue;
-               }
-               if ([mutableData length]==0)
-               {
-                  LOG_VERBOSE(@"studyToken accessionNumber empty response");
-                  continue;
-               }
-               NSString *EPString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
-               [EPDict setObject:[EPString pathExtension] forKey:[EPString stringByDeletingPathExtension]];
-            }
-            else if ((PatientIDIndex!=NSNotFound)&&(StudyDateIndex!=NSNotFound))
-            {
-               //issuer?
-               [mutableData setData:[NSData data]];
-               if (execUTF8Bash(sqlcredentials,
-                                 [NSString stringWithFormat:
-                                  sqlDictionary[@"sqlPE4PidEda"],
-                                  sqlprolog,
-                                  values[PatientIDIndex],
-                                  values[StudyDateIndex],
-                                  @"",
-                                  sqlTwoPks
-                                  ],
-                                 mutableData)
-                   !=0)
-               {
-                  LOG_ERROR(@"studyToken PatientID or StudyDate db error");
-                  continue;
-               }
-               if ([mutableData length]==0)
-               {
-                  LOG_VERBOSE(@"studyToken PatientID or StudyDate empty response");
-                  continue;
-               }
-               NSString *EPString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
-               [EPDict setObject:[EPString pathExtension] forKey:[EPString stringByDeletingPathExtension]];
+                }
+                for (NSString *pkdotpk in [[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding]componentsSeparatedByString:@"/"])
+                {
+                    if (pkdotpk.length) [EPDict setObject:[pkdotpk pathExtension] forKey:[pkdotpk stringByDeletingPathExtension]];
+                }
+                //record terminated by /
             }
       
       
@@ -450,7 +450,7 @@ NSMutableArray *patientArray=nil;
                   for (NSString *P in [NSSet setWithArray:[EPDict allValues]])
                   {
                      [mutableData setData:[NSData data]];
-                     if (!execUTF8Bash(sqlcredentials,
+                     if (execUTF8Bash(sqlcredentials,
                                        [NSString stringWithFormat:
                                         sqlDictionary[@"sqlP"],
                                         sqlprolog,
@@ -459,7 +459,7 @@ NSMutableArray *patientArray=nil;
                                         sqlRecordSixUnits
                                         ],
                                        mutableData)
-                         )
+                         !=0)
                      {
                         LOG_ERROR(@"studyToken patient db error");
                         continue;
@@ -514,7 +514,7 @@ NSMutableArray *studyArray=nil;
                      if ([EPDict[E] isEqualToString:P])
                      {
                         [mutableData setData:[NSData data]];
-                        if (!execUTF8Bash(sqlcredentials,
+                        if (execUTF8Bash(sqlcredentials,
                                           [NSString stringWithFormat:
                                            sqlDictionary[@"sqlE"],
                                            sqlprolog,
@@ -523,7 +523,7 @@ NSMutableArray *studyArray=nil;
                                            sqlRecordTenUnits
                                            ],
                                           mutableData)
-                            )
+                            !=0)
                         {
                            LOG_ERROR(@"studyToken study db error");
                            continue;
@@ -607,7 +607,7 @@ NSMutableArray *seriesArray=nil;
                         }
 
                         [mutableData setData:[NSData data]];
-                        if (!execUTF8Bash(sqlcredentials,
+                        if (execUTF8Bash(sqlcredentials,
                                           [NSString stringWithFormat:
                                            sqlDictionary[@"sqlS"],
                                            sqlprolog,
@@ -616,7 +616,7 @@ NSMutableArray *seriesArray=nil;
                                            sqlRecordFiveUnits
                                            ],
                                           mutableData)
-                            )
+                            !=0)
                         {
                            LOG_ERROR(@"studyToken study db error");
                            continue;
@@ -626,7 +626,7 @@ NSMutableArray *seriesArray=nil;
                         {
                            //SOPClassUID check on the first instance
                            [mutableData setData:[NSData data]];
-                           if (!execUTF8Bash(sqlcredentials,
+                           if (execUTF8Bash(sqlcredentials,
                                              [NSString stringWithFormat:
                                               sqlDictionary[@"sqlI"],
                                               sqlprolog,
@@ -635,7 +635,7 @@ NSMutableArray *seriesArray=nil;
                                               sqlRecordFourUnits
                                               ],
                                              mutableData)
-                               )
+                               !=0)
                            {
                               LOG_ERROR(@"studyToken study db error");
                               continue;
@@ -661,7 +661,7 @@ NSMutableArray *seriesArray=nil;
                            
                            //instances
                            [mutableData setData:[NSData data]];
-                           if (!execUTF8Bash(sqlcredentials,
+                           if (execUTF8Bash(sqlcredentials,
                                              [NSString stringWithFormat:
                                               sqlDictionary[@"sqlI"],
                                               sqlprolog,
@@ -670,7 +670,7 @@ NSMutableArray *seriesArray=nil;
                                               sqlRecordFourUnits
                                               ],
                                              mutableData)
-                               )
+                               !=0)
                            {
                               LOG_ERROR(@"studyToken study db error");
                               continue;
@@ -779,6 +779,7 @@ NSXMLElement *InstanceElement=nil;//Study=Exam
       } //end of SELECT switch
    }
 #pragma mark wan loop
+    NSLog(@"%@",[XMLRoot description]);
    for (NSString *custodianOIDString in wanCustodianOIDArray)
    {
       NSLog(@"%@",custodianOIDString);
