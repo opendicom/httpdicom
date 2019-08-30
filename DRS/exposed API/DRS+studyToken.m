@@ -274,7 +274,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    {
       
 NSXMLElement *arcQueryElement=nil;
-NSMutableArray *patientArray=[NSMutableArray array];
+NSMutableArray *patientArray=nil;
       
       switch (accessType) {
          case accessTypeWeasis:{
@@ -292,6 +292,7 @@ NSMutableArray *patientArray=[NSMutableArray array];
             [XMLRoot addChild:arcQueryElement];
             } break;//end of sql wado weasis
          case accessTypeCornerstone:{
+            patientArray=[NSMutableArray array];
             [JSONArray addObject:
              @{
                @"arcId":custodianOIDString,
@@ -310,7 +311,7 @@ NSMutableArray *patientArray=[NSMutableArray array];
 
             } break;//end of sql wado cornerstone
          case accessTypeDicomzip:{
-            
+            patientArray=[NSMutableArray array];
             /*
              - create
              {
@@ -322,8 +323,10 @@ NSMutableArray *patientArray=[NSMutableArray array];
             
             } break;//end of sql wado dicomzip
          case accessTypeOsirix:{
+            patientArray=[NSMutableArray array];
             } break;//end of sql wado osirix
          case accessTypeDatatablesSeries:{
+            patientArray=[NSMutableArray array];
             } break;//end of sql wado osirix
       }
       
@@ -356,7 +359,7 @@ NSMutableArray *patientArray=[NSMutableArray array];
                   //find patient fk
                   [mutableData setData:[NSData data]];
                   
-                  if (!execUTF8Bash(sqlcredentials,
+                  if (execUTF8Bash(sqlcredentials,
                                     [NSString stringWithFormat:
                                      sqlDictionary[@"sqlPE4Euid"],
                                      sqlprolog,
@@ -365,18 +368,24 @@ NSMutableArray *patientArray=[NSMutableArray array];
                                      sqlTwoPks
                                      ],
                                     mutableData)
-                      ) LOG_ERROR(@"studyToken StudyInstanceUID db error");
-                  else if ([mutableData length])
+                      !=0)
                   {
-                     NSString *EPString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
-                     [EPDict setObject:[EPString pathExtension] forKey:[EPString stringByDeletingPathExtension]];
+                     LOG_ERROR(@"studyToken StudyInstanceUID %@ db error",uid);
+                     continue;
                   }
+                  if ([mutableData length]==0)
+                  {
+                     LOG_VERBOSE(@"studyToken StudyInstanceUID %@ empty response",uid);
+                     continue;
+                  }
+                  NSString *EPString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
+                  [EPDict setObject:[EPString pathExtension] forKey:[EPString stringByDeletingPathExtension]];
                }
             }
             else if (AccessionNumberIndex!=NSNotFound)
             {
                [mutableData setData:[NSData data]];
-               if (!execUTF8Bash(sqlcredentials,
+               if (execUTF8Bash(sqlcredentials,
                                  [NSString stringWithFormat:
                                   sqlDictionary[@"sqlPE4Ean"],
                                   sqlprolog,
@@ -385,13 +394,24 @@ NSMutableArray *patientArray=[NSMutableArray array];
                                   sqlTwoPks
                                   ],
                                  mutableData)
-                   ) LOG_ERROR(@"studyToken accessionNumber error");
+                   !=0)
+               {
+                  LOG_ERROR(@"studyToken accessionNumber db error");
+                  continue;
+               }
+               if ([mutableData length]==0)
+               {
+                  LOG_VERBOSE(@"studyToken accessionNumber empty response");
+                  continue;
+               }
+               NSString *EPString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
+               [EPDict setObject:[EPString pathExtension] forKey:[EPString stringByDeletingPathExtension]];
             }
             else if ((PatientIDIndex!=NSNotFound)&&(StudyDateIndex!=NSNotFound))
             {
                //issuer?
                [mutableData setData:[NSData data]];
-               if (!execUTF8Bash(sqlcredentials,
+               if (execUTF8Bash(sqlcredentials,
                                  [NSString stringWithFormat:
                                   sqlDictionary[@"sqlPE4PidEda"],
                                   sqlprolog,
@@ -401,16 +421,18 @@ NSMutableArray *patientArray=[NSMutableArray array];
                                   sqlTwoPks
                                   ],
                                  mutableData)
-                   ) LOG_ERROR(@"studyToken PatientID or StudyDate error");
-            }
-            
-            //for both AccessionNumber or PatientID+StudyDate, check if mutableData
-            if ([mutableData length]>1)
-            {
-               for (NSString *EPString in [[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] pathComponents])
+                   !=0)
                {
-                  [EPDict setObject:[EPString pathExtension] forKey:[EPString stringByDeletingPathExtension]];
+                  LOG_ERROR(@"studyToken PatientID or StudyDate db error");
+                  continue;
                }
+               if ([mutableData length]==0)
+               {
+                  LOG_VERBOSE(@"studyToken PatientID or StudyDate empty response");
+                  continue;
+               }
+               NSString *EPString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
+               [EPDict setObject:[EPString pathExtension] forKey:[EPString stringByDeletingPathExtension]];
             }
       
       
@@ -443,7 +465,7 @@ NSMutableArray *patientArray=[NSMutableArray array];
                         continue;
                      }
 NSXMLElement *PatientElement=nil;
-NSMutableArray *studyArray=[NSMutableArray array];
+NSMutableArray *studyArray=nil;
                         
                      NSArray *patientPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
 
@@ -463,6 +485,7 @@ NSMutableArray *studyArray=[NSMutableArray array];
                            [arcQueryElement addChild:PatientElement];
                            } break;//end of sql wado weasis
                         case accessTypeCornerstone:{
+                           studyArray=[NSMutableArray array];
                            [patientArray addObject:
                             @{
                               @"PatientID":(patientPropertiesArray[0])[1],
@@ -475,10 +498,13 @@ NSMutableArray *studyArray=[NSMutableArray array];
                            
                            } break;//end of sql wado cornerstone
                         case accessTypeDicomzip:{
+                           studyArray=[NSMutableArray array];
                            } break;//end of sql wado dicomzip
                         case accessTypeOsirix:{
+                           studyArray=[NSMutableArray array];
                            } break;//end of sql wado osirix
                         case accessTypeDatatablesSeries:{
+                           studyArray=[NSMutableArray array];
                            } break;//end of sql wado osirix
                      }
 
@@ -503,7 +529,7 @@ NSMutableArray *studyArray=[NSMutableArray array];
                            continue;
                         }
 NSXMLElement *StudyElement=nil;//Study=Exam
-NSMutableArray *seriesArray=[NSMutableArray array];
+NSMutableArray *seriesArray=nil;
                         NSArray *EPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
                         
                         
@@ -552,6 +578,7 @@ NSMutableArray *seriesArray=[NSMutableArray array];
                                numImages
                                studyId
                                */
+                              seriesArray=[NSMutableArray array];
                               [studyArray addObject:
                                @{
                                  @"StudyInstanceUID":(EPropertiesArray[0])[1],
@@ -569,10 +596,13 @@ NSMutableArray *seriesArray=[NSMutableArray array];
                                  }];
                               } break;//end of sql wado cornerstone
                            case accessTypeDicomzip:{
+                              seriesArray=[NSMutableArray array];
                               } break;//end of sql wado dicomzip
                            case accessTypeOsirix:{
+                              seriesArray=[NSMutableArray array];
                               } break;//end of sql wado osirix
                            case accessTypeDatatablesSeries:{
+                              seriesArray=[NSMutableArray array];
                               } break;//end of sql wado osirix
                         }
 
@@ -649,7 +679,7 @@ NSMutableArray *seriesArray=[NSMutableArray array];
 
 //#pragma mark series loop
 NSXMLElement *SeriesElement=nil;//Study=Exam
-NSMutableArray *instanceArray=[NSMutableArray array];                                                                                    switch (accessType) {
+NSMutableArray *instanceArray=nil;                                                                                    switch (accessType) {
                               case accessTypeWeasis:{
                                  SeriesElement=[WeasisSeries pk:SProperties[0]
                                   uid:SProperties[1]
@@ -670,6 +700,7 @@ NSMutableArray *instanceArray=[NSMutableArray array];                           
                                   seriesDescription
                                   seriesNumber
                                   */
+                                 instanceArray=[NSMutableArray array];
                                  [seriesArray addObject:
                                  @{
                                    @"seriesDescription":SProperties[2],
@@ -681,10 +712,13 @@ NSMutableArray *instanceArray=[NSMutableArray array];                           
                                    }];
                               } break;//end of sql wado cornerstone
                               case accessTypeDicomzip:{
+                                 instanceArray=[NSMutableArray array];
                                  } break;//end of sql wado dicomzip
                               case accessTypeOsirix:{
+                                 instanceArray=[NSMutableArray array];
                                  } break;//end of sql wado osirix
                               case accessTypeDatatablesSeries:{
+                                 instanceArray=[NSMutableArray array];
                                  } break;//end of sql wado osirix
                            }
 

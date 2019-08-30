@@ -35,17 +35,15 @@
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"arcId" stringValue:arcId]];
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"baseUrl" stringValue:baseUrl]];
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"overrideDicomTagsList" stringValue:overrideDicomTagsList]];
-   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"additionnalParameters" stringValue:
-                           [NSString stringWithFormat:@"&amp;session=%@&amp;custodianOID=%@&amp;SeriesId=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@",
-                            session,
-                            baseUrl,
-                            [seriesIdArray componentsJoinedByString:@"\\"],
-                            [seriesDescriptionArray componentsJoinedByString:@"\\"],
-                            [modalityArray componentsJoinedByString:@"\\"],
-                            [SOPClassArray componentsJoinedByString:@"\\"]
-                            ]
-                           ]
-    ];
+   
+   NSMutableString *additionalParameters=[NSMutableString stringWithFormat:@"&amp;session=%@&amp;custodianOID=%@",session,baseUrl];
+   if (seriesIdArray) [additionalParameters appendFormat:@"&amp;SeriesId=%@",[seriesIdArray componentsJoinedByString:@"\\"]];
+   if (seriesDescriptionArray) [additionalParameters appendFormat:@"&amp;seriesDescription=%@",[seriesDescriptionArray componentsJoinedByString:@"\\"]];
+   if (modalityArray) [additionalParameters appendFormat:@"&amp;modality=%@",[modalityArray componentsJoinedByString:@"\\"]];
+   if (SOPClassArray) [additionalParameters appendFormat:@"&amp;SOPClass=%@",[SOPClassArray componentsJoinedByString:@"\\"]];
+
+   
+   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"additionnalParameters" stringValue:additionalParameters]];
 
    return arcQuery;
 }
