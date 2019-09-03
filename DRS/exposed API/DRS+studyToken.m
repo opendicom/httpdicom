@@ -104,11 +104,6 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    if (sessionIndex!=NSNotFound) sessionString=values[sessionIndex];
    else sessionString=@"";
    
-   //filters
-   NSInteger StudyInstanceUIDsIndex=[names indexOfObject:@"StudyInstanceUID"];
-   NSInteger AccessionNumberIndex=[names indexOfObject:@"AccessionNumber"];
-   NSInteger StudyDateIndex=[names indexOfObject:@"StudyDate"];
-   NSInteger PatientIDIndex=[names indexOfObject:@"PatientID"];
 
    
 #pragma mark custodianOID?
@@ -210,6 +205,11 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    || hasSOPClassRestriction;
 
 #pragma mark Patient Study filter formal validity?
+   NSInteger StudyInstanceUIDsIndex=[names indexOfObject:@"StudyInstanceUID"];
+   NSArray *StudyInstanceUIDArray=nil;
+   NSInteger AccessionNumberIndex=[names indexOfObject:@"AccessionNumber"];
+   NSInteger StudyDateIndex=[names indexOfObject:@"StudyDate"];
+   NSInteger PatientIDIndex=[names indexOfObject:@"PatientID"];
    if (StudyInstanceUIDsIndex!=NSNotFound)
    {
       if (
@@ -221,6 +221,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
       {
          if (![DICMTypes isSingleUIString:uid])[RSErrorResponse responseWithClientError:404 message:@"studyToken no StudyInstanceUID found in %@",uid];
       }
+      StudyInstanceUIDArray=[values[StudyInstanceUIDsIndex]componentsSeparatedByString:@"\\"];
    }
    else if (AccessionNumberIndex!=NSNotFound)
    {
@@ -244,93 +245,52 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    if (accessType==NSNotFound) [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
 
    
-/*
- switch (accessType) {
-    case accessTypeWeasis:{
-       } break;//end of sql wado weasis
-    case accessTypeCornerstone:{
-       } break;//end of sql wado cornerstone
-    case accessTypeDicomzip:{
-       } break;//end of sql wado dicomzip
-    case accessTypeOsirix:{
-       } break;//end of sql wado osirix
-    case accessTypeDatatablesSeries:{
-       } break;//end of sql wado osirix
- }
- */
+
+   switch (accessType) {
+      case accessTypeWeasis:{
+         return [DRS
+                 weasisWithProxyURI:proxyURIString
+                 session:sessionString
+                 devCustodianOIDArray:devCustodianOIDArray
+                 wanCustodianOIDArray:wanCustodianOIDArray
+                 hasRestriction:hasRestriction
+                 hasSeriesNumberRestriction:hasSeriesNumberRestriction
+                 SeriesNumberArray:SeriesNumberArray
+                 hasSeriesDescriptionRestriction:hasSeriesDescriptionRestriction
+                 SeriesDescriptionArray:SeriesDescriptionArray
+                 hasModalityRestriction:hasModalityRestriction
+                 ModalityArray:ModalityArray
+                 hasSOPClassRestriction:hasSOPClassRestriction
+                 SOPClassArray:SOPClassArray
+                 StudyInstanceUIDArray:StudyInstanceUIDArray
+                 AccessionNumberString:values[AccessionNumberIndex]
+                 PatientIDString:values[PatientIDIndex]
+                 StudyDateString:values[StudyDateIndex]
+         ];
+         } break;//end of sql wado weasis
+      case accessTypeCornerstone:{
+         } break;//end of sql wado cornerstone
+      case accessTypeDicomzip:{
+         } break;//end of sql wado dicomzip
+      case accessTypeOsirix:{
+         } break;//end of sql wado osirix
+      case accessTypeDatatablesSeries:{
+         } break;//end of sql wado osirix
+   }
+   
    NSXMLElement *XMLRoot=nil;
    switch (accessType) {
       case accessTypeWeasis:{
          XMLRoot=[WeasisManifest manifest];
       } break;//end of sql wado weasis
    }
-   
-   NSMutableArray *JSONArray=nil;
 
          
 #pragma mark dev loop
-   
    for (NSString *custodianOIDString in devCustodianOIDArray)
    {
-      
-NSXMLElement *arcQueryElement=nil;
-NSMutableArray *patientArray=nil;
-      
-      switch (accessType) {
-         case accessTypeWeasis:{
-            arcQueryElement=
-            [WeasisArcQuery
-             arcQueryOID:custodianOIDString
-             custodian:proxyURIString
-             session:sessionString
-             seriesIds:SeriesNumberArray
-             seriesDescriptions:SeriesDescriptionArray
-             modalities:ModalityArray
-             SOPClasses:SOPClassArray
-             overrideDicomTagsList:@""
-             ];
-            [XMLRoot addChild:arcQueryElement];
-            } break;//end of sql wado weasis
-         case accessTypeCornerstone:{
-            patientArray=[NSMutableArray array];
-            [JSONArray addObject:
-             @{
-               @"arcId":custodianOIDString,
-               @"baseUrl":proxyURIString,
-               @"additionnalParameters":[NSString stringWithFormat:@"&amp;session=%@&amp;custodianOID=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@",
-                                         sessionString,
-                                         custodianOIDString,
-                                         [SeriesDescriptionArray componentsJoinedByString:@"\\"],
-                                         [ModalityArray componentsJoinedByString:@"\\"],
-                                         [SOPClassArray componentsJoinedByString:@"\\"]
-                                         ],
-               @"overrideDicomTagsList":@"",
-               @"patientList":patientArray
-               }
-             ];
-
-            } break;//end of sql wado cornerstone
-         case accessTypeDicomzip:{
-            patientArray=[NSMutableArray array];
-            /*
-             - create
-             {
-               pacsUID:[{
-                  studyUID:[{
-                     seriesUID:[
-                        instanceUID,
-             */
-            
-            } break;//end of sql wado dicomzip
-         case accessTypeOsirix:{
-            patientArray=[NSMutableArray array];
-            } break;//end of sql wado osirix
-         case accessTypeDatatablesSeries:{
-            patientArray=[NSMutableArray array];
-            } break;//end of sql wado osirix
-      }
-      
-      
+#pragma mark · GET type index
+      NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:(DRS.pacs[custodianOIDString])[@"get"]];
 #pragma mark · SELECT switch
       switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[custodianOIDString])[@"select"]]) {
          
@@ -434,10 +394,75 @@ NSMutableArray *patientArray=nil;
                 }
                 //record terminated by /
             }
-      
-      
-#pragma mark ·· GET switch
-            switch ([@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:(DRS.pacs[custodianOIDString])[@"get"]]) {
+#pragma mark -
+
+
+/*
+ there are studies for this custodian
+ */
+NSXMLElement *XMLRoot=nil;
+NSMutableArray *JSONArray=nil;
+NSXMLElement *arcQueryElement=nil;
+NSMutableArray *patientArray=nil;
+            
+            switch (accessType) {
+               case accessTypeWeasis:{
+                  XMLRoot=[WeasisManifest manifest];
+                  arcQueryElement=
+                  [WeasisArcQuery
+                   arcQueryOID:custodianOIDString
+                   custodian:proxyURIString
+                   session:sessionString
+                   seriesIds:SeriesNumberArray
+                   seriesDescriptions:SeriesDescriptionArray
+                   modalities:ModalityArray
+                   SOPClasses:SOPClassArray
+                   overrideDicomTagsList:@""
+                   ];
+                  [XMLRoot addChild:arcQueryElement];
+                  } break;//end of sql wado weasis
+               case accessTypeCornerstone:{
+                  patientArray=[NSMutableArray array];
+                  [JSONArray addObject:
+                   @{
+                     @"arcId":custodianOIDString,
+                     @"baseUrl":proxyURIString,
+                     @"additionnalParameters":[NSString stringWithFormat:@"&amp;session=%@&amp;custodianOID=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@",
+                                               sessionString,
+                                               custodianOIDString,
+                                               [SeriesDescriptionArray componentsJoinedByString:@"\\"],
+                                               [ModalityArray componentsJoinedByString:@"\\"],
+                                               [SOPClassArray componentsJoinedByString:@"\\"]
+                                               ],
+                     @"overrideDicomTagsList":@"",
+                     @"patientList":patientArray
+                     }
+                   ];
+
+                  } break;//end of sql wado cornerstone
+               case accessTypeDicomzip:{
+                  patientArray=[NSMutableArray array];
+                  /*
+                   - create
+                   {
+                     pacsUID:[{
+                        studyUID:[{
+                           seriesUID:[
+                              instanceUID,
+                   */
+                  
+                  } break;//end of sql wado dicomzip
+               case accessTypeOsirix:{
+                  patientArray=[NSMutableArray array];
+                  } break;//end of sql wado osirix
+               case accessTypeDatatablesSeries:{
+                  patientArray=[NSMutableArray array];
+                  } break;//end of sql wado osirix
+            }
+
+            
+#pragma mark - ·· GET switch
+            switch (getTypeIndex) {
                   
                case NSNotFound:{
                   LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",custodianOIDString);
@@ -777,38 +802,491 @@ NSXMLElement *InstanceElement=nil;//Study=Exam
             }// end of GET switch
          } break;//end of sql
       } //end of SELECT switch
-   }
+#pragma mark dev final response
+      switch (accessType) {
+         case accessTypeWeasis:{
+            if (XMLRoot.childCount)
+            {
+            }
+                               /* return [RSDataResponse
+                                        responseWithData:[LFCGzipUtility gzipData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]]
+                                        contentType:@"application/x-gzip"
+                                        ];
+*/
+            //base64 dicom:get -i does not work
+            /*
+            RSDataResponse *response=[RSDataResponse responseWithData:[[[LFCGzipUtility gzipData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
+            [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
+            return response;
+            
+            //xml dicom:get -iw works also, like with gzip
+            return [RSDataResponse
+            responseWithData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]
+            contentType:@"text/xml"];
+            */
+            
+            } break;//end of sql wado weasis
+         case accessTypeCornerstone:{
+            } break;//end of sql wado cornerstone
+         case accessTypeDicomzip:{
+            } break;//end of sql wado dicomzip
+         case accessTypeOsirix:{
+            } break;//end of sql wado osirix
+         case accessTypeDatatablesSeries:{
+            } break;//end of sql wado osirix
+      }
+   }//end of dev loop
+   
 #pragma mark wan loop
-    NSLog(@"%@",[XMLRoot description]);
    for (NSString *custodianOIDString in wanCustodianOIDArray)
    {
       NSLog(@"%@",custodianOIDString);
+      
+      #pragma mark wan final response
+      switch (accessType) {
+         case accessTypeWeasis:{
+            if (XMLRoot.childCount)
+            {
+            }
+            } break;//end of sql wado weasis
+         case accessTypeCornerstone:{
+            } break;//end of sql wado cornerstone
+         case accessTypeDicomzip:{
+            } break;//end of sql wado dicomzip
+         case accessTypeOsirix:{
+            } break;//end of sql wado osirix
+         case accessTypeDatatablesSeries:{
+            } break;//end of sql wado osirix
+      }
    }
-   
+
+
+
    return [RSErrorResponse responseWithClientError:404 message:@"studyToken should not be here"];
 
    }
-@end
 
 /*
-                     return [RSDataResponse
-                             responseWithData:[LFCGzipUtility gzipData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]]
-                             contentType:@"application/x-gzip"
-                             ];
 
- //base64 dicom:get -i does not work
- 
- RSDataResponse *response=[RSDataResponse responseWithData:[[[LFCGzipUtility gzipData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
- [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
- return response;
- 
- //xml dicom:get -iw works also, like with gzip
- return [RSDataResponse
- responseWithData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]
- contentType:@"text/xml"];
  
  
  NSData *cornerstoneJson=[NSJSONSerialization dataWithJSONObject:responseArray options:0 error:nil];
  LOG_DEBUG(@"cornerstone manifest :\r\n%@",[[NSString alloc] initWithData:cornerstoneJson encoding:NSUTF8StringEncoding]);
  return [RSDataResponse responseWithData:cornerstoneJson contentType:@"application/json"];
  */
+
++(RSResponse*)weasisWithProxyURI:(NSString*)proxyURIString
+                        session:(NSString*)sessionString
+           devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
+           wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
+                 hasRestriction:(BOOL)hasRestriction
+     hasSeriesNumberRestriction:(BOOL)hasSeriesNumberRestriction
+              SeriesNumberArray:(NSArray*)SeriesNumberArray
+hasSeriesDescriptionRestriction:(BOOL)hasSeriesDescriptionRestriction
+         SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
+         hasModalityRestriction:(BOOL)hasModalityRestriction
+                  ModalityArray:(NSArray*)ModalityArray
+         hasSOPClassRestriction:(BOOL)hasSOPClassRestriction
+                  SOPClassArray:(NSArray*)SOPClassArray
+          StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
+          AccessionNumberString:(NSString*)AccessionNumberString
+                PatientIDString:(NSString*)PatientIDString
+                 StudyDateString:(NSString*)StudyDateString
+{
+   NSXMLElement *XMLRoot=XMLRoot=[WeasisManifest manifest];
+            
+   if (devCustodianOIDArray.count > 1)
+   {
+      //add nodes and start corresponding processes
+   }
+
+   if (wanCustodianOIDArray.count > 0)
+   {
+      //add nodes and start corresponding processes
+   }
+
+   if (devCustodianOIDArray.count == 0)
+   {
+      //add nodes and start corresponding processes
+   }
+   else
+   {
+      while (1)
+      {
+         NSString *custodianString=devCustodianOIDArray[0];
+         NSDictionary *custodianDict=DRS.pacs[custodianString];
+
+#pragma mark · GET type index
+         NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:custodianDict[@"get"]];
+
+#pragma mark · SELECT switch
+         switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:custodianDict[@"select"]]) {
+            
+            case NSNotFound:{
+               LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",custodianString);
+            } break;
+               
+            case selectTypeSql:{
+   #pragma mark · SQL SELECT (unique option for now)
+               NSDictionary *sqlcredentials=@{custodianDict[@"sqluser"]:custodianDict[@"sqlpassword"]};
+               NSString *sqlprolog=custodianDict[@"sqlprolog"];
+               NSDictionary *sqlDictionary=DRS.sqls[custodianDict[@"sqlmap"]];
+
+               
+   #pragma mark · apply Patient Study filters
+         
+               NSMutableDictionary *EPDict=[NSMutableDictionary dictionary];
+               NSMutableData *mutableData=[NSMutableData data];
+
+   //#pragma mark StudyInstanceUID
+               
+               if (StudyInstanceUIDArray)
+               {
+                  for (NSString *uid in StudyInstanceUIDArray)
+                  {
+                     //find patient fk
+                     [mutableData setData:[NSData data]];
+                     
+                     if (execUTF8Bash(sqlcredentials,
+                                       [NSString stringWithFormat:
+                                        sqlDictionary[@"sqlPE4Euid"],
+                                        sqlprolog,
+                                        uid,
+                                        @"",
+                                        sqlTwoPks
+                                        ],
+                                       mutableData)
+                         !=0)
+                     {
+                        LOG_ERROR(@"studyToken StudyInstanceUID %@ db error",uid);
+                        continue;
+                     }
+                     if ([mutableData length]==0)
+                     {
+                        LOG_VERBOSE(@"studyToken StudyInstanceUID %@ empty response",uid);
+                        continue;
+                     }
+                     NSString *EPString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
+                     [EPDict setObject:[EPString pathExtension] forKey:[EPString stringByDeletingPathExtension]];
+                  }
+               }
+               else //AccessionNumber or PatientID + StudyDate
+               {
+                   if (AccessionNumberString)
+                   {
+                      [mutableData setData:[NSData data]];
+                      if (execUTF8Bash(sqlcredentials,
+                                        [NSString stringWithFormat:
+                                         sqlDictionary[@"sqlPE4Ean"],
+                                         sqlprolog,
+                                         AccessionNumberString,
+                                         @"",
+                                         sqlTwoPks
+                                         ],
+                                        mutableData)
+                          !=0)
+                      {
+                         LOG_ERROR(@"studyToken accessionNumber db error");
+                         continue;
+                      }
+                   }
+                   else if (PatientIDString)
+                   {
+                       //issuer?
+                       [mutableData setData:[NSData data]];
+                       if (execUTF8Bash(sqlcredentials,
+                                        [NSString stringWithFormat:
+                                         sqlDictionary[@"sqlPE4PidEda"],
+                                         sqlprolog,
+                                         PatientIDString,
+                                         StudyDateString,
+                                         @"",
+                                         sqlTwoPks
+                                         ],
+                                        mutableData)
+                           !=0)
+                       {
+                           LOG_ERROR(@"studyToken PatientID or StudyDate db error");
+                           continue;
+                       }
+                   }
+               
+                   if ([mutableData length]==0)
+                   {
+                     LOG_VERBOSE(@"studyToken empty response");
+                     continue;
+                   }
+                   for (NSString *pkdotpk in [[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding]componentsSeparatedByString:@"/"])
+                   {
+                       if (pkdotpk.length) [EPDict setObject:[pkdotpk pathExtension] forKey:[pkdotpk stringByDeletingPathExtension]];
+                   }
+                   //record terminated by /
+               }
+
+/*
+   there are studies for this custodian
+*/
+               NSXMLElement *arcQueryElement=
+                     [WeasisArcQuery
+                      arcQueryOID:custodianString
+                      custodian:proxyURIString
+                      session:sessionString
+                      seriesIds:SeriesNumberArray
+                      seriesDescriptions:SeriesDescriptionArray
+                      modalities:ModalityArray
+                      SOPClasses:SOPClassArray
+                      overrideDicomTagsList:@""
+                      ];
+                     [XMLRoot addChild:arcQueryElement];
+
+#pragma mark ·· GET switch
+               switch (getTypeIndex) {
+                     
+                  case NSNotFound:{
+                     LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",custodianString);
+                  } break;
+
+                  case getTypeWado:{
+#pragma mark ·· WADO (unique option for now)
+                     
+#pragma mark ...patient loop
+                     for (NSString *P in [NSSet setWithArray:[EPDict allValues]])
+                     {
+                        [mutableData setData:[NSData data]];
+                        if (execUTF8Bash(sqlcredentials,
+                                          [NSString stringWithFormat:
+                                           sqlDictionary[@"sqlP"],
+                                           sqlprolog,
+                                           P,
+                                           @"",
+                                           sqlRecordSixUnits
+                                           ],
+                                          mutableData)
+                            !=0)
+                        {
+                           LOG_ERROR(@"studyToken patient db error");
+                           continue;
+                        }
+NSXMLElement *PatientElement=nil;
+                        NSArray *patientPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+                        PatientElement=
+                        [WeasisPatient
+                         pk:(patientPropertiesArray[0])[0]
+                         pid:(patientPropertiesArray[0])[1]
+                         name:(patientPropertiesArray[0])[2]
+                         issuer:(patientPropertiesArray[0])[3]
+                         birthdate:(patientPropertiesArray[0])[4]
+                         sex:(patientPropertiesArray[0])[5]
+                         ];
+                        [arcQueryElement addChild:PatientElement];
+                              
+
+   //#pragma mark study loop
+                     for (NSString *E in EPDict)
+                     {
+                        if ([EPDict[E] isEqualToString:P])
+                        {
+                           [mutableData setData:[NSData data]];
+                           if (execUTF8Bash(sqlcredentials,
+                                             [NSString stringWithFormat:
+                                              sqlDictionary[@"sqlE"],
+                                              sqlprolog,
+                                              E,
+                                              @"",
+                                              sqlRecordTenUnits
+                                              ],
+                                             mutableData)
+                               !=0)
+                           {
+                              LOG_ERROR(@"studyToken study db error");
+                              continue;
+                           }
+NSXMLElement *StudyElement=nil;//Study=Exam
+                           NSArray *EPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
+                           
+                           
+                           NSString *StudyDateString=[NSString stringWithFormat:@"%@%@%@",
+                                                      [(EPropertiesArray[0])[3]substringWithRange:NSMakeRange(0,4)],
+                                                      [(EPropertiesArray[0])[3]substringWithRange:NSMakeRange(5,2)],
+                                                      [(EPropertiesArray[0])[3]substringWithRange:NSMakeRange(8,2)]
+                                                      ];
+                           NSString *StudyTimeString=[NSString stringWithFormat:@"%@%@%@",
+                                                      [(EPropertiesArray[0])[4]substringWithRange:NSMakeRange(0,2)],
+                                                      [(EPropertiesArray[0])[4]substringWithRange:NSMakeRange(3,2)],
+                                                      [(EPropertiesArray[0])[4]substringWithRange:NSMakeRange(6,2)]
+                                                      ];
+
+                           StudyElement=
+                           [WeasisStudy
+                            pk:(EPropertiesArray[0])[0]
+                            uid:(EPropertiesArray[0])[1]
+                            desc:(EPropertiesArray[0])[2]
+                            date:StudyDateString
+                            time:StudyTimeString
+                            an:(EPropertiesArray[0])[5]
+                            issuer:nil
+                            type:nil
+                            eid:(EPropertiesArray[0])[6]
+                            ref:(EPropertiesArray[0])[7]
+                            img:(EPropertiesArray[0])[8]
+                            mod:(EPropertiesArray[0])[9]
+                            ];
+                           [PatientElement addChild:StudyElement];
+                            
+                     [mutableData setData:[NSData data]];
+                     if (execUTF8Bash(sqlcredentials,
+                                       [NSString stringWithFormat:
+                                        sqlDictionary[@"sqlS"],
+                                        sqlprolog,
+                                        E,
+                                        @"",
+                                        sqlRecordFiveUnits
+                                        ],
+                                       mutableData)
+                         !=0)
+                     {
+                        LOG_ERROR(@"studyToken study db error");
+                        continue;
+                     }
+                     NSArray *SPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
+                     for (NSArray *SProperties in SPropertiesArray)
+                     {
+                        //SOPClassUID check on the first instance
+                        [mutableData setData:[NSData data]];
+                        if (execUTF8Bash(sqlcredentials,
+                                          [NSString stringWithFormat:
+                                           sqlDictionary[@"sqlI"],
+                                           sqlprolog,
+                                           SProperties[0],
+                                           @"limit 1",
+                                           sqlRecordFourUnits
+                                           ],
+                                          mutableData)
+                            !=0)
+                        {
+                           LOG_ERROR(@"studyToken study db error");
+                           continue;
+                        }
+                        NSArray *IPropertiesFirstRecord=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+                        
+                        //do not add empty series
+                        if ([IPropertiesFirstRecord count]==0) continue;
+
+                         //dicom cda
+                        if ([(IPropertiesFirstRecord[0])[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
+                        //SR
+                        if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
+                       
+                       //if there is restriction and does't match
+                        if (
+                            hasRestriction
+                            &&(hasSeriesDescriptionRestriction && [SeriesDescriptionArray indexOfObject:SProperties[2]]==NSNotFound)
+                            &&(hasModalityRestriction && [ModalityArray indexOfObject:SProperties[4]]==NSNotFound)
+                            &&(hasSOPClassRestriction && [SOPClassArray indexOfObject:IPropertiesFirstRecord[3]]==NSNotFound)
+                            ) continue;
+                        
+                        
+                        //instances
+                        [mutableData setData:[NSData data]];
+                        if (execUTF8Bash(sqlcredentials,
+                                          [NSString stringWithFormat:
+                                           sqlDictionary[@"sqlI"],
+                                           sqlprolog,
+                                           SProperties[0],
+                                           @"",
+                                           sqlRecordFourUnits
+                                           ],
+                                          mutableData)
+                            !=0)
+                        {
+                           LOG_ERROR(@"studyToken study db error");
+                           continue;
+                        }
+                        NSArray *IPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+
+//#pragma mark series loop
+NSXMLElement *SeriesElement=[WeasisSeries pk:SProperties[0]
+                               uid:SProperties[1]
+                              desc:SProperties[2]
+                               num:SProperties[3]
+                               mod:SProperties[4]
+                               wts:@"*"
+                               sop:(IPropertiesFirstRecord[0])[3]
+                                             ];//DirectDownloadThumbnail=\"%@\"
+                              [StudyElement addChild:SeriesElement];
+                              
+
+//#pragma mark instance loop
+                        for (NSArray *IProperties in IPropertiesArray)
+                        {
+//#pragma mark instance loop
+NSXMLElement *InstanceElement=[WeasisInstance
+                               pk:IProperties[0]
+                               uid:IProperties[1]
+                               num:IProperties[2]
+                               ];//DirectDownloadFile
+                             [SeriesElement addChild:InstanceElement];
+                           }
+                              }//end for each I
+                           }// end for each S
+                        }//end for each E
+                     }//end for each P
+                  } break;//end of WADO
+               }// end of GET switch
+            } break;//end of sql
+         } //end of SELECT switch
+
+         /*
+          if (!XMLRoot.childCount)
+          {
+          }
+          */
+         NSXMLDocument *doc=[NSXMLDocument documentWithRootElement:XMLRoot];
+         
+         return
+         [RSDataResponse
+          responseWithData:[doc XMLData]
+          contentType:@"application/x-gzip"
+          ];
+
+//base64 dicom:get -i does not work
+/*
+RSDataResponse *response=[RSDataResponse responseWithData:[[[LFCGzipUtility gzipData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
+[response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
+return response;
+
+//xml dicom:get -iw works also, like with gzip
+return [RSDataResponse
+responseWithData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]
+contentType:@"text/xml"];
+*/
+               
+               
+      }//end while 1
+
+   }//end at least one dev
+   return [RSErrorResponse responseWithClientError:404 message:@"studyToken should not be here"];
+}
+
++(RSResponse*)cornerstoneWithProxyURI:(NSString*)proxyURIString
+                              session:(NSString*)sessionString
+                 devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
+                 wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
+                       hasRestriction:(BOOL)hasRestriction
+           hasSeriesNumberRestriction:(BOOL)hasSeriesNumberRestriction
+                    SeriesNumberArray:(NSArray*)SeriesNumberArray
+      hasSeriesDescriptionRestriction:(BOOL)hasSeriesDescriptionRestriction
+               SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
+               hasModalityRestriction:(BOOL)hasModalityRestriction
+                        ModalityArray:(NSArray*)ModalityArray
+               hasSOPClassRestriction:(BOOL)hasSOPClassRestriction
+                        SOPClassArray:(NSArray*)SOPClassArray
+                StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
+                AccessionNumberString:(NSString*)AccessionNumberString
+                      PatientIDString:(NSString*)PatientIDString
+                      StudyDateString:(NSString*)StudyDateString
+{
+   return [RSErrorResponse responseWithClientError:404 message:@"studyToken should not be here"];
+}
+
+@end
