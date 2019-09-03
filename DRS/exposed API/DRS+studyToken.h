@@ -77,6 +77,7 @@
                 StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
                 AccessionNumberString:(NSString*)AccessionNumberString
                       PatientIDString:(NSString*)PatientIDString
+                      StudyDateString:(NSString*)StudyDateString
 ;
 
 @end

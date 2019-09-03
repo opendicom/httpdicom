@@ -23,7 +23,7 @@
 +(NSXMLElement*)arcQueryOID:(NSString*)arcId
                   custodian:(NSString*)baseUrl
                     session:(NSString*)session
-                  seriesIds:(NSArray*)seriesIdArray
+              seriesNumbers:(NSArray*)seriesNumberArray
          seriesDescriptions:(NSArray*)seriesDescriptionArray
                  modalities:(NSArray*)modalityArray
                  SOPClasses:(NSArray*)SOPClassArray
@@ -37,7 +37,7 @@
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"overrideDicomTagsList" stringValue:overrideDicomTagsList]];
    
    NSMutableString *additionalParameters=[NSMutableString stringWithFormat:@"&amp;session=%@&amp;custodianOID=%@",session,baseUrl];
-   if (seriesIdArray) [additionalParameters appendFormat:@"&amp;SeriesId=%@",[seriesIdArray componentsJoinedByString:@"\\"]];
+   if (seriesNumberArray) [additionalParameters appendFormat:@"&amp;SeriesNumber=%@",[seriesNumberArray componentsJoinedByString:@"\\"]];
    if (seriesDescriptionArray) [additionalParameters appendFormat:@"&amp;seriesDescription=%@",[seriesDescriptionArray componentsJoinedByString:@"\\"]];
    if (modalityArray) [additionalParameters appendFormat:@"&amp;modality=%@",[modalityArray componentsJoinedByString:@"\\"]];
    if (SOPClassArray) [additionalParameters appendFormat:@"&amp;SOPClass=%@",[SOPClassArray componentsJoinedByString:@"\\"]];

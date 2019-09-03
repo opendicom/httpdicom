@@ -112,8 +112,6 @@
 		4AA20C5E23101C91005BD76D /* WeasisSeries.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA20C5C23101C91005BD76D /* WeasisSeries.m */; };
 		4AA20C6123101E1B005BD76D /* WeasisInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA20C5F23101E1B005BD76D /* WeasisInstance.h */; };
 		4AA20C6223101E1B005BD76D /* WeasisInstance.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA20C6023101E1B005BD76D /* WeasisInstance.m */; };
-		4AA20C6523102AFA005BD76D /* WeasisDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA20C6323102AFA005BD76D /* WeasisDocument.h */; };
-		4AA20C6623102AFA005BD76D /* WeasisDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA20C6423102AFA005BD76D /* WeasisDocument.m */; };
 		4ABF11DC1FE5C11C000B8DE6 /* NSString+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF11D21FE5C11B000B8DE6 /* NSString+PCS.m */; };
 		4ABF11DE1FE5C11C000B8DE6 /* NSData+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11D41FE5C11B000B8DE6 /* NSData+PCS.h */; };
 		4ABF11DF1FE5C11C000B8DE6 /* NSString+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABF11D51FE5C11B000B8DE6 /* NSString+PCS.h */; };
@@ -321,8 +319,6 @@
 		4AA20C5C23101C91005BD76D /* WeasisSeries.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeasisSeries.m; sourceTree = "<group>"; };
 		4AA20C5F23101E1B005BD76D /* WeasisInstance.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeasisInstance.h; sourceTree = "<group>"; };
 		4AA20C6023101E1B005BD76D /* WeasisInstance.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeasisInstance.m; sourceTree = "<group>"; };
-		4AA20C6323102AFA005BD76D /* WeasisDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeasisDocument.h; sourceTree = "<group>"; };
-		4AA20C6423102AFA005BD76D /* WeasisDocument.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeasisDocument.m; sourceTree = "<group>"; };
 		4AA28D2D1D94569400B223CA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4ABF11D21FE5C11B000B8DE6 /* NSString+PCS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+PCS.m"; sourceTree = "<group>"; };
 		4ABF11D41FE5C11B000B8DE6 /* NSData+PCS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+PCS.h"; sourceTree = "<group>"; };
@@ -566,8 +562,6 @@
 		4AA20C4A23101B31005BD76D /* weasis */ = {
 			isa = PBXGroup;
 			children = (
-				4AA20C6323102AFA005BD76D /* WeasisDocument.h */,
-				4AA20C6423102AFA005BD76D /* WeasisDocument.m */,
 				4AA20C4B23101B98005BD76D /* WeasisManifest.h */,
 				4AA20C4C23101B98005BD76D /* WeasisManifest.m */,
 				4AA20C4F23101BE2005BD76D /* WeasisArcQuery.h */,
@@ -887,7 +881,6 @@
 				4A0FDF5C1E9109EB001E3426 /* RSRequest.h in Headers */,
 				4AA20C5523101C58005BD76D /* WeasisPatient.h in Headers */,
 				4AA20C5D23101C91005BD76D /* WeasisSeries.h in Headers */,
-				4AA20C6523102AFA005BD76D /* WeasisDocument.h in Headers */,
 				4AA20C4D23101B98005BD76D /* WeasisManifest.h in Headers */,
 				4A2D90792183455100371484 /* zconf.h in Headers */,
 				4A0FDF5B1E9109EB001E3426 /* RSBodyWriterProtocol.h in Headers */,
@@ -1085,7 +1078,6 @@
 				4A57EE5322961E8800EB3962 /* ResponseStow.m in Sources */,
 				4A96C55F1E843C9E002EB09E /* RFC822.m in Sources */,
 				4ABF11F41FE5C13B000B8DE6 /* NSDictionary+DICM.m in Sources */,
-				4AA20C6623102AFA005BD76D /* WeasisDocument.m in Sources */,
 				4AA20C5A23101C72005BD76D /* WeasisStudy.m in Sources */,
 				4A0FDF541E91078C001E3426 /* RSConnection.m in Sources */,
 				4A07FB6521F2235B00007B8B /* RequestQido.m in Sources */,

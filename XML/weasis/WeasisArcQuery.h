@@ -42,7 +42,7 @@
 +(NSXMLElement*)arcQueryOID:(NSString*)arcId
                   custodian:(NSString*)baseUrl
                     session:(NSString*)session
-                  seriesIds:(NSArray*)seriesIdArray
+              seriesNumbers:(NSArray*)seriesNumberArray
          seriesDescriptions:(NSArray*)seriesDescriptionArray
                  modalities:(NSArray*)modalityArray
                  SOPClasses:(NSArray*)SOPClassArray
