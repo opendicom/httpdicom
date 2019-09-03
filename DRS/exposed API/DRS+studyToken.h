@@ -79,23 +79,4 @@
                       PatientIDString:(NSString*)PatientIDString
 ;
 
-+(RSResponse*)cornerstoneWithProxyURI:(NSString*)proxyURIString
-                              session:(NSString*)sessionString
-                 devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
-                 wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
-                       hasRestriction:(BOOL)hasRestriction
-           hasSeriesNumberRestriction:(BOOL)hasSeriesNumberRestriction
-                    SeriesNumberArray:(NSArray*)SeriesNumberArray
-      hasSeriesDescriptionRestriction:(BOOL)hasSeriesDescriptionRestriction
-               SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-               hasModalityRestriction:(BOOL)hasModalityRestriction
-                        ModalityArray:(NSArray*)ModalityArray
-               hasSOPClassRestriction:(BOOL)hasSOPClassRestriction
-                        SOPClassArray:(NSArray*)SOPClassArray
-                StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
-                AccessionNumberString:(NSString*)AccessionNumberString
-                      PatientIDString:(NSString*)PatientIDString
-                      StudyDateString:(NSString*)StudyDateString
-;
-
 @end

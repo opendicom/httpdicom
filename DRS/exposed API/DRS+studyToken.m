@@ -110,7 +110,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    NSInteger custodianOIDIndex=[names indexOfObject:@"custodianOID"];
    if (custodianOIDIndex==NSNotFound)
    {
-      LOG_WARNING(@"stuyToken custloianOID not available");
+      LOG_WARNING(@"stuyToken custodianOID not available");
       return [RSErrorResponse responseWithClientError:404 message:@"stuyToken custloianOID not available"];
    }
    
@@ -208,8 +208,12 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    NSInteger StudyInstanceUIDsIndex=[names indexOfObject:@"StudyInstanceUID"];
    NSArray *StudyInstanceUIDArray=nil;
    NSInteger AccessionNumberIndex=[names indexOfObject:@"AccessionNumber"];
+   NSString *AccessionNumberString=nil;
    NSInteger StudyDateIndex=[names indexOfObject:@"StudyDate"];
+   NSString *StudyDateString=nil;
+   NSString *StudyTimeString=nil;
    NSInteger PatientIDIndex=[names indexOfObject:@"PatientID"];
+   NSString *PatientIDString=nil;
    if (StudyInstanceUIDsIndex!=NSNotFound)
    {
       if (
@@ -229,8 +233,15 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
             (StudyDateIndex!=NSNotFound)
           ||(PatientIDIndex!=NSNotFound)
           ) [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken AccessionNumber shoud not be present together with StudyDate or PatientID"];
+       AccessionNumberString=values[AccessionNumberIndex];
    }
-   else if ((PatientIDIndex==NSNotFound)||(StudyDateIndex==NSNotFound)) [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken one of StudyInstanceUID, AccessionNumber or PatientID+StudyDate should be present"];
+   else if ((PatientIDIndex!=NSNotFound)&&(StudyDateIndex!=NSNotFound))
+   {
+       PatientIDString=values[PatientIDIndex];
+       StudyDateString=values[StudyDateIndex];
+   }
+   else [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken one of StudyInstanceUID, AccessionNumber or PatientID+StudyDate should be present"];
+  
 
    
 
@@ -263,9 +274,9 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                  hasSOPClassRestriction:hasSOPClassRestriction
                  SOPClassArray:SOPClassArray
                  StudyInstanceUIDArray:StudyInstanceUIDArray
-                 AccessionNumberString:values[AccessionNumberIndex]
-                 PatientIDString:values[PatientIDIndex]
-                 StudyDateString:values[StudyDateIndex]
+                 AccessionNumberString:AccessionNumberString
+                 PatientIDString:PatientIDString
+                 StudyDateString:StudyDateString
          ];
          } break;//end of sql wado weasis
       case accessTypeCornerstone:{
@@ -1242,10 +1253,12 @@ NSXMLElement *InstanceElement=[WeasisInstance
           }
           */
          NSXMLDocument *doc=[NSXMLDocument documentWithRootElement:XMLRoot];
+          doc.documentContentKind=NSXMLDocumentXMLKind;
+          doc.characterEncoding=@"UTF-8";
          
          return
          [RSDataResponse
-          responseWithData:[doc XMLData]
+          responseWithData:[LFCGzipUtility gzipData:[doc XMLData]]
           contentType:@"application/x-gzip"
           ];
 

@@ -41,8 +41,8 @@
    if (type) [Study addAttribute:[NSXMLNode attributeWithName:@"issuerType" stringValue:type]];
    if (eid) [Study addAttribute:[NSXMLNode attributeWithName:@"StudyID" stringValue:eid]];
    if (ref) [Study addAttribute:[NSXMLNode attributeWithName:@"ReferringPhysicianName" stringValue:ref]];
-   if (img) [Study addAttribute:[NSXMLNode attributeWithName:@"Images​In​Study" stringValue:img]];
-   if (mod) [Study addAttribute:[NSXMLNode attributeWithName:@"Modalities​In​Study" stringValue:mod]];
+   //if (img) [Study addAttribute:[NSXMLNode attributeWithName:@"Images​In​Study" stringValue:img]];
+   //if (mod) [Study addAttribute:[NSXMLNode attributeWithName:@"Modalities​In​Study" stringValue:mod]];
 
    return Study;
 }
