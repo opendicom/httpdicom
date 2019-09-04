@@ -279,7 +279,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
          } break;//end of sql wado weasis
       case accessTypeCornerstone:{
          return [DRS
-                 weasisWithProxyURI:proxyURIString
+                 cornerstoneWithProxyURI:proxyURIString
                  session:sessionString
                  devCustodianOIDArray:devCustodianOIDArray
                  wanCustodianOIDArray:wanCustodianOIDArray
