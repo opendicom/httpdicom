@@ -29,7 +29,7 @@
    NSXMLElement *Study=[NSXMLElement elementWithName:@"Study"];
    
    //required attributes
-   [Study addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
+   //[Study addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
    [Study addAttribute:[NSXMLNode attributeWithName:@"StudyInstanceUID" stringValue:uid]];
    
    //optional attributes

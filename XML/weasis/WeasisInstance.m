@@ -19,7 +19,7 @@
    NSXMLElement *Instance=[NSXMLElement elementWithName:@"Instance"];
    
    //attributes
-   [Instance addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
+   //[Instance addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
    [Instance addAttribute:[NSXMLNode attributeWithName:@"SOPInstanceUID" stringValue:uid]];
    
    if (num) [Instance addAttribute:[NSXMLNode attributeWithName:@"InstanceNumber" stringValue:num]];

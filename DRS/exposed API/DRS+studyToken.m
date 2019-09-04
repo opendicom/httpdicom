@@ -83,12 +83,12 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    NSString *errorString;
    if (!parseRequestParams(request, names, values, types, &jsonString, &errorString))
    {
-      LOG_WARNING(@"stuyToken PARAMS error: %@",errorString);
+      LOG_WARNING(@"studyToken PARAMS error: %@",errorString);
       return [RSErrorResponse responseWithClientError:404 message:@"%@",errorString];
    }
    for (NSUInteger idx=0;idx<[names count];idx++)
    {
-      LOG_VERBOSE(@"stuyToken PARAM \"%@\" = \"%@\"",names[idx],values[idx]);
+      LOG_VERBOSE(@"studyToken PARAM \"%@\" = \"%@\"",names[idx],values[idx]);
    }
 
    //proxyURI
@@ -109,8 +109,8 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    NSInteger custodianOIDIndex=[names indexOfObject:@"custodianOID"];
    if (custodianOIDIndex==NSNotFound)
    {
-      LOG_WARNING(@"stuyToken custodianOID not available");
-      return [RSErrorResponse responseWithClientError:404 message:@"stuyToken custloianOID not available"];
+      LOG_WARNING(@"studyToken custodianOID not available");
+      return [RSErrorResponse responseWithClientError:404 message:@"studyToken custloianOID not available"];
    }
    
    NSMutableArray *wanCustodianOIDArray=[NSMutableArray array];
@@ -212,33 +212,33 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    NSString *StudyDateString=nil;
    NSInteger PatientIDIndex=[names indexOfObject:@"PatientID"];
    NSString *PatientIDString=nil;
-   if (StudyInstanceUIDsIndex!=NSNotFound)
+   if ((StudyInstanceUIDsIndex!=NSNotFound)&&([values[StudyInstanceUIDsIndex] length]))
    {
       if (
-            (AccessionNumberIndex!=NSNotFound)
-          ||(StudyDateIndex!=NSNotFound)
-          ||(PatientIDIndex!=NSNotFound)
-          ) [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken StudyInstanceUID shoud not be present together with AccessionNumber or StudyDate or PatientID"];
+            ((AccessionNumberIndex!=NSNotFound)&&([values[AccessionNumberIndex] length]))
+          ||((StudyDateIndex!=NSNotFound)&&([values[StudyDateIndex] length]))
+          ||((PatientIDIndex!=NSNotFound)&&([values[PatientIDIndex] length]))
+          ) return [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken StudyInstanceUID shoud not be present together with AccessionNumber or StudyDate or PatientID"];
       for (NSString *uid in [values[StudyInstanceUIDsIndex]componentsSeparatedByString:@"\\"])
       {
-         if (![DICMTypes isSingleUIString:uid])[RSErrorResponse responseWithClientError:404 message:@"studyToken no StudyInstanceUID found in %@",uid];
+         if (![DICMTypes isSingleUIString:uid]) return [RSErrorResponse responseWithClientError:404 message:@"studyToken no StudyInstanceUID found in %@",uid];
       }
       StudyInstanceUIDArray=[values[StudyInstanceUIDsIndex]componentsSeparatedByString:@"\\"];
    }
-   else if (AccessionNumberIndex!=NSNotFound)
+   else if ((AccessionNumberIndex!=NSNotFound)&&([values[AccessionNumberIndex] length]))
    {
       if (
-            (StudyDateIndex!=NSNotFound)
-          ||(PatientIDIndex!=NSNotFound)
-          ) [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken AccessionNumber shoud not be present together with StudyDate or PatientID"];
+            ((StudyDateIndex!=NSNotFound)&&([values[StudyDateIndex] length]))
+          ||((PatientIDIndex!=NSNotFound)&&([values[StudyDateIndex] length]))
+          ) return [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken AccessionNumber shoud not be present together with StudyDate or PatientID"];
        AccessionNumberString=values[AccessionNumberIndex];
    }
-   else if ((PatientIDIndex!=NSNotFound)&&(StudyDateIndex!=NSNotFound))
+   else if ((PatientIDIndex!=NSNotFound)&&([values[PatientIDIndex] length])&&(StudyDateIndex!=NSNotFound)&&([values[StudyDateIndex] length]))
    {
        PatientIDString=values[PatientIDIndex];
        StudyDateString=values[StudyDateIndex];
    }
-   else [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken one of StudyInstanceUID, AccessionNumber or PatientID+StudyDate should be present"];
+   else return [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken one of StudyInstanceUID, AccessionNumber or PatientID+StudyDate should be present"];
   
 
    
@@ -630,13 +630,15 @@ NSXMLElement *StudyElement=nil;//Study=Exam
                         if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
                        
                        //if there is restriction and does't match
-                        if (
-                            hasRestriction
-                            &&(hasSeriesDescriptionRestriction && [SeriesDescriptionArray indexOfObject:SProperties[2]]==NSNotFound)
-                            &&(hasModalityRestriction && [ModalityArray indexOfObject:SProperties[4]]==NSNotFound)
-                            &&(hasSOPClassRestriction && [SOPClassArray indexOfObject:IPropertiesFirstRecord[3]]==NSNotFound)
-                            ) continue;
-                        
+                        if (hasRestriction)
+                        {
+                            if (
+                                !(hasSeriesNumberRestriction && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
+                            && !(hasSeriesDescriptionRestriction && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
+                            && !(hasModalityRestriction && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
+                            && !(hasSOPClassRestriction && [SOPClassArray indexOfObject:(IPropertiesFirstRecord[0])[3]]!=NSNotFound)
+                                )continue;
+                        }
                         
                         //instances
                         [mutableData setData:[NSData data]];
@@ -696,7 +698,14 @@ NSXMLElement *InstanceElement=[WeasisInstance
          NSXMLDocument *doc=[NSXMLDocument documentWithRootElement:XMLRoot];
           doc.documentContentKind=NSXMLDocumentXMLKind;
           doc.characterEncoding=@"UTF-8";
-         
+          /*
+          NSData *docData=[doc XMLData];
+          return
+          [RSDataResponse
+           responseWithData:docData
+           contentType:@"text/xml"
+           ];
+           */
          return
          [RSDataResponse
           responseWithData:[LFCGzipUtility gzipData:[doc XMLData]]
@@ -1039,13 +1048,16 @@ NSMutableArray *studyArray=[NSMutableArray array];
                            if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
                           
                           //if there is restriction and does't match
-                           if (
-                               hasRestriction
-                               &&(hasSeriesDescriptionRestriction && [SeriesDescriptionArray indexOfObject:SProperties[2]]==NSNotFound)
-                               &&(hasModalityRestriction && [ModalityArray indexOfObject:SProperties[4]]==NSNotFound)
-                               &&(hasSOPClassRestriction && [SOPClassArray indexOfObject:IPropertiesFirstRecord[3]]==NSNotFound)
-                               ) continue;
-                           
+                            if (hasRestriction)
+                            {
+                                if (
+                                    !(hasSeriesNumberRestriction && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
+                                    && !(hasSeriesDescriptionRestriction && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
+                                    && !(hasModalityRestriction && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
+                                    && !(hasSOPClassRestriction && [SOPClassArray indexOfObject:(IPropertiesFirstRecord[0])[3]]!=NSNotFound)
+                                    )continue;
+                            }
+
                            
                            //instances
                            [mutableData setData:[NSData data]];

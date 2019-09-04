@@ -20,7 +20,7 @@
    NSXMLElement *Patient=[NSXMLElement elementWithName:@"Patient"];
    
    //attributes
-   [Patient addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
+   //[Patient addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
    [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientID" stringValue:pid]];
    [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientName" stringValue:name]];
    [Patient addAttribute:[NSXMLNode attributeWithName:@"IssuerOfPatientID" stringValue:issuer]];
