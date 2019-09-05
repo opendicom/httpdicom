@@ -115,7 +115,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    
    NSMutableArray *wanCustodianOIDArray=[NSMutableArray array];
    NSMutableArray *devCustodianOIDArray=[NSMutableArray array];
-   NSArray *custodianOIDArray=[values[custodianOIDIndex] componentsSeparatedByString:@"\\"];
+   NSArray *custodianOIDArray=[values[custodianOIDIndex] componentsSeparatedByString:@"~"];
    for (NSInteger i=[custodianOIDArray count]-1;i>=0;i--)
    {
       if ([DRS.wan indexOfObject:custodianOIDArray[i]]!=NSNotFound)
@@ -155,7 +155,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 //#pragma mark SeriesNumber
    NSArray *SeriesNumberArray=nil;
    NSInteger SeriesNumberIndex=[names indexOfObject:@"SeriesNumber"];
-   if (SeriesNumberIndex!=NSNotFound) SeriesNumberArray=[values[SeriesNumberIndex] componentsSeparatedByString:@"\\"];
+   if (SeriesNumberIndex!=NSNotFound) SeriesNumberArray=[values[SeriesNumberIndex] componentsSeparatedByString:@"~"];
    BOOL hasSeriesNumberRestriction=
    (
     SeriesNumberArray
@@ -166,7 +166,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 //#pragma mark SeriesDescription
    NSArray *SeriesDescriptionArray=nil;
    NSInteger SeriesDescriptionIndex=[names indexOfObject:@"SeriesDescription"];
-   if (SeriesDescriptionIndex!=NSNotFound) SeriesDescriptionArray=[values[SeriesDescriptionIndex] componentsSeparatedByString:@"\\"];
+   if (SeriesDescriptionIndex!=NSNotFound) SeriesDescriptionArray=[values[SeriesDescriptionIndex] componentsSeparatedByString:@"~"];
    BOOL hasSeriesDescriptionRestriction=
    (
     SeriesDescriptionArray
@@ -177,7 +177,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 //#pragma mark Modality
    NSArray *ModalityArray=nil;
    NSInteger ModalityIndex=[names indexOfObject:@"Modality"];
-   if (ModalityIndex!=NSNotFound) ModalityArray=[values[ModalityIndex]componentsSeparatedByString:@"\\"];
+   if (ModalityIndex!=NSNotFound) ModalityArray=[values[ModalityIndex]componentsSeparatedByString:@"~"];
    BOOL hasModalityRestriction=
    (
     ModalityArray
@@ -188,7 +188,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 //#pragma mark SOPClass
    NSArray *SOPClassArray=nil;
    NSInteger SOPClassIndex=[names indexOfObject:@"SOPClass"];
-   if (SOPClassIndex!=NSNotFound) SOPClassArray=[values[SOPClassIndex]componentsSeparatedByString:@"\\"];
+   if (SOPClassIndex!=NSNotFound) SOPClassArray=[values[SOPClassIndex]componentsSeparatedByString:@"~"];
    BOOL hasSOPClassRestriction=
    (
     SOPClassArray
@@ -219,11 +219,11 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
           ||((StudyDateIndex!=NSNotFound)&&([values[StudyDateIndex] length]))
           ||((PatientIDIndex!=NSNotFound)&&([values[PatientIDIndex] length]))
           ) return [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken StudyInstanceUID shoud not be present together with AccessionNumber or StudyDate or PatientID"];
-      for (NSString *uid in [values[StudyInstanceUIDsIndex]componentsSeparatedByString:@"\\"])
+      for (NSString *uid in [values[StudyInstanceUIDsIndex]componentsSeparatedByString:@"~"])
       {
          if (![DICMTypes isSingleUIString:uid]) return [RSErrorResponse responseWithClientError:404 message:@"studyToken no StudyInstanceUID found in %@",uid];
       }
-      StudyInstanceUIDArray=[values[StudyInstanceUIDsIndex]componentsSeparatedByString:@"\\"];
+      StudyInstanceUIDArray=[values[StudyInstanceUIDsIndex]componentsSeparatedByString:@"~"];
    }
    else if ((AccessionNumberIndex!=NSNotFound)&&([values[AccessionNumberIndex] length]))
    {
@@ -235,13 +235,98 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    }
    else if ((PatientIDIndex!=NSNotFound)&&([values[PatientIDIndex] length])&&(StudyDateIndex!=NSNotFound)&&([values[StudyDateIndex] length]))
    {
+      /*
+       format options are:
+       aaaa-mm-dd
+       \\aaaa-mm-dd
+       aaaa-mm-dd\\
+       aaaa-mm-dd\\aaaa-mm-dd
+
+       _DARegex = [NSRegularExpression regularExpressionWithPattern:@"^(19|20)\\d\\d(01|02|03|04|05|06|07|08|09|10|11|12)(01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)$" options:0 error:NULL];
+      
+      return (bool)[DICMTypes.UIRegex numberOfMatchesInString:string options:0 range:NSMakeRange(0,[string length])];
+      
+      if(
+         (qDate_start && [qDate_start length])
+         ||(qDate_end && [qDate_end length])
+         )
+      {
+          NSString *s=nil;
+          if (qDate_start && [qDate_start length]) s=qDate_start;
+          else s=@"";
+          NSString *e=nil;
+          if (qDate_end && [qDate_end length]) e=qDate_end;
+          else e=@"";
+          [studiesWhere appendString:[destSql[@"StudyDate"] sqlFilterWithStart:s end:e]];
+      }
+
+      -sqlFilterWithStart:(NSString*)start end:(NSString*)end
+      {
+          NSUInteger startLength=[start length];
+          NSUInteger endLength=[end length];
+          if (!start || !end || startLength+endLength==0) return @"";
+
+          NSString *isoStart=nil;
+          switch (startLength) {
+              case 0:;
+                  isoStart=@"";
+                  break;
+              case 8:;
+                  isoStart=[NSString stringWithFormat:@"%@-%@-%@",
+                        [start substringWithRange:NSMakeRange(0, 4)],
+                        [start substringWithRange:NSMakeRange(4, 2)],
+                        [start substringWithRange:NSMakeRange(6, 2)]
+                        ];
+              break;
+              case 10:;
+                  isoStart=start;
+              
+              default:
+                  return @"";
+              break;
+          }
+
+          NSString *isoEnd=nil;
+          switch (endLength) {
+              case 0:;
+              isoEnd=@"";
+              break;
+              case 8:;
+              isoEnd=[NSString stringWithFormat:@"%@-%@-%@",
+                        [end substringWithRange:NSMakeRange(0, 4)],
+                        [end substringWithRange:NSMakeRange(4, 2)],
+                        [end substringWithRange:NSMakeRange(6, 2)]
+                        ];
+              break;
+              case 10:;
+              isoEnd=end;
+              
+              default:
+              return @"";
+              break;
+          }
+
+          if (startLength==0) return [NSString stringWithFormat:@" AND DATE(%@) <= '%@'", self, isoEnd];
+          else if (endLength==0) return [NSString stringWithFormat:@" AND DATE(%@) >= '%@'", self, isoStart];
+          else if ([isoStart isEqualToString:isoEnd]) return [NSString stringWithFormat:@" AND DATE(%@) = '%@'", self, isoStart];
+          else return [NSString stringWithFormat:@" AND DATE(%@) >= '%@' AND DATE(%@) <= '%@'", self, isoStart, self, isoEnd];
+          
+          return @"";
+      }
+ */
+      
        PatientIDString=values[PatientIDIndex];
        StudyDateString=values[StudyDateIndex];
    }
    else return [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken one of StudyInstanceUID, AccessionNumber or PatientID+StudyDate should be present"];
   
 
-   
+   //issuer
+   NSString *issuerString=nil;
+   NSInteger issuerIndex=[names indexOfObject:@"issuer"];
+   if (issuerIndex!=NSNotFound) issuerString=values[issuerIndex];
+   else issuerString=@"";
+
 
 
 
@@ -263,18 +348,15 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                  devCustodianOIDArray:devCustodianOIDArray
                  wanCustodianOIDArray:wanCustodianOIDArray
                  hasRestriction:hasRestriction
-                 hasSeriesNumberRestriction:hasSeriesNumberRestriction
                  SeriesNumberArray:SeriesNumberArray
-                 hasSeriesDescriptionRestriction:hasSeriesDescriptionRestriction
                  SeriesDescriptionArray:SeriesDescriptionArray
-                 hasModalityRestriction:hasModalityRestriction
                  ModalityArray:ModalityArray
-                 hasSOPClassRestriction:hasSOPClassRestriction
                  SOPClassArray:SOPClassArray
                  StudyInstanceUIDArray:StudyInstanceUIDArray
                  AccessionNumberString:AccessionNumberString
                  PatientIDString:PatientIDString
                  StudyDateString:StudyDateString
+                 issuerString:issuerString
                  ];
          } break;//end of sql wado weasis
       case accessTypeCornerstone:{
@@ -284,18 +366,15 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                  devCustodianOIDArray:devCustodianOIDArray
                  wanCustodianOIDArray:wanCustodianOIDArray
                  hasRestriction:hasRestriction
-                 hasSeriesNumberRestriction:hasSeriesNumberRestriction
                  SeriesNumberArray:SeriesNumberArray
-                 hasSeriesDescriptionRestriction:hasSeriesDescriptionRestriction
                  SeriesDescriptionArray:SeriesDescriptionArray
-                 hasModalityRestriction:hasModalityRestriction
                  ModalityArray:ModalityArray
-                 hasSOPClassRestriction:hasSOPClassRestriction
                  SOPClassArray:SOPClassArray
                  StudyInstanceUIDArray:StudyInstanceUIDArray
                  AccessionNumberString:AccessionNumberString
                  PatientIDString:PatientIDString
                  StudyDateString:StudyDateString
+                 issuerString:issuerString
                  ];
          } break;//end of sql wado cornerstone
       case accessTypeDicomzip:{
@@ -332,18 +411,15 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
            devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
            wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
                  hasRestriction:(BOOL)hasRestriction
-     hasSeriesNumberRestriction:(BOOL)hasSeriesNumberRestriction
               SeriesNumberArray:(NSArray*)SeriesNumberArray
-hasSeriesDescriptionRestriction:(BOOL)hasSeriesDescriptionRestriction
          SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-         hasModalityRestriction:(BOOL)hasModalityRestriction
                   ModalityArray:(NSArray*)ModalityArray
-         hasSOPClassRestriction:(BOOL)hasSOPClassRestriction
                   SOPClassArray:(NSArray*)SOPClassArray
           StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
           AccessionNumberString:(NSString*)AccessionNumberString
                 PatientIDString:(NSString*)PatientIDString
                  StudyDateString:(NSString*)StudyDateString
+                    issuerString:(NSString*)issuerString
 {
    NSXMLElement *XMLRoot=[WeasisManifest manifest];
             
@@ -623,21 +699,16 @@ NSXMLElement *StudyElement=nil;//Study=Exam
                         
                         //do not add empty series
                         if ([IPropertiesFirstRecord count]==0) continue;
-
-                         //dicom cda
-                        if ([(IPropertiesFirstRecord[0])[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
-                        //SR
-                        if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
                        
                        //if there is restriction and does't match
                         if (hasRestriction)
                         {
                             if (
-                                !(hasSeriesNumberRestriction && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
-                            && !(hasSeriesDescriptionRestriction && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
-                            && !(hasModalityRestriction && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
-                            && !(hasSOPClassRestriction && [SOPClassArray indexOfObject:(IPropertiesFirstRecord[0])[3]]!=NSNotFound)
-                                )continue;
+                                !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
+                                && !(SeriesDescriptionArray.count && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
+                                && !(ModalityArray.count && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
+                                && !(SOPClassArray.count && [SOPClassArray indexOfObject:(IPropertiesFirstRecord[0])[3]]!=NSNotFound)
+                                ) continue;
                         }
                         
                         //instances
@@ -736,18 +807,15 @@ contentType:@"text/xml"];
                  devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
                  wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
                        hasRestriction:(BOOL)hasRestriction
-           hasSeriesNumberRestriction:(BOOL)hasSeriesNumberRestriction
                     SeriesNumberArray:(NSArray*)SeriesNumberArray
-      hasSeriesDescriptionRestriction:(BOOL)hasSeriesDescriptionRestriction
                SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-               hasModalityRestriction:(BOOL)hasModalityRestriction
                         ModalityArray:(NSArray*)ModalityArray
-               hasSOPClassRestriction:(BOOL)hasSOPClassRestriction
                         SOPClassArray:(NSArray*)SOPClassArray
                 StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
                 AccessionNumberString:(NSString*)AccessionNumberString
                       PatientIDString:(NSString*)PatientIDString
                       StudyDateString:(NSString*)StudyDateString
+                         issuerString:(NSString*)issuerString
 {
       NSMutableArray *JSONArray=[NSMutableArray array];
 
@@ -1051,10 +1119,10 @@ NSMutableArray *studyArray=[NSMutableArray array];
                             if (hasRestriction)
                             {
                                 if (
-                                    !(hasSeriesNumberRestriction && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
-                                    && !(hasSeriesDescriptionRestriction && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
-                                    && !(hasModalityRestriction && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
-                                    && !(hasSOPClassRestriction && [SOPClassArray indexOfObject:(IPropertiesFirstRecord[0])[3]]!=NSNotFound)
+                                    !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
+                                    && !(SeriesDescriptionArray.count && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
+                                    && !(ModalityArray.count && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
+                                    && !(SOPClassArray.count && [SOPClassArray indexOfObject:(IPropertiesFirstRecord[0])[3]]!=NSNotFound)
                                     )continue;
                             }
 

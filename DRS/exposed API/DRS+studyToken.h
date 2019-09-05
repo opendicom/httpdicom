@@ -1,21 +1,22 @@
 //studyToken
 /*
 {
-   "institution":"",
-   "user":"",
-   "password":"",
-   "pacs":"",
-   "accessType":"cornerstone|weasis|dicomzip|osirix",
+ 
+   "proxyURI":"",
+   "session":"",
+   "custodianOID":"\\...",
+   "accessType":"cornerstone|weasis|dicomzip|osirix|",
 
- - "StudyInstanceUID":"1.2\...",
- - "AccessionNumber":"único",
- - "StudyDate":"aaaa-mm-dd", "PatientID":"",
+ - "StudyInstanceUID":"\\...",
+ - "AccessionNumber":"",
+ - "StudyDate":" | \\aaaa-mm-dd | aaaa-mm-dd | aaaa-mm-dd\\ | aaaa-mm-dd\\aaaa-mm-dd",
+   "PatientID":"",
  
    ("issuer":"oid")
-   ("SeriesNumber":"\")}
-   ("SeriesDescription":"\")
-   ("Modality":"\")
-   ("SOPClass":"\")
+   ("SeriesNumber":"\\")}
+   ("SeriesDescription":"\\")
+   ("Modality":"\\")
+   ("SOPClass":"\\")
  
  -> 200 text/xml manifiesto weasis
  -> 200 application/json manifiesto cornerstone
@@ -46,18 +47,15 @@
             devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
             wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
                   hasRestriction:(BOOL)hasRestriction
-      hasSeriesNumberRestriction:(BOOL)hasSeriesNumberRestriction
                SeriesNumberArray:(NSArray*)SeriesNumberArray
- hasSeriesDescriptionRestriction:(BOOL)hasSeriesDescriptionRestriction
           SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-          hasModalityRestriction:(BOOL)hasModalityRestriction
                    ModalityArray:(NSArray*)ModalityArray
-          hasSOPClassRestriction:(BOOL)hasSOPClassRestriction
                    SOPClassArray:(NSArray*)SOPClassArray
            StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
            AccessionNumberString:(NSString*)AccessionNumberString
                  PatientIDString:(NSString*)PatientIDString
                  StudyDateString:(NSString*)StudyDateString
+                    issuerString:(NSString*)issuerString
 ;
 
 
@@ -66,18 +64,15 @@
                  devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
                  wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
                        hasRestriction:(BOOL)hasRestriction
-           hasSeriesNumberRestriction:(BOOL)hasSeriesNumberRestriction
                     SeriesNumberArray:(NSArray*)SeriesNumberArray
-      hasSeriesDescriptionRestriction:(BOOL)hasSeriesDescriptionRestriction
                SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-               hasModalityRestriction:(BOOL)hasModalityRestriction
                         ModalityArray:(NSArray*)ModalityArray
-               hasSOPClassRestriction:(BOOL)hasSOPClassRestriction
                         SOPClassArray:(NSArray*)SOPClassArray
                 StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
                 AccessionNumberString:(NSString*)AccessionNumberString
                       PatientIDString:(NSString*)PatientIDString
                       StudyDateString:(NSString*)StudyDateString
+                         issuerString:(NSString*)issuerString
 ;
 
 @end
