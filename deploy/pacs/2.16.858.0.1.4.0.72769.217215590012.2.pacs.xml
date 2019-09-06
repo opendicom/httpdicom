@@ -70,7 +70,7 @@
             <key>wadouri</key>
             <string id="wadouri">http://192.168.250.1:8080/wado</string>
             <key>wadoadditionalparameters</key>
-            <string id="wadoadditionalparameters"></string>            
+            <string id="wadoadditionalparameters">&transferSyntax=*</string>            
             <key>wadors</key>
             <string id="wadors"></string>
             <key>qido</key>

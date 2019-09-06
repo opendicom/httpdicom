@@ -20,6 +20,12 @@ const NSInteger getTypeWadors=3;
 const NSInteger getTypeCget=4;
 const NSInteger getTypeCmove=5;
 
+static uint32 zipLocalFileHeader=0x04034B50;
+static uint16 zipVersion=0x0A;
+static uint32 zipNameLength=0x28;
+static uint32 zipFileHeader=0x02014B50;
+static uint32 zipEndOfCentralDirectory=0x06054B50;
+
 enum accessType{accessTypeWeasis, accessTypeCornerstone, accessTypeDicomzip, accessTypeOsirix, accessTypeDatatablesSeries};
 
 @implementation DRS (studyToken)
@@ -1250,7 +1256,7 @@ NSMutableArray *instanceArray=[NSMutableArray array];
                                StudyDateString:(NSString*)StudyDateString
                                   issuerString:(NSString*)issuerString
 {
-   NSMutableArray *JSONArray=[NSMutableArray array];
+   __block NSMutableArray *JSONArray=[NSMutableArray array];
 
    if (devCustodianOIDArray.count > 1)
    {
@@ -1474,6 +1480,7 @@ NSMutableArray *instanceArray=[NSMutableArray array];
                         }// end for each I
                            
                         //remove the / empty component at the end
+                        NSLog(@"%@",[JSONArray lastObject]);
                         [JSONArray removeLastObject];
                      }//end for each S
                      } break;//end of E and WADO
@@ -1485,8 +1492,92 @@ NSMutableArray *instanceArray=[NSMutableArray array];
 
    }//end at least one dev
 
-   NSLog(@"%@",[JSONArray description]);
-   return [RSErrorResponse responseWithClientError:404 message:@"studyToken should not be here"];
+   //create the zipped response
+   __block NSMutableData *directory=[NSMutableData data];
+   __block uint32 entryPointer=0;
+   __block uint16 entriesCount=0;
+   
+   // The RSAsyncStreamBlock works like the RSStreamBlock
+   // The block must call "completionBlock" passing the new chunk of data when ready, an empty NSData when done, or nil on error and pass a NSError.
+   // The block cannot call "completionBlock" more than once per invocation.
+   return [RSStreamedResponse responseWithContentType:@"application/octet-stream" asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
+   {
+     if (JSONArray.count>0)
+     {
+        //request, response and error
+        NSString *wadoString=JSONArray.firstObject;
+        __block NSData *wadoData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadoString]];
+        if (!wadoData)
+        {
+           NSLog(@"could not retrive: %@",wadoString);
+           completionBlock([NSData data], nil);
+        }
+        else
+        {
+           [JSONArray removeObjectAtIndex:0];
+           unsigned long wadoLength=(unsigned long)[wadoData length];
+           NSString *dcmUUID=[[[NSUUID UUID]UUIDString]stringByAppendingPathExtension:@"dcm"];
+           NSData *dcmName=[dcmUUID dataUsingEncoding:NSUTF8StringEncoding];
+           //LOG_INFO(@"dcm (%lu bytes):%@",dcmLength,dcmUUID);
+           
+           __block NSMutableData *entry=[NSMutableData data];
+           [entry appendBytes:&zipLocalFileHeader length:4];//0x04034B50
+           [entry appendBytes:&zipVersion length:2];//0x000A
+           [entry increaseLengthBy:8];//uint32 flagCompression,zipTimeDate
+           uint32 zipCrc32=[wadoData crc32];
+           [entry appendBytes:&zipCrc32 length:4];
+           [entry appendBytes:&wadoLength length:4];//zipCompressedSize
+           [entry appendBytes:&wadoLength length:4];//zipUncompressedSize
+           [entry appendBytes:&zipNameLength length:4];//0x28
+           [entry appendData:dcmName];
+           //extra param
+           [entry appendData:wadoData];
+           
+           completionBlock(entry, nil);
+           
+           //directory
+           [directory appendBytes:&zipFileHeader length:4];//0x02014B50
+           [directory appendBytes:&zipVersion length:2];//0x000A
+           [directory appendBytes:&zipVersion length:2];//0x000A
+           [directory increaseLengthBy:8];//uint32 flagCompression,zipTimeDate
+           [directory appendBytes:&zipCrc32 length:4];
+           [directory appendBytes:&wadoLength length:4];//zipCompressedSize
+           [directory appendBytes:&wadoLength length:4];//zipUncompressedSize
+           [directory appendBytes:&zipNameLength length:4];//0x28
+           /*
+            uint16 zipFileCommLength=0x0;
+            uint16 zipDiskStart=0x0;
+            uint16 zipInternalAttr=0x0;
+            uint32 zipExternalAttr=0x0;
+            */
+           [directory increaseLengthBy:10];
+           
+           [directory appendBytes:&entryPointer length:4];//offsetOfLocalHeader
+           entryPointer+=wadoLength+70;
+           entriesCount++;
+           [directory appendData:dcmName];
+           //extra param
+        }
+     }
+     else if (directory.length) //chunk with directory
+     {
+        //ZIP "end of central directory record"
+        
+        //uint32 zipEndOfCentralDirectory=0x06054B50;
+        [directory appendBytes:&zipEndOfCentralDirectory length:4];
+        [directory increaseLengthBy:4];//zipDiskNumber
+        [directory appendBytes:&entriesCount length:2];//disk zipEntries
+        [directory appendBytes:&entriesCount length:2];//total zipEntries
+        uint32 directorySize=86 * entriesCount;
+        [directory appendBytes:&directorySize length:4];
+        [directory appendBytes:&entryPointer length:4];
+        [directory increaseLengthBy:2];//zipCommentLength
+        completionBlock(directory, nil);
+        [directory setData:[NSData data]];
+     }
+     else completionBlock([NSData data], nil);//last chunck
+     
+  }];
 }
 
 
