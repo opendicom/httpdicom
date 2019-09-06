@@ -1250,230 +1250,233 @@ NSMutableArray *instanceArray=[NSMutableArray array];
                                StudyDateString:(NSString*)StudyDateString
                                   issuerString:(NSString*)issuerString
 {
-      NSMutableArray *JSONArray=[NSMutableArray array];
+   NSMutableArray *JSONArray=[NSMutableArray array];
 
-      if (devCustodianOIDArray.count > 1)
+   if (devCustodianOIDArray.count > 1)
+   {
+      //add nodes and start corresponding processes
+   }
+
+   if (wanCustodianOIDArray.count > 0)
+   {
+      //add nodes and start corresponding processes
+   }
+
+   if (devCustodianOIDArray.count == 0)
+   {
+      //add nodes and start corresponding processes
+   }
+   else
+   {
+      while (1)
       {
-         //add nodes and start corresponding processes
-      }
+         NSString *custodianString=devCustodianOIDArray[0];
+         NSDictionary *custodianDict=DRS.pacs[custodianString];
 
-      if (wanCustodianOIDArray.count > 0)
-      {
-         //add nodes and start corresponding processes
-      }
+#pragma mark · GET type index
+         NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:custodianDict[@"get"]];
 
-      if (devCustodianOIDArray.count == 0)
-      {
-         //add nodes and start corresponding processes
-      }
-      else
-      {
-         while (1)
-         {
-            NSString *custodianString=devCustodianOIDArray[0];
-            NSDictionary *custodianDict=DRS.pacs[custodianString];
-
-   #pragma mark · GET type index
-            NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:custodianDict[@"get"]];
-
-   #pragma mark · SELECT switch
-            switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:custodianDict[@"select"]]) {
-               
-               case NSNotFound:{
-                  LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",custodianString);
-               } break;
-                  
-               case selectTypeSql:{
-      #pragma mark · SQL SELECT (unique option for now)
-                  NSDictionary *sqlcredentials=@{custodianDict[@"sqluser"]:custodianDict[@"sqlpassword"]};
-                  NSString *sqlprolog=custodianDict[@"sqlprolog"];
-                  NSDictionary *sqlDictionary=DRS.sqls[custodianDict[@"sqlmap"]];
-
-                  
-      #pragma mark · apply Patient Study filters
+#pragma mark · SELECT switch
+         switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:custodianDict[@"select"]]) {
             
-                  NSMutableDictionary *EuiEDict=[NSMutableDictionary dictionary];
-                  NSMutableData *mutableData=[NSMutableData data];
+            case NSNotFound:{
+               LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",custodianString);
+            } break;
+               
+            case selectTypeSql:{
+   #pragma mark · SQL SELECT (unique option for now)
+               NSDictionary *sqlcredentials=@{custodianDict[@"sqluser"]:custodianDict[@"sqlpassword"]};
+               NSString *sqlprolog=custodianDict[@"sqlprolog"];
+               NSDictionary *sqlDictionary=DRS.sqls[custodianDict[@"sqlmap"]];
 
-      //#pragma mark StudyInstanceUID
-                  
-                  if (StudyInstanceUIDArray)
+               
+   #pragma mark · apply Patient Study filters
+         
+               NSMutableDictionary *EuiEDict=[NSMutableDictionary dictionary];
+               NSMutableData *mutableData=[NSMutableData data];
+
+   //#pragma mark StudyInstanceUID
+               
+               if (StudyInstanceUIDArray)
+               {
+                  for (NSString *uid in StudyInstanceUIDArray)
                   {
-                     for (NSString *uid in StudyInstanceUIDArray)
+                     //find patient fk
+                     [mutableData setData:[NSData data]];
+                     
+                     if (execUTF8Bash(sqlcredentials,
+                                       [NSString stringWithFormat:
+                                        sqlDictionary[@"sqlEuiE4Eui"],
+                                        sqlprolog,
+                                        uid,
+                                        @"",
+                                        sqlTwoPks
+                                        ],
+                                       mutableData)
+                         !=0)
                      {
-                        //find patient fk
-                        [mutableData setData:[NSData data]];
-                        
-                        if (execUTF8Bash(sqlcredentials,
-                                          [NSString stringWithFormat:
-                                           sqlDictionary[@"sqlEuiE4Eui"],
-                                           sqlprolog,
-                                           uid,
-                                           @"",
-                                           sqlTwoPks
-                                           ],
-                                          mutableData)
-                            !=0)
-                        {
-                           LOG_ERROR(@"studyToken StudyInstanceUID %@ db error",uid);
-                           continue;
-                        }
-                        if ([mutableData length]==0)
-                        {
-                           LOG_VERBOSE(@"studyToken StudyInstanceUID %@ empty response",uid);
-                           continue;
-                        }
-                        NSString *EuiEString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
-                        [EuiEDict setObject:[EuiEString pathExtension] forKey:[EuiEString stringByDeletingPathExtension]];
-                     }
-                  }
-                  else //AccessionNumber or PatientID + StudyDate
-                  {
-                      if (AccessionNumberString)
-                      {
-                         [mutableData setData:[NSData data]];
-                         if (execUTF8Bash(sqlcredentials,
-                                           [NSString stringWithFormat:
-                                            sqlDictionary[@"sqlEuiE4Ean"],
-                                            sqlprolog,
-                                            AccessionNumberString,
-                                            @"",
-                                            sqlTwoPks
-                                            ],
-                                           mutableData)
-                             !=0)
-                         {
-                            LOG_ERROR(@"studyToken accessionNumber db error");
-                            continue;
-                         }
-                      }
-                      else if (PatientIDString)
-                      {
-                          //issuer?
-                          [mutableData setData:[NSData data]];
-                          if (execUTF8Bash(sqlcredentials,
-                                           [NSString stringWithFormat:
-                                            sqlDictionary[@"sqlEuiE4PidEda"],
-                                            sqlprolog,
-                                            PatientIDString,
-                                            StudyDateString,
-                                            @"",
-                                            sqlTwoPks
-                                            ],
-                                           mutableData)
-                              !=0)
-                          {
-                              LOG_ERROR(@"studyToken PatientID or StudyDate db error");
-                              continue;
-                          }
-                      }
-                  
-                      if ([mutableData length]==0)
-                      {
-                        LOG_VERBOSE(@"studyToken empty response");
+                        LOG_ERROR(@"studyToken StudyInstanceUID %@ db error",uid);
                         continue;
-                      }
-                      for (NSString *uidotpk in [[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding]componentsSeparatedByString:@"/"])
-                      {
-                          if (uidotpk.length) [EuiEDict setObject:[uidotpk pathExtension] forKey:[uidotpk stringByDeletingPathExtension]];
-                      }
-                      //record terminated by /
+                     }
+                     if ([mutableData length]==0)
+                     {
+                        LOG_VERBOSE(@"studyToken StudyInstanceUID %@ empty response",uid);
+                        continue;
+                     }
+                     NSString *EuiEString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
+                     [EuiEDict setObject:[EuiEString pathExtension] forKey:[EuiEString stringByDeletingPathExtension]];
                   }
+               }
+               else //AccessionNumber or PatientID + StudyDate
+               {
+                   if (AccessionNumberString)
+                   {
+                      [mutableData setData:[NSData data]];
+                      if (execUTF8Bash(sqlcredentials,
+                                        [NSString stringWithFormat:
+                                         sqlDictionary[@"sqlEuiE4Ean"],
+                                         sqlprolog,
+                                         AccessionNumberString,
+                                         @"",
+                                         sqlTwoPks
+                                         ],
+                                        mutableData)
+                          !=0)
+                      {
+                         LOG_ERROR(@"studyToken accessionNumber db error");
+                         continue;
+                      }
+                   }
+                   else if (PatientIDString)
+                   {
+                       //issuer?
+                       [mutableData setData:[NSData data]];
+                       if (execUTF8Bash(sqlcredentials,
+                                        [NSString stringWithFormat:
+                                         sqlDictionary[@"sqlEuiE4PidEda"],
+                                         sqlprolog,
+                                         PatientIDString,
+                                         StudyDateString,
+                                         @"",
+                                         sqlTwoPks
+                                         ],
+                                        mutableData)
+                           !=0)
+                       {
+                           LOG_ERROR(@"studyToken PatientID or StudyDate db error");
+                           continue;
+                       }
+                   }
+               
+                   if ([mutableData length]==0)
+                   {
+                     LOG_VERBOSE(@"studyToken empty response");
+                     continue;
+                   }
+                   for (NSString *uidotpk in [[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding]componentsSeparatedByString:@"/"])
+                   {
+                       if (uidotpk.length) [EuiEDict setObject:[uidotpk pathExtension] forKey:[uidotpk stringByDeletingPathExtension]];
+                   }
+                   //record terminated by /
+               }
 
 
 #pragma mark ·· GET switch
-                  switch (getTypeIndex) {
-                        
-                     case NSNotFound:{
-                        LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",custodianString);
-                     } break;
+               switch (getTypeIndex) {
+                     
+                  case NSNotFound:{
+                     LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",custodianString);
+                  } break;
 
-                     case getTypeWado:{
+                  case getTypeWado:{
 #pragma mark ·· WADO (unique option for now)
-                        
+                     
 //#pragma mark study loop
-                        for (NSString *Eui in EuiEDict)
-                        {
+                     for (NSString *Eui in EuiEDict)
+                     {
 //#pragma mark series loop
+                        [mutableData setData:[NSData data]];
+                        if (execUTF8Bash(sqlcredentials,
+                                       [NSString stringWithFormat:
+                                        sqlDictionary[@"sqlS"],
+                                        sqlprolog,
+                                        EuiEDict[Eui],
+                                        @"",
+                                        sqlRecordFiveUnits
+                                        ],
+                                       mutableData)
+                            !=0)
+                        {
+                           LOG_ERROR(@"studyToken study db error");
+                           continue;
+                        }
+                        NSArray *SPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
+                        for (NSArray *SProperties in SPropertiesArray)
+                        {
+                           //SOPClassUID check on the first instance
                            [mutableData setData:[NSData data]];
                            if (execUTF8Bash(sqlcredentials,
                                           [NSString stringWithFormat:
-                                           sqlDictionary[@"sqlS"],
-                                           sqlprolog,
-                                           EuiEDict[Eui],
-                                           @"",
-                                           sqlRecordFiveUnits
-                                           ],
-                                          mutableData)
-                               !=0)
-                           {
-                              LOG_ERROR(@"studyToken study db error");
-                              continue;
-                           }
-                           NSArray *SPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
-                           for (NSArray *SProperties in SPropertiesArray)
-                           {
-                              //SOPClassUID check on the first instance
-                              [mutableData setData:[NSData data]];
-                              if (execUTF8Bash(sqlcredentials,
-                                             [NSString stringWithFormat:
-                                              sqlDictionary[@"sqlIci4S"],
-                                              sqlprolog,
-                                              SProperties[0],
-                                              @"limit 1",
-                                              @"\""
-                                              ],
-                                             mutableData)
-                               !=0)
-                           {
-                              LOG_ERROR(@"studyToken instance db error");
-                              continue;
-                           }
-                           
-                           //do not add empty series
-                           if ([mutableData length]==0) continue;
-
-                           NSString *cuid=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
-                            //dicom cda
-                           if ([cuid isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
-                           //SR
-                           if ([cuid hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
-                          
-                          //if there is restriction and does't match
-                            if (hasRestriction)
-                            {
-                                if (
-                                    !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
-                                    && !(SeriesDescriptionArray.count && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
-                                    && !(ModalityArray.count && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
-                                    && !(SOPClassArray.count && [SOPClassArray indexOfObject:cuid]!=NSNotFound)
-                                    )continue;
-                            }
-
-                           
-                           //instances
-                           [mutableData setData:[NSData data]];
-                           if (execUTF8Bash(sqlcredentials,
-                                          [NSString stringWithFormat:
-                                           sqlDictionary[@"sqlIui4S"],
+                                           sqlDictionary[@"sqlIci4S"],
                                            sqlprolog,
                                            SProperties[0],
-                                           @"",
-                                           sqlsingleslash
+                                           @"limit 1",
+                                           @"\""
                                            ],
                                           mutableData)
                             !=0)
-                           {
-                              LOG_ERROR(@"studyToken study db error");
-                              continue;
-                           }
-                              NSString *sopuids=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
-                           for (NSString *sopuid in sopuids.pathComponents)
-                           {
-                              [JSONArray addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
-                              }// end for each S
-                           }//end for each E
-                     } break;//end of WADO
+                        {
+                           LOG_ERROR(@"studyToken instance db error");
+                           continue;
+                        }
+                        
+                        //do not add empty series
+                        if ([mutableData length]==0) continue;
+
+                        NSString *cuid=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
+                         //dicom cda
+                        if ([cuid isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
+                        //SR
+                        if ([cuid hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
+                       
+                       //if there is restriction and does't match
+                         if (hasRestriction)
+                         {
+                             if (
+                                 !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
+                                 && !(SeriesDescriptionArray.count && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
+                                 && !(ModalityArray.count && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
+                                 && !(SOPClassArray.count && [SOPClassArray indexOfObject:cuid]!=NSNotFound)
+                                 )continue;
+                         }
+
+                        
+                        //instances
+                        [mutableData setData:[NSData data]];
+                        if (execUTF8Bash(sqlcredentials,
+                                       [NSString stringWithFormat:
+                                        sqlDictionary[@"sqlIui4S"],
+                                        sqlprolog,
+                                        SProperties[0],
+                                        @"",
+                                        sqlsingleslash
+                                        ],
+                                       mutableData)
+                         !=0)
+                        {
+                           LOG_ERROR(@"studyToken study db error");
+                           continue;
+                        }
+                           NSString *sopuids=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
+                        for (NSString *sopuid in sopuids.pathComponents)
+                        {
+                           [JSONArray addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
+                        }// end for each I
+                           
+                        //remove the / empty component at the end
+                        [JSONArray removeLastObject];
+                     }//end for each S
+                     } break;//end of E and WADO
                   }// end of GET switch
                } break;//end of sql
             } //end of SELECT switch
@@ -1482,7 +1485,7 @@ NSMutableArray *instanceArray=[NSMutableArray array];
 
    }//end at least one dev
 
-
+   NSLog(@"%@",[JSONArray description]);
    return [RSErrorResponse responseWithClientError:404 message:@"studyToken should not be here"];
 }
 
