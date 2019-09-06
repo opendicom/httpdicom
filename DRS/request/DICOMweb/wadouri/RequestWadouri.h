@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
                           StudyInstanceUID:(NSString*)euid
                          SeriesInstanceUID:(NSString*)suid
                             SOPInstanceUID:(NSString*)iuid
-;//&&anonymize=no&transferSyntax=* (pacs storage default syntax)
+;//&&anonymize=no&amp;transferSyntax=* (pacs storage default syntax)
 
 
 +(NSMutableURLRequest*)requestDICMFromPacs:(NSDictionary*)pacs

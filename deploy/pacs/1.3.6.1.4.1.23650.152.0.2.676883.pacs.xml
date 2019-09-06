@@ -68,7 +68,7 @@
             <key>wadouri</key>
             <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/wado</string>
             <key>wadoadditionalparameters</key>
-            <string id="wadoadditionalparameters">&transferSyntax=*</string>            
+            <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
             <key>qido</key>
