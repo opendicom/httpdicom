@@ -75,4 +75,18 @@
                          issuerString:(NSString*)issuerString
 ;
 
++(RSResponse*)dicomzipWithDevCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
+                          wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
+                                hasRestriction:(BOOL)hasRestriction
+                             SeriesNumberArray:(NSArray*)SeriesNumberArray
+                        SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
+                                 ModalityArray:(NSArray*)ModalityArray
+                                 SOPClassArray:(NSArray*)SOPClassArray
+                         StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
+                         AccessionNumberString:(NSString*)AccessionNumberString
+                               PatientIDString:(NSString*)PatientIDString
+                               StudyDateString:(NSString*)StudyDateString
+                                  issuerString:(NSString*)issuerString
+;
+
 @end

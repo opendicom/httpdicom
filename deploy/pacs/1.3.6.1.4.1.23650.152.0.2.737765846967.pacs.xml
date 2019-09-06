@@ -69,7 +69,7 @@
             <key>wadouri</key>
             <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC/wado</string>
             <key>wadoadditionalparameters</key>
-            <string id="wadoadditionalparameters">transferSyntax=1.2.840.10008.1.2.4.90</string>
+            <string id="wadoadditionalparameters">&transferSyntax=*</string>
             <key>wadors</key>
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC/rs</string>
             <key>qido</key>

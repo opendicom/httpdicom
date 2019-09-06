@@ -6,19 +6,42 @@
 <!-- pk study + pk patient -->
         
         <!-- estudio + paciente match accession number -->
-        <key>sqlPE4Ean</key>
+        <key>sqlEP4Ean</key>
         <string>%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' %@ %@</string>
 
         <!-- estudio + paciente match study UID -->
-        <key>sqlPE4Euid</key>
+        <key>sqlEP4Eui</key>
         <string>%@SELECT pk,patient_fk FROM study WHERE study_iuid='%@' %@ %@</string>
 
         <!-- estudio + paciente match pid + date -->
-        <key>sqlPE4PidEda</key>
+        <key>sqlEP4PidEda</key>
         <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime)='%@' %@ %@</string>
 
         
-        
+                
+<!-- pk study + studyInstanceUID -->
+       
+       <!-- estudio + paciente match accession number -->
+       <key>sqlEuiE4Ean</key>
+       <string>%@SELECT study_iuid, pk FROM study WHERE accession_no='%@' %@ %@</string>
+
+       <!-- estudio + paciente match study UID -->
+       <key>sqlEuiE4Euid</key>
+       <string>%@SELECT study_iuid, pk FROM study WHERE study_iuid='%@' %@ %@</string>
+
+       <!-- estudio + paciente match pid + date -->
+       <key>sqlEuiE4PidEda</key>
+       <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime)='%@' %@ %@</string>
+              
+       <!-- instance ci 4 series pk -->
+       <key>sqlIci4S</key>
+       <string>%@SELECT sop_cuid FROM instance WHERE series_fk='%@' %@ %@</string>
+              
+       <!-- instance ui 4 series pk -->
+       <key>sqlIui4S</key>
+       <string>%@SELECT sop_iuid FROM instance WHERE series_fk='%@' %@ %@</string>
+
+      
         
 <!-- properties-->
 

@@ -73,6 +73,8 @@
            [WadoUrisSqlString dataUsingEncoding:NSUTF8StringEncoding],
            wadoUrisData
            );
+      
+      //array of wado
       __block NSMutableArray *wados=[NSJSONSerialization JSONObjectWithData:wadoUrisData options:NSJSONReadingMutableContainers error:nil];
       __block NSMutableData *directory=[NSMutableData data];
       __block uint32 entryPointer=0;
@@ -166,9 +168,9 @@
       return response;
       
    }
-   else
+   else //series wadors
    {
-      //series wadors
+      
       NSArray *seriesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@/series?%@",destPacs[@"qido"],request.URL.query]]] options:0 error:nil];
       
       
