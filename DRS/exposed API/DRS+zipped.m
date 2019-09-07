@@ -6,19 +6,6 @@
 @implementation DRS (zipped)
 
 
--(void)addZippedHandler
-{
-   [self
-    addHandler:@"GET"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/dcm.zip" options:0 error:NULL]
-    processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
-    {
-       completionBlock(^RSResponse* (RSRequest* request) {return [DRS dcmzip:request];}(request));
-    }
-    ];
-}
-
-
 +(RSResponse*)dcmzip:(RSRequest*)request
 {
    NSData *ctad=[@"Content-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
@@ -42,133 +29,7 @@
    
    LOG_VERBOSE(@"dcm.zip?%@",[urlComponents query]);
    
-   NSDictionary *destSql=DRS.sqls[destPacs[@"sqlmap"]];
-   
-   if (destSql)
-   {
-      //sql + wado-uri
-      
-      //sql instance level
-      NSString *WadoUrisSqlString;
-      NSString *an=request.query[@"AccessionNumber"];
-      if (an)WadoUrisSqlString=[NSString stringWithFormat:destSql[@"studyAccessionNumberWadosUris"],destPacs[@"sqlprolog"],an];
-      else
-      {
-         NSString *euid=request.query[@"StudyInstanceUID"];
-         if (euid)WadoUrisSqlString=[NSString stringWithFormat:destSql[@"studyUIDWadosUris"],destPacs[@"sqlprolog"],euid];
-         else
-         {
-            NSString *suid=request.query[@"SeriesInstanceUID"];
-            if (suid)WadoUrisSqlString=[NSString stringWithFormat:destSql[@"seriesUIDWadosUris"],destPacs[@"sqlprolog"],suid];
-            
-            else return [RSErrorResponse responseWithClientError:404 message:
-                         @"parameter AccessionNumber or StudyInstanceUID required"];
-         }
-      }
-      LOG_DEBUG(@"%@",WadoUrisSqlString);
-      NSMutableData *wadoUrisData=[NSMutableData data];
-      //int studiesResult=
-      task(@"/bin/bash",
-           @[@"-s"],
-           [WadoUrisSqlString dataUsingEncoding:NSUTF8StringEncoding],
-           wadoUrisData
-           );
-      
-      //array of wado
-      __block NSMutableArray *wados=[NSJSONSerialization JSONObjectWithData:wadoUrisData options:NSJSONReadingMutableContainers error:nil];
-      __block NSMutableData *directory=[NSMutableData data];
-      __block uint32 entryPointer=0;
-      __block uint16 entriesCount=0;
-      
-      // The RSAsyncStreamBlock works like the RSStreamBlock
-      // The block must call "completionBlock" passing the new chunk of data when ready, an empty NSData when done, or nil on error and pass a NSError.
-      // The block cannot call "completionBlock" more than once per invocation.
-      RSStreamedResponse* response = [RSStreamedResponse responseWithContentType:@"application/octet-stream" asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
-                                      {
-                                         if (wados.count>0)
-                                         {
-                                            //request, response and error
-                                            NSString *wadoString=[NSString stringWithFormat:@"%@%@%@",
-                                                                  destPacs[@"wadouri"],
-                                                                  wados[0],
-                                                                  destPacs[@"wadouriadditionalparameters"]];
-                                            __block NSData *wadoData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadoString]];
-                                            if (!wadoData)
-                                            {
-                                               NSLog(@"could not retrive: %@",wadoString);
-                                               completionBlock([NSData data], nil);
-                                            }
-                                            else
-                                            {
-                                               [wados removeObjectAtIndex:0];
-                                               unsigned long wadoLength=(unsigned long)[wadoData length];
-                                               NSString *dcmUUID=[[[NSUUID UUID]UUIDString]stringByAppendingPathExtension:@"dcm"];
-                                               NSData *dcmName=[dcmUUID dataUsingEncoding:NSUTF8StringEncoding];
-                                               //LOG_INFO(@"dcm (%lu bytes):%@",dcmLength,dcmUUID);
-                                               
-                                               __block NSMutableData *entry=[NSMutableData data];
-                                               [entry appendBytes:&zipLocalFileHeader length:4];//0x04034B50
-                                               [entry appendBytes:&zipVersion length:2];//0x000A
-                                               [entry increaseLengthBy:8];//uint32 flagCompression,zipTimeDate
-                                               uint32 zipCrc32=[wadoData crc32];
-                                               [entry appendBytes:&zipCrc32 length:4];
-                                               [entry appendBytes:&wadoLength length:4];//zipCompressedSize
-                                               [entry appendBytes:&wadoLength length:4];//zipUncompressedSize
-                                               [entry appendBytes:&zipNameLength length:4];//0x28
-                                               [entry appendData:dcmName];
-                                               //extra param
-                                               [entry appendData:wadoData];
-                                               
-                                               completionBlock(entry, nil);
-                                               
-                                               //directory
-                                               [directory appendBytes:&zipFileHeader length:4];//0x02014B50
-                                               [directory appendBytes:&zipVersion length:2];//0x000A
-                                               [directory appendBytes:&zipVersion length:2];//0x000A
-                                               [directory increaseLengthBy:8];//uint32 flagCompression,zipTimeDate
-                                               [directory appendBytes:&zipCrc32 length:4];
-                                               [directory appendBytes:&wadoLength length:4];//zipCompressedSize
-                                               [directory appendBytes:&wadoLength length:4];//zipUncompressedSize
-                                               [directory appendBytes:&zipNameLength length:4];//0x28
-                                               /*
-                                                uint16 zipFileCommLength=0x0;
-                                                uint16 zipDiskStart=0x0;
-                                                uint16 zipInternalAttr=0x0;
-                                                uint32 zipExternalAttr=0x0;
-                                                */
-                                               [directory increaseLengthBy:10];
-                                               
-                                               [directory appendBytes:&entryPointer length:4];//offsetOfLocalHeader
-                                               entryPointer+=wadoLength+70;
-                                               entriesCount++;
-                                               [directory appendData:dcmName];
-                                               //extra param
-                                            }
-                                         }
-                                         else if (directory.length) //chunk with directory
-                                         {
-                                            //ZIP "end of central directory record"
-                                            
-                                            //uint32 zipEndOfCentralDirectory=0x06054B50;
-                                            [directory appendBytes:&zipEndOfCentralDirectory length:4];
-                                            [directory increaseLengthBy:4];//zipDiskNumber
-                                            [directory appendBytes:&entriesCount length:2];//disk zipEntries
-                                            [directory appendBytes:&entriesCount length:2];//total zipEntries
-                                            uint32 directorySize=86 * entriesCount;
-                                            [directory appendBytes:&directorySize length:4];
-                                            [directory appendBytes:&entryPointer length:4];
-                                            [directory increaseLengthBy:2];//zipCommentLength
-                                            completionBlock(directory, nil);
-                                            [directory setData:[NSData data]];
-                                         }
-                                         else completionBlock([NSData data], nil);//last chunck
-                                         
-                                      }];
-      
-      return response;
-      
-   }
-   else //series wadors
+//series wadors
    {
       
       NSArray *seriesArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@/series?%@",destPacs[@"qido"],request.URL.query]]] options:0 error:nil];
@@ -315,4 +176,6 @@
       return response;
    }
 }
+
+
 @end

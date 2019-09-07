@@ -6,7 +6,6 @@
 #import "DRS+pacs.h"
 //#import "DRS+qido.h"
 #import "DRS+wadors.h"
-#import "DRS+zipped.h"
 
 #import "DRS+mwlitem.h"
 //#import "DRS+pdf.h"
@@ -638,11 +637,6 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 #pragma mark /studyToken
         [self addPostAndGetStudyTokenHandler];
         LOG_DEBUG(@"added handler POST+GET /studyToken");
-
-#pragma mark /dcm.zip
-        [self addZippedHandler];
-        LOG_DEBUG(@"added handler GET /dcm.zip");
-
     }
     return self;
 }

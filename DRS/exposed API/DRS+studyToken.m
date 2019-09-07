@@ -26,7 +26,7 @@ static uint32 zipNameLength=0x28;
 static uint32 zipFileHeader=0x02014B50;
 static uint32 zipEndOfCentralDirectory=0x06054B50;
 
-enum accessType{accessTypeWeasis, accessTypeCornerstone, accessTypeDicomzip, accessTypeOsirix, accessTypeDatatablesSeries};
+enum accessType{accessTypeWeasis, accessTypeCornerstone, accessTypeDicomzip, accessTypeOsirix, accessTypeDatatableSeries, accessTypeDatatablePatient};
 
 @implementation DRS (studyToken)
 
@@ -64,7 +64,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 {
    [self
     addHandler:@"POST"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"/studyToken" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|datatable.series|datatable.patient|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -73,7 +73,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 
    [self
     addHandler:@"GET"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/studyToken$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|datatable.series|datatable.patient|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -342,9 +342,9 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 #pragma mark ACCESS switch
 
    NSInteger accessTypeIndex=[names indexOfObject:@"accessType"];
-   if (accessTypeIndex==NSNotFound) [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType required in request"];
+   if (accessTypeIndex==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType required in request"];
    NSInteger accessType=[@[@"weasis",@"cornerstone",@"dicomzip",@"osirix",@"datatablesSeries"]  indexOfObject:values[accessTypeIndex]];
-   if (accessType==NSNotFound) [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
+   if (accessType==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
 
    
 
@@ -402,24 +402,28 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                     ];
          } break;//end of sql wado dicomzip
       case accessTypeOsirix:{
+            return [DRS
+                    osirixWithProxyURI:proxyURIString
+                    session:sessionString
+                    devCustodianOIDArray:devCustodianOIDArray
+                    wanCustodianOIDArray:wanCustodianOIDArray
+                    hasRestriction:hasRestriction
+                    SeriesNumberArray:SeriesNumberArray
+                    SeriesDescriptionArray:SeriesDescriptionArray
+                    ModalityArray:ModalityArray
+                    SOPClassArray:SOPClassArray
+                    StudyInstanceUIDArray:StudyInstanceUIDArray
+                    AccessionNumberString:AccessionNumberString
+                    PatientIDString:PatientIDString
+                    StudyDateString:StudyDateString
+                    issuerString:issuerString
+                    ];
          } break;//end of sql wado osirix
-      case accessTypeDatatablesSeries:{
-         } break;//end of sql wado osirix
+      case accessTypeDatatableSeries:{
+         } break;//end of sql wado datatableSeries
+      case accessTypeDatatablePatient:{
+         } break;//end of sql wado datatableSeries
    }
-
-/*
- there are studies for this custodian
- 
-               case accessTypeDicomzip:{
-                  patientArray=[NSMutableArray array];
-                  
-                   - create
-                   {
-                     pacsUID:[{
-                        studyUID:[{
-                           seriesUID:[
-                              instanceUID,
-                   */
 
 
 //#pragma mark instance loop
@@ -976,7 +980,7 @@ contentType:@"text/xml"];
                   }
 
 #pragma mark ··· CORNERSTONE (TODO remove limitation)
-                  if ([EPDict count]>1) [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType cornerstone can not be applied to more than a study"];
+                  if ([EPDict count]>1) return [RSErrorResponse responseWithClientError:404 message:@"%@",@"accessType cornerstone can not be applied to more than a study"];
 /*
       there is one study for this custodian
 */
@@ -1476,7 +1480,7 @@ NSMutableArray *instanceArray=[NSMutableArray array];
                            NSString *sopuids=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
                         for (NSString *sopuid in sopuids.pathComponents)
                         {
-                           [JSONArray addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
+                           [JSONArray addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
                         }// end for each I
                            
                         //remove the / empty component at the end
@@ -1488,6 +1492,7 @@ NSMutableArray *instanceArray=[NSMutableArray array];
                } break;//end of sql
             } //end of SELECT switch
          }
+         break;
       }//end while 1
 
    }//end at least one dev
@@ -1580,5 +1585,22 @@ NSMutableArray *instanceArray=[NSMutableArray array];
   }];
 }
 
++(RSResponse*)osirixWithProxyURI:(NSString*)proxyURIString
+                         session:(NSString*)sessionString
+            devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
+            wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
+                  hasRestriction:(BOOL)hasRestriction
+               SeriesNumberArray:(NSArray*)SeriesNumberArray
+          SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
+                   ModalityArray:(NSArray*)ModalityArray
+                   SOPClassArray:(NSArray*)SOPClassArray
+           StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
+           AccessionNumberString:(NSString*)AccessionNumberString
+                 PatientIDString:(NSString*)PatientIDString
+                 StudyDateString:(NSString*)StudyDateString
+                    issuerString:(NSString*)issuerString
+{
+    return [RSErrorResponse responseWithClientError:404 message:@"osirix to be programmed yet"];
+}
 
 @end
