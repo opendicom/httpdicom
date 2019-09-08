@@ -1,11 +1,11 @@
 //studyToken
 /*
+ ^/(osirix.dcmURLs|weasis.xml|dicom.zip|datatablesseries.json|datatablespatient.json|cornerstone.json)$
 {
  
    "proxyURI":"",
    "session":"",
    "custodianOID":"\\...",
-   "accessType":"cornerstone|weasis|dicomzip|osirix|",
 
  - "StudyInstanceUID":"\\...",
  - "AccessionNumber":"",

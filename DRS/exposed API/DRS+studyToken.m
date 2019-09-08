@@ -64,7 +64,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 {
    [self
     addHandler:@"POST"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|datatable.series|datatable.patient|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|datatablesseries.json|datatablespatient.json|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -73,7 +73,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 
    [self
     addHandler:@"GET"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|datatable.series|datatable.patient|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|datatablesseries.json|datatablespatient.json|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -246,10 +246,11 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    {
       /*
        format options are:
+       (empty)
        aaaa-mm-dd
-       \\aaaa-mm-dd
-       aaaa-mm-dd\\
-       aaaa-mm-dd\\aaaa-mm-dd
+       ~aaaa-mm-dd
+       aaaa-mm-dd~
+       aaaa-mm-dd~aaaa-mm-dd
 
        _DARegex = [NSRegularExpression regularExpressionWithPattern:@"^(19|20)\\d\\d(01|02|03|04|05|06|07|08|09|10|11|12)(01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)$" options:0 error:NULL];
       
@@ -340,14 +341,16 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 
 #pragma mark -
 #pragma mark ACCESS switch
-
-   NSInteger accessTypeIndex=[names indexOfObject:@"accessType"];
-   if (accessTypeIndex==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType required in request"];
-   NSInteger accessType=[@[@"weasis",@"cornerstone",@"dicomzip",@"osirix",@"datatablesSeries"]  indexOfObject:values[accessTypeIndex]];
-   if (accessType==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
-
-   
-
+   NSInteger accessType=NSNotFound;
+   NSString *requestPath=request.path;
+   if (![requestPath isEqualToString:@"studyToken"])  accessType=[@[@"weasis.xml", @"cornerstone.json", @"dicom.zip", @"osirix.dcmURLs", @"datatablesseries.json", @"datatablespatient.json"]  indexOfObject:values[accessTypeIndex]];
+   else
+   {
+      NSInteger accessTypeIndex=[names indexOfObject:@"accessType"];
+      if (accessTypeIndex==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType required in request"];
+      accessType=[@[@"weasis.xml", @"cornerstone.json", @"dicom.zip", @"osirix.dcmURLs", @"datatablesseries.json", @"datatablespatient.json"] indexOfObject:values[accessTypeIndex]];
+      if (accessType==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
+   }
    switch (accessType) {
       case accessTypeWeasis:{
          return [DRS
@@ -1484,7 +1487,6 @@ NSMutableArray *instanceArray=[NSMutableArray array];
                         }// end for each I
                            
                         //remove the / empty component at the end
-                        NSLog(@"%@",[JSONArray lastObject]);
                         [JSONArray removeLastObject];
                      }//end for each S
                      } break;//end of E and WADO
