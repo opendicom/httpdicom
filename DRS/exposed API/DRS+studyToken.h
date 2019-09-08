@@ -5,18 +5,19 @@
  
    "proxyURI":"",
    "session":"",
-   "custodianOID":"\\...",
+   "custodianOID":"~",
 
- - "StudyInstanceUID":"\\...",
+ - "StudyInstanceUID":"~",
  - "AccessionNumber":"",
- - "StudyDate":" | \\aaaa-mm-dd | aaaa-mm-dd | aaaa-mm-dd\\ | aaaa-mm-dd\\aaaa-mm-dd",
+ - "StudyDate":" | ~aaaa-mm-dd | aaaa-mm-dd | aaaa-mm-dd~ | aaaa-mm-dd~aaaa-mm-dd",
    "PatientID":"",
  
    ("issuer":"oid")
-   ("SeriesNumber":"\\")}
-   ("SeriesDescription":"\\")
-   ("Modality":"\\")
-   ("SOPClass":"\\")
+   ("SeriesInstanceUID":"~")}
+   ("SeriesNumber":"~")}
+   ("SeriesDescription":"~")
+   ("Modality":"~")
+   ("SOPClass":"~")
  
  -> 200 text/xml manifiesto weasis
  -> 200 application/json manifiesto cornerstone
@@ -47,6 +48,7 @@
             devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
             wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
                   hasRestriction:(BOOL)hasRestriction
+          SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
                SeriesNumberArray:(NSArray*)SeriesNumberArray
           SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
                    ModalityArray:(NSArray*)ModalityArray
@@ -64,6 +66,7 @@
                  devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
                  wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
                        hasRestriction:(BOOL)hasRestriction
+               SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
                     SeriesNumberArray:(NSArray*)SeriesNumberArray
                SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
                         ModalityArray:(NSArray*)ModalityArray
@@ -78,6 +81,7 @@
 +(RSResponse*)dicomzipWithDevCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
                           wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
                                 hasRestriction:(BOOL)hasRestriction
+                        SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
                              SeriesNumberArray:(NSArray*)SeriesNumberArray
                         SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
                                  ModalityArray:(NSArray*)ModalityArray
@@ -94,6 +98,7 @@
             devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
             wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
                   hasRestriction:(BOOL)hasRestriction
+          SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
                SeriesNumberArray:(NSArray*)SeriesNumberArray
           SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
                    ModalityArray:(NSArray*)ModalityArray

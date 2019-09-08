@@ -162,6 +162,17 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 #pragma mark series restriction in query?
 
 //#pragma mark SeriesNumber
+   NSArray *SeriesInstanceUIDArray=nil;
+   NSInteger SeriesInstanceUIDIndex=[names indexOfObject:@"SeriesInstanceUID"];
+   if (SeriesInstanceUIDIndex!=NSNotFound) SeriesInstanceUIDArray=[values[SeriesInstanceUIDIndex] componentsSeparatedByString:@"~"];
+   BOOL hasSeriesInstanceUIDRestriction=
+   (
+    SeriesInstanceUIDArray
+    && [SeriesInstanceUIDArray count]
+    && [SeriesInstanceUIDArray[0] length]
+    );
+
+//#pragma mark SeriesNumber
    NSArray *SeriesNumberArray=nil;
    NSInteger SeriesNumberIndex=[names indexOfObject:@"SeriesNumber"];
    if (SeriesNumberIndex!=NSNotFound) SeriesNumberArray=[values[SeriesNumberIndex] componentsSeparatedByString:@"~"];
@@ -207,7 +218,8 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
    
    
    BOOL hasRestriction=
-      hasSeriesNumberRestriction
+      hasSeriesInstanceUIDRestriction
+   || hasSeriesNumberRestriction
    || hasSeriesDescriptionRestriction
    || hasModalityRestriction
    || hasSOPClassRestriction;
@@ -359,6 +371,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                  devCustodianOIDArray:devCustodianOIDArray
                  wanCustodianOIDArray:wanCustodianOIDArray
                  hasRestriction:hasRestriction
+                 SeriesInstanceUIDArray:SeriesInstanceUIDArray
                  SeriesNumberArray:SeriesNumberArray
                  SeriesDescriptionArray:SeriesDescriptionArray
                  ModalityArray:ModalityArray
@@ -377,6 +390,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                  devCustodianOIDArray:devCustodianOIDArray
                  wanCustodianOIDArray:wanCustodianOIDArray
                  hasRestriction:hasRestriction
+                 SeriesInstanceUIDArray:SeriesInstanceUIDArray
                  SeriesNumberArray:SeriesNumberArray
                  SeriesDescriptionArray:SeriesDescriptionArray
                  ModalityArray:ModalityArray
@@ -393,6 +407,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                     dicomzipWithDevCustodianOIDArray:devCustodianOIDArray
                     wanCustodianOIDArray:wanCustodianOIDArray
                     hasRestriction:hasRestriction
+                    SeriesInstanceUIDArray:SeriesInstanceUIDArray
                     SeriesNumberArray:SeriesNumberArray
                     SeriesDescriptionArray:SeriesDescriptionArray
                     ModalityArray:ModalityArray
@@ -411,6 +426,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                     devCustodianOIDArray:devCustodianOIDArray
                     wanCustodianOIDArray:wanCustodianOIDArray
                     hasRestriction:hasRestriction
+                    SeriesInstanceUIDArray:SeriesInstanceUIDArray
                     SeriesNumberArray:SeriesNumberArray
                     SeriesDescriptionArray:SeriesDescriptionArray
                     ModalityArray:ModalityArray
@@ -440,6 +456,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
            devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
            wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
                  hasRestriction:(BOOL)hasRestriction
+          SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
               SeriesNumberArray:(NSArray*)SeriesNumberArray
          SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
                   ModalityArray:(NSArray*)ModalityArray
@@ -739,7 +756,8 @@ NSXMLElement *StudyElement=nil;//Study=Exam
                         if (hasRestriction)
                         {
                             if (
-                                !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
+                                !(SeriesInstanceUIDArray.count && [SeriesInstanceUIDArray indexOfObject:SProperties[1]]!=NSNotFound)
+                                && !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
                                 && !(SeriesDescriptionArray.count && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
                                 && !(ModalityArray.count && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
                                 && !(SOPClassArray.count && [SOPClassArray indexOfObject:(IPropertiesFirstRecord[0])[3]]!=NSNotFound)
@@ -842,6 +860,7 @@ contentType:@"text/xml"];
                  devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
                  wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
                        hasRestriction:(BOOL)hasRestriction
+               SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
                     SeriesNumberArray:(NSArray*)SeriesNumberArray
                SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
                         ModalityArray:(NSArray*)ModalityArray
@@ -1154,7 +1173,8 @@ NSMutableArray *studyArray=[NSMutableArray array];
                             if (hasRestriction)
                             {
                                 if (
-                                    !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
+                                    !(SeriesInstanceUIDArray.count && [SeriesInstanceUIDArray indexOfObject:SProperties[1]]!=NSNotFound)
+                                    && !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
                                     && !(SeriesDescriptionArray.count && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
                                     && !(ModalityArray.count && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
                                     && !(SOPClassArray.count && [SOPClassArray indexOfObject:(IPropertiesFirstRecord[0])[3]]!=NSNotFound)
@@ -1253,6 +1273,7 @@ NSMutableArray *instanceArray=[NSMutableArray array];
 +(RSResponse*)dicomzipWithDevCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
                           wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
                                 hasRestriction:(BOOL)hasRestriction
+                        SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
                              SeriesNumberArray:(NSArray*)SeriesNumberArray
                         SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
                                  ModalityArray:(NSArray*)ModalityArray
@@ -1456,7 +1477,8 @@ NSMutableArray *instanceArray=[NSMutableArray array];
                          if (hasRestriction)
                          {
                              if (
-                                 !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
+                                 !(SeriesInstanceUIDArray.count && [SeriesInstanceUIDArray indexOfObject:SProperties[1]]!=NSNotFound)
+                                 && !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
                                  && !(SeriesDescriptionArray.count && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
                                  && !(ModalityArray.count && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
                                  && !(SOPClassArray.count && [SOPClassArray indexOfObject:cuid]!=NSNotFound)
@@ -1592,6 +1614,7 @@ NSMutableArray *instanceArray=[NSMutableArray array];
             devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
             wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
                   hasRestriction:(BOOL)hasRestriction
+          SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
                SeriesNumberArray:(NSArray*)SeriesNumberArray
           SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
                    ModalityArray:(NSArray*)ModalityArray
