@@ -343,7 +343,7 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 #pragma mark ACCESS switch
    NSInteger accessType=NSNotFound;
    NSString *requestPath=request.path;
-   if (![requestPath isEqualToString:@"studyToken"])  accessType=[@[@"weasis.xml", @"cornerstone.json", @"dicom.zip", @"osirix.dcmURLs", @"datatablesseries.json", @"datatablespatient.json"]  indexOfObject:requestPath];
+   if (![requestPath isEqualToString:@"/studyToken"])  accessType=[@[@"/weasis.xml", @"/cornerstone.json", @"/dicom.zip", @"/osirix.dcmURLs", @"/datatablesseries.json", @"/datatablespatient.json"]  indexOfObject:requestPath];
    else
    {
       NSInteger accessTypeIndex=[names indexOfObject:@"accessType"];
