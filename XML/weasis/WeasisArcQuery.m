@@ -21,12 +21,15 @@
 @implementation WeasisArcQuery
 
 +(NSXMLElement*)arcQueryOID:(NSString*)arcId
-                  custodian:(NSString*)baseUrl
                     session:(NSString*)session
-              seriesNumbers:(NSArray*)seriesNumberArray
-         seriesDescriptions:(NSArray*)seriesDescriptionArray
-                 modalities:(NSArray*)modalityArray
-                 SOPClasses:(NSArray*)SOPClassArray
+                  custodian:(NSString*)baseUrl
+             transferSyntax:(NSString*)transferSyntax
+          seriesInstanceUID:(NSString*)seriesInstanceUIDRegexString
+               seriesNumber:(NSString*)seriesNumberRegexString
+          seriesDescription:(NSString*)seriesDescriptionRegexString
+                   modality:(NSString*)modalityRegexString
+                   SOPClass:(NSString*)SOPClassRegexString
+                SOPClassOff:(NSString*)SOPClassOffRegexString
       overrideDicomTagsList:(NSString*)overrideDicomTagsList
 {
    NSXMLElement *arcQuery=[NSXMLElement elementWithName:@"arcQuery"];
@@ -37,11 +40,7 @@
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"overrideDicomTagsList" stringValue:overrideDicomTagsList]];
    
    NSMutableString *additionalParameters=[NSMutableString stringWithFormat:@"&amp;session=%@&amp;custodianOID=%@",session,baseUrl];
-   if (seriesNumberArray) [additionalParameters appendFormat:@"&amp;SeriesNumber=%@",[seriesNumberArray componentsJoinedByString:@"\\"]];
-   if (seriesDescriptionArray) [additionalParameters appendFormat:@"&amp;seriesDescription=%@",[seriesDescriptionArray componentsJoinedByString:@"\\"]];
-   if (modalityArray) [additionalParameters appendFormat:@"&amp;modality=%@",[modalityArray componentsJoinedByString:@"\\"]];
-   if (SOPClassArray) [additionalParameters appendFormat:@"&amp;SOPClass=%@",[SOPClassArray componentsJoinedByString:@"\\"]];
-
+//add restrictions?
    
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"additionnalParameters" stringValue:additionalParameters]];
 

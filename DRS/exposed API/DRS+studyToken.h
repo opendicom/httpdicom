@@ -5,20 +5,22 @@
  
    "proxyURI":"",
    "session":"",
-   "custodianOID":"~",
+   "custodianOID":"|",
 
- - "StudyInstanceUID":"~",
+ - "StudyInstanceUID":"|",
  - "AccessionNumber":"",
- - "StudyDate":" | ~aaaa-mm-dd | aaaa-mm-dd | aaaa-mm-dd~ | aaaa-mm-dd~aaaa-mm-dd",
-   "PatientID":"",
+ - "PatientID":""
  
+   ("StudyDate":"() |aaaa-mm-dd  aaaa-mm-dd  aaaa-mm-dd| aaaa-mm-dd|aaaa-mm-dd")
    ("issuer":"oid")
-   ("SeriesInstanceUID":"~")}
-   ("SeriesNumber":"~")}
-   ("SeriesDescription":"~")
-   ("Modality":"~")
-   ("SOPClass":"~")
  
+   ("SeriesInstanceUID":"regex")}
+   ("SeriesNumber":"regex")}
+   ("SeriesDescription":"regex")
+   ("Modality":"regex")
+   ("SOPClass":"regex")
+   ("SOPClassOff":"regex")
+
  -> 200 text/xml manifiesto weasis
  -> 200 application/json manifiesto cornerstone
  -> 200 application/zip dicomzip
@@ -44,70 +46,78 @@
 +(RSResponse*)studyToken:(RSRequest*)request;
 
 +(RSResponse*)weasisWithProxyURI:(NSString*)proxyURIString
-                         session:(NSString*)sessionString
-            devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
-            wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
-                  hasRestriction:(BOOL)hasRestriction
-          SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
-               SeriesNumberArray:(NSArray*)SeriesNumberArray
-          SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-                   ModalityArray:(NSArray*)ModalityArray
-                   SOPClassArray:(NSArray*)SOPClassArray
-           StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
-           AccessionNumberString:(NSString*)AccessionNumberString
-                 PatientIDString:(NSString*)PatientIDString
-                 StudyDateString:(NSString*)StudyDateString
-                    issuerString:(NSString*)issuerString
+               session:(NSString*)sessionString
+  devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
+  wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
+        transferSyntax:(NSString*)transferSyntax
+        hasRestriction:(BOOL)hasRestriction
+SeriesInstanceUIDRegex:(NSRegularExpression*)SeriesInstanceUIDRegex
+     SeriesNumberRegex:(NSRegularExpression*)SeriesNumberRegex
+SeriesDescriptionRegex:(NSRegularExpression*)SeriesDescriptionRegex
+         ModalityRegex:(NSRegularExpression*)ModalityRegex
+         SOPClassRegex:(NSRegularExpression*)SOPClassRegex
+      SOPClassOffRegex:(NSRegularExpression*)SOPClassOffRegex
+ StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
+ AccessionNumberString:(NSString*)AccessionNumberString
+       PatientIDString:(NSString*)PatientIDString
+       StudyDateString:(NSString*)StudyDateString
+          issuerString:(NSString*)issuerString
 ;
 
 
 +(RSResponse*)cornerstoneWithProxyURI:(NSString*)proxyURIString
-                              session:(NSString*)sessionString
-                 devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
-                 wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
-                       hasRestriction:(BOOL)hasRestriction
-               SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
-                    SeriesNumberArray:(NSArray*)SeriesNumberArray
-               SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-                        ModalityArray:(NSArray*)ModalityArray
-                        SOPClassArray:(NSArray*)SOPClassArray
-                StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
-                AccessionNumberString:(NSString*)AccessionNumberString
-                      PatientIDString:(NSString*)PatientIDString
-                      StudyDateString:(NSString*)StudyDateString
-                         issuerString:(NSString*)issuerString
+               session:(NSString*)sessionString
+  devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
+  wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
+        transferSyntax:(NSString*)transferSyntax
+        hasRestriction:(BOOL)hasRestriction
+SeriesInstanceUIDRegex:(NSRegularExpression*)SeriesInstanceUIDRegex
+     SeriesNumberRegex:(NSRegularExpression*)SeriesNumberRegex
+SeriesDescriptionRegex:(NSRegularExpression*)SeriesDescriptionRegex
+         ModalityRegex:(NSRegularExpression*)ModalityRegex
+         SOPClassRegex:(NSRegularExpression*)SOPClassRegex
+      SOPClassOffRegex:(NSRegularExpression*)SOPClassOffRegex
+ StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
+ AccessionNumberString:(NSString*)AccessionNumberString
+       PatientIDString:(NSString*)PatientIDString
+       StudyDateString:(NSString*)StudyDateString
+          issuerString:(NSString*)issuerString
 ;
 
 +(RSResponse*)dicomzipWithDevCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
-                          wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
-                                hasRestriction:(BOOL)hasRestriction
-                        SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
-                             SeriesNumberArray:(NSArray*)SeriesNumberArray
-                        SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-                                 ModalityArray:(NSArray*)ModalityArray
-                                 SOPClassArray:(NSArray*)SOPClassArray
-                         StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
-                         AccessionNumberString:(NSString*)AccessionNumberString
-                               PatientIDString:(NSString*)PatientIDString
-                               StudyDateString:(NSString*)StudyDateString
-                                  issuerString:(NSString*)issuerString
+  wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
+        transferSyntax:(NSString*)transferSyntax
+        hasRestriction:(BOOL)hasRestriction
+SeriesInstanceUIDRegex:(NSRegularExpression*)SeriesInstanceUIDRegex
+     SeriesNumberRegex:(NSRegularExpression*)SeriesNumberRegex
+SeriesDescriptionRegex:(NSRegularExpression*)SeriesDescriptionRegex
+         ModalityRegex:(NSRegularExpression*)ModalityRegex
+         SOPClassRegex:(NSRegularExpression*)SOPClassRegex
+      SOPClassOffRegex:(NSRegularExpression*)SOPClassOffRegex
+ StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
+ AccessionNumberString:(NSString*)AccessionNumberString
+       PatientIDString:(NSString*)PatientIDString
+       StudyDateString:(NSString*)StudyDateString
+          issuerString:(NSString*)issuerString
 ;
 
 +(RSResponse*)osirixWithProxyURI:(NSString*)proxyURIString
-                         session:(NSString*)sessionString
-            devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
-            wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
-                  hasRestriction:(BOOL)hasRestriction
-          SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
-               SeriesNumberArray:(NSArray*)SeriesNumberArray
-          SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-                   ModalityArray:(NSArray*)ModalityArray
-                   SOPClassArray:(NSArray*)SOPClassArray
-           StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
-           AccessionNumberString:(NSString*)AccessionNumberString
-                 PatientIDString:(NSString*)PatientIDString
-                 StudyDateString:(NSString*)StudyDateString
-                    issuerString:(NSString*)issuerString
+               session:(NSString*)sessionString
+  devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
+  wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
+        transferSyntax:(NSString*)transferSyntax
+        hasRestriction:(BOOL)hasRestriction
+SeriesInstanceUIDRegex:(NSRegularExpression*)SeriesInstanceUIDRegex
+     SeriesNumberRegex:(NSRegularExpression*)SeriesNumberRegex
+SeriesDescriptionRegex:(NSRegularExpression*)SeriesDescriptionRegex
+         ModalityRegex:(NSRegularExpression*)ModalityRegex
+         SOPClassRegex:(NSRegularExpression*)SOPClassRegex
+      SOPClassOffRegex:(NSRegularExpression*)SOPClassOffRegex
+ StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
+ AccessionNumberString:(NSString*)AccessionNumberString
+       PatientIDString:(NSString*)PatientIDString
+       StudyDateString:(NSString*)StudyDateString
+          issuerString:(NSString*)issuerString
 ;
 
 @end

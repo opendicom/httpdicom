@@ -162,68 +162,39 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 #pragma mark series restriction in query?
 
 //#pragma mark SeriesNumber
-   NSArray *SeriesInstanceUIDArray=nil;
+   NSRegularExpression *SeriesInstanceUIDRegex=nil;
    NSInteger SeriesInstanceUIDIndex=[names indexOfObject:@"SeriesInstanceUID"];
-   if (SeriesInstanceUIDIndex!=NSNotFound) SeriesInstanceUIDArray=[values[SeriesInstanceUIDIndex] componentsSeparatedByString:@"~"];
-   BOOL hasSeriesInstanceUIDRestriction=
-   (
-    SeriesInstanceUIDArray
-    && [SeriesInstanceUIDArray count]
-    && [SeriesInstanceUIDArray[0] length]
-    );
-
+   if (SeriesInstanceUIDIndex!=NSNotFound) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:values[SeriesInstanceUIDIndex] options:0 error:NULL];
 //#pragma mark SeriesNumber
-   NSArray *SeriesNumberArray=nil;
+   NSRegularExpression *SeriesNumberRegex=nil;
    NSInteger SeriesNumberIndex=[names indexOfObject:@"SeriesNumber"];
-   if (SeriesNumberIndex!=NSNotFound) SeriesNumberArray=[values[SeriesNumberIndex] componentsSeparatedByString:@"~"];
-   BOOL hasSeriesNumberRestriction=
-   (
-    SeriesNumberArray
-    && [SeriesNumberArray count]
-    && [SeriesNumberArray[0] length]
-    );
-
+   if (SeriesNumberIndex!=NSNotFound) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:values[SeriesNumberIndex] options:0 error:NULL];
 //#pragma mark SeriesDescription
-   NSArray *SeriesDescriptionArray=nil;
+   NSRegularExpression *SeriesDescriptionRegex=nil;
    NSInteger SeriesDescriptionIndex=[names indexOfObject:@"SeriesDescription"];
-   if (SeriesDescriptionIndex!=NSNotFound) SeriesDescriptionArray=[values[SeriesDescriptionIndex] componentsSeparatedByString:@"~"];
-   BOOL hasSeriesDescriptionRestriction=
-   (
-    SeriesDescriptionArray
-    && [SeriesDescriptionArray count]
-    && [SeriesDescriptionArray[0] length]
-    );
-
+   if (SeriesDescriptionIndex!=NSNotFound) SeriesDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:values[SeriesDescriptionIndex] options:0 error:NULL];
 //#pragma mark Modality
-   NSArray *ModalityArray=nil;
+   NSRegularExpression *ModalityRegex=nil;
    NSInteger ModalityIndex=[names indexOfObject:@"Modality"];
-   if (ModalityIndex!=NSNotFound) ModalityArray=[values[ModalityIndex]componentsSeparatedByString:@"~"];
-   BOOL hasModalityRestriction=
-   (
-    ModalityArray
-    && [ModalityArray count]
-    && [ModalityArray[0] length]
-    );
-
+   if (ModalityIndex!=NSNotFound) ModalityRegex=[NSRegularExpression regularExpressionWithPattern:values[ModalityIndex] options:0 error:NULL];
 //#pragma mark SOPClass
-   NSArray *SOPClassArray=nil;
+   NSRegularExpression *SOPClassRegex=nil;
    NSInteger SOPClassIndex=[names indexOfObject:@"SOPClass"];
-   if (SOPClassIndex!=NSNotFound) SOPClassArray=[values[SOPClassIndex]componentsSeparatedByString:@"~"];
-   BOOL hasSOPClassRestriction=
-   (
-    SOPClassArray
-    && [SOPClassArray count]
-    && [SOPClassArray[0] length]
-    );
-   
-   
+   if (SOPClassIndex!=NSNotFound) SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:values[SOPClassIndex] options:0 error:NULL];
    BOOL hasRestriction=
-      hasSeriesInstanceUIDRestriction
-   || hasSeriesNumberRestriction
-   || hasSeriesDescriptionRestriction
-   || hasModalityRestriction
-   || hasSOPClassRestriction;
+      SeriesInstanceUIDRegex
+   || SeriesNumberRegex
+   || SeriesDescriptionRegex
+   || ModalityRegex
+   || SOPClassRegex;
 
+
+//#pragma mark SOPClassOff
+   NSRegularExpression *SOPClassOffRegex=nil;
+   NSInteger SOPClassOffIndex=[names indexOfObject:@"SOPClassOff"];
+   if (SOPClassOffIndex!=NSNotFound) SOPClassOffRegex=[NSRegularExpression regularExpressionWithPattern:values[SOPClassOffIndex] options:0 error:NULL];
+
+   
 #pragma mark Patient Study filter formal validity?
    NSInteger StudyInstanceUIDsIndex=[names indexOfObject:@"StudyInstanceUID"];
    NSArray *StudyInstanceUIDArray=nil;
@@ -260,9 +231,9 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
        format options are:
        (empty)
        aaaa-mm-dd
-       ~aaaa-mm-dd
-       aaaa-mm-dd~
-       aaaa-mm-dd~aaaa-mm-dd
+       |aaaa-mm-dd
+       aaaa-mm-dd|
+       aaaa-mm-dd|aaaa-mm-dd
 
        _DARegex = [NSRegularExpression regularExpressionWithPattern:@"^(19|20)\\d\\d(01|02|03|04|05|06|07|08|09|10|11|12)(01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)$" options:0 error:NULL];
       
@@ -370,12 +341,14 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                  session:sessionString
                  devCustodianOIDArray:devCustodianOIDArray
                  wanCustodianOIDArray:wanCustodianOIDArray
+                 transferSyntax:@""
                  hasRestriction:hasRestriction
-                 SeriesInstanceUIDArray:SeriesInstanceUIDArray
-                 SeriesNumberArray:SeriesNumberArray
-                 SeriesDescriptionArray:SeriesDescriptionArray
-                 ModalityArray:ModalityArray
-                 SOPClassArray:SOPClassArray
+                 SeriesInstanceUIDRegex:SeriesInstanceUIDRegex
+                 SeriesNumberRegex:SeriesNumberRegex
+                 SeriesDescriptionRegex:SeriesDescriptionRegex
+                 ModalityRegex:ModalityRegex
+                 SOPClassRegex:SOPClassRegex
+                 SOPClassOffRegex:SOPClassOffRegex
                  StudyInstanceUIDArray:StudyInstanceUIDArray
                  AccessionNumberString:AccessionNumberString
                  PatientIDString:PatientIDString
@@ -389,12 +362,14 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                  session:sessionString
                  devCustodianOIDArray:devCustodianOIDArray
                  wanCustodianOIDArray:wanCustodianOIDArray
+                 transferSyntax:@""
                  hasRestriction:hasRestriction
-                 SeriesInstanceUIDArray:SeriesInstanceUIDArray
-                 SeriesNumberArray:SeriesNumberArray
-                 SeriesDescriptionArray:SeriesDescriptionArray
-                 ModalityArray:ModalityArray
-                 SOPClassArray:SOPClassArray
+                 SeriesInstanceUIDRegex:SeriesInstanceUIDRegex
+                 SeriesNumberRegex:SeriesNumberRegex
+                 SeriesDescriptionRegex:SeriesDescriptionRegex
+                 ModalityRegex:ModalityRegex
+                 SOPClassRegex:SOPClassRegex
+                 SOPClassOffRegex:SOPClassOffRegex
                  StudyInstanceUIDArray:StudyInstanceUIDArray
                  AccessionNumberString:AccessionNumberString
                  PatientIDString:PatientIDString
@@ -406,12 +381,14 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
             return [DRS
                     dicomzipWithDevCustodianOIDArray:devCustodianOIDArray
                     wanCustodianOIDArray:wanCustodianOIDArray
+                    transferSyntax:@""
                     hasRestriction:hasRestriction
-                    SeriesInstanceUIDArray:SeriesInstanceUIDArray
-                    SeriesNumberArray:SeriesNumberArray
-                    SeriesDescriptionArray:SeriesDescriptionArray
-                    ModalityArray:ModalityArray
-                    SOPClassArray:SOPClassArray
+                    SeriesInstanceUIDRegex:SeriesInstanceUIDRegex
+                    SeriesNumberRegex:SeriesNumberRegex
+                    SeriesDescriptionRegex:SeriesDescriptionRegex
+                    ModalityRegex:ModalityRegex
+                    SOPClassRegex:SOPClassRegex
+                    SOPClassOffRegex:SOPClassOffRegex
                     StudyInstanceUIDArray:StudyInstanceUIDArray
                     AccessionNumberString:AccessionNumberString
                     PatientIDString:PatientIDString
@@ -425,12 +402,14 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                     session:sessionString
                     devCustodianOIDArray:devCustodianOIDArray
                     wanCustodianOIDArray:wanCustodianOIDArray
+                    transferSyntax:@""
                     hasRestriction:hasRestriction
-                    SeriesInstanceUIDArray:SeriesInstanceUIDArray
-                    SeriesNumberArray:SeriesNumberArray
-                    SeriesDescriptionArray:SeriesDescriptionArray
-                    ModalityArray:ModalityArray
-                    SOPClassArray:SOPClassArray
+                    SeriesInstanceUIDRegex:SeriesInstanceUIDRegex
+                    SeriesNumberRegex:SeriesNumberRegex
+                    SeriesDescriptionRegex:SeriesDescriptionRegex
+                    ModalityRegex:ModalityRegex
+                    SOPClassRegex:SOPClassRegex
+                    SOPClassOffRegex:SOPClassOffRegex
                     StudyInstanceUIDArray:StudyInstanceUIDArray
                     AccessionNumberString:AccessionNumberString
                     PatientIDString:PatientIDString
@@ -455,17 +434,19 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                         session:(NSString*)sessionString
            devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
            wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
+                 transferSyntax:(NSString*)transferSyntax
                  hasRestriction:(BOOL)hasRestriction
-          SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
-              SeriesNumberArray:(NSArray*)SeriesNumberArray
-         SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-                  ModalityArray:(NSArray*)ModalityArray
-                  SOPClassArray:(NSArray*)SOPClassArray
+         SeriesInstanceUIDRegex:(NSRegularExpression*)SeriesInstanceUIDRegex
+              SeriesNumberRegex:(NSRegularExpression*)SeriesNumberRegex
+         SeriesDescriptionRegex:(NSRegularExpression*)SeriesDescriptionRegex
+                  ModalityRegex:(NSRegularExpression*)ModalityRegex
+                  SOPClassRegex:(NSRegularExpression*)SOPClassRegex
+               SOPClassOffRegex:(NSRegularExpression*)SOPClassOffRegex
           StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
           AccessionNumberString:(NSString*)AccessionNumberString
                 PatientIDString:(NSString*)PatientIDString
-                 StudyDateString:(NSString*)StudyDateString
-                    issuerString:(NSString*)issuerString
+                StudyDateString:(NSString*)StudyDateString
+                   issuerString:(NSString*)issuerString
 {
    NSXMLElement *XMLRoot=[WeasisManifest manifest];
             
@@ -603,12 +584,15 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
                NSXMLElement *arcQueryElement=
                      [WeasisArcQuery
                       arcQueryOID:custodianString
-                      custodian:proxyURIString
                       session:sessionString
-                      seriesNumbers:SeriesNumberArray
-                      seriesDescriptions:SeriesDescriptionArray
-                      modalities:ModalityArray
-                      SOPClasses:SOPClassArray
+                      custodian:proxyURIString
+                      transferSyntax:nil
+                      seriesInstanceUID:SeriesInstanceUIDRegex.pattern
+                      seriesNumber:SeriesNumberRegex.pattern
+                      seriesDescription:SeriesDescriptionRegex.pattern
+                      modality:ModalityRegex.pattern
+                      SOPClass:SOPClassRegex.pattern
+                      SOPClassOff:SOPClassOffRegex.pattern
                       overrideDicomTagsList:@""
                       ];
                      [XMLRoot addChild:arcQueryElement];
@@ -743,27 +727,68 @@ NSXMLElement *StudyElement=nil;//Study=Exam
                         }
                         NSArray *IPropertiesFirstRecord=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
                         
+#pragma mark ....series restrictions
                         //do not add empty series
                         if ([IPropertiesFirstRecord count]==0) continue;
 
+                        /*
                          //dicom cda
                         if ([(IPropertiesFirstRecord[0])[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
                         //SR
                         if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
-
+                         
+                         //replaced by SOPClassOff
+                        */
                         
                         //if there is restriction and does't match
                         if (hasRestriction)
                         {
                             if (
-                                !(SeriesInstanceUIDArray.count && [SeriesInstanceUIDArray indexOfObject:SProperties[1]]!=NSNotFound)
-                                && !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
-                                && !(SeriesDescriptionArray.count && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
-                                && !(ModalityArray.count && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
-                                && !(SOPClassArray.count && [SOPClassArray indexOfObject:(IPropertiesFirstRecord[0])[3]]!=NSNotFound)
+                                   !(    SeriesInstanceUIDRegex
+                                     && [SeriesInstanceUIDRegex
+                                         numberOfMatchesInString:SProperties[1]
+                                         options:0
+                                         range:NSMakeRange(0, [SProperties[1] length])
+                                         ]
+                                     )
+                                && !(    SeriesNumberRegex
+                                     && [SeriesNumberRegex
+                                         numberOfMatchesInString:SProperties[3]
+                                         options:0
+                                         range:NSMakeRange(0, [SProperties[3] length])
+                                         ]
+                                     )
+                                && !(    SeriesDescriptionRegex
+                                     && [SeriesDescriptionRegex
+                                         numberOfMatchesInString:SProperties[2]
+                                         options:0
+                                         range:NSMakeRange(0, [SProperties[2] length])
+                                         ]
+                                     )
+                                && !(    ModalityRegex
+                                     && [ModalityRegex
+                                         numberOfMatchesInString:SProperties[4]
+                                         options:0
+                                         range:NSMakeRange(0, [SProperties[4] length])
+                                         ]
+                                     )
+                                && !(    SOPClassRegex
+                                     && [SOPClassRegex
+                                         numberOfMatchesInString:(IPropertiesFirstRecord[0])[3]
+                                         options:0
+                                         range:NSMakeRange(0, [(IPropertiesFirstRecord[0])[3] length])
+                                         ]
+                                     )
+                                && !(    SOPClassOffRegex
+                                     &&![SOPClassOffRegex
+                                         numberOfMatchesInString:(IPropertiesFirstRecord[0])[3]
+                                         options:0
+                                         range:NSMakeRange(0, [(IPropertiesFirstRecord[0])[3] length])
+                                         ]
+                                     )
                                 ) continue;
                         }
-                        
+
                         //instances
                         [mutableData setData:[NSData data]];
                         if (execUTF8Bash(sqlcredentials,
@@ -859,12 +884,14 @@ contentType:@"text/xml"];
                               session:(NSString*)sessionString
                  devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
                  wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
+                       transferSyntax:(NSString*)transferSyntax
                        hasRestriction:(BOOL)hasRestriction
-               SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
-                    SeriesNumberArray:(NSArray*)SeriesNumberArray
-               SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-                        ModalityArray:(NSArray*)ModalityArray
-                        SOPClassArray:(NSArray*)SOPClassArray
+               SeriesInstanceUIDRegex:(NSRegularExpression*)SeriesInstanceUIDRegex
+                    SeriesNumberRegex:(NSRegularExpression*)SeriesNumberRegex
+               SeriesDescriptionRegex:(NSRegularExpression*)SeriesDescriptionRegex
+                        ModalityRegex:(NSRegularExpression*)ModalityRegex
+                        SOPClassRegex:(NSRegularExpression*)SOPClassRegex
+                     SOPClassOffRegex:(NSRegularExpression*)SOPClassOffRegex
                 StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
                 AccessionNumberString:(NSString*)AccessionNumberString
                       PatientIDString:(NSString*)PatientIDString
@@ -1012,13 +1039,15 @@ contentType:@"text/xml"];
                      @"arcId":custodianString,
                      @"baseUrl":proxyURIString,
                      @"additionnalParameters":
-                        [NSString stringWithFormat:@"&amp;session=%@&amp;custodianOID=%@&amp;SeriesNumber=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@",
+                        [NSString stringWithFormat:@"&amp;session=%@&amp;custodianOID=%@&amp;SeriesInstanceUID=%@&amp;SeriesNumber=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@&amp;SOPClassOff=%@",
                          sessionString,
                          custodianString,
-                         [SeriesNumberArray componentsJoinedByString:@"\\"],
-                         [SeriesDescriptionArray componentsJoinedByString:@"\\"],
-                         [ModalityArray componentsJoinedByString:@"\\"],
-                         [SOPClassArray componentsJoinedByString:@"\\"]
+                         SeriesInstanceUIDRegex.pattern,
+                         SeriesNumberRegex.pattern,
+                         SeriesDescriptionRegex.pattern,
+                         ModalityRegex.pattern,
+                         SOPClassRegex.pattern,
+                         SOPClassOffRegex.pattern
                         ],
                      @"overrideDicomTagsList":@"",
                      @"patientList":patientArray
@@ -1161,25 +1190,68 @@ NSMutableArray *studyArray=[NSMutableArray array];
                            }
                            NSArray *IPropertiesFirstRecord=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
                            
-                           //do not add empty series
-                           if ([IPropertiesFirstRecord count]==0) continue;
+                                                   
+#pragma mark ....series restrictions
+//do not add empty series
+if ([IPropertiesFirstRecord count]==0) continue;
 
-                            //dicom cda
-                           if ([(IPropertiesFirstRecord[0])[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
-                           //SR
-                           if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
-                          
-                          //if there is restriction and does't match
-                            if (hasRestriction)
-                            {
-                                if (
-                                    !(SeriesInstanceUIDArray.count && [SeriesInstanceUIDArray indexOfObject:SProperties[1]]!=NSNotFound)
-                                    && !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
-                                    && !(SeriesDescriptionArray.count && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
-                                    && !(ModalityArray.count && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
-                                    && !(SOPClassArray.count && [SOPClassArray indexOfObject:(IPropertiesFirstRecord[0])[3]]!=NSNotFound)
-                                    )continue;
-                            }
+/*
+ //dicom cda
+if ([(IPropertiesFirstRecord[0])[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
+//SR
+if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
+ 
+ //replaced by SOPClassOff
+*/
+
+//if there is restriction and does't match
+if (hasRestriction)
+{
+    if (
+           !(    SeriesInstanceUIDRegex
+             && [SeriesInstanceUIDRegex
+                 numberOfMatchesInString:SProperties[1]
+                 options:0
+                 range:NSMakeRange(0, [SProperties[1] length])
+                 ]
+             )
+        && !(    SeriesNumberRegex
+             && [SeriesNumberRegex
+                 numberOfMatchesInString:SProperties[3]
+                 options:0
+                 range:NSMakeRange(0, [SProperties[3] length])
+                 ]
+             )
+        && !(    SeriesDescriptionRegex
+             && [SeriesDescriptionRegex
+                 numberOfMatchesInString:SProperties[2]
+                 options:0
+                 range:NSMakeRange(0, [SProperties[2] length])
+                 ]
+             )
+        && !(    ModalityRegex
+             && [ModalityRegex
+                 numberOfMatchesInString:SProperties[4]
+                 options:0
+                 range:NSMakeRange(0, [SProperties[4] length])
+                 ]
+             )
+        && !(    SOPClassRegex
+             && [SOPClassRegex
+                 numberOfMatchesInString:(IPropertiesFirstRecord[0])[3]
+                 options:0
+                 range:NSMakeRange(0, [(IPropertiesFirstRecord[0])[3] length])
+                 ]
+             )
+        && !(    SOPClassOffRegex
+             &&![SOPClassOffRegex
+                 numberOfMatchesInString:(IPropertiesFirstRecord[0])[3]
+                 options:0
+                 range:NSMakeRange(0, [(IPropertiesFirstRecord[0])[3] length])
+                 ]
+             )
+        ) continue;
+}
 
                            
                            //instances
@@ -1272,12 +1344,14 @@ NSMutableArray *instanceArray=[NSMutableArray array];
 
 +(RSResponse*)dicomzipWithDevCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
                           wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
+                                transferSyntax:(NSString*)transferSyntax
                                 hasRestriction:(BOOL)hasRestriction
-                        SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
-                             SeriesNumberArray:(NSArray*)SeriesNumberArray
-                        SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-                                 ModalityArray:(NSArray*)ModalityArray
-                                 SOPClassArray:(NSArray*)SOPClassArray
+                        SeriesInstanceUIDRegex:(NSRegularExpression*)SeriesInstanceUIDRegex
+                             SeriesNumberRegex:(NSRegularExpression*)SeriesNumberRegex
+                        SeriesDescriptionRegex:(NSRegularExpression*)SeriesDescriptionRegex
+                                 ModalityRegex:(NSRegularExpression*)ModalityRegex
+                                 SOPClassRegex:(NSRegularExpression*)SOPClassRegex
+                              SOPClassOffRegex:(NSRegularExpression*)SOPClassOffRegex
                          StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
                          AccessionNumberString:(NSString*)AccessionNumberString
                                PatientIDString:(NSString*)PatientIDString
@@ -1463,27 +1537,71 @@ NSMutableArray *instanceArray=[NSMutableArray array];
                            LOG_ERROR(@"studyToken instance db error");
                            continue;
                         }
-                        
-                        //do not add empty series
-                        if ([mutableData length]==0) continue;
+                           
+                        NSArray *IPropertiesFirstRecord=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
 
-                        NSString *cuid=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
-                         //dicom cda
-                        if ([cuid isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
-                        //SR
-                        if ([cuid hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
-                       
-                       //if there is restriction and does't match
-                         if (hasRestriction)
-                         {
-                             if (
-                                 !(SeriesInstanceUIDArray.count && [SeriesInstanceUIDArray indexOfObject:SProperties[1]]!=NSNotFound)
-                                 && !(SeriesNumberArray.count && [SeriesNumberArray indexOfObject:SProperties[3]]!=NSNotFound)
-                                 && !(SeriesDescriptionArray.count && [SeriesDescriptionArray indexOfObject:SProperties[2]]!=NSNotFound)
-                                 && !(ModalityArray.count && [ModalityArray indexOfObject:SProperties[4]]!=NSNotFound)
-                                 && !(SOPClassArray.count && [SOPClassArray indexOfObject:cuid]!=NSNotFound)
-                                 )continue;
-                         }
+                                                
+#pragma mark ....series restrictions
+//do not add empty series
+if ([IPropertiesFirstRecord count]==0) continue;
+
+/*
+ //dicom cda
+if ([(IPropertiesFirstRecord[0])[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
+//SR
+if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
+ 
+ //replaced by SOPClassOff
+*/
+
+//if there is restriction and does't match
+if (hasRestriction)
+{
+    if (
+           !(    SeriesInstanceUIDRegex
+             && [SeriesInstanceUIDRegex
+                 numberOfMatchesInString:SProperties[1]
+                 options:0
+                 range:NSMakeRange(0, [SProperties[1] length])
+                 ]
+             )
+        && !(    SeriesNumberRegex
+             && [SeriesNumberRegex
+                 numberOfMatchesInString:SProperties[3]
+                 options:0
+                 range:NSMakeRange(0, [SProperties[3] length])
+                 ]
+             )
+        && !(    SeriesDescriptionRegex
+             && [SeriesDescriptionRegex
+                 numberOfMatchesInString:SProperties[2]
+                 options:0
+                 range:NSMakeRange(0, [SProperties[2] length])
+                 ]
+             )
+        && !(    ModalityRegex
+             && [ModalityRegex
+                 numberOfMatchesInString:SProperties[4]
+                 options:0
+                 range:NSMakeRange(0, [SProperties[4] length])
+                 ]
+             )
+        && !(    SOPClassRegex
+             && [SOPClassRegex
+                 numberOfMatchesInString:(IPropertiesFirstRecord[0])[3]
+                 options:0
+                 range:NSMakeRange(0, [(IPropertiesFirstRecord[0])[3] length])
+                 ]
+             )
+        && !(    SOPClassOffRegex
+             &&![SOPClassOffRegex
+                 numberOfMatchesInString:(IPropertiesFirstRecord[0])[3]
+                 options:0
+                 range:NSMakeRange(0, [(IPropertiesFirstRecord[0])[3] length])
+                 ]
+             )
+        ) continue;
+}
 
                         
                         //instances
@@ -1613,12 +1731,14 @@ NSMutableArray *instanceArray=[NSMutableArray array];
                          session:(NSString*)sessionString
             devCustodianOIDArray:(NSMutableArray*)devCustodianOIDArray
             wanCustodianOIDArray:(NSMutableArray*)wanCustodianOIDArray
+                  transferSyntax:(NSString*)transferSyntax
                   hasRestriction:(BOOL)hasRestriction
-          SeriesInstanceUIDArray:(NSArray*)SeriesInstanceUIDArray
-               SeriesNumberArray:(NSArray*)SeriesNumberArray
-          SeriesDescriptionArray:(NSArray*)SeriesDescriptionArray
-                   ModalityArray:(NSArray*)ModalityArray
-                   SOPClassArray:(NSArray*)SOPClassArray
+          SeriesInstanceUIDRegex:(NSRegularExpression*)SeriesInstanceUIDRegex
+               SeriesNumberRegex:(NSRegularExpression*)SeriesNumberRegex
+          SeriesDescriptionRegex:(NSRegularExpression*)SeriesDescriptionRegex
+                   ModalityRegex:(NSRegularExpression*)ModalityRegex
+                   SOPClassRegex:(NSRegularExpression*)SOPClassRegex
+                SOPClassOffRegex:(NSRegularExpression*)SOPClassOffRegex
            StudyInstanceUIDArray:(NSArray*)StudyInstanceUIDArray
            AccessionNumberString:(NSString*)AccessionNumberString
                  PatientIDString:(NSString*)PatientIDString

@@ -40,12 +40,15 @@
 @interface WeasisArcQuery : NSXMLElement
 
 +(NSXMLElement*)arcQueryOID:(NSString*)arcId
-                  custodian:(NSString*)baseUrl
                     session:(NSString*)session
-              seriesNumbers:(NSArray*)seriesNumberArray
-         seriesDescriptions:(NSArray*)seriesDescriptionArray
-                 modalities:(NSArray*)modalityArray
-                 SOPClasses:(NSArray*)SOPClassArray
+                  custodian:(NSString*)baseUrl
+             transferSyntax:(NSString*)transferSyntax
+          seriesInstanceUID:(NSString*)seriesInstanceUIDRegexString
+               seriesNumber:(NSString*)seriesNumberRegexString
+          seriesDescription:(NSString*)seriesDescriptionRegexString
+                   modality:(NSString*)modalityRegexString
+                   SOPClass:(NSString*)SOPClassRegexString
+                SOPClassOff:(NSString*)SOPClassOffRegexString
       overrideDicomTagsList:(NSString*)overrideDicomTagsList
 ;
 
