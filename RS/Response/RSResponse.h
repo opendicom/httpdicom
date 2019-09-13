@@ -74,11 +74,10 @@
 - (void)performReadDataWithCompletion:(RSBodyReaderCompletionBlock)block;
 - (void)performClose;
 
+- (instancetype)initWithStatusCode:(NSInteger)statusCode;
 + (instancetype)responseWithStatusCode:(NSInteger)statusCode;
-- (instancetype)initWithStatusCode:(NSInteger)statusCode;
 
-+ (instancetype)responseWithRedirect:(NSURL*)location permanent:(BOOL)permanent;
-- (instancetype)initWithStatusCode:(NSInteger)statusCode;
 - (instancetype)initWithRedirect:(NSURL*)location permanent:(BOOL)permanent;
++ (instancetype)responseWithRedirect:(NSURL*)location permanent:(BOOL)permanent;
 
 @end

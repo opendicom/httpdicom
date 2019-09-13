@@ -41,7 +41,7 @@ static NSMutableDictionary *sStudyDescription;
          LOG_VERBOSE(@"%@",[request.URL description]);
          LOG_DEBUG(@"client: %@",request.remoteAddressString);
          NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
-         NSArray *pComponents=[urlComponents.path componentsSeparatedByString:@"/"];
+         //NSArray *pComponents=[urlComponents.path componentsSeparatedByString:@"/"];
          
          
          NSDictionary *q=request.query;
@@ -331,7 +331,7 @@ static NSMutableDictionary *sStudyDescription;
              
 #pragma mark --same context
              
-             recordsTotal=[Total[session] count];
+             recordsTotal=(int)[Total[session] count];
              //LOG_INFO(@"same context recordsTotal: %d ",recordsTotal);
              
              //subfilter?
@@ -505,7 +505,7 @@ NSRegularExpression *dtpatientRegex = [NSRegularExpression regularExpressionWith
      {
          LOG_DEBUG(@"client: %@",request.remoteAddressString);
          NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
-         NSArray *pComponents=[urlComponents.path componentsSeparatedByString:@"/"];
+         //NSArray *pComponents=[urlComponents.path componentsSeparatedByString:@"/"];
          
          
          NSDictionary *q=request.query;
@@ -583,7 +583,7 @@ NSRegularExpression *dtseriesRegex = [NSRegularExpression regularExpressionWithP
      {
          LOG_DEBUG(@"client: %@",request.remoteAddressString);
          NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
-         NSArray *pComponents=[urlComponents.path componentsSeparatedByString:@"/"];
+         //NSArray *pComponents=[urlComponents.path componentsSeparatedByString:@"/"];
          
          
          NSDictionary *q=request.query;

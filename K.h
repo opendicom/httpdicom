@@ -120,7 +120,7 @@
 @property (class, nonatomic, readonly) NSData                *cdaPrefixData;
 @property (class, nonatomic, readonly) NSData                *cdaSuffixData;
 @property (class, nonatomic, readonly) NSData                *pdfComponentPrefixData;
-@property (class, nonatomic, readonly) NSData                *pdfComponentlSuffixData;
+@property (class, nonatomic, readonly) NSData                *pdfComponentSuffixData;
 
 +(void)setDefaultTimezone:(NSString*)timezone;
 +(void)loadIso3166ByCountry:(NSArray*)country;

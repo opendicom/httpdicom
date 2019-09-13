@@ -336,4 +336,13 @@ static NSData *_pdfComponentSuffixData;
     return [_tag indexOfObject:refString];
 }
 
++(NSData*)dscdPrefixData {return _dscdPrefixData;}
++(NSData*)dscdSuffixData {return _dscdSuffixData;}
++(NSData*)scdPrefixData {return _scdPrefixData;}
++(NSData*)scdSuffixData {return _scdSuffixData;}
++(NSData*)cdaPrefixData {return _cdaPrefixData;}
++(NSData*)cdaSuffixData {return _cdaSuffixData;}
++(NSData*)pdfComponentPrefixData {return _pdfComponentPrefixData;}
++(NSData*)pdfComponentSuffixData {return _pdfComponentSuffixData;}
+
 @end

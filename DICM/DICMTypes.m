@@ -13,10 +13,12 @@ static NSDateFormatter *TMFormatter=nil;
 static NSRegularExpression *UIRegex=nil;
 static NSRegularExpression *SHRegex=nil;
 static NSRegularExpression *DARegex=nil;
+static NSRegularExpression *DAISORegex=nil;
 
 @implementation DICMTypes
 
 static NSRegularExpression *_DARegex=nil;
+static NSRegularExpression *_DAISORegex=nil;
 static NSRegularExpression *_SHRegex=nil;
 static NSRegularExpression *_UIRegex=nil;
 static NSRegularExpression *_TZRegex=nil;
@@ -45,6 +47,7 @@ static NSRegularExpression *_TZRegex=nil;
    _UIRegex = [NSRegularExpression regularExpressionWithPattern:@"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$" options:0 error:NULL];
    _SHRegex = [NSRegularExpression regularExpressionWithPattern:@"^(?:\\s*)([^\\r\\n\\f\\t]*[^\\r\\n\\f\\t\\s])(?:\\s*)$" options:0 error:NULL];
    _DARegex = [NSRegularExpression regularExpressionWithPattern:@"^(19|20)\\d\\d(01|02|03|04|05|06|07|08|09|10|11|12)(01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)$" options:0 error:NULL];
+   _DAISORegex = [NSRegularExpression regularExpressionWithPattern:@"^(19|20)\\d\\d-(01|02|03|04|05|06|07|08|09|10|11|12)-(01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)$" options:0 error:NULL];
 }
 
 +(NSDate*)dateFromDAString:(NSString*)string
@@ -57,6 +60,15 @@ static NSRegularExpression *_TZRegex=nil;
     return [DAFormatter stringFromDate:date];
 }
 
++(NSString*)DAStringFromDAISOString:(NSString*)string
+{
+   return [NSString stringWithFormat:@"%@%@%@",
+           [string substringWithRange:NSMakeRange(0,4)],
+           [string substringWithRange:NSMakeRange(5,2)],
+           [string substringWithRange:NSMakeRange(8,2)]
+           ];
+}
+
 +(NSDate*)dateFromTMString:(NSString*)string
 {
     return [TMFormatter dateFromString:string];
@@ -65,6 +77,15 @@ static NSRegularExpression *_TZRegex=nil;
 +(NSString*)TMStringFromDate:(NSDate*)date
 {
     return [TMFormatter stringFromDate:date];
+}
+
++(NSString*)TMStringFromTMISOString:(NSString*)string
+{
+   return [NSString stringWithFormat:@"%@%@%@",
+           [string substringWithRange:NSMakeRange(0,2)],
+           [string substringWithRange:NSMakeRange(3,2)],
+           [string substringWithRange:NSMakeRange(5,2)]
+           ];
 }
 
 +(NSDate*)dateFromDTString:(NSString*)string
@@ -105,6 +126,7 @@ static NSRegularExpression *_TZRegex=nil;
 #pragma mark - getters
 
 +(NSRegularExpression*)DARegex       { return _DARegex;}
++(NSRegularExpression*)DAISORegex    { return _DAISORegex;}
 +(NSRegularExpression*)SHRegex       { return _SHRegex;}
 +(NSRegularExpression*)UIRegex       { return _UIRegex;}
 +(NSRegularExpression*)TZRegex       { return _TZRegex;}
@@ -121,6 +143,11 @@ static NSRegularExpression *_TZRegex=nil;
 +(bool)isSingleDAString:(NSString*)string
 {
    return (bool)[DICMTypes.DARegex numberOfMatchesInString:string options:0 range:NSMakeRange(0,[string length])];
+}
+
++(bool)isSingleDAISOString:(NSString*)string;
+{
+   return (bool)[DICMTypes.DAISORegex numberOfMatchesInString:string options:0 range:NSMakeRange(0,[string length])];
 }
 
 @end

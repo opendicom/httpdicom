@@ -6,7 +6,7 @@
 
 static unsigned short  kDICM		= 0x0100;
 
-
+/*
 static char			   CID7202[]	= { 
 	0xFE,0xFF,0x00,0xE0,0xFF,0xFF,0xFF,0xFF,
 	0x08,0x00,0x00,0x01,0x53,0x48,0x06,0x00,0x31,0x32,0x31,0x33,0x32,0x39,
@@ -38,7 +38,7 @@ static inline unsigned char intToChar( int c)
 	
 	return '0';
 }
-
+*/
 
 //----------------------------------------------------------------------
 #pragma mark -
@@ -198,23 +198,24 @@ static inline unsigned char intToChar( int c)
 	NSString *age;
 	if( [studyObject valueForKey: @"dateOfBirth"])
 	{
-		NSCalendarDate *birthdate = [NSCalendarDate dateWithTimeIntervalSinceReferenceDate: [[studyObject valueForKey:@"dateOfBirth"] timeIntervalSinceReferenceDate]];
-		NSCalendarDate *studyDate = [NSCalendarDate dateWithTimeIntervalSinceReferenceDate: [[studyObject valueForKey:@"date"] timeIntervalSinceReferenceDate]];		
-		NSInteger years, months, days;
-		
-		[studyDate years:&years months:&months days:&days hours:NULL minutes:NULL seconds:NULL sinceDate:birthdate];
-		
-		if( years < 2)
+      NSCalendar *gregorian =[NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+      NSDateComponents *d = [gregorian
+       components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay
+       fromDate:[studyObject valueForKey:@"dateOfBirth"]
+       toDate:[studyObject valueForKey:@"date"]
+       options:0
+       ];
+		if( d.year < 2)
 		{
-			if( years < 1)
+			if( d.year < 1)
 			{
-				if( months < 1) age = [NSString stringWithFormat: @"%03ldD", (long)days];
-				else if (months < 4 )age =  [NSString stringWithFormat: @"%03ldW", (days / 7)];
-				else age = [NSString stringWithFormat: @"%03ldM", (long)months];
+				if( d.month < 1) age = [NSString stringWithFormat: @"%03ldD", (long)d.day];
+				else if (d.month < 4 ) age =  [NSString stringWithFormat: @"%03ldW", (d.day / 7)];
+				else age = [NSString stringWithFormat: @"%03ldM", (long)d.month];
 			}
-			else age = [NSString stringWithFormat: @"%03ldM", (long)months];
+			else age = [NSString stringWithFormat: @"%03ldM", (long)d.month];
 		}
-		else age = [NSString stringWithFormat: @"%03ldY", (long)years];
+		else age = [NSString stringWithFormat: @"%03ldY", (long)d.year];
 	}
 	else age = @"????";
 	
@@ -367,8 +368,8 @@ static inline unsigned char intToChar( int c)
 	[DICMC170601 setDICMString:modality				forKey:@"00080060CS"];//Modality
 	[DICMC170601 setDICMString:seriesUID			forKey:@"0020000EUI"];//SeriesInstanceUID
 	[DICMC170601 setDICMString:seriesNumber			forKey:@"00200011IS"];//SeriesNumber
-	[DICMC170601 setDICMString:[NSDate date]		forKey:@"00080021DA"];//InstanceCreationDate
-	[DICMC170601 setDICMString:[NSDate date]		forKey:@"00080031TM"];//InstanceCreationTime
+	[DICMC170601 setDICMString:[DICMTypes DAStringFromDate:[NSDate date]] forKey:@"00080021DA"];//InstanceCreationDate
+	[DICMC170601 setDICMString:[DICMTypes TMStringFromDate:[NSDate date]] forKey:@"00080031TM"];//InstanceCreationTime
 	[DICMC170601 setDICMString:seriesDescription	forKey:@"0008103ELO"];//SeriesDescription
 	
 	//0008103F Series Description Code Sequence
@@ -708,7 +709,7 @@ static inline unsigned char intToChar( int c)
 //----------------------------------------------------------------------
 #pragma mark -
 #pragma mark DICM 3.3 Annex C modules DOCUMENT
-/*
+
 +(NSDictionary*)DICMC170602ForUIDUIDUIDStrings1:(NSArray*)UIDUIDUIDStrings
 {
 	//The array is formed of String which follow this model:
@@ -730,9 +731,9 @@ static inline unsigned char intToChar( int c)
 		//else 
 		//{
 			NSDate *contentDate = [NSDate date];
-			[DICMC170602 setDICMString:[contentDate descriptionWithCalendarFormat:@"%H%M%S" timeZone:nil locale:nil]	forKey:@"00200013IS"];//InstanceNumber
-			[DICMC170602 setDICMString:contentDate																	forKey:@"00080023DA"];//ContentDate
-			[DICMC170602 setDICMString:contentDate																	forKey:@"00080033TM"];//ContentTime
+			[DICMC170602 setDICMString:[DICMTypes TMStringFromDate:contentDate]	forKey:@"00200013IS"];//InstanceNumber
+			[DICMC170602 setDICMString:[DICMTypes DAStringFromDate:contentDate]	forKey:@"00080023DA"];//ContentDate
+			[DICMC170602 setDICMString:[DICMTypes TMStringFromDate:contentDate]	forKey:@"00080033TM"];//ContentTime
 
 			//0040A370 Referenced Request Sequenc
 			NSMutableArray *studyUIDs = [NSMutableArray arrayWithCapacity:UIDUIDUIDcount];
@@ -872,7 +873,7 @@ static inline unsigned char intToChar( int c)
 	}
 	return nil;
 }
-*/
+
 
 +(NSDictionary*)DICMC240200EncapsulatedCDAWithDA:(NSString*)DA
                                               TM:(NSString*)TM
