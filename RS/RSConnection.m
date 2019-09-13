@@ -539,52 +539,75 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
 //http://erickt.github.io/blog/2014/11/19/adventures-in-debugging-a-potential-osx-kernel-bug/
 //https://stackoverflow.com/questions/17948903/dispatch-write-and-dispatch-read-usage
 //https://developer.apple.com/documentation/dispatch/1388969-dispatch_write
-//old code below
+//old code below the new one
 
 -  (void)_writeData:(NSData*)data
 withCompletionBlock:(WriteDataCompletionBlock)block
 {
+   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
    dispatch_data_t buffer =
    dispatch_data_create(
     data.bytes,
     data.length,
     dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-    NULL
-   );
+    ^{
+        dispatch_semaphore_signal(sem);
+      }
+    );
    
-   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
-   dispatch_write(
+
+    dispatch_write(
      _socket,
      buffer,
      dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
      ^(dispatch_data_t remainingData, int error)
       {
-         @autoreleasepool
-         {
-            if (error == 0)
+          //Returns zero on success, or non-zero if the timeout in nanoseconds (10^9) occurred.
+          //Decrement the counting semaphore. If the resulting value is less than zero, this function waits for a signal to occur before returning.
+          if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,100000))!=0)
+          {
+              LOG_DEBUG(@"%i:dispatch_write wait 100000 nanosec",self->_socket);
+              if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,1000000))!=0)
+              {
+                  LOG_VERBOSE(@"%i:dispatch_write wait 1 milisec",self->_socket);
+                  if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,100000000))!=0)
+                  {
+                      LOG_INFO(@"%i:dispatch_write wait 1 sec",self->_socket);
+                      if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,500000000))!=0)
+                      {
+                          LOG_WARNING(@"%i:dispatch_write wait 0.5 sec",self->_socket);
+
+                          if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,1000000000))!=0)
+                          {
+                              LOG_ERROR(@"%i:dispatch_write wait 1.6 sec",self->_socket);
+                          }
+                      }
+                  }
+              }
+
+          }
+            if (error==0)
             {
-               LOG_DEBUG(@"%lu bytes written on socket %i",
-                         (unsigned long)data.length,
-                         self->_socket
+                LOG_DEBUG(@"%i: %lu",
+                          self->_socket,
+                          (unsigned long)data.length
                          );
                self->_bytesWritten += data.length;
-                block(YES);
+               block(YES);
             }
             else
             {
-               LOG_ERROR(@"Error while writing to socket %i: %s (%i)",
+               LOG_ERROR(@"%i: %s (%i)",
                          self->_socket,
                          strerror(error),
                          error
                          );
                 block(NO);
             }
-        }
-        dispatch_semaphore_signal(sem);
       }
    );
-   dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 }
 
 

@@ -1,5 +1,6 @@
 #import "DRS+zipped.h"
 #import "NSData+PCS.h"
+#import "NSURLSessionDataTask+DRS.h"
 #import "zlib.h"
 #import "zconf.h"
 
@@ -83,9 +84,10 @@
                                                NSHTTPURLResponse *response=nil;
                                                //URL properties: expectedContentLength, MIMEType, textEncodingName
                                                //HTTP properties: statusCode, allHeaderFields
-                                               
+
+
                                                NSError *error=nil;
-                                               [wadors setData:[NSURLConnection sendSynchronousRequest:wadorsRequest returningResponse:&response error:&error]];
+                                               [wadors setData:[NSURLSessionDataTask sendSynchronousRequest:wadorsRequest returningResponse:&response error:&error]];
                                                if (response.statusCode==200)
                                                {
                                                   wadorsRange.location=0;
