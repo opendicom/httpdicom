@@ -546,66 +546,61 @@ withCompletionBlock:(WriteDataCompletionBlock)block
 {
    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     
-   dispatch_data_t buffer =
-   dispatch_data_create(
+   dispatch_data_t buffer = dispatch_data_create(
     data.bytes,
     data.length,
     dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-    ^{
-        dispatch_semaphore_signal(sem);
-      }
+    ^{ dispatch_semaphore_signal(sem); }
     );
-   
-    
 
-    dispatch_write(
-     _socket,
-     buffer,
-     dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-     ^(dispatch_data_t remainingData, int error)
-      {
-          //Returns zero on success, or non-zero if the timeout in nanoseconds (10^9) occurred.
-          //Decrement the counting semaphore. If the resulting value is less than zero, this function waits for a signal to occur before returning.
-          if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,100000))!=0)
-          {
-              LOG_DEBUG(@"%i:dispatch_write wait 100000 nanosec",self->_socket);
-              if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,1000000))!=0)
-              {
-                  LOG_VERBOSE(@"%i:dispatch_write wait 1 milisec",self->_socket);
-                  if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,100000000))!=0)
-                  {
-                      LOG_INFO(@"%i:dispatch_write wait 1 sec",self->_socket);
-                      if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,500000000))!=0)
-                      {
-                          LOG_WARNING(@"%i:dispatch_write wait 0.5 sec",self->_socket);
-
-                          if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,1000000000))!=0)
-                          {
-                              LOG_ERROR(@"%i:dispatch_write wait 1.6 sec",self->_socket);
-                          }
-                      }
-                  }
-              }
-
-          }
-            if (error==0)
+   dispatch_write(
+    _socket,
+    buffer,
+    dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+    ^(dispatch_data_t remainingData, int error)
+     {
+         if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,100000))!=0)
+         {
+            //Returns zero on success, or non-zero if the timeout in nanoseconds (10^9) occurred.
+            //Decrement the counting semaphore. If the resulting value is less than zero, this function waits for a signal to occur before returning.
+            LOG_DEBUG(@"%i:dispatch_write wait 100000 nanosec",self->_socket);
+            if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,1000000))!=0)
             {
-                LOG_DEBUG(@"%i: %lu",
-                          self->_socket,
-                          (unsigned long)data.length
-                         );
-               self->_bytesWritten += data.length;
-               block(YES);
+               LOG_VERBOSE(@"%i:dispatch_write wait 1 milisec",self->_socket);
+               if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,100000000))!=0)
+               {
+                     LOG_INFO(@"%i:dispatch_write wait 1 sec",self->_socket);
+                     if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,500000000))!=0)
+                     {
+                        LOG_WARNING(@"%i:dispatch_write wait 0.5 sec",self->_socket);
+
+                        if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,1000000000))!=0)
+                        {
+                           LOG_ERROR(@"%i:dispatch_write wait 1.6 sec",self->_socket);
+                        }
+                     }
+               }
             }
-            else
-            {
-               LOG_ERROR(@"%i: %s (%i)",
-                         self->_socket,
-                         strerror(error),
-                         error
-                         );
-                block(NO);
-            }
+
+         }
+         if (error==0)
+         {
+            LOG_DEBUG(@"%i: %lu",
+                      self->_socket,
+                      (unsigned long)data.length
+                      );
+            self->_bytesWritten += data.length;
+            block(YES);
+         }
+         else
+         {
+            LOG_ERROR(@"%i: %s (%i)",
+                      self->_socket,
+                      strerror(error),
+                      error
+                      );
+            block(NO);
+         }
       }
    );
 }

@@ -1,3 +1,16 @@
+/*
+ TODO
+ tokenFolder keeping manifests
+ accessNumber and issuer
+ access types other lan and wan nodes
+ osirix dcmURLs
+ datatablesSeries
+ datatablesPatient
+ wadors study
+ wadors series
+ zip real compression
+ */
+
 #import "DRS+studyToken.h"
 #import "LFCGzipUtility.h"
 #import "DICMTypes.h"
@@ -81,7 +94,11 @@ static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 //epilog
 
 
-#pragma mark - E functions
+#pragma mark - E,S functions
+
+/*
+study pk and patient pk of studies selected
+*/
 
 RSResponse * sqlEP(
  NSMutableDictionary * EPDict,
@@ -378,7 +395,9 @@ RSResponse * sqlEP(
    return nil;
 }
 
-
+/*
+ pk and uid of studies selected
+ */
 RSResponse * sqlEuiE(
  NSMutableDictionary * EuiEDict,
  NSDictionary        * sqlcredentials,
@@ -674,6 +693,10 @@ RSResponse * sqlEuiE(
    return nil;
 }
 
+/*
+ applied at series level in each of the access type in order to restricted returned series.
+ The function returns the SOPClass of series to be included
+ */
 NSString * SOPCLassOfReturnableSeries(
  NSDictionary        * sqlcredentials,
  NSString            * sqlIci4S,
@@ -1271,154 +1294,77 @@ NSMutableArray *studyArray=[NSMutableArray array];
                         NSArray *SPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
                         for (NSArray *SProperties in SPropertiesArray)
                         {
-                           //SOPClassUID check on the first instance
-                           [mutableData setData:[NSData data]];
-                           if (execUTF8Bash(sqlcredentials,
-                                             [NSString stringWithFormat:
-                                              sqlDictionary[@"sqlI"],
-                                              sqlprolog,
-                                              SProperties[0],
-                                              @"limit 1",
-                                              sqlRecordFourUnits
-                                              ],
-                                             mutableData)
-                               !=0)
+//#pragma mark series loop
+                           NSString *SOPClass=SOPCLassOfReturnableSeries(
+                            sqlcredentials,
+                            sqlDictionary[@"sqlIci4S"],
+                            sqlprolog,
+                            SProperties,
+                            SeriesInstanceUIDRegex,
+                            SeriesNumberRegex,
+                            SeriesDescriptionRegex,
+                            ModalityRegex,
+                            SOPClassRegex,
+                            SOPClassOffRegex
+                           );
+                           if (SOPClass)
                            {
-                              LOG_ERROR(@"studyToken study db error");
-                              continue;
-                           }
-                           NSArray *IPropertiesFirstRecord=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
-                           
-                                                   
-#pragma mark ....series restrictions
-//do not add empty series
-if ([IPropertiesFirstRecord count]==0) continue;
+                              //instances
+                              [mutableData setData:[NSData data]];
+                              if (execUTF8Bash(sqlcredentials,
+                                                [NSString stringWithFormat:
+                                                 sqlDictionary[@"sqlI"],
+                                                 sqlprolog,
+                                                 SProperties[0],
+                                                 @"",
+                                                 sqlRecordFourUnits
+                                                 ],
+                                                mutableData)
+                                  !=0)
+                              {
+                                 LOG_ERROR(@"studyToken study db error");
+                                 continue;
+                              }
+                              NSArray *IPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+                              NSMutableArray *instanceArray=[NSMutableArray array];
+                              [seriesArray addObject:
+                              @{
+                                @"seriesDescription":SProperties[2],
+                                @"seriesNumber":SProperties[3],
+                                @"SeriesInstanceUID":SProperties[1],
+                                @"Modality":SProperties[4],
+                                @"WadoTransferSyntaxUID":@"*",
+                                @"instanceList":instanceArray
+                                }];
+                                    
+//#pragma mark instance loop
+                              for (NSArray *IProperties in IPropertiesArray)
+                              {
+                                 /*
+                                  instanceList
+                                  ============
+                                  imageId = (weasis) DirectDownloadFile
+                                  
+                                  SOPInstanceUID
+                                  InstanceNumber
+                                  */
+                                  NSString *wadouriInstance=[NSString stringWithFormat:
+                                                            @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@",
+                                                            proxyURIString,
+                                                            (EPropertiesArray[0])[1],
+                                                            SProperties[1],
+                                                            IProperties[1],
+                                                            sessionString,
+                                                            @"2.16.858.0.1.4.0"];
+                                   [instanceArray addObject:@{
+                                                            @"imageId":wadouriInstance,
+                                                            @"SOPInstanceUID":IProperties[1],
+                                                            @"InstanceNumber":IProperties[2]
+                                                            }
+                                    ];
 
-/*
- //dicom cda
-if ([(IPropertiesFirstRecord[0])[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
-//SR
-if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
- 
- //replaced by SOPClassOff
-*/
-
-//if there is restriction and does't match
-if (hasRestriction)
-{
-    if (
-           !(    SeriesInstanceUIDRegex
-             && [SeriesInstanceUIDRegex
-                 numberOfMatchesInString:SProperties[1]
-                 options:0
-                 range:NSMakeRange(0, [SProperties[1] length])
-                 ]
-             )
-        && !(    SeriesNumberRegex
-             && [SeriesNumberRegex
-                 numberOfMatchesInString:SProperties[3]
-                 options:0
-                 range:NSMakeRange(0, [SProperties[3] length])
-                 ]
-             )
-        && !(    SeriesDescriptionRegex
-             && [SeriesDescriptionRegex
-                 numberOfMatchesInString:SProperties[2]
-                 options:0
-                 range:NSMakeRange(0, [SProperties[2] length])
-                 ]
-             )
-        && !(    ModalityRegex
-             && [ModalityRegex
-                 numberOfMatchesInString:SProperties[4]
-                 options:0
-                 range:NSMakeRange(0, [SProperties[4] length])
-                 ]
-             )
-        && !(    SOPClassRegex
-             && [SOPClassRegex
-                 numberOfMatchesInString:(IPropertiesFirstRecord[0])[3]
-                 options:0
-                 range:NSMakeRange(0, [(IPropertiesFirstRecord[0])[3] length])
-                 ]
-             )
-        && !(    SOPClassOffRegex
-             &&![SOPClassOffRegex
-                 numberOfMatchesInString:(IPropertiesFirstRecord[0])[3]
-                 options:0
-                 range:NSMakeRange(0, [(IPropertiesFirstRecord[0])[3] length])
-                 ]
-             )
-        ) continue;
-}
-
-                           
-                           //instances
-                           [mutableData setData:[NSData data]];
-                           if (execUTF8Bash(sqlcredentials,
-                                             [NSString stringWithFormat:
-                                              sqlDictionary[@"sqlI"],
-                                              sqlprolog,
-                                              SProperties[0],
-                                              @"",
-                                              sqlRecordFourUnits
-                                              ],
-                                             mutableData)
-                               !=0)
-                           {
-                              LOG_ERROR(@"studyToken study db error");
-                              continue;
-                           }
-                           NSArray *IPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
-
-   //#pragma mark series loop
-                           /*
-                            seriesList
-                            ==========
-                            not for OT nor DOC
-                            
-                            seriesDescription
-                            seriesNumber
-                            */
-NSMutableArray *instanceArray=[NSMutableArray array];
-                           [seriesArray addObject:
-                           @{
-                             @"seriesDescription":SProperties[2],
-                             @"seriesNumber":SProperties[3],
-                             @"SeriesInstanceUID":SProperties[1],
-                             @"Modality":SProperties[4],
-                             @"WadoTransferSyntaxUID":@"*",
-                             @"instanceList":instanceArray
-                             }];
-                                 
-
-   //#pragma mark instance loop
-                           for (NSArray *IProperties in IPropertiesArray)
-                           {
-                              /*
-                               instanceList
-                               ============
-                               imageId = (weasis) DirectDownloadFile
-                               
-                               SOPInstanceUID
-                               InstanceNumber
-                               */
-                              NSString *wadouriInstance=[NSString stringWithFormat:
-                                                         @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@",
-                                                         proxyURIString,
-                                                         (EPropertiesArray[0])[1],
-                                                         SProperties[1],
-                                                         IProperties[1],
-                                                         sessionString,
-                                                         @"2.16.858.0.1.4.0"];
-                              [instanceArray addObject:@{
-                                                         @"imageId":wadouriInstance,
-                                                         @"SOPInstanceUID":IProperties[1],
-                                                         @"InstanceNumber":IProperties[2]
-                                                         }
-                               ];
-
-                                 }//end for each I
+                                    }//end for each I
+                                 }
                               }// end for each S
                            }//end for each E
                         }//end for each P
@@ -1426,16 +1372,12 @@ NSMutableArray *instanceArray=[NSMutableArray array];
                   }// end of GET switch
                } break;//end of sql
             } //end of SELECT switch
-            }
-            NSData *cornerstoneJson=[NSJSONSerialization dataWithJSONObject:JSONArray options:0 error:nil];
-            LOG_DEBUG(@"cornerstone manifest :\r\n%@",[[NSString alloc] initWithData:cornerstoneJson encoding:NSUTF8StringEncoding]);
-            return [RSDataResponse responseWithData:cornerstoneJson contentType:@"application/json"];
-
-         }//end while 1
-
-      }//end at least one dev
-
-
+         }
+         NSData *cornerstoneJson=[NSJSONSerialization dataWithJSONObject:JSONArray options:0 error:nil];
+         LOG_DEBUG(@"cornerstone manifest :\r\n%@",[[NSString alloc] initWithData:cornerstoneJson encoding:NSUTF8StringEncoding]);
+         return [RSDataResponse responseWithData:cornerstoneJson contentType:@"application/json"];
+      }//end while 1
+   }//end at least one dev
 
    return [RSErrorResponse responseWithClientError:404 message:@"studyToken should not be here"];
 }
@@ -1528,11 +1470,10 @@ RSResponse* dicomzip(
                   case getTypeWado:{
 #pragma mark ·· WADO (unique option for now)
                      
-//#pragma mark study loop
                      NSMutableData *mutableData=[NSMutableData data];
                      for (NSString *Eui in EuiEDict)
                      {
-//#pragma mark series loop
+//#pragma mark study loop
                         [mutableData setData:[NSData data]];
                         if (execUTF8Bash(sqlcredentials,
                                        [NSString stringWithFormat:
@@ -1551,115 +1492,46 @@ RSResponse* dicomzip(
                         NSArray *SPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
                         for (NSArray *SProperties in SPropertiesArray)
                         {
-                           
-                           //SOPClassUID check on the first instance
-                           [mutableData setData:[NSData data]];
-                           if (execUTF8Bash(sqlcredentials,
-                                          [NSString stringWithFormat:
-                                           sqlDictionary[@"sqlIci4S"],
-                                           sqlprolog,
-                                           SProperties[0],
-                                           @"limit 1",
-                                           @"\""
-                                           ],
-                                          mutableData)
-                            !=0)
-                        {
-                           LOG_ERROR(@"studyToken instance db error");
-                           continue;
-                        }
-                           
-                        NSString *SOPClassString=[[NSString alloc] initWithData:mutableData  encoding:NSUTF8StringEncoding];
-
-                                                
-#pragma mark ....series restrictions
-//do not add empty series
-if (!SOPClassString.length) continue;
-
-/*
- //dicom cda
-if ([(IPropertiesFirstRecord[0])[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
-//SR
-if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
- 
- //replaced by SOPClassOff
-*/
-
-//if there is restriction and does't match
-if (hasRestriction)
-{
-    if (
-           !(    SeriesInstanceUIDRegex
-             && [SeriesInstanceUIDRegex
-                 numberOfMatchesInString:SProperties[1]
-                 options:0
-                 range:NSMakeRange(0, [SProperties[1] length])
-                 ]
-             )
-        && !(    SeriesNumberRegex
-             && [SeriesNumberRegex
-                 numberOfMatchesInString:SProperties[3]
-                 options:0
-                 range:NSMakeRange(0, [SProperties[3] length])
-                 ]
-             )
-        && !(    SeriesDescriptionRegex
-             && [SeriesDescriptionRegex
-                 numberOfMatchesInString:SProperties[2]
-                 options:0
-                 range:NSMakeRange(0, [SProperties[2] length])
-                 ]
-             )
-        && !(    ModalityRegex
-             && [ModalityRegex
-                 numberOfMatchesInString:SProperties[4]
-                 options:0
-                 range:NSMakeRange(0, [SProperties[4] length])
-                 ]
-             )
-        && !(    SOPClassRegex
-             && [SOPClassRegex
-                 numberOfMatchesInString:SOPClassString
-                 options:0
-                 range:NSMakeRange(0, SOPClassString.length)
-                 ]
-             )
-        && !(    SOPClassOffRegex
-             &&![SOPClassOffRegex
-                 numberOfMatchesInString:SOPClassString
-                 options:0
-                 range:NSMakeRange(0, SOPClassString.length)
-                 ]
-             )
-        ) continue;
-}
-
-                        
-                        //instances
-                        [mutableData setData:[NSData data]];
-                        if (execUTF8Bash(sqlcredentials,
-                                       [NSString stringWithFormat:
-                                        sqlDictionary[@"sqlIui4S"],
-                                        sqlprolog,
-                                        SProperties[0],
-                                        @"",
-                                        sqlsingleslash
-                                        ],
-                                       mutableData)
-                         !=0)
-                        {
-                           LOG_ERROR(@"studyToken study db error");
-                           continue;
-                        }
-                           NSString *sopuids=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
-                        for (NSString *sopuid in sopuids.pathComponents)
-                        {
-                           [JSONArray addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
-                        }// end for each I
-                           
-                        //remove the / empty component at the end
-                        [JSONArray removeLastObject];
-                     }//end for each S
+//#pragma mark series loop
+                           NSString *SOPClass=SOPCLassOfReturnableSeries(
+                            sqlcredentials,
+                            sqlDictionary[@"sqlIci4S"],
+                            sqlprolog,
+                            SProperties,
+                            SeriesInstanceUIDRegex,
+                            SeriesNumberRegex,
+                            SeriesDescriptionRegex,
+                            ModalityRegex,
+                            SOPClassRegex,
+                            SOPClassOffRegex
+                           );
+                           if (SOPClass)
+                           {
+                              //instances
+                              [mutableData setData:[NSData data]];
+                              if (execUTF8Bash(sqlcredentials,
+                                             [NSString stringWithFormat:
+                                              sqlDictionary[@"sqlIui4S"],
+                                              sqlprolog,
+                                              SProperties[0],
+                                              @"",
+                                              sqlsingleslash
+                                              ],
+                                             mutableData)
+                               !=0)
+                              {
+                                 LOG_ERROR(@"studyToken study db error");
+                                 continue;
+                              }
+                              NSString *sopuids=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
+                              for (NSString *sopuid in sopuids.pathComponents)
+                              {
+                                 [JSONArray addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
+                              }// end for each I
+                           }//end if SOPClass
+                           //remove the / empty component at the end
+                           [JSONArray removeLastObject];
+                        }//end for each S
                      } break;//end of E and WADO
                   }// end of GET switch
                } break;//end of sql

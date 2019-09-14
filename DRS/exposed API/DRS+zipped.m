@@ -18,8 +18,7 @@
    uint32 zipFileHeader=0x02014B50;
    uint32 zipEndOfCentralDirectory=0x06054B50;
 
-   //LOG_DEBUG(@"client: %@",request.remoteAddressString);
-    
+   
     //using NSURLComponents instead of RSRequest
     NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
     NSArray *pComponents=[urlComponents.path componentsSeparatedByString:@"/"];
