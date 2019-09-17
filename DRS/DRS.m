@@ -296,6 +296,8 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType)
 static NSDictionary        *_sqls=nil;
 static long long           _drsport;
 static NSString            *_defaultpacsoid;
+static NSString            *_auditFolderPath;
+static NSString            *_tokenAuditFolderPath;
 
 static NSDictionary        *_oids=nil;
 static NSDictionary        *_titles=nil;
@@ -404,7 +406,8 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 -(id)initWithSqls:(NSDictionary*)sqls
              pacs:(NSArray*)pacsArray
           drsport:(long long)drsport
-          defaultpacsoid:(NSString*)defaultpacsoid
+   defaultpacsoid:(NSString*)defaultpacsoid
+        auditFolderPath:(NSString*)auditFolderPath
 {
    [NSData initPCS];
     self = [super init];
@@ -412,6 +415,8 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         _sqls=sqls;
         _drsport=drsport;
         _defaultpacsoid=defaultpacsoid;
+        _auditFolderPath=[auditFolderPath stringByExpandingTildeInPath];
+        _tokenAuditFolderPath=[auditFolderPath stringByAppendingPathComponent:@"token"];
 
 #pragma mark custodians
 
@@ -649,6 +654,8 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 
 +(long long)drsport                  { return _drsport;}
 +(NSString*)defaultpacsoid           { return _defaultpacsoid;}
++(NSString*)auditFolderPath          { return _auditFolderPath;}
++(NSString*)tokenAuditFolderPath     { return _tokenAuditFolderPath;}
 
 +(NSDictionary*)oids                 { return _oids;}
 +(NSDictionary*)titles               { return _titles;}

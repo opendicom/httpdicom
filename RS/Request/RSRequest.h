@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
     BOOL _gzipAccepted;
     NSString* _localAddressString;
     NSString* _remoteAddressString;
+    unsigned short _socketNumber;//JF20190917
     
     BOOL _opened;
     NSMutableArray* _decoders;
@@ -57,6 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 //the string is available for request block
 @property(nonatomic, readwrite) NSString* localAddressString;
 @property(nonatomic, readwrite) NSString* remoteAddressString;
+@property(nonatomic, readwrite) unsigned short socketNumber;//JF20190917
 
 //data
 @property(nonatomic, readonly) NSData* data;
@@ -87,7 +89,9 @@ NS_ASSUME_NONNULL_BEGIN
                           path:(NSString*)path
                          query:(NSDictionary*)query
                          local:(NSString*)localAddressString
-                        remote:(NSString*)remoteAddressString;
+                        remote:(NSString*)remoteAddressString
+                  socketNumber:(unsigned short)socketNumber
+;
 - (id)attributeForKey:(NSString*)key;
 - (void)prepareForWriting;
 - (BOOL)performOpen:(NSError**)error;

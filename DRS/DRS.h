@@ -53,6 +53,8 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType);
 @property (class, nonatomic, readonly) NSDictionary      *sqls;
 @property (class, nonatomic, readonly, assign) long long  drsport;
 @property (class, nonatomic, readonly) NSString          *defaultpacsoid;
+@property (class, nonatomic, readonly) NSString          *auditFolderPath;
+@property (class, nonatomic, readonly) NSString          *tokenAuditFolderPath;
 
 @property (class, nonatomic, readonly) NSDictionary      *oids;
 @property (class, nonatomic, readonly) NSDictionary      *titles;
@@ -75,6 +77,8 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType);
 -(id)initWithSqls:(NSDictionary*)sqls
              pacs:(NSArray*)pacs
           drsport:(long long)drsport
-          defaultpacsoid:(NSString*)defaultpacsoid;
+   defaultpacsoid:(NSString*)defaultpacsoid
+        auditFolderPath:(NSString*)auditFolderPath
+;
 
 @end

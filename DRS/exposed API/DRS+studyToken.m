@@ -1,6 +1,6 @@
 /*
  TODO
- tokenFolder keeping manifests
+ socket in messages
  accessNumber and issuer
  access types other lan and wan nodes
  osirix dcmURLs
@@ -9,6 +9,7 @@
  wadors study
  wadors series
  zip real compression
+ tokenFolder keeping zipped
  */
 
 #import "DRS+studyToken.h"
@@ -1064,9 +1065,17 @@ NSXMLElement *PatientElement=nil;
            contentType:@"text/xml"
            ];
            */
+         NSData *docData=[doc XMLData];
+         if (DRS.tokenAuditFolderPath.length)
+         [docData writeToFile:
+           [
+            [DRS.tokenAuditFolderPath stringByAppendingPathComponent:sessionString]
+            stringByAppendingPathExtension:@"xml"]
+          atomically:NO];
+         
          return
          [RSDataResponse
-          responseWithData:[LFCGzipUtility gzipData:[doc XMLData]]
+          responseWithData:[LFCGzipUtility gzipData:docData]
           contentType:@"application/x-gzip"
           ];
 
@@ -1374,7 +1383,14 @@ NSMutableArray *studyArray=[NSMutableArray array];
             } //end of SELECT switch
          }
          NSData *cornerstoneJson=[NSJSONSerialization dataWithJSONObject:JSONArray options:0 error:nil];
-         LOG_DEBUG(@"cornerstone manifest :\r\n%@",[[NSString alloc] initWithData:cornerstoneJson encoding:NSUTF8StringEncoding]);
+            
+         if (DRS.tokenAuditFolderPath.length)
+         [cornerstoneJson writeToFile:
+           [
+            [DRS.tokenAuditFolderPath stringByAppendingPathComponent:sessionString]
+            stringByAppendingPathExtension:@"json"]
+          atomically:NO];
+
          return [RSDataResponse responseWithData:cornerstoneJson contentType:@"application/json"];
       }//end while 1
    }//end at least one dev
@@ -1403,7 +1419,8 @@ RSResponse* dicomzip(
  NSString            * issuerString
 )
 {
-   __block NSMutableArray *JSONArray=[NSMutableArray array];
+   __block NSMutableArray *JSONsopuid=[NSMutableArray array];
+   __block NSMutableArray *JSONwado=[NSMutableArray array];
 
    if (devCustodianOIDArray.count > 1)
    {
@@ -1526,11 +1543,14 @@ RSResponse* dicomzip(
                               NSString *sopuids=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
                               for (NSString *sopuid in sopuids.pathComponents)
                               {
-                                 [JSONArray addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
+                                 //remove the / empty component at the end
+                                 if (sopuid.length)
+                                 {
+                                    [JSONwado addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
+                                    [JSONsopuid addObject:sopuid];
+                                 }
                               }// end for each I
                            }//end if SOPClass
-                           //remove the / empty component at the end
-                           [JSONArray removeLastObject];
                         }//end for each S
                      } break;//end of E and WADO
                   }// end of GET switch
@@ -1542,6 +1562,24 @@ RSResponse* dicomzip(
 
    }//end at least one dev
 
+   NSError *error;
+   if (DRS.tokenAuditFolderPath.length)
+   {
+   if (![
+         [NSString stringWithFormat:@"[%@,%@]",
+            [NSString stringWithFormat:@"[\"%@\"]",[JSONsopuid componentsJoinedByString:@"\",\""]],
+            [NSString stringWithFormat:@"[\"%@\"]",[JSONwado componentsJoinedByString:@"\",\""]]
+         ]
+         writeToFile:
+         [
+          [DRS.tokenAuditFolderPath stringByAppendingPathComponent:sessionString]
+          stringByAppendingPathExtension:@"json"
+          ]
+         atomically:NO
+         encoding:NSUTF8StringEncoding
+         error:&error
+    ]) LOG_WARNING(@"studyToken could not save dicomzip json");
+   }
    //create the zipped response
    __block NSMutableData *directory=[NSMutableData data];
    __block uint32 entryPointer=0;
@@ -1552,10 +1590,10 @@ RSResponse* dicomzip(
    // The block cannot call "completionBlock" more than once per invocation.
    return [RSStreamedResponse responseWithContentType:@"application/octet-stream" asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
    {
-     if (JSONArray.count>0)
+     if (JSONsopuid.count>0)
      {
-        //request, response and error
-        NSString *wadoString=JSONArray.firstObject;
+        //if exists, get it from caché, else perform qido
+        NSString *wadoString=JSONwado.firstObject;
         __block NSData *wadoData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadoString]];
         if (!wadoData)
         {
@@ -1564,7 +1602,8 @@ RSResponse* dicomzip(
         }
         else
         {
-           [JSONArray removeObjectAtIndex:0];
+           [JSONsopuid removeObjectAtIndex:0];
+           [JSONwado removeObjectAtIndex:0];
            unsigned long wadoLength=(unsigned long)[wadoData length];
            NSString *dcmUUID=[[[NSUUID UUID]UUIDString]stringByAppendingPathExtension:@"dcm"];
            NSData *dcmName=[dcmUUID dataUsingEncoding:NSUTF8StringEncoding];
@@ -1685,6 +1724,7 @@ RSResponse* osirixdcmURLs(
 
 +(RSResponse*)studyToken:(RSRequest*)request
 {
+   LOG_INFO(@"socket number: %i",request.socketNumber);
    //read json
    NSMutableArray *names=[NSMutableArray array];
    NSMutableArray *values=[NSMutableArray array];

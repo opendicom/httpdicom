@@ -107,6 +107,7 @@ NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form) {
 @synthesize usesChunkedTransferEncoding=_chunked;
 @synthesize localAddressString=_localAddressString;
 @synthesize remoteAddressString=_remoteAddressString;
+@synthesize socketNumber=_socketNumber;
 
 - (instancetype)initWithMethod:(NSString*)method
                            url:(NSURL*)url
@@ -114,7 +115,8 @@ NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form) {
                           path:(NSString*)path
                          query:(NSDictionary*)query
                          local:(NSString*)localAddressString
-                        remote:(NSString*)remoteAddressString;
+                        remote:(NSString*)remoteAddressString
+                  socketNumber:(unsigned short)socketNumber
 {
   if ((self = [super init])) {
     _method = [method copy];
@@ -124,7 +126,7 @@ NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form) {
     _query = query;
     _localAddressString = localAddressString;
     _remoteAddressString = remoteAddressString;
-      
+     _socketNumber = socketNumber;
     _type = [[_headers objectForKey:@"Content-Type"] normalizeHeaderValue];
     _chunked = [[[_headers objectForKey:@"Transfer-Encoding"] normalizeHeaderValue] isEqualToString:@"chunked"];
     NSString* lengthHeader = [_headers objectForKey:@"Content-Length"];

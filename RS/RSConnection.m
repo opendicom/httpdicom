@@ -346,6 +346,7 @@ static NSArray *_handlers = nil;
                                                  query:requestQuery
                                                  local:self.localAddressString
                                                 remote:self.remoteAddressString
+                                          socketNumber:(unsigned short)self->_socket
                       ];
           [self abortRequest:self->_request withStatusCode:405];//MethodNotAllowed
         }

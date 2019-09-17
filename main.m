@@ -5,6 +5,7 @@
  [2] httpdicomport
  [3] loglevel [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION]
  [4] defaultTimezone
+ [5] auditFiles dir path
  */
 
 //
@@ -26,7 +27,7 @@ int main(int argc, const char* argv[])
         
 
 NSArray *args=[[NSProcessInfo processInfo] arguments];
-if ([args count]!=5)
+if ([args count]!=6)
 {
     NSLog(@"syntax: httpdicom defaultpacsoid httpdicomport loglevel defaultTimezone");
     return 1;
@@ -190,6 +191,7 @@ for (NSString *sqlname in sqlset)
                                       pacs:pacs
                                    drsport:port
                             defaultpacsoid:defaultpacsoid
+                                 auditFolderPath:args[5]
                   ];
 
 
