@@ -1419,8 +1419,9 @@ RSResponse* dicomzip(
  NSString            * issuerString
 )
 {
-   __block NSMutableArray *JSONsopuidwado=nil;
-   __block NSMutableArray *JSONsopuid=nil;
+   __block NSFileManager *fileManager=[NSFileManager defaultManager];
+   __block NSMutableArray *JSONuuidwado=nil;
+   __block NSMutableArray *JSONuuid=nil;
    __block NSMutableArray *JSONwado=nil;
     NSString *dicomzipPATH=
      [DRS.tokenAuditFolderPath
@@ -1431,27 +1432,27 @@ RSResponse* dicomzip(
      stringByAppendingPathExtension:@"json"
      ];
     LOG_VERBOSE(@"%@",dicomzipJSONPATH);
-    if ([[NSFileManager defaultManager]fileExistsAtPath:dicomzipJSONPATH ])
+    if ([fileManager fileExistsAtPath:dicomzipJSONPATH ])
     {
         NSError *error=nil;
-        JSONsopuidwado=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:dicomzipJSONPATH] options:NSJSONReadingMutableContainers error:&error];
+        JSONuuidwado=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:dicomzipJSONPATH] options:NSJSONReadingMutableContainers error:&error];
         if (!error)
         {
-            JSONsopuid=JSONsopuidwado[0];
-            JSONwado=JSONsopuidwado[1];
+            JSONuuid=JSONuuidwado[0];
+            JSONwado=JSONuuidwado[1];
         }
         else
         {
             LOG_WARNING(@"studyToken dicomzip json unreadable at %@",dicomzipJSONPATH);
-            JSONsopuidwado=[NSMutableArray array];
-            JSONsopuid=[NSMutableArray array];
+            JSONuuidwado=[NSMutableArray array];
+            JSONuuid=[NSMutableArray array];
             JSONwado=[NSMutableArray array];
         }
     }
     else
     {
-        JSONsopuidwado=[NSMutableArray array];
-        JSONsopuid=[NSMutableArray array];
+        JSONuuidwado=[NSMutableArray array];
+        JSONuuid=[NSMutableArray array];
         JSONwado=[NSMutableArray array];
 
        if (devCustodianOIDArray.count > 1)
@@ -1579,7 +1580,7 @@ RSResponse* dicomzip(
                                      if (sopuid.length > 1)
                                      {
                                         [JSONwado addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
-                                        [JSONsopuid addObject:sopuid];
+                                        [JSONuuid addObject:[[[NSUUID UUID]UUIDString]stringByAppendingPathExtension:@"dcm"]];
                                      }
                                   }// end for each I
                                }//end if SOPClass
@@ -1602,7 +1603,7 @@ RSResponse* dicomzip(
             stringWithFormat:@"[%@,%@]",
             [NSString
              stringWithFormat:@"[\"%@\"]",
-             [JSONsopuid componentsJoinedByString:@"\",\""]
+             [JSONuuid componentsJoinedByString:@"\",\""]
              ],
             [NSString
              stringWithFormat:@"[\"%@\"]",
@@ -1616,9 +1617,15 @@ RSResponse* dicomzip(
                  encoding:NSUTF8StringEncoding
                  error:&error
                  ]) LOG_WARNING(@"studyToken could not save dicomzip json");
+           else
+           {
+              if (![fileManager fileExistsAtPath:dicomzipPATH]) [fileManager createDirectoryAtPath:dicomzipPATH withIntermediateDirectories:NO attributes:nil error:&error];
+           }
        }
     }
-    
+
+#pragma mark wado thread
+
 #pragma mark stream zipped response
     
    __block NSMutableData *directory=[NSMutableData data];
@@ -1630,48 +1637,50 @@ RSResponse* dicomzip(
    // The block cannot call "completionBlock" more than once per invocation.
    return [RSStreamedResponse responseWithContentType:@"application/octet-stream" asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
    {
-     if (JSONsopuid.count>0)
+     if (JSONuuid.count>0)
      {
         //if exists, get it from caché, else perform qido
-        NSString *wadoString=JSONwado.firstObject;
-        __block NSData *wadoData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wadoString]];
-        if (!wadoData)
+        NSString *uuidPath=
+        [dicomzipPATH stringByAppendingPathComponent:JSONuuid.firstObject];
+        __block NSData *uuidData=nil;
+        if (![fileManager fileExistsAtPath:uuidPath])
+           uuidData=[NSData dataWithContentsOfURL:[NSURL URLWithString:JSONwado.firstObject]];
+        else
+           uuidData=[NSData dataWithContentsOfFile:uuidPath];
+
+        
+        if (!uuidData)
         {
-           NSLog(@"could not retrive: %@",wadoString);
+           NSLog(@"could not retrive: %@",JSONwado.firstObject);
            completionBlock([NSData data], nil);
         }
         else
         {
-           [JSONsopuid removeObjectAtIndex:0];
-           [JSONwado removeObjectAtIndex:0];
-           unsigned long wadoLength=(unsigned long)[wadoData length];
-           NSString *dcmUUID=[[[NSUUID UUID]UUIDString]stringByAppendingPathExtension:@"dcm"];
-           NSData *dcmName=[dcmUUID dataUsingEncoding:NSUTF8StringEncoding];
-           //LOG_INFO(@"dcm (%lu bytes):%@",dcmLength,dcmUUID);
+           unsigned long uuidDataLength=(unsigned long)[uuidData length];
            
            __block NSMutableData *entry=[NSMutableData data];
            [entry appendBytes:&zipLocalFileHeader length:4];//0x04034B50
            [entry appendBytes:&zipVersion length:2];//0x000A
            [entry increaseLengthBy:8];//uint32 flagCompression,zipTimeDate
-           uint32 zipCrc32=[wadoData crc32];
+           uint32 zipCrc32=[uuidData crc32];
            [entry appendBytes:&zipCrc32 length:4];
-           [entry appendBytes:&wadoLength length:4];//zipCompressedSize
-           [entry appendBytes:&wadoLength length:4];//zipUncompressedSize
+           [entry appendBytes:&uuidDataLength length:4];//zipCompressedSize
+           [entry appendBytes:&uuidDataLength length:4];//zipUncompressedSize
            [entry appendBytes:&zipNameLength length:4];//0x28
-           [entry appendData:dcmName];
+           [entry appendData:JSONuuid.firstObject];
            //extra param
-           [entry appendData:wadoData];
+           [entry appendData:uuidData];
            
            completionBlock(entry, nil);
-           
+
            //directory
            [directory appendBytes:&zipFileHeader length:4];//0x02014B50
            [directory appendBytes:&zipVersion length:2];//0x000A
            [directory appendBytes:&zipVersion length:2];//0x000A
            [directory increaseLengthBy:8];//uint32 flagCompression,zipTimeDate
            [directory appendBytes:&zipCrc32 length:4];
-           [directory appendBytes:&wadoLength length:4];//zipCompressedSize
-           [directory appendBytes:&wadoLength length:4];//zipUncompressedSize
+           [directory appendBytes:&uuidDataLength length:4];//zipCompressedSize
+           [directory appendBytes:&uuidDataLength length:4];//zipUncompressedSize
            [directory appendBytes:&zipNameLength length:4];//0x28
            /*
             uint16 zipFileCommLength=0x0;
@@ -1682,10 +1691,13 @@ RSResponse* dicomzip(
            [directory increaseLengthBy:10];
            
            [directory appendBytes:&entryPointer length:4];//offsetOfLocalHeader
-           entryPointer+=wadoLength+70;
+           entryPointer+=uuidDataLength+70;
            entriesCount++;
-           [directory appendData:dcmName];
+           [directory appendData:JSONuuid.firstObject];
            //extra param
+           
+           [JSONuuid removeObjectAtIndex:0];
+           [JSONwado removeObjectAtIndex:0];
         }
      }
      else if (directory.length) //chunk with directory
