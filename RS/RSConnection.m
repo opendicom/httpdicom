@@ -565,19 +565,19 @@ withCompletionBlock:(WriteDataCompletionBlock)block
             //Returns zero on success, or non-zero if the timeout in nanoseconds (10^9) occurred.
             //Decrement the counting semaphore. If the resulting value is less than zero, this function waits for a signal to occur before returning.
             LOG_DEBUG(@"%i:dispatch_write wait 100000 nanosec",self->_socket);
-            if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,1000000))!=0)
+            if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,10000000))!=0)
             {
-               LOG_VERBOSE(@"%i:dispatch_write wait 1 milisec",self->_socket);
+               LOG_VERBOSE(@"%i:dispatch_write wait 10 milisec",self->_socket);
                if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,100000000))!=0)
                {
                      LOG_INFO(@"%i:dispatch_write wait 1 sec",self->_socket);
-                     if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,500000000))!=0)
+                     if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,1000000000))!=0)
                      {
-                        LOG_WARNING(@"%i:dispatch_write wait 0.5 sec",self->_socket);
+                        LOG_WARNING(@"%i:dispatch_write wait 1 sec",self->_socket);
 
-                        if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,1000000000))!=0)
+                        if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,10000000000))!=0)
                         {
-                           LOG_ERROR(@"%i:dispatch_write wait 1.6 sec",self->_socket);
+                           LOG_ERROR(@"%i:dispatch_write wait 11 sec",self->_socket);
                         }
                      }
                }

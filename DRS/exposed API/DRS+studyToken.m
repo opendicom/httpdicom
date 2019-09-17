@@ -1419,168 +1419,208 @@ RSResponse* dicomzip(
  NSString            * issuerString
 )
 {
-   __block NSMutableArray *JSONsopuid=[NSMutableArray array];
-   __block NSMutableArray *JSONwado=[NSMutableArray array];
+   __block NSMutableArray *JSONsopuidwado=nil;
+   __block NSMutableArray *JSONsopuid=nil;
+   __block NSMutableArray *JSONwado=nil;
+    NSString *dicomzipPATH=
+     [DRS.tokenAuditFolderPath
+      stringByAppendingPathComponent:sessionString
+      ];
+    NSString *dicomzipJSONPATH=
+     [dicomzipPATH
+     stringByAppendingPathExtension:@"json"
+     ];
+    LOG_VERBOSE(@"%@",dicomzipJSONPATH);
+    if ([[NSFileManager defaultManager]fileExistsAtPath:dicomzipJSONPATH ])
+    {
+        NSError *error=nil;
+        JSONsopuidwado=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:dicomzipJSONPATH] options:NSJSONReadingMutableContainers error:&error];
+        if (!error)
+        {
+            JSONsopuid=JSONsopuidwado[0];
+            JSONwado=JSONsopuidwado[1];
+        }
+        else
+        {
+            LOG_WARNING(@"studyToken dicomzip json unreadable at %@",dicomzipJSONPATH);
+            JSONsopuidwado=[NSMutableArray array];
+            JSONsopuid=[NSMutableArray array];
+            JSONwado=[NSMutableArray array];
+        }
+    }
+    else
+    {
+        JSONsopuidwado=[NSMutableArray array];
+        JSONsopuid=[NSMutableArray array];
+        JSONwado=[NSMutableArray array];
 
-   if (devCustodianOIDArray.count > 1)
-   {
-      //add nodes and start corresponding processes
-   }
+       if (devCustodianOIDArray.count > 1)
+       {
+          //add nodes and start corresponding processes
+       }
 
-   if (wanCustodianOIDArray.count > 0)
-   {
-      //add nodes and start corresponding processes
-   }
+       if (wanCustodianOIDArray.count > 0)
+       {
+          //add nodes and start corresponding processes
+       }
 
-   if (devCustodianOIDArray.count == 0)
-   {
-      //add nodes and start corresponding processes
-   }
-   else
-   {
-      while (1)
-      {
-         NSString *custodianString=devCustodianOIDArray[0];
-         NSDictionary *custodianDict=DRS.pacs[custodianString];
+       if (devCustodianOIDArray.count == 0)
+       {
+          //add nodes and start corresponding processes
+       }
+       else
+       {
+          while (1)
+          {
+             NSString *custodianString=devCustodianOIDArray[0];
+             NSDictionary *custodianDict=DRS.pacs[custodianString];
 
-#pragma mark · GET type index
-         NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:custodianDict[@"get"]];
+    #pragma mark · GET type index
+             NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:custodianDict[@"get"]];
 
-#pragma mark · SELECT switch
-         switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:custodianDict[@"select"]]) {
-            
-            case NSNotFound:{
-               LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",custodianString);
-            } break;
-               
-            case selectTypeSql:{
-   #pragma mark · SQL SELECT (unique option for now)
-               NSDictionary *sqlcredentials=@{custodianDict[@"sqluser"]:custodianDict[@"sqlpassword"]};
-               NSString *sqlprolog=custodianDict[@"sqlprolog"];
-               NSDictionary *sqlDictionary=DRS.sqls[custodianDict[@"sqlmap"]];
+    #pragma mark · SELECT switch
+             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:custodianDict[@"select"]]) {
+                
+                case NSNotFound:{
+                   LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",custodianString);
+                } break;
+                   
+                case selectTypeSql:{
+       #pragma mark · SQL SELECT (unique option for now)
+                   NSDictionary *sqlcredentials=@{custodianDict[@"sqluser"]:custodianDict[@"sqlpassword"]};
+                   NSString *sqlprolog=custodianDict[@"sqlprolog"];
+                   NSDictionary *sqlDictionary=DRS.sqls[custodianDict[@"sqlmap"]];
 
-               
+                   
 
-#pragma mark · apply EuiE (Study Patient) filters
-                     NSMutableDictionary *EuiEDict=[NSMutableDictionary dictionary];
-                     RSResponse *sqlEuiEErrorReturned=sqlEuiE(
-                      EuiEDict,
-                      sqlcredentials,
-                      sqlDictionary,
-                      sqlprolog,
-                      StudyInstanceUIDArray,
-                      AccessionNumberString,
-                      PatientIDString,
-                      issuerString,
-                      StudyDateArray
-                     );
-                     if (sqlEuiEErrorReturned) return sqlEuiEErrorReturned;
-             
+    #pragma mark · apply EuiE (Study Patient) filters
+                         NSMutableDictionary *EuiEDict=[NSMutableDictionary dictionary];
+                         RSResponse *sqlEuiEErrorReturned=sqlEuiE(
+                          EuiEDict,
+                          sqlcredentials,
+                          sqlDictionary,
+                          sqlprolog,
+                          StudyInstanceUIDArray,
+                          AccessionNumberString,
+                          PatientIDString,
+                          issuerString,
+                          StudyDateArray
+                         );
+                         if (sqlEuiEErrorReturned) return sqlEuiEErrorReturned;
+                 
 
-#pragma mark ·· GET switch
-               switch (getTypeIndex) {
-                     
-                  case NSNotFound:{
-                     LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",custodianString);
-                  } break;
+    #pragma mark ·· GET switch
+                   switch (getTypeIndex) {
+                         
+                      case NSNotFound:{
+                         LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",custodianString);
+                      } break;
 
-                  case getTypeWado:{
-#pragma mark ·· WADO (unique option for now)
-                     
-                     NSMutableData *mutableData=[NSMutableData data];
-                     for (NSString *Eui in EuiEDict)
-                     {
-//#pragma mark study loop
-                        [mutableData setData:[NSData data]];
-                        if (execUTF8Bash(sqlcredentials,
-                                       [NSString stringWithFormat:
-                                        sqlDictionary[@"sqlS"],
-                                        sqlprolog,
-                                        EuiEDict[Eui],
-                                        @"",
-                                        sqlRecordFiveUnits
-                                        ],
-                                       mutableData)
-                            !=0)
-                        {
-                           LOG_ERROR(@"studyToken study db error");
-                           continue;
-                        }
-                        NSArray *SPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
-                        for (NSArray *SProperties in SPropertiesArray)
-                        {
-//#pragma mark series loop
-                           NSString *SOPClass=SOPCLassOfReturnableSeries(
-                            sqlcredentials,
-                            sqlDictionary[@"sqlIci4S"],
-                            sqlprolog,
-                            SProperties,
-                            SeriesInstanceUIDRegex,
-                            SeriesNumberRegex,
-                            SeriesDescriptionRegex,
-                            ModalityRegex,
-                            SOPClassRegex,
-                            SOPClassOffRegex
-                           );
-                           if (SOPClass)
-                           {
-                              //instances
-                              [mutableData setData:[NSData data]];
-                              if (execUTF8Bash(sqlcredentials,
-                                             [NSString stringWithFormat:
-                                              sqlDictionary[@"sqlIui4S"],
-                                              sqlprolog,
-                                              SProperties[0],
-                                              @"",
-                                              sqlsingleslash
-                                              ],
-                                             mutableData)
-                               !=0)
-                              {
-                                 LOG_ERROR(@"studyToken study db error");
-                                 continue;
-                              }
-                              NSString *sopuids=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
-                              for (NSString *sopuid in sopuids.pathComponents)
-                              {
-                                 //remove the / empty component at the end
-                                 if (sopuid.length)
-                                 {
-                                    [JSONwado addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
-                                    [JSONsopuid addObject:sopuid];
-                                 }
-                              }// end for each I
-                           }//end if SOPClass
-                        }//end for each S
-                     } break;//end of E and WADO
-                  }// end of GET switch
-               } break;//end of sql
-            } //end of SELECT switch
-         }
-         break;
-      }//end while 1
+                      case getTypeWado:{
+    #pragma mark ·· WADO (unique option for now)
+                         
+                         NSMutableData *mutableData=[NSMutableData data];
+                         for (NSString *Eui in EuiEDict)
+                         {
+    //#pragma mark study loop
+                            [mutableData setData:[NSData data]];
+                            if (execUTF8Bash(sqlcredentials,
+                                           [NSString stringWithFormat:
+                                            sqlDictionary[@"sqlS"],
+                                            sqlprolog,
+                                            EuiEDict[Eui],
+                                            @"",
+                                            sqlRecordFiveUnits
+                                            ],
+                                           mutableData)
+                                !=0)
+                            {
+                               LOG_ERROR(@"studyToken study db error");
+                               continue;
+                            }
+                            NSArray *SPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
+                            for (NSArray *SProperties in SPropertiesArray)
+                            {
+    //#pragma mark series loop
+                               NSString *SOPClass=SOPCLassOfReturnableSeries(
+                                sqlcredentials,
+                                sqlDictionary[@"sqlIci4S"],
+                                sqlprolog,
+                                SProperties,
+                                SeriesInstanceUIDRegex,
+                                SeriesNumberRegex,
+                                SeriesDescriptionRegex,
+                                ModalityRegex,
+                                SOPClassRegex,
+                                SOPClassOffRegex
+                               );
+                               if (SOPClass)
+                               {
+                                  //instances
+                                  [mutableData setData:[NSData data]];
+                                  if (execUTF8Bash(sqlcredentials,
+                                                 [NSString stringWithFormat:
+                                                  sqlDictionary[@"sqlIui4S"],
+                                                  sqlprolog,
+                                                  SProperties[0],
+                                                  @"",
+                                                  sqlsingleslash
+                                                  ],
+                                                 mutableData)
+                                   !=0)
+                                  {
+                                     LOG_ERROR(@"studyToken study db error");
+                                     continue;
+                                  }
+                                  NSString *sopuids=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
+                                  for (NSString *sopuid in sopuids.pathComponents)
+                                  {
+                                     //remove the / empty component at the end
+                                     if (sopuid.length > 1)
+                                     {
+                                        [JSONwado addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
+                                        [JSONsopuid addObject:sopuid];
+                                     }
+                                  }// end for each I
+                               }//end if SOPClass
+                            }//end for each S
+                         } break;//end of E and WADO
+                      }// end of GET switch
+                   } break;//end of sql
+                } //end of SELECT switch
+             }
+             break;
+          }//end while 1
 
-   }//end at least one dev
+       }//end at least one dev
 
-   NSError *error;
-   if (DRS.tokenAuditFolderPath.length)
-   {
-   if (![
-         [NSString stringWithFormat:@"[%@,%@]",
-            [NSString stringWithFormat:@"[\"%@\"]",[JSONsopuid componentsJoinedByString:@"\",\""]],
-            [NSString stringWithFormat:@"[\"%@\"]",[JSONwado componentsJoinedByString:@"\",\""]]
-         ]
-         writeToFile:
-         [
-          [DRS.tokenAuditFolderPath stringByAppendingPathComponent:sessionString]
-          stringByAppendingPathExtension:@"json"
-          ]
-         atomically:NO
-         encoding:NSUTF8StringEncoding
-         error:&error
-    ]) LOG_WARNING(@"studyToken could not save dicomzip json");
-   }
-   //create the zipped response
+       NSError *error;
+       if (DRS.tokenAuditFolderPath.length)
+       {
+           NSString *dicomzipJSON=
+           [NSString
+            stringWithFormat:@"[%@,%@]",
+            [NSString
+             stringWithFormat:@"[\"%@\"]",
+             [JSONsopuid componentsJoinedByString:@"\",\""]
+             ],
+            [NSString
+             stringWithFormat:@"[\"%@\"]",
+             [JSONwado componentsJoinedByString:@"\",\""]
+             ]
+            ];
+           
+           if (![dicomzipJSON
+                 writeToFile:dicomzipJSONPATH
+                 atomically:NO
+                 encoding:NSUTF8StringEncoding
+                 error:&error
+                 ]) LOG_WARNING(@"studyToken could not save dicomzip json");
+       }
+    }
+    
+#pragma mark stream zipped response
+    
    __block NSMutableData *directory=[NSMutableData data];
    __block uint32 entryPointer=0;
    __block uint16 entriesCount=0;
