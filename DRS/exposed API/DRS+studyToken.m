@@ -1727,7 +1727,8 @@ RSResponse* dicomzip(
            [entry appendBytes:&zipUncompressedSize length:4];
            [entry appendBytes:&zipNameLength length:2];
            [entry appendBytes:&zipExtraLength length:2];
-           [entry appendData:uuids.firstObject];//name
+            NSData *uuid=[uuids.firstObject dataUsingEncoding:NSASCIIStringEncoding];
+           [entry appendData:uuid];//name
            //noExtra
            //zipData
 
@@ -1767,7 +1768,7 @@ RSResponse* dicomzip(
            [directory appendBytes:&zipExtraLength length:2];//internal file attribute
            [directory appendBytes:&zipExternalFileAttributes length:4];
            [directory appendBytes:&entryPointer length:4];//offsetOfLocalHeader
-           [directory appendData:uuids.firstObject];//name
+           [directory appendData:uuid];//name
            //noExtra
            //noComment
 
