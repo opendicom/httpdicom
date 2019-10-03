@@ -60,11 +60,62 @@ enum dateMatch{
 
 #pragma mark static
 
-static uint32 zipLocalFileHeader=0x04034B50;
-static uint16 zipVersion=0x0A;
-static uint32 zipNameLength=0x28;
-static uint32 zipFileHeader=0x02014B50;
-static uint32 zipEndOfCentralDirectory=0x06054B50;
+
+// ZIP structure (dynamic and repeated commented)
+
+static uint32 zipLOCAL=0x04034B50;
+static uint16 zipVersion=0x000A;
+static uint16 zipBitFlags=0x0008;//data size not known before streaming
+static uint16 zipCompression8=0x0008;
+//uint16 zipTime;
+//uint16 zipDate;
+//uint32 zipCRC32=0x00000000;
+//uint32 zipCompressedSize=0x00000000;
+//uint32 zipUncompressedSize=0x00000000;
+static uint16 zipNameLength=0x0028;//UUID.dcm
+static uint16 zipExtraLength=0x0000;
+//zipName
+//noExtra
+//zipData
+
+
+static uint32 zipDESCRIPTOR=0x08074B50;
+//zipCRC32
+//zipCompressedSize
+//zipUncompressedSize
+
+
+static uint32 zipCENTRAL=0x02014B50;
+//zipVersion madeBy
+//zipVersion needed
+//zipBitFlags
+//zipCompression8
+//zipTime
+//zipDate
+//zipCRC32
+//zipCompressedSize
+//zipUncompressedSize
+//zipNameLength
+//zipExtraLength
+//zipExtraLength comment
+//zipExtraLength disk number start
+//zipExtraLength internal file attribute
+static uint32 zipExternalFileAttributes=0x81A44000;
+//uint32 zipRelativeOffsetOfLocal
+//zipName
+//noExtra
+//noComment
+
+
+static uint32 zipEND=0x06054B50;
+static uint16 zipDiskNumber=0x0000;
+static uint16 zipDiskCentralStarts=0x0000;
+//uint16 zipRecordTotal thisDisk
+//zipRecordTotal
+//uint32 zipCentralSize;
+//uint32 zipCentralOffset;
+//zipExtraLength
+//noComment
 
 
 // pk.pk/
@@ -1420,9 +1471,9 @@ RSResponse* dicomzip(
 )
 {
    __block NSFileManager *fileManager=[NSFileManager defaultManager];
-   __block NSMutableArray *JSONuuidwado=nil;
-   __block NSMutableArray *JSONuuid=nil;
-   __block NSMutableArray *JSONwado=nil;
+   __block NSMutableArray *uuidswados=nil;
+   __block NSMutableArray *uuids=nil;
+   __block NSMutableArray *wados=nil;
     NSString *dicomzipPATH=
      [DRS.tokenAuditFolderPath
       stringByAppendingPathComponent:sessionString
@@ -1435,25 +1486,25 @@ RSResponse* dicomzip(
     if ([fileManager fileExistsAtPath:dicomzipJSONPATH ])
     {
         NSError *error=nil;
-        JSONuuidwado=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:dicomzipJSONPATH] options:NSJSONReadingMutableContainers error:&error];
+        uuidswados=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:dicomzipJSONPATH] options:NSJSONReadingMutableContainers error:&error];
         if (!error)
         {
-            JSONuuid=JSONuuidwado[0];
-            JSONwado=JSONuuidwado[1];
+            uuids=uuidswados[0];
+            wados=uuidswados[1];
         }
         else
         {
             LOG_WARNING(@"studyToken dicomzip json unreadable at %@",dicomzipJSONPATH);
-            JSONuuidwado=[NSMutableArray array];
-            JSONuuid=[NSMutableArray array];
-            JSONwado=[NSMutableArray array];
+            uuidswados=[NSMutableArray array];
+            uuids=[NSMutableArray array];
+            wados=[NSMutableArray array];
         }
     }
     else
     {
-        JSONuuidwado=[NSMutableArray array];
-        JSONuuid=[NSMutableArray array];
-        JSONwado=[NSMutableArray array];
+        uuidswados=[NSMutableArray array];
+        uuids=[NSMutableArray array];
+        wados=[NSMutableArray array];
 
        if (devCustodianOIDArray.count > 1)
        {
@@ -1579,8 +1630,8 @@ RSResponse* dicomzip(
                                      //remove the / empty component at the end
                                      if (sopuid.length > 1)
                                      {
-                                        [JSONwado addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
-                                        [JSONuuid addObject:[[[NSUUID UUID]UUIDString]stringByAppendingPathExtension:@"dcm"]];
+                                        [wados addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
+                                        [uuids addObject:[[[NSUUID UUID]UUIDString]stringByAppendingPathExtension:@"dcm"]];
                                      }
                                   }// end for each I
                                }//end if SOPClass
@@ -1603,11 +1654,11 @@ RSResponse* dicomzip(
             stringWithFormat:@"[%@,%@]",
             [NSString
              stringWithFormat:@"[\"%@\"]",
-             [JSONuuid componentsJoinedByString:@"\",\""]
+             [uuids componentsJoinedByString:@"\",\""]
              ],
             [NSString
              stringWithFormat:@"[\"%@\"]",
-             [JSONwado componentsJoinedByString:@"\",\""]
+             [wados componentsJoinedByString:@"\",\""]
              ]
             ];
            
@@ -1629,6 +1680,9 @@ RSResponse* dicomzip(
 #pragma mark stream zipped response
     
    __block NSMutableData *directory=[NSMutableData data];
+#pragma mark TODO Time and Date
+   __block uint16 zipTime=0x3475;
+   __block uint16 zipDate=0x3B4F;
    __block uint32 entryPointer=0;
    __block uint16 entriesCount=0;
    
@@ -1637,83 +1691,108 @@ RSResponse* dicomzip(
    // The block cannot call "completionBlock" more than once per invocation.
    return [RSStreamedResponse responseWithContentType:@"application/octet-stream" asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
    {
-     if (JSONuuid.count>0)
+     if (uuids.count>0)
      {
         //if exists, get it from caché, else perform qido
         NSString *uuidPath=
-        [dicomzipPATH stringByAppendingPathComponent:JSONuuid.firstObject];
+        [dicomzipPATH stringByAppendingPathComponent:uuids.firstObject];
         __block NSData *uuidData=nil;
         if (![fileManager fileExistsAtPath:uuidPath])
-           uuidData=[NSData dataWithContentsOfURL:[NSURL URLWithString:JSONwado.firstObject]];
+           uuidData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wados.firstObject]];
         else
            uuidData=[NSData dataWithContentsOfFile:uuidPath];
 
         
         if (!uuidData)
         {
-           NSLog(@"could not retrive: %@",JSONwado.firstObject);
+           NSLog(@"could not retrive: %@",wados.firstObject);
            completionBlock([NSData data], nil);
         }
         else
         {
-           unsigned long uuidDataLength=(unsigned long)[uuidData length];
-           
            __block NSMutableData *entry=[NSMutableData data];
-           [entry appendBytes:&zipLocalFileHeader length:4];//0x04034B50
-           [entry appendBytes:&zipVersion length:2];//0x000A
-           [entry increaseLengthBy:8];//uint32 flagCompression,zipTimeDate
-           uint32 zipCrc32=[uuidData crc32];
-           [entry appendBytes:&zipCrc32 length:4];
-           [entry appendBytes:&uuidDataLength length:4];//zipCompressedSize
-           [entry appendBytes:&uuidDataLength length:4];//zipUncompressedSize
-           [entry appendBytes:&zipNameLength length:4];//0x28
-           [entry appendData:JSONuuid.firstObject];
-           //extra param
-           [entry appendData:uuidData];
+
+           //LOCAL 30 + 40 (name)
+           [entry appendBytes:&zipLOCAL length:4];
+           [entry appendBytes:&zipVersion length:2];
+           [entry appendBytes:&zipBitFlags length:2];
+           [entry appendBytes:&zipCompression8 length:2];
+           [entry appendBytes:&zipTime length:2];
+           [entry appendBytes:&zipDate length:2];
+           uint32 zipCRC32=0x00000000;//computed after data production
+           [entry appendBytes:&zipCRC32 length:4];
+           uint32 zipCompressedSize=0x00000000;//computed after data production
+           [entry appendBytes:&zipCompressedSize length:4];
+           uint32 zipUncompressedSize=0x00000000;//computed after data production
+           [entry appendBytes:&zipUncompressedSize length:4];
+           [entry appendBytes:&zipNameLength length:2];
+           [entry appendBytes:&zipExtraLength length:2];
+           [entry appendData:uuids.firstObject];//name
+           //noExtra
+           //zipData
+
+           
+           //DATA
+#pragma mark TODO compress
+           [entry appendData:uuidData];//data
+
+           
+           //DESCRIPTOR 16
+           [entry appendBytes:&zipDESCRIPTOR length:4];
+           zipCRC32=[uuidData crc32];
+           [entry appendBytes:&zipCRC32 length:4];
+#pragma mark TODO adjust uncompressed sized
+           zipUncompressedSize=(uint32)uuidData.length;
+           [entry appendBytes:&zipUncompressedSize length:4];//zipCompressedSize
+           zipCompressedSize=(uint32)uuidData.length;
+           [entry appendBytes:&zipCompressedSize length:4];//zipUncompressedSize
            
            completionBlock(entry, nil);
 
-           //directory
-           [directory appendBytes:&zipFileHeader length:4];//0x02014B50
-           [directory appendBytes:&zipVersion length:2];//0x000A
-           [directory appendBytes:&zipVersion length:2];//0x000A
-           [directory increaseLengthBy:8];//uint32 flagCompression,zipTimeDate
-           [directory appendBytes:&zipCrc32 length:4];
-           [directory appendBytes:&uuidDataLength length:4];//zipCompressedSize
-           [directory appendBytes:&uuidDataLength length:4];//zipUncompressedSize
-           [directory appendBytes:&zipNameLength length:4];//0x28
-           /*
-            uint16 zipFileCommLength=0x0;
-            uint16 zipDiskStart=0x0;
-            uint16 zipInternalAttr=0x0;
-            uint32 zipExternalAttr=0x0;
-            */
-           [directory increaseLengthBy:10];
-           
+           //CENTRAL 46
+           [directory appendBytes:&zipCENTRAL length:4];
+           [directory appendBytes:&zipVersion length:2];//made by
+           [directory appendBytes:&zipVersion length:2];//needed
+           [directory appendBytes:&zipBitFlags length:2];
+           [directory appendBytes:&zipCompression8 length:2];
+           [directory appendBytes:&zipTime length:2];
+           [directory appendBytes:&zipDate length:2];
+           [directory appendBytes:&zipCRC32 length:4];
+           [directory appendBytes:&zipCompressedSize length:4];
+           [directory appendBytes:&zipUncompressedSize length:4];
+           [directory appendBytes:&zipNameLength length:2];
+           [directory appendBytes:&zipExtraLength length:2];
+           [directory appendBytes:&zipExtraLength length:2];//comment
+           [directory appendBytes:&zipExtraLength length:2];//disk number start
+           [directory appendBytes:&zipExtraLength length:2];//internal file attribute
+           [directory appendBytes:&zipExternalFileAttributes length:4];
            [directory appendBytes:&entryPointer length:4];//offsetOfLocalHeader
-           entryPointer+=uuidDataLength+70;
+           [directory appendData:uuids.firstObject];//name
+           //noExtra
+           //noComment
+
+           entryPointer+=uuidData.length+86;//30 entry + 40 name + 16 descriptor
            entriesCount++;
-           [directory appendData:JSONuuid.firstObject];
-           //extra param
-           
-           [JSONuuid removeObjectAtIndex:0];
-           [JSONwado removeObjectAtIndex:0];
+
+           [uuids removeObjectAtIndex:0];
+           [wados removeObjectAtIndex:0];
         }
      }
      else if (directory.length) //chunk with directory
      {
-        //ZIP "end of central directory record"
-        
-        //uint32 zipEndOfCentralDirectory=0x06054B50;
-        [directory appendBytes:&zipEndOfCentralDirectory length:4];
-        [directory increaseLengthBy:4];//zipDiskNumber
+        //END
+        [directory appendBytes:&zipEND length:4];
+        [directory appendBytes:&zipDiskNumber length:2];
+        [directory appendBytes:&zipDiskCentralStarts length:2];
         [directory appendBytes:&entriesCount length:2];//disk zipEntries
         [directory appendBytes:&entriesCount length:2];//total zipEntries
         uint32 directorySize=86 * entriesCount;
         [directory appendBytes:&directorySize length:4];
         [directory appendBytes:&entryPointer length:4];
-        [directory increaseLengthBy:2];//zipCommentLength
+        [directory appendBytes:&zipExtraLength length:2];//comment
+        
         completionBlock(directory, nil);
+        
         [directory setData:[NSData data]];
      }
      else completionBlock([NSData data], nil);//last chunck
