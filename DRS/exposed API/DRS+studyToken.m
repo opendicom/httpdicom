@@ -65,8 +65,94 @@ enum dateMatch{
 
 static uint32 zipLOCAL=0x04034B50;
 static uint16 zipVersion=0x000A;
-static uint16 zipBitFlags=0x0008;//data size not known before streaming
-static uint16 zipCompression8=0x0008;
+static uint16 zipBitFlags=0x0008;//3= post descriptor
+/*
+ Bit 0: If set, indicates that the file is encrypted.
+
+ (For Method 6 - Imploding)
+ Bit 1: If the compression method used was type 6,
+        Imploding, then this bit, if set, indicates
+        an 8K sliding dictionary was used.  If clear,
+        then a 4K sliding dictionary was used.
+
+ Bit 2: If the compression method used was type 6,
+        Imploding, then this bit, if set, indicates
+        3 Shannon-Fano trees were used to encode the
+        sliding dictionary output.  If clear, then 2
+        Shannon-Fano trees were used.
+
+ (For Methods 8 and 9 - Deflating)
+ Bit 2  Bit 1
+   0      0    Normal (-en) compression option was used.
+   0      1    Maximum (-exx/-ex) compression option was used.
+   1      0    Fast (-ef) compression option was used.
+   1      1    Super Fast (-es) compression option was used.
+
+ (For Method 14 - LZMA)
+ Bit 1: If the compression method used was type 14,
+        LZMA, then this bit, if set, indicates
+        an end-of-stream (EOS) marker is used to
+        mark the end of the compressed data stream.
+        If clear, then an EOS marker is not present
+        and the compressed data size must be known
+        to extract.
+
+ Note:  Bits 1 and 2 are undefined if the compression
+        method is any other.
+
+ Bit 3: If this bit is set, the fields crc-32, compressed
+        size and uncompressed size are set to zero in the
+        local header.  The correct values are put in the
+        data descriptor immediately following the compressed
+        data.  (Note: PKZIP version 2.04g for DOS only
+        recognizes this bit for method 8 compression, newer
+        versions of PKZIP recognize this bit for any
+        compression method.)
+
+ Bit 4: Reserved for use with method 8, for enhanced
+        deflating.
+
+ Bit 5: If this bit is set, this indicates that the file is
+        compressed patched data.  (Note: Requires PKZIP
+        version 2.70 or greater)
+
+ Bit 6: Strong encryption.  If this bit is set, you MUST
+        set the version needed to extract value to at least
+        50 and you MUST also set bit 0.  If AES encryption
+        is used, the version needed to extract value MUST
+        be at least 51. See the section describing the Strong
+        Encryption Specification for details.  Refer to the
+        section in this document entitled "Incorporating PKWARE
+        Proprietary Technology into Your Product" for more
+        information.
+
+ Bit 7: Currently unused.
+
+ Bit 8: Currently unused.
+
+ Bit 9: Currently unused.
+
+ Bit 10: Currently unused.
+
+ Bit 11: Language encoding flag (EFS).  If this bit is set,
+         the filename and comment fields for this file
+         MUST be encoded using UTF-8. (see APPENDIX D)
+
+ Bit 12: Reserved by PKWARE for enhanced compression.
+
+ Bit 13: Set when encrypting the Central Directory to indicate
+         selected data values in the Local Header are masked to
+         hide their actual values.  See the section describing
+         the Strong Encryption Specification for details.  Refer
+         to the section in this document entitled "Incorporating
+         PKWARE Proprietary Technology into Your Product" for
+         more information.
+
+ Bit 14: Reserved by PKWARE.
+
+ Bit 15: Reserved by PKWARE.
+ */
+static uint16 zipCompression8=0x0000;
 //uint16 zipTime;
 //uint16 zipDate;
 //uint32 zipCRC32=0x00000000;
@@ -100,7 +186,7 @@ static uint32 zipCENTRAL=0x02014B50;
 //zipExtraLength comment
 //zipExtraLength disk number start
 //zipExtraLength internal file attribute
-static uint32 zipExternalFileAttributes=0x81A44000;
+static uint32 zipExternalFileAttributes=0x81A40000;
 //uint32 zipRelativeOffsetOfLocal
 //zipName
 //noExtra
@@ -789,50 +875,50 @@ NSString * SOPCLassOfReturnableSeries(
    */
 
    if (
-          !(    SeriesInstanceUIDRegex
+          (    SeriesInstanceUIDRegex
             && [SeriesInstanceUIDRegex
                 numberOfMatchesInString:SProperties[1]
                 options:0
                 range:NSMakeRange(0, [SProperties[1] length])
                 ]
             )
-       && !(    SeriesNumberRegex
+       ||  (    SeriesNumberRegex
             && [SeriesNumberRegex
                 numberOfMatchesInString:SProperties[3]
                 options:0
                 range:NSMakeRange(0, [SProperties[3] length])
                 ]
             )
-       && !(    SeriesDescriptionRegex
+       ||  (    SeriesDescriptionRegex
             && [SeriesDescriptionRegex
                 numberOfMatchesInString:SProperties[2]
                 options:0
                 range:NSMakeRange(0, [SProperties[2] length])
                 ]
             )
-       && !(    ModalityRegex
+       ||  (    ModalityRegex
             && [ModalityRegex
                 numberOfMatchesInString:SProperties[4]
                 options:0
                 range:NSMakeRange(0, [SProperties[4] length])
                 ]
             )
-       && !(    SOPClassRegex
+       ||  (    SOPClassRegex
             && [SOPClassRegex
                 numberOfMatchesInString:SOPClassString
                 options:0
                 range:NSMakeRange(0, SOPClassString.length)
                 ]
             )
-       && !(    SOPClassOffRegex
+       ||  (    SOPClassOffRegex
             &&![SOPClassOffRegex
                 numberOfMatchesInString:SOPClassString
                 options:0
                 range:NSMakeRange(0, SOPClassString.length)
                 ]
             )
-       ) return SOPClassString;
-   return nil;
+       ) return nil;
+    return SOPClassString;
 };
 
 #pragma mark - accessType functions
@@ -1471,9 +1557,9 @@ RSResponse* dicomzip(
 )
 {
    __block NSFileManager *fileManager=[NSFileManager defaultManager];
-   __block NSMutableArray *uuidswados=nil;
-   __block NSMutableArray *uuids=nil;
-   __block NSMutableArray *wados=nil;
+   __block NSMutableArray *uuidswados=[NSMutableArray array];
+   __block NSMutableArray *uuids=[NSMutableArray array];
+   __block NSMutableArray *wados=[NSMutableArray array];
     NSString *dicomzipPATH=
      [DRS.tokenAuditFolderPath
       stringByAppendingPathComponent:sessionString
@@ -1489,23 +1575,13 @@ RSResponse* dicomzip(
         uuidswados=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:dicomzipJSONPATH] options:NSJSONReadingMutableContainers error:&error];
         if (!error)
         {
-            uuids=uuidswados[0];
-            wados=uuidswados[1];
+            [uuids addObjectsFromArray:uuidswados[0]];
+            [wados addObjectsFromArray:uuidswados[1]];
         }
-        else
-        {
-            LOG_WARNING(@"studyToken dicomzip json unreadable at %@",dicomzipJSONPATH);
-            uuidswados=[NSMutableArray array];
-            uuids=[NSMutableArray array];
-            wados=[NSMutableArray array];
-        }
+        else LOG_WARNING(@"studyToken dicomzip json unreadable at %@",dicomzipJSONPATH);
     }
     else
     {
-        uuidswados=[NSMutableArray array];
-        uuids=[NSMutableArray array];
-        wados=[NSMutableArray array];
-
        if (devCustodianOIDArray.count > 1)
        {
           //add nodes and start corresponding processes
@@ -1681,8 +1757,8 @@ RSResponse* dicomzip(
     
    __block NSMutableData *directory=[NSMutableData data];
 #pragma mark TODO Time and Date
-   __block uint16 zipTime=0x3475;
-   __block uint16 zipDate=0x3B4F;
+   __block uint16 zipTime=0x7534;
+   __block uint16 zipDate=0x4F3B;
    __block uint32 entryPointer=0;
    __block uint16 entriesCount=0;
    
