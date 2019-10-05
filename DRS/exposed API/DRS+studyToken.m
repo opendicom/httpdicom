@@ -16,6 +16,7 @@
 #import "LFCGzipUtility.h"
 #import "DICMTypes.h"
 #import "NSData+PCS.h"
+#import "NSData+ZLIB.h"
 #import "WeasisManifest.h"
 #import "WeasisArcQuery.h"
 #import "WeasisPatient.h"

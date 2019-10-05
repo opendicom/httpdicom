@@ -166,6 +166,8 @@
 		4AF40DCE2224317400103F99 /* NSString+MSH.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DCC2224317400103F99 /* NSString+MSH.m */; };
 		4AF40DD5222431B000103F99 /* NSString+PID.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF40DD3222431B000103F99 /* NSString+PID.h */; };
 		4AF40DD6222431B000103F99 /* NSString+PID.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF40DD4222431B000103F99 /* NSString+PID.m */; };
+		4AF9AE112348CAF300BB8188 /* NSData+ZLIB.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF9AE0F2348CAF300BB8188 /* NSData+ZLIB.m */; };
+		4AF9AE122348CAF300BB8188 /* NSData+ZLIB.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AF9AE102348CAF300BB8188 /* NSData+ZLIB.h */; };
 		842BF685229D825700E19DA2 /* NSString+OBR.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042726223AB3AE00E78FEA /* NSString+OBR.m */; };
 		842BF686229D825700E19DA2 /* NSString+ORC.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042725223AB3AE00E78FEA /* NSString+ORC.m */; };
 		842BF687229D825700E19DA2 /* NSString+PV1.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A042724223AB3AD00E78FEA /* NSString+PV1.m */; };
@@ -374,6 +376,8 @@
 		4AF40DCC2224317400103F99 /* NSString+MSH.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSH.m"; sourceTree = "<group>"; };
 		4AF40DD3222431B000103F99 /* NSString+PID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+PID.h"; sourceTree = "<group>"; };
 		4AF40DD4222431B000103F99 /* NSString+PID.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+PID.m"; sourceTree = "<group>"; };
+		4AF9AE0F2348CAF300BB8188 /* NSData+ZLIB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+ZLIB.m"; sourceTree = "<group>"; };
+		4AF9AE102348CAF300BB8188 /* NSData+ZLIB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+ZLIB.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -532,6 +536,8 @@
 		4A2D90712183455000371484 /* ZLIB */ = {
 			isa = PBXGroup;
 			children = (
+				4AF9AE102348CAF300BB8188 /* NSData+ZLIB.h */,
+				4AF9AE0F2348CAF300BB8188 /* NSData+ZLIB.m */,
 				4AF9AE0E23482E4100BB8188 /* ZIP */,
 				4AF9AE0D23482E1300BB8188 /* GZIP */,
 				4A2D90732183455000371484 /* zlib.h */,
@@ -855,6 +861,7 @@
 				4ABF11F01FE5C13B000B8DE6 /* NSMutableData+DICM.h in Headers */,
 				4A0FDF451E91078C001E3426 /* RSGZipEncoder.h in Headers */,
 				4A2D906C2181E37D00371484 /* DRS+wadouri.h in Headers */,
+				4AF9AE122348CAF300BB8188 /* NSData+ZLIB.h in Headers */,
 				4AE49DF2200D153000B8F321 /* DRS+pacs.h in Headers */,
 				4AA20C5123101BE2005BD76D /* WeasisArcQuery.h in Headers */,
 				4A2F37F422884AC2004BE2A2 /* ResponseMwlitems.h in Headers */,
@@ -1090,6 +1097,7 @@
 				4A625A72226F4C87005AEBF4 /* DRS+mwlitem.m in Sources */,
 				4A0FDF631E910C1D001E3426 /* RSBodyDecoder.m in Sources */,
 				4A0FDF431E91078C001E3426 /* RSBodyEncoder.m in Sources */,
+				4AF9AE112348CAF300BB8188 /* NSData+ZLIB.m in Sources */,
 				4A57EE422295442400EB3962 /* ResponseQido.m in Sources */,
 				4A57EE5322961E8800EB3962 /* ResponseStow.m in Sources */,
 				4A96C55F1E843C9E002EB09E /* RFC822.m in Sources */,

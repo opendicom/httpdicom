@@ -1,5 +1,6 @@
 #import "DRS+zipped.h"
 #import "NSData+PCS.h"
+#import "NSData+ZLIB.h"
 #import "NSURLSessionDataTask+DRS.h"
 #import "zlib.h"
 #import "zconf.h"
