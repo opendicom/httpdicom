@@ -911,11 +911,11 @@ NSString * SOPCLassOfReturnableSeries(
                 ]
             )
        ||  (    SOPClassOffRegex
-            && (![SOPClassOffRegex
+            &&![SOPClassOffRegex
                 numberOfMatchesInString:SOPClassString
                 options:0
                 range:NSMakeRange(0, SOPClassString.length)
-                ])
+                ]
             )
        ) return nil;
     return SOPClassString;
