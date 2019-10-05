@@ -6,3 +6,5 @@ httpdicom.xcodeproj/xcuserdata/*
 *.DS_Store
 deploy/local/httpdicom/httpdicom
 deploy/local/httpdicom/httpdicom
+deploy/local/httpdicom/httpdicom
+httpdicom.xcodeproj/xcshareddata/xcschemes/httpdicom.xcscheme

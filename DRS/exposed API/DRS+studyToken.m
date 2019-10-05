@@ -876,47 +876,48 @@ NSString * SOPCLassOfReturnableSeries(
 
    if (
           (    SeriesInstanceUIDRegex
-            && [SeriesInstanceUIDRegex
+            &&![SeriesInstanceUIDRegex
                 numberOfMatchesInString:SProperties[1]
                 options:0
                 range:NSMakeRange(0, [SProperties[1] length])
                 ]
             )
        ||  (    SeriesNumberRegex
-            && [SeriesNumberRegex
+            &&![SeriesNumberRegex
                 numberOfMatchesInString:SProperties[3]
                 options:0
                 range:NSMakeRange(0, [SProperties[3] length])
                 ]
             )
        ||  (    SeriesDescriptionRegex
-            && [SeriesDescriptionRegex
+            &&![SeriesDescriptionRegex
                 numberOfMatchesInString:SProperties[2]
                 options:0
                 range:NSMakeRange(0, [SProperties[2] length])
                 ]
             )
        ||  (    ModalityRegex
-            && [ModalityRegex
+            &&![ModalityRegex
                 numberOfMatchesInString:SProperties[4]
                 options:0
                 range:NSMakeRange(0, [SProperties[4] length])
                 ]
             )
        ||  (    SOPClassRegex
-            && [SOPClassRegex
+            &&![SOPClassRegex
                 numberOfMatchesInString:SOPClassString
                 options:0
                 range:NSMakeRange(0, SOPClassString.length)
                 ]
             )
        ||  (    SOPClassOffRegex
-            &&![SOPClassOffRegex
-                numberOfMatchesInString:SOPClassString
-                options:0
-                range:NSMakeRange(0, SOPClassString.length)
-                ]
+            && [SOPClassOffRegex
+                  numberOfMatchesInString:SOPClassString
+                  options:0
+                  range:NSMakeRange(0, SOPClassString.length)
+                  ]
             )
+
        ) return nil;
     return SOPClassString;
 };
@@ -1560,7 +1561,7 @@ RSResponse* dicomzip(
    __block NSMutableArray *uuidswados=[NSMutableArray array];
    __block NSMutableArray *uuids=[NSMutableArray array];
    __block NSMutableArray *wados=[NSMutableArray array];
-    NSString *dicomzipPATH=
+   __block NSString *dicomzipPATH=
      [DRS.tokenAuditFolderPath
       stringByAppendingPathComponent:sessionString
       ];
@@ -1755,12 +1756,13 @@ RSResponse* dicomzip(
 
 #pragma mark stream zipped response
     
-   __block NSMutableData *directory=[NSMutableData data];
+   __block NSMutableData *CENTRAL=[NSMutableData data];
+   __block BOOL END=false;
 #pragma mark TODO Time and Date
    __block uint16 zipTime=0x7534;
    __block uint16 zipDate=0x4F3B;
-   __block uint32 entryPointer=0;
-   __block uint16 entriesCount=0;
+   __block uint32 LOCALPointer=0;
+   __block uint16 LOCALCount=0;
    
    // The RSAsyncStreamBlock works like the RSStreamBlock
    // The block must call "completionBlock" passing the new chunk of data when ready, an empty NSData when done, or nil on error and pass a NSError.
@@ -1774,7 +1776,10 @@ RSResponse* dicomzip(
         [dicomzipPATH stringByAppendingPathComponent:uuids.firstObject];
         __block NSData *uuidData=nil;
         if (![fileManager fileExistsAtPath:uuidPath])
+        {
            uuidData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wados.firstObject]];
+           [uuidData writeToFile:uuidPath atomically:NO];
+        }
         else
            uuidData=[NSData dataWithContentsOfFile:uuidPath];
 
@@ -1786,93 +1791,97 @@ RSResponse* dicomzip(
         }
         else
         {
-           __block NSMutableData *entry=[NSMutableData data];
+           NSMutableData *LOCAL=[NSMutableData data];
 
            //LOCAL 30 + 40 (name)
-           [entry appendBytes:&zipLOCAL length:4];
-           [entry appendBytes:&zipVersion length:2];
-           [entry appendBytes:&zipBitFlags length:2];
-           [entry appendBytes:&zipCompression8 length:2];
-           [entry appendBytes:&zipTime length:2];
-           [entry appendBytes:&zipDate length:2];
+           [LOCAL appendBytes:&zipLOCAL length:4];
+           [LOCAL appendBytes:&zipVersion length:2];
+           [LOCAL appendBytes:&zipBitFlags length:2];
+           [LOCAL appendBytes:&zipCompression8 length:2];
+           [LOCAL appendBytes:&zipTime length:2];
+           [LOCAL appendBytes:&zipDate length:2];
            uint32 zipCRC32=0x00000000;//computed after data production
-           [entry appendBytes:&zipCRC32 length:4];
+           [LOCAL appendBytes:&zipCRC32 length:4];
            uint32 zipCompressedSize=0x00000000;//computed after data production
-           [entry appendBytes:&zipCompressedSize length:4];
+           [LOCAL appendBytes:&zipCompressedSize length:4];
            uint32 zipUncompressedSize=0x00000000;//computed after data production
-           [entry appendBytes:&zipUncompressedSize length:4];
-           [entry appendBytes:&zipNameLength length:2];
-           [entry appendBytes:&zipExtraLength length:2];
+           [LOCAL appendBytes:&zipUncompressedSize length:4];
+           [LOCAL appendBytes:&zipNameLength length:2];
+           [LOCAL appendBytes:&zipExtraLength length:2];
             NSData *uuid=[uuids.firstObject dataUsingEncoding:NSASCIIStringEncoding];
-           [entry appendData:uuid];//name
+           [LOCAL appendData:uuid];//name
            //noExtra
            //zipData
 
            
            //DATA
 #pragma mark TODO compress
-           [entry appendData:uuidData];//data
+           [LOCAL appendData:uuidData];//data
 
            
            //DESCRIPTOR 16
-           [entry appendBytes:&zipDESCRIPTOR length:4];
+           [LOCAL appendBytes:&zipDESCRIPTOR length:4];
            zipCRC32=[uuidData crc32];
-           [entry appendBytes:&zipCRC32 length:4];
+           [LOCAL appendBytes:&zipCRC32 length:4];
 #pragma mark TODO adjust uncompressed sized
            zipUncompressedSize=(uint32)uuidData.length;
-           [entry appendBytes:&zipUncompressedSize length:4];//zipCompressedSize
+           [LOCAL appendBytes:&zipUncompressedSize length:4];//zipCompressedSize
            zipCompressedSize=(uint32)uuidData.length;
-           [entry appendBytes:&zipCompressedSize length:4];//zipUncompressedSize
+           [LOCAL appendBytes:&zipCompressedSize length:4];//zipUncompressedSize
            
-           completionBlock(entry, nil);
+           completionBlock(LOCAL, nil);
 
            //CENTRAL 46
-           [directory appendBytes:&zipCENTRAL length:4];
-           [directory appendBytes:&zipVersion length:2];//made by
-           [directory appendBytes:&zipVersion length:2];//needed
-           [directory appendBytes:&zipBitFlags length:2];
-           [directory appendBytes:&zipCompression8 length:2];
-           [directory appendBytes:&zipTime length:2];
-           [directory appendBytes:&zipDate length:2];
-           [directory appendBytes:&zipCRC32 length:4];
-           [directory appendBytes:&zipCompressedSize length:4];
-           [directory appendBytes:&zipUncompressedSize length:4];
-           [directory appendBytes:&zipNameLength length:2];
-           [directory appendBytes:&zipExtraLength length:2];
-           [directory appendBytes:&zipExtraLength length:2];//comment
-           [directory appendBytes:&zipExtraLength length:2];//disk number start
-           [directory appendBytes:&zipExtraLength length:2];//internal file attribute
-           [directory appendBytes:&zipExternalFileAttributes length:4];
-           [directory appendBytes:&entryPointer length:4];//offsetOfLocalHeader
-           [directory appendData:uuid];//name
+           [CENTRAL appendBytes:&zipCENTRAL length:4];
+           [CENTRAL appendBytes:&zipVersion length:2];//made by
+           [CENTRAL appendBytes:&zipVersion length:2];//needed
+           [CENTRAL appendBytes:&zipBitFlags length:2];
+           [CENTRAL appendBytes:&zipCompression8 length:2];
+           [CENTRAL appendBytes:&zipTime length:2];
+           [CENTRAL appendBytes:&zipDate length:2];
+           [CENTRAL appendBytes:&zipCRC32 length:4];
+           [CENTRAL appendBytes:&zipCompressedSize length:4];
+           [CENTRAL appendBytes:&zipUncompressedSize length:4];
+           [CENTRAL appendBytes:&zipNameLength length:2];
+           [CENTRAL appendBytes:&zipExtraLength length:2];
+           [CENTRAL appendBytes:&zipExtraLength length:2];//comment
+           [CENTRAL appendBytes:&zipExtraLength length:2];//disk number start
+           [CENTRAL appendBytes:&zipExtraLength length:2];//internal file attribute
+           [CENTRAL appendBytes:&zipExternalFileAttributes length:4];
+           [CENTRAL appendBytes:&LOCALPointer length:4];//offsetOfLocalHeader
+           [CENTRAL appendData:uuid];//name
            //noExtra
            //noComment
 
-           entryPointer+=uuidData.length+86;//30 entry + 40 name + 16 descriptor
-           entriesCount++;
+           LOCALPointer+=uuidData.length+86;//30 entry + 40 name + 16 descriptor
+           LOCALCount++;
 
            [uuids removeObjectAtIndex:0];
            [wados removeObjectAtIndex:0];
         }
      }
-     else if (directory.length) //chunk with directory
+     else if (CENTRAL.length) //chunk with directory
      {
-        //END
-        [directory appendBytes:&zipEND length:4];
-        [directory appendBytes:&zipDiskNumber length:2];
-        [directory appendBytes:&zipDiskCentralStarts length:2];
-        [directory appendBytes:&entriesCount length:2];//disk zipEntries
-        [directory appendBytes:&entriesCount length:2];//total zipEntries
-        uint32 directorySize=86 * entriesCount;
-        [directory appendBytes:&directorySize length:4];
-        [directory appendBytes:&entryPointer length:4];
-        [directory appendBytes:&zipExtraLength length:2];//comment
-        
-        completionBlock(directory, nil);
-        
-        [directory setData:[NSData data]];
+        completionBlock(CENTRAL, nil);
+        [CENTRAL setData:[NSData data]];
      }
-     else completionBlock([NSData data], nil);//last chunck
+     else if (!END)
+     {
+         [CENTRAL appendBytes:&zipEND length:4];
+         [CENTRAL appendBytes:&zipDiskNumber length:2];
+         [CENTRAL appendBytes:&zipDiskCentralStarts length:2];
+         [CENTRAL appendBytes:&LOCALCount length:2];//disk zipEntries
+         [CENTRAL appendBytes:&LOCALCount length:2];//total zipEntries
+         uint32 CENTRALSize=86 * LOCALCount;
+         [CENTRAL appendBytes:&CENTRALSize length:4];
+         [CENTRAL appendBytes:&LOCALPointer length:4];
+         [CENTRAL appendBytes:&zipExtraLength length:2];//comment
+         
+         completionBlock(CENTRAL, nil);
+         [CENTRAL setData:[NSData data]];
+         END=true;
+     }
+     else completionBlock(CENTRAL, nil);//empty last chunck
      
   }];
 }
