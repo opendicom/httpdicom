@@ -1777,8 +1777,8 @@ RSResponse* dicomzip(
         __block NSData *uuidData=nil;
         if (![fileManager fileExistsAtPath:uuidPath])
         {
-           uuidData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wados.firstObject]];
-           [uuidData writeToFile:uuidPath atomically:NO];
+           uuidData=[[NSData dataWithContentsOfURL:[NSURL URLWithString:wados.firstObject]]rawzip];
+           if (uuidData)[uuidData writeToFile:uuidPath atomically:NO];
         }
         else
            uuidData=[NSData dataWithContentsOfFile:uuidPath];

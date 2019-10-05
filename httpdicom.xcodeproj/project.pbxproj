@@ -419,7 +419,7 @@
 				4ABF11FA1FE6875B000B8DE6 /* DSCD */,
 				4ABF11C41FE5BD5A000B8DE6 /* PCS */,
 				4ABF11C31FE5BD14000B8DE6 /* DICM */,
-				4A2D90712183455000371484 /* ZIP */,
+				4A2D90712183455000371484 /* ZLIB */,
 				4AF40D902222D03000103F99 /* MLLP */,
 				4A19C9171E8F15B700DDD35D /* RS */,
 				4AE49DEF2009E3F200B8F321 /* DRS */,
@@ -529,15 +529,15 @@
 			path = RS;
 			sourceTree = "<group>";
 		};
-		4A2D90712183455000371484 /* ZIP */ = {
+		4A2D90712183455000371484 /* ZLIB */ = {
 			isa = PBXGroup;
 			children = (
-				4A2D90722183455000371484 /* LFCGzipUtility.m */,
+				4AF9AE0E23482E4100BB8188 /* ZIP */,
+				4AF9AE0D23482E1300BB8188 /* GZIP */,
 				4A2D90732183455000371484 /* zlib.h */,
-				4A2D90742183455000371484 /* LFCGzipUtility.h */,
 				4A2D90752183455000371484 /* zconf.h */,
 			);
-			path = ZIP;
+			path = ZLIB;
 			sourceTree = "<group>";
 		};
 		4A94BE94208627AD0009C4AB /* DICOMweb */ = {
@@ -815,6 +815,22 @@
 				4AF40DD4222431B000103F99 /* NSString+PID.m */,
 			);
 			path = segments;
+			sourceTree = "<group>";
+		};
+		4AF9AE0D23482E1300BB8188 /* GZIP */ = {
+			isa = PBXGroup;
+			children = (
+				4A2D90722183455000371484 /* LFCGzipUtility.m */,
+				4A2D90742183455000371484 /* LFCGzipUtility.h */,
+			);
+			path = GZIP;
+			sourceTree = "<group>";
+		};
+		4AF9AE0E23482E4100BB8188 /* ZIP */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ZIP;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
