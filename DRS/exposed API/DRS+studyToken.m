@@ -153,13 +153,13 @@ static uint16 zipBitFlags=0x0008;//3= post descriptor
 
  Bit 15: Reserved by PKWARE.
  */
-static uint16 zipCompression8=0x0000;
+static uint16 zipCompression8=0x0008;
 //uint16 zipTime;
 //uint16 zipDate;
 //uint32 zipCRC32=0x00000000;
 //uint32 zipCompressedSize=0x00000000;
 //uint32 zipUncompressedSize=0x00000000;
-static uint16 zipNameLength=0x0028;//UUID.dcm
+static uint16 zipNameLength=0x0024;//UUID.dcm
 static uint16 zipExtraLength=0x0000;
 //zipName
 //noExtra
@@ -1582,21 +1582,51 @@ RSResponse* dicomzip(
            ) return [RSErrorResponse responseWithClientError:404 message:@"studyToken no access to token cache: %@",[error description]];
     }
         
-    NSString *JSON=[DIR stringByAppendingPathExtension:@"json"];
+    __block NSString *JSON=[DIR stringByAppendingPathExtension:@"json"];
+    __block BOOL fromCache=false;
     if ([fileManager fileExistsAtPath:JSON])
     {
-       //
         jsonArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:JSON] options:NSJSONReadingMutableContainers error:&error];
-        if (!jsonArray)
+        if (! jsonArray) LOG_WARNING(@"studyToken dicomzip json unreadable at %@. %@",JSON, [error description]);
+        else
         {
-           [filenames addObjectsFromArray:jsonArray[0]];
-           [wados addObjectsFromArray:jsonArray[1]];
-           [crc32s addObjectsFromArray:jsonArray[2]];
-           [lengths addObjectsFromArray:jsonArray[3]];
+            if (jsonArray.count!=4) LOG_WARNING(@"studyToken dicomzip json bad");
+            else
+            {
+                NSArray *jsonFilenames=jsonArray[0];
+                if (!jsonFilenames || !jsonFilenames.count) LOG_WARNING(@"studyToken dicomzip json no filenames");
+                else
+                {
+                    [filenames addObjectsFromArray:jsonFilenames];
+                    NSArray *jsonWados=jsonArray[1];
+                    if (!jsonWados || (jsonFilenames.count!=jsonWados.count)) LOG_WARNING(@"studyToken dicomzip json no inconsistent wados");
+                    else
+                    {
+                        [wados addObjectsFromArray:jsonWados];
+                        NSArray *jsonCrc32s=jsonArray[2];
+                        if (!jsonCrc32s || (jsonFilenames.count!=jsonCrc32s.count)) LOG_WARNING(@"studyToken dicomzip json no inconsistent crc32s");
+                        else
+                        {
+                            [crc32s addObjectsFromArray:jsonCrc32s];
+                            NSArray *jsonLengths=jsonArray[3];
+                            if (!jsonLengths || (jsonFilenames.count!=jsonLengths.count)) LOG_WARNING(@"studyToken dicomzip json no inconsistent lengths");
+                            else
+                            {
+                                [lengths addObjectsFromArray:jsonLengths];
+                                fromCache=true;
+                            }
+                        }
+                    }
+                }
+            }
+            
         }
-        else LOG_WARNING(@"studyToken dicomzip json unreadable at %@",JSON);
+        
+        if (!fromCache) [fileManager moveItemAtPath:JSON toPath:[JSON stringByAppendingPathExtension:@"bad"] error:nil];
     }
-    else
+    
+    
+    if (!fromCache)
     {
        if (devCustodianOIDArray.count > 1)
        {
@@ -1763,16 +1793,16 @@ RSResponse* dicomzip(
         uint32 zipCompressedSize=0x00000000;//computed after data production
         uint32 zipUncompressedSize=0x00000000;//computed after data production
 
+         if (fromCache) entryPath=[DIR stringByAppendingPathComponent:filenames[LOCALIndex]];
         //if exists, get it from caché, else perform qido
-        if (filenames.count > LOCALIndex) entryPath=[DIR stringByAppendingPathComponent:filenames[LOCALIndex]];
-        if (entryPath && [fileManager fileExistsAtPath:entryPath])
+        if (fromCache && [fileManager fileExistsAtPath:entryPath])
         {
-           entryData=[NSData dataWithContentsOfFile:entryPath];
-           zipCompressedSize=(uint32)entryData.length;
-           zipCRC32=(uint32)crc32s[LOCALIndex];
-           zipUncompressedSize=(uint32)lengths[LOCALIndex];
+                entryData=[NSData dataWithContentsOfFile:entryPath];
+                zipCompressedSize=(uint32)entryData.length;
+                zipCRC32=(uint32)crc32s[LOCALIndex];
+                zipUncompressedSize=(uint32)lengths[LOCALIndex];
         }
-        else
+        else if (wados[LOCALIndex])
         {
            NSData *uncompressedData=[NSData dataWithContentsOfURL:[NSURL URLWithString:wados[LOCALIndex]]];
            zipCRC32=[uncompressedData crc32];
@@ -1789,7 +1819,7 @@ RSResponse* dicomzip(
             ];
            entryData=[uncompressedData rawzip];
            zipCompressedSize=(uint32)entryData.length;
-           if (entryData)[entryData writeToFile:filenames[LOCALIndex] atomically:NO];
+           if (entryData)[entryData writeToFile:[DIR stringByAppendingPathComponent: filenames[LOCALIndex]] atomically:NO];
         }
 
         
@@ -1883,7 +1913,7 @@ RSResponse* dicomzip(
         //write JSON
         NSError *error;
         if (![[NSString
-               stringWithFormat:@"[\"%@\"],[\"%@\"],[%@],[%@]]",
+               stringWithFormat:@"[[\"%@\"],[\"%@\"],[%@],[%@]]",
                [filenames componentsJoinedByString:@"\",\""],
                [wados componentsJoinedByString:@"\",\""],
                [crc32s componentsJoinedByString:@","],
