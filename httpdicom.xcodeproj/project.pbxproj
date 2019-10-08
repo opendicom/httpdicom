@@ -74,9 +74,7 @@
 		4A2D906A2181E37D00371484 /* DRS+zipped.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A2D905E2181E37D00371484 /* DRS+zipped.m */; };
 		4A2D906C2181E37D00371484 /* DRS+wadouri.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2D90602181E37D00371484 /* DRS+wadouri.h */; };
 		4A2D906F218342F800371484 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A2D906E218342F800371484 /* libz.tbd */; };
-		4A2D90762183455100371484 /* LFCGzipUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A2D90722183455000371484 /* LFCGzipUtility.m */; };
 		4A2D90772183455100371484 /* zlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2D90732183455000371484 /* zlib.h */; };
-		4A2D90782183455100371484 /* LFCGzipUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2D90742183455000371484 /* LFCGzipUtility.h */; };
 		4A2D90792183455100371484 /* zconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2D90752183455000371484 /* zconf.h */; };
 		4A2F37EF22884855004BE2A2 /* RequestMwlitems.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2F37ED22884855004BE2A2 /* RequestMwlitems.h */; };
 		4A2F37F022884855004BE2A2 /* RequestMwlitems.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A2F37EE22884855004BE2A2 /* RequestMwlitems.m */; };
@@ -283,9 +281,7 @@
 		4A2D905E2181E37D00371484 /* DRS+zipped.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+zipped.m"; sourceTree = "<group>"; };
 		4A2D90602181E37D00371484 /* DRS+wadouri.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+wadouri.h"; sourceTree = "<group>"; };
 		4A2D906E218342F800371484 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		4A2D90722183455000371484 /* LFCGzipUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFCGzipUtility.m; sourceTree = "<group>"; };
 		4A2D90732183455000371484 /* zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zlib.h; sourceTree = "<group>"; };
-		4A2D90742183455000371484 /* LFCGzipUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFCGzipUtility.h; sourceTree = "<group>"; };
 		4A2D90752183455000371484 /* zconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zconf.h; sourceTree = "<group>"; };
 		4A2F37ED22884855004BE2A2 /* RequestMwlitems.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RequestMwlitems.h; sourceTree = "<group>"; };
 		4A2F37EE22884855004BE2A2 /* RequestMwlitems.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RequestMwlitems.m; sourceTree = "<group>"; };
@@ -538,8 +534,6 @@
 			children = (
 				4AF9AE102348CAF300BB8188 /* NSData+ZLIB.h */,
 				4AF9AE0F2348CAF300BB8188 /* NSData+ZLIB.m */,
-				4AF9AE0E23482E4100BB8188 /* ZIP */,
-				4AF9AE0D23482E1300BB8188 /* GZIP */,
 				4A2D90732183455000371484 /* zlib.h */,
 				4A2D90752183455000371484 /* zconf.h */,
 			);
@@ -823,22 +817,6 @@
 			path = segments;
 			sourceTree = "<group>";
 		};
-		4AF9AE0D23482E1300BB8188 /* GZIP */ = {
-			isa = PBXGroup;
-			children = (
-				4A2D90722183455000371484 /* LFCGzipUtility.m */,
-				4A2D90742183455000371484 /* LFCGzipUtility.h */,
-			);
-			path = GZIP;
-			sourceTree = "<group>";
-		};
-		4AF9AE0E23482E4100BB8188 /* ZIP */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = ZIP;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -915,7 +893,6 @@
 				4AF40DCD2224317400103F99 /* NSString+MSH.h in Headers */,
 				4ABF12041FE89413000B8DE6 /* iconv.h in Headers */,
 				4A2D90672181E37D00371484 /* DRS+zipped.h in Headers */,
-				4A2D90782183455100371484 /* LFCGzipUtility.h in Headers */,
 				4AF40D5A2219EE6C00103F99 /* RequestStow.h in Headers */,
 				4A2F37EF22884855004BE2A2 /* RequestMwlitems.h in Headers */,
 				4ABF11E11FE5C11C000B8DE6 /* NSURLComponents+PCS.h in Headers */,
@@ -1056,7 +1033,6 @@
 				842BF68A229D825700E19DA2 /* NSString+A04.m in Sources */,
 				842BF68B229D825700E19DA2 /* NSString+O01.m in Sources */,
 				842BF68C229D825700E19DA2 /* NSString+A01.m in Sources */,
-				4A2D90762183455100371484 /* LFCGzipUtility.m in Sources */,
 				4A0FDF461E91078C001E3426 /* RSGZipEncoder.m in Sources */,
 				4AF40D60221C3FCF00103F99 /* RequestPatients.m in Sources */,
 				4A2F37F022884855004BE2A2 /* RequestMwlitems.m in Sources */,

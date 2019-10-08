@@ -13,7 +13,6 @@
  */
 
 #import "DRS+studyToken.h"
-#import "LFCGzipUtility.h"
 #import "DICMTypes.h"
 #import "NSData+PCS.h"
 #import "NSData+ZLIB.h"
@@ -65,8 +64,10 @@ enum dateMatch{
 // ZIP structure (dynamic and repeated commented)
 
 static uint32 zipLOCAL=0x04034B50;
-static uint16 zipVersion=0x000A;
-static uint16 zipBitFlags=0x0008;//3= post descriptor
+static uint16 zipVersion=0x000A;//1.0 default value
+static uint16 zipBitFlags=0x0008;
+//b0=encripted
+//b3=post descriptor
 /*
  Bit 0: If set, indicates that the file is encrypted.
 
@@ -173,8 +174,8 @@ static uint32 zipDESCRIPTOR=0x08074B50;
 
 
 static uint32 zipCENTRAL=0x02014B50;
-//zipVersion madeBy
-//zipVersion needed
+static uint32 zipMadeBy=0x033F;//03=UNIX, 3F=63 (versión 6.3)
+//static uint32 zipVersionNeeded = zipVersion
 //zipBitFlags
 //zipCompression8
 //zipTime
@@ -1214,7 +1215,7 @@ NSXMLElement *PatientElement=nil;
          
          return
          [RSDataResponse
-          responseWithData:[LFCGzipUtility gzipData:docData]
+          responseWithData:[docData gzip]
           contentType:@"application/x-gzip"
           ];
 
@@ -2162,7 +2163,6 @@ RSResponse* osirixdcmURLs(
              {
                 //aaaa-mm-dd
                 //1 [aaaa-mm-dd] -> on
-                [StudyDateArray insertObject:@"" atIndex:0];
                 [StudyDateArray insertObject:@"" atIndex:0];
              }
              else if ((StudyDateArray.count==2) && date0 && date1)
