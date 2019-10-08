@@ -2150,9 +2150,9 @@ RSResponse* osirixdcmURLs(
            sqlEP4PidEda3 [][][aaaa-mm-dd] = until
            sqlEP4PidEda4 [aaaa-mm-dd][][][aaaa-mm-dd] = between
            */
-          if (StudyDateString.length)
+          if (!StudyDateString.length) StudyDateArray=[NSMutableArray array];
+          else //>0
           {
-             //>0
              [StudyDateArray addObjectsFromArray:[StudyDateString componentsSeparatedByString:@"|"]];
              BOOL date0=NO;
              if (StudyDateArray.count > 0) date0=[DICMTypes isSingleDAISOString:StudyDateArray[0]];
@@ -2163,7 +2163,6 @@ RSResponse* osirixdcmURLs(
              {
                 //aaaa-mm-dd
                 //1 [aaaa-mm-dd] -> on
-                [StudyDateArray insertObject:@"" atIndex:0];
              }
              else if ((StudyDateArray.count==2) && date0 && date1)
              {
