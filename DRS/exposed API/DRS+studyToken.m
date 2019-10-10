@@ -31,7 +31,10 @@ enum accessType{
    accessTypeDicomzip,
    accessTypeOsirix,
    accessTypeDatatablesSeries,
-   accessTypeDatatablesPatient
+   accessTypeDatatablesPatient,
+   accessTypeUncompressedDicomZip,
+   accessTypeDeflateDicomZip,
+   accessTypeDicomZipx
    
 };
 
@@ -65,7 +68,8 @@ enum dateMatch{
 
 static uint32 zipLOCAL=0x04034B50;
 static uint16 zipVersion=0x000A;//1.0 default value
-static uint16 zipBitFlags=0x0008;
+static uint16 zipBitFlagsNone=0x0000;
+static uint16 zipBitFlagsDescriptor=0x0008;
 //b0=encripted
 //b3=post descriptor
 /*
@@ -944,7 +948,8 @@ RSResponse * weasis(
  NSString            * AccessionNumberString,
  NSString            * PatientIDString,
  NSArray             * StudyDateArray,
- NSString            * issuerString
+ NSString            * issuerString,
+ NSInteger             accessType
 )
 {
    NSXMLElement *XMLRoot=[WeasisManifest manifest];
@@ -1257,7 +1262,8 @@ RSResponse* cornerstone(
  NSString            * AccessionNumberString,
  NSString            * PatientIDString,
  NSArray             * StudyDateArray,
- NSString            * issuerString
+ NSString            * issuerString,
+ NSInteger             accessType
 )
 {
       NSMutableArray *JSONArray=[NSMutableArray array];
@@ -1557,7 +1563,8 @@ RSResponse* dicomzip(
  NSString            * AccessionNumberString,
  NSString            * PatientIDString,
  NSArray             * StudyDateArray,
- NSString            * issuerString
+ NSString            * issuerString,
+ NSInteger             accessType
 )
 {
    //information model for getting and pulling the information, either from source or from cache
@@ -1795,7 +1802,7 @@ RSResponse* dicomzip(
         uint32 zipCompressedSize=0x00000000;//computed after data production
         uint32 zipUncompressedSize=0x00000000;//computed after data production
 
-         if (fromCache) entryPath=[DIR stringByAppendingPathComponent:filenames[LOCALIndex]];
+        if (fromCache) entryPath=[DIR stringByAppendingPathComponent:filenames[LOCALIndex]];
         //if exists, get it from caché, else perform qido
         if (fromCache && [fileManager fileExistsAtPath:entryPath])
         {
@@ -1819,8 +1826,17 @@ RSResponse* dicomzip(
              zipUncompressedSize
              ]
             ];
-           //entryData=[uncompressedData rawzip];
-           entryData=uncompressedData;
+           switch (accessType) {
+              case accessTypeDicomzip:
+              case accessTypeUncompressedDicomZip:
+                 entryData=uncompressedData;
+                 break;
+                 
+              case accessTypeDeflateDicomZip:
+              case accessTypeDicomZipx:
+                 entryData=[uncompressedData rawzip];
+                 break;
+           }
            zipCompressedSize=(uint32)entryData.length;
            if (entryData)[entryData writeToFile:[DIR stringByAppendingPathComponent: filenames[LOCALIndex]] atomically:NO];
         }
@@ -1835,15 +1851,30 @@ RSResponse* dicomzip(
         {
            NSMutableData *LOCAL=[NSMutableData data];
 
-           //LOCAL 30 + 40 (name)
            [LOCAL appendBytes:&zipLOCAL length:4];
            [LOCAL appendBytes:&zipVersion length:2];
-           [LOCAL appendBytes:&zipBitFlags length:2];
-           //[LOCAL appendBytes:&zipCompression8 length:2];
-           [LOCAL appendBytes:&zipCompression0 length:2];
-           [LOCAL appendBytes:&zipTime length:2];
-           [LOCAL appendBytes:&zipDate length:2];
-           [LOCAL increaseLengthBy:12];//crc32,compressed,uncompressed
+           switch (accessType) {
+              case accessTypeDicomzip:
+              case accessTypeUncompressedDicomZip:
+                 [LOCAL appendBytes:&zipBitFlagsNone length:2];
+                 [LOCAL appendBytes:&zipCompression0 length:2];
+                 [LOCAL appendBytes:&zipTime length:2];
+                 [LOCAL appendBytes:&zipDate length:2];
+                 [LOCAL increaseLengthBy:12];
+                 //crc32,compressed,uncompressed
+                 break;
+                 
+              case accessTypeDeflateDicomZip:
+              case accessTypeDicomZipx:
+                 [LOCAL appendBytes:&zipBitFlagsDescriptor length:2];
+                 [LOCAL appendBytes:&zipCompression8 length:2];
+                 [LOCAL appendBytes:&zipTime length:2];
+                 [LOCAL appendBytes:&zipDate length:2];
+                 [LOCAL appendBytes:&zipCRC32 length:4];
+                 [LOCAL appendBytes:&zipUncompressedSize length:4];//zipCompressedSize
+                 [LOCAL appendBytes:&zipCompressedSize length:4];//zipUncompressedSize
+                 break;
+           }
            [LOCAL appendBytes:&zipNameLength length:2];
            [LOCAL appendBytes:&zipExtraLength length:2];
            NSData *nameData=[filenames[LOCALIndex] dataUsingEncoding:NSASCIIStringEncoding];
@@ -1854,11 +1885,20 @@ RSResponse* dicomzip(
            //DATA
            [LOCAL appendData:entryData];//compressed data
            
-           //DESCRIPTOR 16
-           [LOCAL appendBytes:&zipDESCRIPTOR length:4];
-           [LOCAL appendBytes:&zipCRC32 length:4];
-           [LOCAL appendBytes:&zipUncompressedSize length:4];//zipCompressedSize
-           [LOCAL appendBytes:&zipCompressedSize length:4];//zipUncompressedSize
+           switch (accessType) {
+              case accessTypeDicomzip:
+              case accessTypeUncompressedDicomZip:
+                 break;
+                 
+              case accessTypeDeflateDicomZip:
+              case accessTypeDicomZipx:
+                 //DESCRIPTOR 16
+                 [LOCAL appendBytes:&zipDESCRIPTOR length:4];
+                 [LOCAL appendBytes:&zipCRC32 length:4];
+                 [LOCAL appendBytes:&zipUncompressedSize length:4];//zipCompressedSize
+                 [LOCAL appendBytes:&zipCompressedSize length:4];//zipUncompressedSize
+                 break;
+           }
 
            completionBlock(LOCAL, nil);
 
@@ -1866,9 +1906,20 @@ RSResponse* dicomzip(
            [CENTRAL appendBytes:&zipCENTRAL length:4];
            [CENTRAL appendBytes:&zipVersion length:2];//made by
            [CENTRAL appendBytes:&zipVersion length:2];//needed
-           [CENTRAL appendBytes:&zipBitFlags length:2];
-           //[CENTRAL appendBytes:&zipCompression8 length:2];
            [CENTRAL appendBytes:&zipCompression0 length:2];
+           switch (accessType) {
+              case accessTypeDicomzip:
+              case accessTypeUncompressedDicomZip:
+                 [CENTRAL appendBytes:&zipBitFlagsNone length:2];
+                 [CENTRAL appendBytes:&zipCompression0 length:2];
+                 break;
+                 
+              case accessTypeDeflateDicomZip:
+              case accessTypeDicomZipx:
+                 [CENTRAL appendBytes:&zipBitFlagsDescriptor length:2];
+                 [CENTRAL appendBytes:&zipCompression8 length:2];
+                 break;
+           }
            [CENTRAL appendBytes:&zipTime length:2];
            [CENTRAL appendBytes:&zipDate length:2];
            [CENTRAL appendBytes:&zipCRC32 length:4];
@@ -1886,7 +1937,11 @@ RSResponse* dicomzip(
            //noComment
 
            
-           LOCALPointer+=entryData.length+82;//30 entry + 36 name + 16 descriptor
+           LOCALPointer+=entryData.length+66;//30 entry + 36 name
+           if (
+                   (accessType==accessTypeDeflateDicomZip)
+               ||  (accessType==accessTypeDicomZipx)
+               ) LOCALPointer+=16;//descriptor
            LOCALIndex++;
         }
      }
@@ -1953,7 +2008,8 @@ RSResponse* osirixdcmURLs(
  NSString            * AccessionNumberString,
  NSString            * PatientIDString,
  NSArray             * StudyDateArray,
- NSString            * issuerString
+ NSString            * issuerString,
+ NSInteger             accessType
 )
 {
     return [RSErrorResponse responseWithClientError:404 message:@"osirix to be programmed yet"];
@@ -1970,7 +2026,7 @@ RSResponse* osirixdcmURLs(
 {
    [self
     addHandler:@"POST"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|datatablesseries.json|datatablespatient.json|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|uncompressed.dicom.zip|deflate.dicom.zip|dicom.zipx|datatablesseries.json|datatablespatient.json|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -2208,12 +2264,38 @@ RSResponse* osirixdcmURLs(
 #pragma mark ACCESS switch
    NSInteger accessType=NSNotFound;
    NSString *requestPath=request.path;
-   if (![requestPath isEqualToString:@"/studyToken"])  accessType=[@[@"/weasis.xml", @"/cornerstone.json", @"/dicom.zip", @"/osirix.dcmURLs", @"/datatablesseries.json", @"/datatablespatient.json"]  indexOfObject:requestPath];
+   if (![requestPath isEqualToString:@"/studyToken"])
+      accessType=[
+                  @[
+                     @"/weasis.xml",
+                     @"/cornerstone.json",
+                     @"/dicom.zip",
+                     @"/osirix.dcmURLs",
+                     @"/datatablesseries.json",
+                     @"/datatablespatient.json",
+                     @"uncompressed.dicom.zip",
+                     @"deflate.dicom.zip",
+                     @"dicom.zipx"
+                  ]  indexOfObject:requestPath
+                  ];
    else
    {
       NSInteger accessTypeIndex=[names indexOfObject:@"accessType"];
       if (accessTypeIndex==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType required in request"];
-      accessType=[@[@"weasis.xml", @"cornerstone.json", @"dicom.zip", @"osirix.dcmURLs", @"datatablesseries.json", @"datatablespatient.json"] indexOfObject:values[accessTypeIndex]];
+      accessType=[
+                  @[
+                     @"/weasis.xml",
+                     @"/cornerstone.json",
+                     @"/dicom.zip",
+                     @"/osirix.dcmURLs",
+                     @"/datatablesseries.json",
+                     @"/datatablespatient.json",
+                     @"uncompressed.dicom.zip",
+                     @"deflate.dicom.zip",
+                     @"dicom.zipx"
+                  ]
+                  indexOfObject:values[accessTypeIndex]
+                  ];
       if (accessType==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
    }
    switch (accessType) {
@@ -2235,7 +2317,8 @@ RSResponse* osirixdcmURLs(
                  AccessionNumberString,
                  PatientIDString,
                  StudyDateArray,
-                 issuerString
+                 issuerString,
+                 accessType
                  );
          } break;//end of sql wado weasis
       case accessTypeCornerstone:{
@@ -2256,10 +2339,15 @@ RSResponse* osirixdcmURLs(
                  AccessionNumberString,
                  PatientIDString,
                  StudyDateArray,
-                 issuerString
+                 issuerString,
+                 accessType
                  );
          } break;//end of sql wado cornerstone
-      case accessTypeDicomzip:{
+      case accessTypeDicomzip:
+      case accessTypeUncompressedDicomZip:
+      case accessTypeDeflateDicomZip:
+      case accessTypeDicomZipx:
+      {
             return dicomzip(
                     proxyURIString,
                     sessionString,
@@ -2277,7 +2365,8 @@ RSResponse* osirixdcmURLs(
                     AccessionNumberString,
                     PatientIDString,
                     StudyDateArray,
-                    issuerString
+                    issuerString,
+                    accessType
                     );
          
          } break;//end of sql wado dicomzip
@@ -2299,7 +2388,8 @@ RSResponse* osirixdcmURLs(
                     AccessionNumberString,
                     PatientIDString,
                     StudyDateArray,
-                    issuerString
+                    issuerString,
+                    accessType
                     );
          } break;//end of sql wado osirix
       case accessTypeDatatablesSeries:{
