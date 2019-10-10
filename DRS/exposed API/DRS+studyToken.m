@@ -154,6 +154,7 @@ static uint16 zipBitFlags=0x0008;
 
  Bit 15: Reserved by PKWARE.
  */
+static uint16 zipCompression0=0x0000;
 static uint16 zipCompression8=0x0008;
 //uint16 zipTime;
 //uint16 zipDate;
@@ -174,7 +175,7 @@ static uint32 zipDESCRIPTOR=0x08074B50;
 
 
 static uint32 zipCENTRAL=0x02014B50;
-static uint32 zipMadeBy=0x033F;//03=UNIX, 3F=63 (versión 6.3)
+//static uint32 zipMadeBy=0x033F;//03=UNIX, 3F=63 (versión 6.3)
 //static uint32 zipVersionNeeded = zipVersion
 //zipBitFlags
 //zipCompression8
@@ -1818,7 +1819,8 @@ RSResponse* dicomzip(
              zipUncompressedSize
              ]
             ];
-           entryData=[uncompressedData rawzip];
+           //entryData=[uncompressedData rawzip];
+           entryData=uncompressedData;
            zipCompressedSize=(uint32)entryData.length;
            if (entryData)[entryData writeToFile:[DIR stringByAppendingPathComponent: filenames[LOCALIndex]] atomically:NO];
         }
@@ -1837,7 +1839,8 @@ RSResponse* dicomzip(
            [LOCAL appendBytes:&zipLOCAL length:4];
            [LOCAL appendBytes:&zipVersion length:2];
            [LOCAL appendBytes:&zipBitFlags length:2];
-           [LOCAL appendBytes:&zipCompression8 length:2];
+           //[LOCAL appendBytes:&zipCompression8 length:2];
+           [LOCAL appendBytes:&zipCompression0 length:2];
            [LOCAL appendBytes:&zipTime length:2];
            [LOCAL appendBytes:&zipDate length:2];
            [LOCAL increaseLengthBy:12];//crc32,compressed,uncompressed
@@ -1864,7 +1867,8 @@ RSResponse* dicomzip(
            [CENTRAL appendBytes:&zipVersion length:2];//made by
            [CENTRAL appendBytes:&zipVersion length:2];//needed
            [CENTRAL appendBytes:&zipBitFlags length:2];
-           [CENTRAL appendBytes:&zipCompression8 length:2];
+           //[CENTRAL appendBytes:&zipCompression8 length:2];
+           [CENTRAL appendBytes:&zipCompression0 length:2];
            [CENTRAL appendBytes:&zipTime length:2];
            [CENTRAL appendBytes:&zipDate length:2];
            [CENTRAL appendBytes:&zipCRC32 length:4];
