@@ -32,10 +32,11 @@ enum accessType{
    accessTypeOsirix,
    accessTypeDatatablesSeries,
    accessTypeDatatablesPatient,
-   accessTypeUncompressedDicomZip,
-   accessTypeDeflateDicomZip,
-   accessTypeDicomZipx
-   
+   accessTypeIsoDicomZip,
+   accessTypeDeflateIsoDicomZip,
+   accessTypeMaxDeflateIsoDicomZip,
+   accessTypeZip64IsoDicomZip,
+   accessTypeWadoRSDicom
 };
 
 enum selectType{
@@ -64,47 +65,22 @@ enum dateMatch{
 #pragma mark static
 
 
-// ZIP structure (dynamic and repeated commented)
+// ZIP ISO structure
 
 static uint32 zipLOCAL=0x04034B50;
+
 static uint16 zipVersion=0x000A;//1.0 default value
+
 static uint16 zipBitFlagsNone=0x0000;
-static uint16 zipBitFlagsDescriptor=0x0008;
-//b0=encripted
-//b3=post descriptor
+static uint16 zipBitFlagsMaxCompression=0x0002;
+static uint16 zipBitFlagsDescriptor=0x0008;//post data descriptor
+
 /*
- Bit 0: If set, indicates that the file is encrypted.
-
- (For Method 6 - Imploding)
- Bit 1: If the compression method used was type 6,
-        Imploding, then this bit, if set, indicates
-        an 8K sliding dictionary was used.  If clear,
-        then a 4K sliding dictionary was used.
-
- Bit 2: If the compression method used was type 6,
-        Imploding, then this bit, if set, indicates
-        3 Shannon-Fano trees were used to encode the
-        sliding dictionary output.  If clear, then 2
-        Shannon-Fano trees were used.
-
- (For Methods 8 and 9 - Deflating)
  Bit 2  Bit 1
    0      0    Normal (-en) compression option was used.
    0      1    Maximum (-exx/-ex) compression option was used.
    1      0    Fast (-ef) compression option was used.
    1      1    Super Fast (-es) compression option was used.
-
- (For Method 14 - LZMA)
- Bit 1: If the compression method used was type 14,
-        LZMA, then this bit, if set, indicates
-        an end-of-stream (EOS) marker is used to
-        mark the end of the compressed data stream.
-        If clear, then an EOS marker is not present
-        and the compressed data size must be known
-        to extract.
-
- Note:  Bits 1 and 2 are undefined if the compression
-        method is any other.
 
  Bit 3: If this bit is set, the fields crc-32, compressed
         size and uncompressed size are set to zero in the
@@ -118,48 +94,14 @@ static uint16 zipBitFlagsDescriptor=0x0008;
  Bit 4: Reserved for use with method 8, for enhanced
         deflating.
 
- Bit 5: If this bit is set, this indicates that the file is
-        compressed patched data.  (Note: Requires PKZIP
-        version 2.70 or greater)
-
- Bit 6: Strong encryption.  If this bit is set, you MUST
-        set the version needed to extract value to at least
-        50 and you MUST also set bit 0.  If AES encryption
-        is used, the version needed to extract value MUST
-        be at least 51. See the section describing the Strong
-        Encryption Specification for details.  Refer to the
-        section in this document entitled "Incorporating PKWARE
-        Proprietary Technology into Your Product" for more
-        information.
-
- Bit 7: Currently unused.
-
- Bit 8: Currently unused.
-
- Bit 9: Currently unused.
-
- Bit 10: Currently unused.
-
  Bit 11: Language encoding flag (EFS).  If this bit is set,
          the filename and comment fields for this file
          MUST be encoded using UTF-8. (see APPENDIX D)
-
- Bit 12: Reserved by PKWARE for enhanced compression.
-
- Bit 13: Set when encrypting the Central Directory to indicate
-         selected data values in the Local Header are masked to
-         hide their actual values.  See the section describing
-         the Strong Encryption Specification for details.  Refer
-         to the section in this document entitled "Incorporating
-         PKWARE Proprietary Technology into Your Product" for
-         more information.
-
- Bit 14: Reserved by PKWARE.
-
- Bit 15: Reserved by PKWARE.
+         (we don´t need it since all the names are pure ASCII)
  */
 static uint16 zipCompression0=0x0000;
 static uint16 zipCompression8=0x0008;
+static uint16 zipCompression9=0x0009;
 //uint16 zipTime;
 //uint16 zipDate;
 //uint32 zipCRC32=0x00000000;
@@ -179,8 +121,8 @@ static uint32 zipDESCRIPTOR=0x08074B50;
 
 
 static uint32 zipCENTRAL=0x02014B50;
-//static uint32 zipMadeBy=0x033F;//03=UNIX, 3F=63 (versión 6.3)
-//static uint32 zipVersionNeeded = zipVersion
+static uint16 zipMadeBy=0x13;
+//zipVersion
 //zipBitFlags
 //zipCompression8
 //zipTime
@@ -266,7 +208,7 @@ RSResponse * sqlEP(
          //find patient fk
          if (execUTF8Bash(sqlcredentials,
                            [NSString stringWithFormat:
-                            sqlDictionary[@"sqlPE4Eui"],
+                            sqlDictionary[@"PE4Eui"],
                             sqlprolog,
                             uid,
                             @"",
@@ -294,7 +236,7 @@ RSResponse * sqlEP(
        {
           if (execUTF8Bash(sqlcredentials,
                             [NSString stringWithFormat:
-                             sqlDictionary[@"sqlPE4Ean"],
+                             sqlDictionary[@"PE4Ean"],
                              sqlprolog,
                              AccessionNumberString,
                              @"",
@@ -316,7 +258,7 @@ RSResponse * sqlEP(
                     {
                        if (execUTF8Bash(sqlcredentials,
                                         [NSString stringWithFormat:
-                                         sqlDictionary[@"sqlEP4PidisEda0"],
+                                         sqlDictionary[@"EP4PidisEda0"],
                                          sqlprolog,
                                          PatientIDString,
                                          issuerString,
@@ -326,7 +268,7 @@ RSResponse * sqlEP(
                                         mutableData)
                            !=0)
                        {
-                           LOG_ERROR(@"studyToken sqlEP4PidisEda0");
+                           LOG_ERROR(@"studyToken EP4PidisEda0");
                            return nil;//ignoring this node but not responding with an error
                        }
                     }
@@ -336,7 +278,7 @@ RSResponse * sqlEP(
                     {
                        if (execUTF8Bash(sqlcredentials,
                                         [NSString stringWithFormat:
-                                         sqlDictionary[@"sqlEP4PidisEda1"],
+                                         sqlDictionary[@"EP4PidisEda1"],
                                          sqlprolog,
                                          PatientIDString,
                                          issuerString,
@@ -347,7 +289,7 @@ RSResponse * sqlEP(
                                         mutableData)
                            !=0)
                        {
-                           LOG_ERROR(@"studyToken sqlEP4PidisEda1");
+                           LOG_ERROR(@"studyToken EP4PidisEda1");
                            return nil;//ignoring this node but not responding with an error
                        }
                     }
@@ -357,7 +299,7 @@ RSResponse * sqlEP(
                     {
                        if (execUTF8Bash(sqlcredentials,
                                         [NSString stringWithFormat:
-                                         sqlDictionary[@"sqlEP4PidisEda2"],
+                                         sqlDictionary[@"EP4PidisEda2"],
                                          sqlprolog,
                                          PatientIDString,
                                          issuerString,
@@ -368,7 +310,7 @@ RSResponse * sqlEP(
                                         mutableData)
                            !=0)
                        {
-                           LOG_ERROR(@"studyToken sqlEP4PidisEda2");
+                           LOG_ERROR(@"studyToken EP4PidisEda2");
                            return nil;//ignoring this node but not responding with an error
                        }
                     }
@@ -378,7 +320,7 @@ RSResponse * sqlEP(
                     {
                        if (execUTF8Bash(sqlcredentials,
                                         [NSString stringWithFormat:
-                                         sqlDictionary[@"sqlEP4PidisEda3"],
+                                         sqlDictionary[@"EP4PidisEda3"],
                                          sqlprolog,
                                          PatientIDString,
                                          issuerString,
@@ -389,7 +331,7 @@ RSResponse * sqlEP(
                                         mutableData)
                            !=0)
                        {
-                           LOG_ERROR(@"studyToken sqlEP4PidisEda3");
+                           LOG_ERROR(@"studyToken EP4PidisEda3");
                            return nil;//ignoring this node but not responding with an error
                        }
                     }
@@ -399,7 +341,7 @@ RSResponse * sqlEP(
                     {
                        if (execUTF8Bash(sqlcredentials,
                                         [NSString stringWithFormat:
-                                         sqlDictionary[@"sqlEP4PidisEda4"],
+                                         sqlDictionary[@"EP4PidisEda4"],
                                          sqlprolog,
                                          PatientIDString,
                                          issuerString,
@@ -411,7 +353,7 @@ RSResponse * sqlEP(
                                         mutableData)
                            !=0)
                        {
-                           LOG_ERROR(@"studyToken sqlEP4PidisEda4");
+                           LOG_ERROR(@"studyToken EP4PidisEda4");
                            return nil;//ignoring this node but not responding with an error
                        }
                     }
@@ -425,7 +367,7 @@ RSResponse * sqlEP(
                    {
                       if (execUTF8Bash(sqlcredentials,
                                        [NSString stringWithFormat:
-                                        sqlDictionary[@"sqlEP4PidEda0"],
+                                        sqlDictionary[@"EP4PidEda0"],
                                         sqlprolog,
                                         PatientIDString,
                                         @"",
@@ -434,7 +376,7 @@ RSResponse * sqlEP(
                                        mutableData)
                           !=0)
                       {
-                          LOG_ERROR(@"studyToken sqlEP4PidEda0");
+                          LOG_ERROR(@"studyToken EP4PidEda0");
                           return nil;//ignoring this node but not responding with an error
                       }
                    }
@@ -444,7 +386,7 @@ RSResponse * sqlEP(
                    {
                       if (execUTF8Bash(sqlcredentials,
                                        [NSString stringWithFormat:
-                                        sqlDictionary[@"sqlEP4PidEda1"],
+                                        sqlDictionary[@"EP4PidEda1"],
                                         sqlprolog,
                                         PatientIDString,
                                         StudyDateArray[0],
@@ -454,7 +396,7 @@ RSResponse * sqlEP(
                                        mutableData)
                           !=0)
                       {
-                          LOG_ERROR(@"studyToken sqlEP4PidEda1");
+                          LOG_ERROR(@"studyToken EP4PidEda1");
                           return nil;//ignoring this node but not responding with an error
                       }
                    }
@@ -464,7 +406,7 @@ RSResponse * sqlEP(
                    {
                       if (execUTF8Bash(sqlcredentials,
                                        [NSString stringWithFormat:
-                                        sqlDictionary[@"sqlEP4PidEda2"],
+                                        sqlDictionary[@"EP4PidEda2"],
                                         sqlprolog,
                                         PatientIDString,
                                         StudyDateArray[0],
@@ -474,7 +416,7 @@ RSResponse * sqlEP(
                                        mutableData)
                           !=0)
                       {
-                          LOG_ERROR(@"studyToken sqlEP4PidEda2");
+                          LOG_ERROR(@"studyToken EP4PidEda2");
                           return nil;//ignoring this node but not responding with an error
                       }
                    }
@@ -484,7 +426,7 @@ RSResponse * sqlEP(
                    {
                       if (execUTF8Bash(sqlcredentials,
                                        [NSString stringWithFormat:
-                                        sqlDictionary[@"sqlEP4PidEda3"],
+                                        sqlDictionary[@"EP4PidEda3"],
                                         sqlprolog,
                                         PatientIDString,
                                         StudyDateArray[2],
@@ -494,7 +436,7 @@ RSResponse * sqlEP(
                                        mutableData)
                           !=0)
                       {
-                          LOG_ERROR(@"studyToken sqlEP4PidEda3");
+                          LOG_ERROR(@"studyToken EP4PidEda3");
                           return nil;//ignoring this node but not responding with an error
                       }
                    }
@@ -504,7 +446,7 @@ RSResponse * sqlEP(
                    {
                       if (execUTF8Bash(sqlcredentials,
                                        [NSString stringWithFormat:
-                                        sqlDictionary[@"sqlEP4PidEda4"],
+                                        sqlDictionary[@"EP4PidEda4"],
                                         sqlprolog,
                                         PatientIDString,
                                         StudyDateArray[0],
@@ -515,7 +457,7 @@ RSResponse * sqlEP(
                                        mutableData)
                           !=0)
                       {
-                          LOG_ERROR(@"studyToken sqlEP4PidEda4");
+                          LOG_ERROR(@"studyToken EP4PidEda4");
                           return nil;//ignoring this node but not responding with an error
                       }
                    }
@@ -564,7 +506,7 @@ RSResponse * sqlEuiE(
          //find patient fk
          if (execUTF8Bash(sqlcredentials,
                            [NSString stringWithFormat:
-                            sqlDictionary[@"sqlEuiE4Euid"],
+                            sqlDictionary[@"EuiE4Euid"],
                             sqlprolog,
                             uid,
                             @"",
@@ -592,7 +534,7 @@ RSResponse * sqlEuiE(
        {
           if (execUTF8Bash(sqlcredentials,
                             [NSString stringWithFormat:
-                             sqlDictionary[@"sqlEuiE4Ean"],
+                             sqlDictionary[@"EuiE4Ean"],
                              sqlprolog,
                              AccessionNumberString,
                              @"",
@@ -614,7 +556,7 @@ RSResponse * sqlEuiE(
                     {
                        if (execUTF8Bash(sqlcredentials,
                                         [NSString stringWithFormat:
-                                         sqlDictionary[@"sqlEuiE4PidisEda0"],
+                                         sqlDictionary[@"EuiE4PidisEda0"],
                                          sqlprolog,
                                          PatientIDString,
                                          issuerString,
@@ -624,7 +566,7 @@ RSResponse * sqlEuiE(
                                         mutableData)
                            !=0)
                        {
-                           LOG_ERROR(@"studyToken sqlEuiE4PidisEda0");
+                           LOG_ERROR(@"studyToken EuiE4PidisEda0");
                            return nil;//ignoring this node but not responding with an error
                        }
                     }
@@ -634,7 +576,7 @@ RSResponse * sqlEuiE(
                     {
                        if (execUTF8Bash(sqlcredentials,
                                         [NSString stringWithFormat:
-                                         sqlDictionary[@"sqlEuiE4PidisEda1"],
+                                         sqlDictionary[@"EuiE4PidisEda1"],
                                          sqlprolog,
                                          PatientIDString,
                                          issuerString,
@@ -645,7 +587,7 @@ RSResponse * sqlEuiE(
                                         mutableData)
                            !=0)
                        {
-                           LOG_ERROR(@"studyToken sqlEuiE4PidisEda1");
+                           LOG_ERROR(@"studyToken EuiE4PidisEda1");
                            return nil;//ignoring this node but not responding with an error
                        }
                     }
@@ -655,7 +597,7 @@ RSResponse * sqlEuiE(
                     {
                        if (execUTF8Bash(sqlcredentials,
                                         [NSString stringWithFormat:
-                                         sqlDictionary[@"sqlEuiE4PidisEda2"],
+                                         sqlDictionary[@"EuiE4PidisEda2"],
                                          sqlprolog,
                                          PatientIDString,
                                          issuerString,
@@ -666,7 +608,7 @@ RSResponse * sqlEuiE(
                                         mutableData)
                            !=0)
                        {
-                           LOG_ERROR(@"studyToken sqlEuiE4PidisEda2");
+                           LOG_ERROR(@"studyToken EuiE4PidisEda2");
                            return nil;//ignoring this node but not responding with an error
                        }
                     }
@@ -676,7 +618,7 @@ RSResponse * sqlEuiE(
                     {
                        if (execUTF8Bash(sqlcredentials,
                                         [NSString stringWithFormat:
-                                         sqlDictionary[@"sqlEuiE4PidisEda3"],
+                                         sqlDictionary[@"EuiE4PidisEda3"],
                                          sqlprolog,
                                          PatientIDString,
                                          issuerString,
@@ -687,7 +629,7 @@ RSResponse * sqlEuiE(
                                         mutableData)
                            !=0)
                        {
-                           LOG_ERROR(@"studyToken sqlEuiE4PidisEda3");
+                           LOG_ERROR(@"studyToken EuiE4PidisEda3");
                            return nil;//ignoring this node but not responding with an error
                        }
                     }
@@ -697,7 +639,7 @@ RSResponse * sqlEuiE(
                     {
                        if (execUTF8Bash(sqlcredentials,
                                         [NSString stringWithFormat:
-                                         sqlDictionary[@"sqlEuiE4PidisEda4"],
+                                         sqlDictionary[@"EuiE4PidisEda4"],
                                          sqlprolog,
                                          PatientIDString,
                                          issuerString,
@@ -709,7 +651,7 @@ RSResponse * sqlEuiE(
                                         mutableData)
                            !=0)
                        {
-                           LOG_ERROR(@"studyToken sqlEuiE4PidisEda4");
+                           LOG_ERROR(@"studyToken EuiE4PidisEda4");
                            return nil;//ignoring this node but not responding with an error
                        }
                     }
@@ -723,7 +665,7 @@ RSResponse * sqlEuiE(
                    {
                       if (execUTF8Bash(sqlcredentials,
                                        [NSString stringWithFormat:
-                                        sqlDictionary[@"sqlEuiE4PidEda0"],
+                                        sqlDictionary[@"EuiE4PidEda0"],
                                         sqlprolog,
                                         PatientIDString,
                                         @"",
@@ -732,7 +674,7 @@ RSResponse * sqlEuiE(
                                        mutableData)
                           !=0)
                       {
-                          LOG_ERROR(@"studyToken sqlEuiE4PidEda0");
+                          LOG_ERROR(@"studyToken EuiE4PidEda0");
                           return nil;//ignoring this node but not responding with an error
                       }
                    }
@@ -742,7 +684,7 @@ RSResponse * sqlEuiE(
                    {
                       if (execUTF8Bash(sqlcredentials,
                                        [NSString stringWithFormat:
-                                        sqlDictionary[@"sqlEuiE4PidEda1"],
+                                        sqlDictionary[@"EuiE4PidEda1"],
                                         sqlprolog,
                                         PatientIDString,
                                         StudyDateArray[0],
@@ -752,7 +694,7 @@ RSResponse * sqlEuiE(
                                        mutableData)
                           !=0)
                       {
-                          LOG_ERROR(@"studyToken sqlEuiE4PidEda1");
+                          LOG_ERROR(@"studyToken EuiE4PidEda1");
                           return nil;//ignoring this node but not responding with an error
                       }
                    }
@@ -762,7 +704,7 @@ RSResponse * sqlEuiE(
                    {
                       if (execUTF8Bash(sqlcredentials,
                                        [NSString stringWithFormat:
-                                        sqlDictionary[@"sqlEuiE4PidEda2"],
+                                        sqlDictionary[@"EuiE4PidEda2"],
                                         sqlprolog,
                                         PatientIDString,
                                         StudyDateArray[0],
@@ -772,7 +714,7 @@ RSResponse * sqlEuiE(
                                        mutableData)
                           !=0)
                       {
-                          LOG_ERROR(@"studyToken sqlEuiE4PidEda2");
+                          LOG_ERROR(@"studyToken EuiE4PidEda2");
                           return nil;//ignoring this node but not responding with an error
                       }
                    }
@@ -782,7 +724,7 @@ RSResponse * sqlEuiE(
                    {
                       if (execUTF8Bash(sqlcredentials,
                                        [NSString stringWithFormat:
-                                        sqlDictionary[@"sqlEuiE4PidEda3"],
+                                        sqlDictionary[@"EuiE4PidEda3"],
                                         sqlprolog,
                                         PatientIDString,
                                         StudyDateArray[2],
@@ -792,7 +734,7 @@ RSResponse * sqlEuiE(
                                        mutableData)
                           !=0)
                       {
-                          LOG_ERROR(@"studyToken sqlEuiE4PidEda3");
+                          LOG_ERROR(@"studyToken EuiE4PidEda3");
                           return nil;//ignoring this node but not responding with an error
                       }
                    }
@@ -802,7 +744,7 @@ RSResponse * sqlEuiE(
                    {
                       if (execUTF8Bash(sqlcredentials,
                                        [NSString stringWithFormat:
-                                        sqlDictionary[@"sqlEuiE4PidEda4"],
+                                        sqlDictionary[@"EuiE4PidEda4"],
                                         sqlprolog,
                                         PatientIDString,
                                         StudyDateArray[0],
@@ -813,7 +755,7 @@ RSResponse * sqlEuiE(
                                        mutableData)
                           !=0)
                       {
-                          LOG_ERROR(@"studyToken sqlEuiE4PidEda4");
+                          LOG_ERROR(@"studyToken EuiE4PidEda4");
                           return nil;//ignoring this node but not responding with an error
                       }
                    }
@@ -1041,7 +983,7 @@ RSResponse * weasis(
                         [mutableData setData:[NSData data]];
                         if (execUTF8Bash(sqlcredentials,
                                           [NSString stringWithFormat:
-                                           sqlDictionary[@"sqlP"],
+                                           sqlDictionary[@"P"],
                                            sqlprolog,
                                            P,
                                            @"",
@@ -1075,7 +1017,7 @@ NSXMLElement *PatientElement=nil;
                               [mutableData setData:[NSData data]];
                               if (execUTF8Bash(sqlcredentials,
                                                 [NSString stringWithFormat:
-                                                 sqlDictionary[@"sqlE"],
+                                                 sqlDictionary[@"E"],
                                                  sqlprolog,
                                                  E,
                                                  @"",
@@ -1110,11 +1052,11 @@ NSXMLElement *PatientElement=nil;
                         [mutableData setData:[NSData data]];
                         if (execUTF8Bash(sqlcredentials,
                                           [NSString stringWithFormat:
-                                           sqlDictionary[@"sqlS"],
+                                           sqlDictionary[@"S"],
                                            sqlprolog,
                                            E,
                                            @"",
-                                           sqlRecordFiveUnits
+                                           sqlRecordTenUnits
                                            ],
                                           mutableData)
                             !=0)
@@ -1127,7 +1069,7 @@ NSXMLElement *PatientElement=nil;
                         {
                            NSString *SOPClass=SOPCLassOfReturnableSeries(
                             sqlcredentials,
-                            sqlDictionary[@"sqlIci4S"],
+                            sqlDictionary[@"Ici4S"],
                             sqlprolog,
                             SProperties,
                             SeriesInstanceUIDRegex,
@@ -1143,7 +1085,7 @@ NSXMLElement *PatientElement=nil;
                               [mutableData setData:[NSData data]];
                               if (execUTF8Bash(sqlcredentials,
                                                 [NSString stringWithFormat:
-                                                 sqlDictionary[@"sqlI"],
+                                                 sqlDictionary[@"I"],
                                                  sqlprolog,
                                                  SProperties[0],
                                                  @"",
@@ -1359,7 +1301,7 @@ RSResponse* cornerstone(
                            [mutableData setData:[NSData data]];
                            if (execUTF8Bash(sqlcredentials,
                                              [NSString stringWithFormat:
-                                              sqlDictionary[@"sqlP"],
+                                              sqlDictionary[@"P"],
                                               sqlprolog,
                                               P,
                                               @"",
@@ -1392,7 +1334,7 @@ NSMutableArray *studyArray=[NSMutableArray array];
                               [mutableData setData:[NSData data]];
                               if (execUTF8Bash(sqlcredentials,
                                                 [NSString stringWithFormat:
-                                                 sqlDictionary[@"sqlE"],
+                                                 sqlDictionary[@"E"],
                                                  sqlprolog,
                                                  E,
                                                  @"",
@@ -1435,7 +1377,7 @@ NSMutableArray *studyArray=[NSMutableArray array];
                         [mutableData setData:[NSData data]];
                         if (execUTF8Bash(sqlcredentials,
                                           [NSString stringWithFormat:
-                                           sqlDictionary[@"sqlS"],
+                                           sqlDictionary[@"S"],
                                            sqlprolog,
                                            E,
                                            @"",
@@ -1453,7 +1395,7 @@ NSMutableArray *studyArray=[NSMutableArray array];
 //#pragma mark series loop
                            NSString *SOPClass=SOPCLassOfReturnableSeries(
                             sqlcredentials,
-                            sqlDictionary[@"sqlIci4S"],
+                            sqlDictionary[@"Ici4S"],
                             sqlprolog,
                             SProperties,
                             SeriesInstanceUIDRegex,
@@ -1469,7 +1411,7 @@ NSMutableArray *studyArray=[NSMutableArray array];
                               [mutableData setData:[NSData data]];
                               if (execUTF8Bash(sqlcredentials,
                                                 [NSString stringWithFormat:
-                                                 sqlDictionary[@"sqlI"],
+                                                 sqlDictionary[@"I"],
                                                  sqlprolog,
                                                  SProperties[0],
                                                  @"",
@@ -1568,11 +1510,11 @@ RSResponse* dicomzip(
 )
 {
    //information model for getting and pulling the information, either from source or from cache
-   __block NSArray *jsonArray=[NSArray array];
+   __block NSArray        *jsonArray=[NSArray array];
    __block NSMutableArray *filenames=[NSMutableArray array];
-   __block NSMutableArray *wados=[NSMutableArray array];
-   __block NSMutableArray *crc32s=[NSMutableArray array];
-   __block NSMutableArray *lengths=[NSMutableArray array];
+   __block NSMutableArray *wados=    [NSMutableArray array];
+   __block NSMutableArray *crc32s=   [NSMutableArray array];
+   __block NSMutableArray *lengths=  [NSMutableArray array];
 
    //cache made of a session.json manifest file and a corresponding session/ directory
    __block NSFileManager *fileManager=[NSFileManager defaultManager];
@@ -1658,10 +1600,10 @@ RSResponse* dicomzip(
              NSString *custodianString=devCustodianOIDArray[0];
              NSDictionary *custodianDict=DRS.pacs[custodianString];
 
-    #pragma mark · GET type index
+#pragma mark · GET type index
              NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:custodianDict[@"get"]];
 
-    #pragma mark · SELECT switch
+#pragma mark · SELECT switch
              switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:custodianDict[@"select"]]) {
                 
                 case NSNotFound:{
@@ -1669,14 +1611,14 @@ RSResponse* dicomzip(
                 } break;
                    
                 case selectTypeSql:{
-       #pragma mark · SQL SELECT (unique option for now)
+#pragma mark · SQL SELECT (unique option for now)
                    NSDictionary *sqlcredentials=@{custodianDict[@"sqluser"]:custodianDict[@"sqlpassword"]};
                    NSString *sqlprolog=custodianDict[@"sqlprolog"];
                    NSDictionary *sqlDictionary=DRS.sqls[custodianDict[@"sqlmap"]];
 
                    
 
-    #pragma mark · apply EuiE (Study Patient) filters
+#pragma mark · apply EuiE (Study Patient) filters
                          NSMutableDictionary *EuiEDict=[NSMutableDictionary dictionary];
                          RSResponse *sqlEuiEErrorReturned=sqlEuiE(
                           EuiEDict,
@@ -1692,7 +1634,7 @@ RSResponse* dicomzip(
                          if (sqlEuiEErrorReturned) return sqlEuiEErrorReturned;
                  
 
-    #pragma mark ·· GET switch
+#pragma mark ·· GET switch
                    switch (getTypeIndex) {
                          
                       case NSNotFound:{
@@ -1700,16 +1642,16 @@ RSResponse* dicomzip(
                       } break;
 
                       case getTypeWado:{
-    #pragma mark ·· WADO (unique option for now)
+#pragma mark ·· WADO (unique option for now)
                          
                          NSMutableData *mutableData=[NSMutableData data];
                          for (NSString *Eui in EuiEDict)
                          {
-    //#pragma mark study loop
+//#pragma mark study loop
                             [mutableData setData:[NSData data]];
                             if (execUTF8Bash(sqlcredentials,
                                            [NSString stringWithFormat:
-                                            sqlDictionary[@"sqlS"],
+                                            sqlDictionary[@"S"],
                                             sqlprolog,
                                             EuiEDict[Eui],
                                             @"",
@@ -1724,10 +1666,10 @@ RSResponse* dicomzip(
                             NSArray *SPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
                             for (NSArray *SProperties in SPropertiesArray)
                             {
-    //#pragma mark series loop
+//#pragma mark series loop
                                NSString *SOPClass=SOPCLassOfReturnableSeries(
                                 sqlcredentials,
-                                sqlDictionary[@"sqlIci4S"],
+                                sqlDictionary[@"Ici4S"],
                                 sqlprolog,
                                 SProperties,
                                 SeriesInstanceUIDRegex,
@@ -1743,7 +1685,7 @@ RSResponse* dicomzip(
                                   [mutableData setData:[NSData data]];
                                   if (execUTF8Bash(sqlcredentials,
                                                  [NSString stringWithFormat:
-                                                  sqlDictionary[@"sqlIui4S"],
+                                                  sqlDictionary[@"Iui4S"],
                                                   sqlprolog,
                                                   SProperties[0],
                                                   @"",
@@ -1777,12 +1719,11 @@ RSResponse* dicomzip(
        }//end at least one dev
     }
 
-#pragma mark wado thread
-
 #pragma mark stream zipped response
     
    __block NSMutableData *CENTRAL=[NSMutableData data];
-   __block BOOL END=false;
+   __block BOOL needsEpilog=(accessType!=accessTypeWadoRSDicom);
+   __block BOOL needsProlog=(accessType==accessTypeWadoRSDicom);
 #pragma mark TODO Time and Date
    __block uint16 zipTime=0x7534;
    __block uint16 zipDate=0x4F3B;
@@ -1792,24 +1733,50 @@ RSResponse* dicomzip(
    // The RSAsyncStreamBlock works like the RSStreamBlock
    // The block must call "completionBlock" passing the new chunk of data when ready, an empty NSData when done, or nil on error and pass a NSError.
    // The block cannot call "completionBlock" more than once per invocation.
+   
+   
+   
+   
+#pragma mark - handler
    return [RSStreamedResponse responseWithContentType:@"application/octet-stream" asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
    {
-     if (LOCALIndex < wados.count)
-     {
+      /*
+       5 steps:
+       - prolog
+       - entry data (LOCAL) for each entry
+       - entry directory (if CENTRAL data exists)
+       - epilog
+       - end of stream
+       
+       wadors has prolog and data
+       zip has data, directory, and epilog
+       ... pdf...
+       */
+#pragma mark 1. PROLOG
+      if (needsProlog)
+      {
+         needsProlog=false;
+         
+      }
+#pragma mark 2. DATA
+      else if (LOCALIndex < wados.count)
+      {
+#pragma mark prepar crc32, compressed, uncompressed, entryData
         NSData *entryData=nil;
         NSString *entryPath=nil;
-        uint32 zipCRC32=0x00000000;//computed after data production
-        uint32 zipCompressedSize=0x00000000;//computed after data production
-        uint32 zipUncompressedSize=0x00000000;//computed after data production
+        uint32 zipCRC32=0x00000000;
+        uint16 zipCompression=zipCompression0;
+        uint32 zipCompressedSize=0x00000000;
+        uint32 zipUncompressedSize=0x00000000;
 
         if (fromCache) entryPath=[DIR stringByAppendingPathComponent:filenames[LOCALIndex]];
         //if exists, get it from caché, else perform qido
         if (fromCache && [fileManager fileExistsAtPath:entryPath])
         {
-                entryData=[NSData dataWithContentsOfFile:entryPath];
-                zipCompressedSize=(uint32)entryData.length;
-                zipCRC32=(uint32)crc32s[LOCALIndex];
-                zipUncompressedSize=(uint32)lengths[LOCALIndex];
+            entryData=[NSData dataWithContentsOfFile:entryPath];
+            zipCompressedSize=(uint32)entryData.length;
+            zipCRC32=(uint32)crc32s[LOCALIndex];
+            zipUncompressedSize=(uint32)lengths[LOCALIndex];
         }
         else if (wados[LOCALIndex])
         {
@@ -1828,13 +1795,17 @@ RSResponse* dicomzip(
             ];
            switch (accessType) {
               case accessTypeDicomzip:
-              case accessTypeUncompressedDicomZip:
+              case accessTypeIsoDicomZip:
+              case accessTypeWadoRSDicom:
                  entryData=uncompressedData;
                  break;
                  
-              case accessTypeDeflateDicomZip:
-              case accessTypeDicomZipx:
+              case accessTypeDeflateIsoDicomZip:
                  entryData=[uncompressedData rawzip];
+                 break;
+                 
+              case accessTypeMaxDeflateIsoDicomZip:
+                 entryData=[uncompressedData maxrawzip];
                  break;
            }
            zipCompressedSize=(uint32)entryData.length;
@@ -1849,125 +1820,145 @@ RSResponse* dicomzip(
         }
         else
         {
-           NSMutableData *LOCAL=[NSMutableData data];
+           
+#pragma mark streamings
 
-           [LOCAL appendBytes:&zipLOCAL length:4];
-           [LOCAL appendBytes:&zipVersion length:2];
            switch (accessType) {
               case accessTypeDicomzip:
-              case accessTypeUncompressedDicomZip:
+              case accessTypeIsoDicomZip:
+              case accessTypeDeflateIsoDicomZip:
+              case accessTypeMaxDeflateIsoDicomZip:
+              {
+                 if (zipCompressedSize != zipUncompressedSize) zipCompression=zipCompression8;
+                 NSData *nameData=[filenames[LOCALIndex] dataUsingEncoding:NSASCIIStringEncoding];
+                 NSMutableData *LOCAL=[NSMutableData data];
+
+                 [LOCAL appendBytes:&zipLOCAL length:4];
+                 [LOCAL appendBytes:&zipVersion length:2];
                  [LOCAL appendBytes:&zipBitFlagsNone length:2];
-                 [LOCAL appendBytes:&zipCompression0 length:2];
+                 [LOCAL appendBytes:&zipCompression length:2];
+                 [LOCAL appendBytes:&zipTime length:2];
+                 [LOCAL appendBytes:&zipDate length:2];
+                 [LOCAL appendBytes:&zipCRC32 length:4];
+                 [LOCAL appendBytes:&zipUncompressedSize length:4];
+                 [LOCAL appendBytes:&zipCompressedSize length:4];
+                 [LOCAL appendBytes:&zipNameLength length:2];
+                 [LOCAL appendBytes:&zipExtraLength length:2];
+                 [LOCAL appendData:nameData];
+                 //noExtra
+                 [LOCAL appendData:entryData];
+                 completionBlock(LOCAL, nil);
+
+                 //CENTRAL 46
+                 [CENTRAL appendBytes:&zipCENTRAL length:4];
+                 [CENTRAL appendBytes:&zipMadeBy length:2];//made by
+                 [CENTRAL appendBytes:&zipVersion length:2];//needed
+                 [CENTRAL appendBytes:&zipBitFlagsNone length:2];
+                 [CENTRAL appendBytes:&zipCompression length:2];
+                 [CENTRAL appendBytes:&zipTime length:2];
+                 [CENTRAL appendBytes:&zipDate length:2];
+                 [CENTRAL appendBytes:&zipCRC32 length:4];
+                 [CENTRAL appendBytes:&zipCompressedSize length:4];
+                 [CENTRAL appendBytes:&zipUncompressedSize length:4];
+                 [CENTRAL appendBytes:&zipNameLength length:2];
+                 [CENTRAL appendBytes:&zipExtraLength length:2];
+                 [CENTRAL appendBytes:&zipExtraLength length:2];//comment
+                 [CENTRAL appendBytes:&zipExtraLength length:2];//disk number start
+                 [CENTRAL appendBytes:&zipExtraLength length:2];//internal file attribute
+                 [CENTRAL appendBytes:&zipExternalFileAttributes length:4];
+                 [CENTRAL appendBytes:&LOCALPointer length:4];//offsetOfLocalHeader
+                 [CENTRAL appendData:nameData];
+                 //noExtra
+                 //noComment
+
+                 LOCALPointer+=entryData.length+66;//30 entry + 36 name
+              } break;
+                 
+              case accessTypeWadoRSDicom:
+#pragma mark TODO WADORSDICOM for each file
+                 completionBlock([NSData data], nil);
+                 break;
+
+              case accessTypeZip64IsoDicomZip:
+#pragma mark TODO zip64 for each file
+              {
+                 NSData *nameData=[filenames[LOCALIndex] dataUsingEncoding:NSASCIIStringEncoding];
+                 NSMutableData *LOCAL=[NSMutableData data];
+                 [LOCAL appendBytes:&zipLOCAL length:4];
+                 [LOCAL appendBytes:&zipVersion length:2];
+                 [LOCAL appendBytes:&zipBitFlagsDescriptor length:2];
+                 [LOCAL appendBytes:&zipCompression length:2];
                  [LOCAL appendBytes:&zipTime length:2];
                  [LOCAL appendBytes:&zipDate length:2];
                  [LOCAL increaseLengthBy:12];
-                 //crc32,compressed,uncompressed
-                 break;
+                 [LOCAL appendBytes:&zipNameLength length:2];
+                 [LOCAL appendBytes:&zipExtraLength length:2];
+                 [LOCAL appendData:nameData];
+                 //noExtra
+                 [LOCAL appendData:entryData];
                  
-              case accessTypeDeflateDicomZip:
-              case accessTypeDicomZipx:
-                 [LOCAL appendBytes:&zipBitFlagsDescriptor length:2];
-                 [LOCAL appendBytes:&zipCompression8 length:2];
-                 [LOCAL appendBytes:&zipTime length:2];
-                 [LOCAL appendBytes:&zipDate length:2];
-                 [LOCAL appendBytes:&zipCRC32 length:4];
-                 [LOCAL appendBytes:&zipUncompressedSize length:4];//zipCompressedSize
-                 [LOCAL appendBytes:&zipCompressedSize length:4];//zipUncompressedSize
-                 break;
-           }
-           [LOCAL appendBytes:&zipNameLength length:2];
-           [LOCAL appendBytes:&zipExtraLength length:2];
-           NSData *nameData=[filenames[LOCALIndex] dataUsingEncoding:NSASCIIStringEncoding];
-           [LOCAL appendData:nameData];
-           //noExtra
-           //zipData
-
-           //DATA
-           [LOCAL appendData:entryData];//compressed data
-           
-           switch (accessType) {
-              case accessTypeDicomzip:
-              case accessTypeUncompressedDicomZip:
-                 break;
-                 
-              case accessTypeDeflateDicomZip:
-              case accessTypeDicomZipx:
-                 //DESCRIPTOR 16
                  [LOCAL appendBytes:&zipDESCRIPTOR length:4];
                  [LOCAL appendBytes:&zipCRC32 length:4];
-                 [LOCAL appendBytes:&zipUncompressedSize length:4];//zipCompressedSize
-                 [LOCAL appendBytes:&zipCompressedSize length:4];//zipUncompressedSize
-                 break;
-           }
+                 [LOCAL appendBytes:&zipUncompressedSize length:4];
+                 [LOCAL appendBytes:&zipCompressedSize length:4];
 
-           completionBlock(LOCAL, nil);
-
-           //CENTRAL 46
-           [CENTRAL appendBytes:&zipCENTRAL length:4];
-           [CENTRAL appendBytes:&zipVersion length:2];//made by
-           [CENTRAL appendBytes:&zipVersion length:2];//needed
-           [CENTRAL appendBytes:&zipCompression0 length:2];
-           switch (accessType) {
-              case accessTypeDicomzip:
-              case accessTypeUncompressedDicomZip:
-                 [CENTRAL appendBytes:&zipBitFlagsNone length:2];
-                 [CENTRAL appendBytes:&zipCompression0 length:2];
-                 break;
                  
-              case accessTypeDeflateDicomZip:
-              case accessTypeDicomZipx:
-                 [CENTRAL appendBytes:&zipBitFlagsDescriptor length:2];
-                 [CENTRAL appendBytes:&zipCompression8 length:2];
-                 break;
-           }
-           [CENTRAL appendBytes:&zipTime length:2];
-           [CENTRAL appendBytes:&zipDate length:2];
-           [CENTRAL appendBytes:&zipCRC32 length:4];
-           [CENTRAL appendBytes:&zipCompressedSize length:4];
-           [CENTRAL appendBytes:&zipUncompressedSize length:4];
-           [CENTRAL appendBytes:&zipNameLength length:2];
-           [CENTRAL appendBytes:&zipExtraLength length:2];
-           [CENTRAL appendBytes:&zipExtraLength length:2];//comment
-           [CENTRAL appendBytes:&zipExtraLength length:2];//disk number start
-           [CENTRAL appendBytes:&zipExtraLength length:2];//internal file attribute
-           [CENTRAL appendBytes:&zipExternalFileAttributes length:4];
-           [CENTRAL appendBytes:&LOCALPointer length:4];//offsetOfLocalHeader
-           [CENTRAL appendData:nameData];
-           //noExtra
-           //noComment
+                 completionBlock(LOCAL, nil);
 
-           
-           LOCALPointer+=entryData.length+66;//30 entry + 36 name
-           if (
-                   (accessType==accessTypeDeflateDicomZip)
-               ||  (accessType==accessTypeDicomZipx)
-               ) LOCALPointer+=16;//descriptor
-           LOCALIndex++;
-        }
-     }
-     else if (CENTRAL.length) //chunk with directory
-     {
+                 //CENTRAL 46
+                 [CENTRAL appendBytes:&zipCENTRAL length:4];
+                 [CENTRAL appendBytes:&zipMadeBy length:2];//made by
+                 [CENTRAL appendBytes:&zipVersion length:2];//needed
+                 [CENTRAL appendBytes:&zipBitFlagsDescriptor length:2];
+                 [CENTRAL appendBytes:&zipCompression length:2];
+                 [CENTRAL appendBytes:&zipTime length:2];
+                 [CENTRAL appendBytes:&zipDate length:2];
+                 [CENTRAL appendBytes:&zipCRC32 length:4];
+                 [CENTRAL appendBytes:&zipCompressedSize length:4];
+                 [CENTRAL appendBytes:&zipUncompressedSize length:4];
+                 [CENTRAL appendBytes:&zipNameLength length:2];
+                 [CENTRAL appendBytes:&zipExtraLength length:2];
+                 [CENTRAL appendBytes:&zipExtraLength length:2];//comment
+                 [CENTRAL appendBytes:&zipExtraLength length:2];//disk number start
+                 [CENTRAL appendBytes:&zipExtraLength length:2];//internal file attribute
+                 [CENTRAL appendBytes:&zipExternalFileAttributes length:4];
+                 [CENTRAL appendBytes:&LOCALPointer length:4];//offsetOfLocalHeader
+                 [CENTRAL appendData:nameData];
+                 //noExtra
+                 //noComment
+
+                 LOCALPointer+=entryData.length+66+16;//30 entry + 36 name + 16 descriptor
+                 } break;
+
+            }
+         }
+      }
+#pragma mark 3. DIRECTORY
+      else if (CENTRAL.length) //chunk with directory
+      {
         completionBlock(CENTRAL, nil);
         [CENTRAL setData:[NSData data]];
-     }
-     else if (!END)
-     {
+      }
+#pragma mark 4. EPILOG
+      else if (needsEpilog)
+      {
          [CENTRAL appendBytes:&zipEND length:4];
          [CENTRAL appendBytes:&zipDiskNumber length:2];
          [CENTRAL appendBytes:&zipDiskCentralStarts length:2];
          [CENTRAL appendBytes:&LOCALIndex length:2];//disk zipEntries
          [CENTRAL appendBytes:&LOCALIndex length:2];//total zipEntries
-         uint32 CENTRALSize=86 * LOCALIndex;
+         uint32 CENTRALSize=82 * LOCALIndex;
          [CENTRAL appendBytes:&CENTRALSize length:4];
          [CENTRAL appendBytes:&LOCALPointer length:4];
          [CENTRAL appendBytes:&zipExtraLength length:2];//comment
          
          completionBlock(CENTRAL, nil);
          [CENTRAL setData:[NSData data]];
-         END=true;
+         needsEpilog=false;
      }
-     else
-     {
+#pragma mark 5. END OF STREAM
+      else
+      {
         completionBlock(CENTRAL, nil);//empty last chunck
         
         //write JSON
@@ -1986,8 +1977,7 @@ RSResponse* dicomzip(
             ])
            LOG_WARNING(@"studyToken could not save dicomzip json");
      }
-     
-  }];
+   }];
 }
 
 
@@ -2273,9 +2263,11 @@ RSResponse* osirixdcmURLs(
                      @"/osirix.dcmURLs",
                      @"/datatablesseries.json",
                      @"/datatablespatient.json",
-                     @"uncompressed.dicom.zip",
-                     @"deflate.dicom.zip",
-                     @"dicom.zipx"
+                     @"/iso.dicom.zip",
+                     @"/deflate.iso.dicom.zip",
+                     @"/max.deflate.iso.dicom.zip",
+                     @"/zip64.iso.dicom.zip",
+                     @"/wadors.dicom"
                   ]  indexOfObject:requestPath
                   ];
    else
@@ -2284,15 +2276,17 @@ RSResponse* osirixdcmURLs(
       if (accessTypeIndex==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType required in request"];
       accessType=[
                   @[
-                     @"/weasis.xml",
-                     @"/cornerstone.json",
-                     @"/dicom.zip",
-                     @"/osirix.dcmURLs",
-                     @"/datatablesseries.json",
-                     @"/datatablespatient.json",
-                     @"uncompressed.dicom.zip",
-                     @"deflate.dicom.zip",
-                     @"dicom.zipx"
+                     @"weasis.xml",
+                     @"cornerstone.json",
+                     @"dicom.zip",
+                     @"osirix.dcmURLs",
+                     @"datatablesseries.json",
+                     @"datatablespatient.json",
+                     @"iso.dicom.zip",
+                     @"deflate.iso.dicom.zip",
+                     @"max.deflate.iso.dicom.zip",
+                     @"zip64.iso.dicom.zip",
+                     @"wadors.dicom"
                   ]
                   indexOfObject:values[accessTypeIndex]
                   ];
@@ -2344,9 +2338,9 @@ RSResponse* osirixdcmURLs(
                  );
          } break;//end of sql wado cornerstone
       case accessTypeDicomzip:
-      case accessTypeUncompressedDicomZip:
-      case accessTypeDeflateDicomZip:
-      case accessTypeDicomZipx:
+      case accessTypeIsoDicomZip:
+      case accessTypeDeflateIsoDicomZip:
+      case accessTypeMaxDeflateIsoDicomZip:
       {
             return dicomzip(
                     proxyURIString,

@@ -14,9 +14,14 @@
    ("StudyDate":"() |aaaa-mm-dd  aaaa-mm-dd  aaaa-mm-dd| aaaa-mm-dd|aaaa-mm-dd")
    ("issuer":"oid")
  
-   ("SeriesInstanceUID":"regex")}
-   ("SeriesNumber":"regex")}
+   ("SeriesInstanceUID":"regex")
+   ("SeriesNumber":"regex")
+ 
+   ("SeriesInstitution":"regex")
+   ("SeriesDepartment":"regex")
+   ("SeriesStationName":"regex")
    ("SeriesDescription":"regex")
+
    ("Modality":"regex")
    ("SOPClass":"regex")
    ("SOPClassOff":"regex")

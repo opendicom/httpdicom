@@ -6,55 +6,55 @@
 <!-- pk study + pk patient -->
         
         <!-- match study UID -->
-        <key>sqlEP4Eui</key>
+        <key>EP4Eui</key>
         <string>%@SELECT pk,patient_fk FROM study WHERE study_iuid='%@' %@ %@</string>
         
         <!-- match accession number -->
-        <key>sqlEP4Ean</key>
+        <key>EP4Ean</key>
         <string>%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' %@ %@</string>
 
 
 
         <!-- match Pid + Eda (empty) = any -->
-        <key>sqlEP4PidEda0</key>
+        <key>EP4PidEda0</key>
         <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' %@ %@</string>
         
         <!-- match Pid + Eda [aaaa-mm-dd] = on -->
-        <key>sqlEP4PidEda1</key>
+        <key>EP4PidEda1</key>
         <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
         
         <!-- match Pid + Eda [aaaa-mm-dd][] = since -->
-        <key>sqlEP4PidEda2</key>
+        <key>EP4PidEda2</key>
         <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
         
         <!-- match Pid + Eda [][][aaaa-mm-dd] = until -->
-        <key>sqlEP4PidEda3</key>
+        <key>EP4PidEda3</key>
         <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
         
         <!-- match Pid + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
-        <key>sqlEP4PidEda4</key>
+        <key>EP4PidEda4</key>
         <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
 
 
 
         <!-- match Pidis + Eda (empty) -> any -->
-        <key>sqlEP4PidisEda0</key>
+        <key>EP4PidisEda0</key>
         <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND patient.pat_id_issuer = '%@' %@ %@</string>
         
         <!-- match Pidis + Eda [aaaa-mm-dd] = on -->
-        <key>sqlEP4PidisEda1</key>
+        <key>EP4PidisEda1</key>
         <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
         
         <!-- match Pidis + Eda [aaaa-mm-dd][] = since -->
-        <key>sqlEP4PidisEda2</key>
+        <key>EP4PidisEda2</key>
         <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
         
         <!-- match Pidis + Eda [][][aaaa-mm-dd] = until -->
-        <key>sqlEP4PidisEda3</key>
+        <key>EP4PidisEda3</key>
         <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
         
         <!-- match Pidis + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
-        <key>sqlEP4PidisEda4</key>
+        <key>EP4PidisEda4</key>
         <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
         
         
@@ -62,56 +62,56 @@
 <!-- pk study + studyInstanceUID -->
         
         <!-- match study UID -->
-        <key>sqlEuiE4Euid</key>
+        <key>EuiE4Euid</key>
         <string>%@SELECT study_iuid, pk FROM study WHERE study_iuid='%@' %@ %@</string>
         
        <!-- match accession number -->
-       <key>sqlEuiE4Ean</key>
+       <key>EuiE4Ean</key>
        <string>%@SELECT study_iuid, pk FROM study WHERE accession_no='%@' %@ %@</string>
 
 
 
         <!-- match Pid + Eda (empty) = any -->
-       <key>sqlEuiE4PidEda0</key>
+       <key>EuiE4PidEda0</key>
        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' %@ %@</string>
         
         <!-- match Pid + Eda [aaaa-mm-dd] = on -->
-        <key>sqlEuiE4PidEda1</key>
+        <key>EuiE4PidEda1</key>
         <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
         
         <!-- match Pid + Eda [aaaa-mm-dd][] = since -->
-        <key>sqlEuiE4PidEda2</key>
+        <key>EuiE4PidEda2</key>
         <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
         
         <!-- match Pid + Eda [][][aaaa-mm-dd] = until -->
-        <key>sqlEuiE4PidEda3</key>
+        <key>EuiE4PidEda3</key>
         <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
         
         <!-- match Pid + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
-        <key>sqlEuiE4PidEda4</key>
+        <key>EuiE4PidEda4</key>
         <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
  
  
  
         
         <!-- match Pidis + Eda (empty) = any -->
-        <key>sqlEuiE4PidisEda0</key>
+        <key>EuiE4PidisEda0</key>
         <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND patient.pat_id_issuer = '%@' %@ %@</string>
         
         <!-- match Pidis + Eda [aaaa-mm-dd] = on -->
-        <key>sqlEuiE4PidisEda1</key>
+        <key>EuiE4PidisEda1</key>
         <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
         
         <!-- match Pidis + Eda [aaaa-mm-dd][] = since -->
-        <key>sqlEuiE4PidisEda2</key>
+        <key>EuiE4PidisEda2</key>
         <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
         
         <!-- match Pidis + Eda [][][aaaa-mm-dd] = until -->
-        <key>sqlEuiE4PidisEda3</key>
+        <key>EuiE4PidisEda3</key>
         <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
         
         <!-- match Pidis + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
-        <key>sqlEuiE4PidisEda4</key>
+        <key>EuiE4PidisEda4</key>
         <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
         
 
@@ -119,11 +119,11 @@
 
 
        <!-- instance ci 4 series pk -->
-       <key>sqlIci4S</key>
+       <key>Ici4S</key>
        <string>%@SELECT sop_cuid FROM instance WHERE series_fk='%@' %@ %@</string>
               
        <!-- instance ui 4 series pk -->
-       <key>sqlIui4S</key>
+       <key>Iui4S</key>
        <string>%@SELECT sop_iuid FROM instance WHERE series_fk='%@' %@ %@</string>
 
       
@@ -131,19 +131,19 @@
 <!-- properties-->
 
         <!-- patient -->
-        <key>sqlP</key>
+        <key>P</key>
         <string>%@SELECT pk,pat_id,pat_name,pat_id_issuer,pat_birthdate,pat_sex FROM patient WHERE pk='%@' %@ %@</string>
 
         <!-- examen -->
-        <key>sqlE</key>
+        <key>E</key>
         <string>%@SELECT pk,study_iuid,study_desc,DATE(study_datetime),TIME(study_datetime),accession_no,study_id,ref_physician,num_instances,mods_in_study FROM study WHERE pk='%@' %@ %@</string>
 
         <!-- serie -->
-        <key>sqlS</key>
-        <string>%@SELECT pk,series_iuid,series_desc,series_no,modality FROM series WHERE study_fk='%@' %@ %@</string>
+        <key>S</key>
+        <string>%@SELECT pk,series_iuid,series_desc,series_no,modality,institution,department,station_name,perf_physician,laterality FROM series WHERE study_fk='%@' %@ %@</string>
 
         <!-- instance -->
-        <key>sqlI</key>
+        <key>I</key>
         <string>%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHERE series_fk='%@' %@ %@</string>
         
         

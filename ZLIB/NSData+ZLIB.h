@@ -12,6 +12,7 @@
 
 -(NSData*)gzip;
 -(NSData*)rawzip;
--(NSData*)zipWithWindowBits:(int)windowBits;
+-(NSData*)maxrawzip;
+-(NSData*)zipWithWindowBits:(int)windowBits memLevel:(int)memLevel;
 
 @end

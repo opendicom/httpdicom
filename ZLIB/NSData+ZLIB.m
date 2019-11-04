@@ -72,14 +72,20 @@ void generateCRC32Table(uint32_t *pTable, uint32_t poly)
 
 -(NSData*)gzip
 {
-   return [self zipWithWindowBits:15+16];
+   return [self zipWithWindowBits:15+16 level:8];
 }
 
 -(NSData*)rawzip
 {
-   return [self zipWithWindowBits:-15];
+   return [self zipWithWindowBits:-15 memLevel:8];
 }
--(NSData*)zipWithWindowBits:(int)windowBits
+
+-(NSData*)maxrawzip
+{
+   return [self zipWithWindowBits:-15 memLevel:9];
+}
+
+-(NSData*)zipWithWindowBits:(int)windowBits level:(int)memLevel
 {
    if (!self.length) return nil;//do not compress empty objects
    
@@ -99,10 +105,7 @@ void generateCRC32Table(uint32_t *pTable, uint32_t poly)
     z_streamp strm
                      Pointer to a zstream struct
     int level
-                     Compression level.
-                     Must be Z_DEFAULT_COMPRESSION,
-                     or 0 no compresssion
-                     or between 1 and 9 (1 = best speed, 9 = best compression)
+                     Must be Z_DEFAULT_COMPRESSION or 9 (best)
     int method
                      "Z_DEFLATED"
     int windowBits
@@ -116,17 +119,14 @@ void generateCRC32Table(uint32_t *pTable, uint32_t poly)
                      9 uses maximum memory for optimal speed.
                      Default value is 8.
     int strategy
-                     Used to tune the compression algorithm.
                      Z_DEFAULT_STRATEGY for normal data,
-                     Z_FILTERED for data produced by a filter (or predictor),
-                     Z_HUFFMAN_ONLY to force Huffman encoding only (no string match)
     */
    int initError = deflateInit2(
                                 &zlibStreamStruct,
                                 Z_DEFAULT_COMPRESSION,
                                 Z_DEFLATED,
                                 windowBits,
-                                8,
+                                memLevel,
                                 Z_DEFAULT_STRATEGY
                                 );
    switch (initError)

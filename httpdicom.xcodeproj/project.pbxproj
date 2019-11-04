@@ -374,6 +374,10 @@
 		4AF40DD4222431B000103F99 /* NSString+PID.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+PID.m"; sourceTree = "<group>"; };
 		4AF9AE0F2348CAF300BB8188 /* NSData+ZLIB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+ZLIB.m"; sourceTree = "<group>"; };
 		4AF9AE102348CAF300BB8188 /* NSData+ZLIB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+ZLIB.h"; sourceTree = "<group>"; };
+		4AF9AE262350ACB400BB8188 /* APPNOTE.TXT */ = {isa = PBXFileReference; lastKnownFileType = text; path = APPNOTE.TXT; sourceTree = "<group>"; };
+		4AF9AE272350ACB500BB8188 /* ISO_IEC_21320-1_2015.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "ISO_IEC_21320-1_2015.pdf"; sourceTree = "<group>"; };
+		4AF9AE282350ACB500BB8188 /* APPNOTE.markdown */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = APPNOTE.markdown; sourceTree = "<group>"; };
+		4AF9AE292350AE0A00BB8188 /* RFC 1951 - DEFLATE Compressed Data Format Specification version 1.3.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "RFC 1951 - DEFLATE Compressed Data Format Specification version 1.3.html"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -532,6 +536,10 @@
 		4A2D90712183455000371484 /* ZLIB */ = {
 			isa = PBXGroup;
 			children = (
+				4AF9AE292350AE0A00BB8188 /* RFC 1951 - DEFLATE Compressed Data Format Specification version 1.3.html */,
+				4AF9AE282350ACB500BB8188 /* APPNOTE.markdown */,
+				4AF9AE262350ACB400BB8188 /* APPNOTE.TXT */,
+				4AF9AE272350ACB500BB8188 /* ISO_IEC_21320-1_2015.pdf */,
 				4AF9AE102348CAF300BB8188 /* NSData+ZLIB.h */,
 				4AF9AE0F2348CAF300BB8188 /* NSData+ZLIB.m */,
 				4A2D90732183455000371484 /* zlib.h */,

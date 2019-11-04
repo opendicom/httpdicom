@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist
+    xmlns="http://www.opendicom.com/xsd/plist/pacs.xsd"
+    
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opendicom.com/xsd/plist/pacs.xsd pacs.xsd"
+    
+    version="1.0"
+    >
+    <array><!-- itsos -->
+        <dict>
+            <key>pacsoid</key>
+            <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.1769239407</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">CDS</string>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc">+0300</string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">CDS</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.676883</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri"></string>
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            
+            <key>select</key>
+            <string id="select">sql</string>
+            <key>get</key>
+            <string id="get">wado</string>
+            <key>mwl</key>
+            <string id="mwl">mllp</string>
+            
+            <key>sqluser</key>
+            <string id="sqluser">MYSQL_PWD</string>
+            <key>sqlpassword</key>
+            <string id="sqlpassword">pcs</string>
+            <key>sqlprolog</key>
+            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e &quot;</string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dal55mysql</string>
+            <key>filesystembaseuri</key>
+            <string id="filesystembaseuri"></string>
+            
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            
+            <key>mllpip</key>
+            <string id="mllpip">127.0.0.1</string>
+            <key>mllpport</key>
+            <string id="mllpport">2575</string>
+
+            <key>DICMip</key>
+            <string id="DICMip">127.0.0.1</string>
+            <key>DICMport</key>
+            <string id="DICMport">11113</string>
+            
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">60</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/wado</string>
+            <key>wadoadditionalparameters</key>
+            <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>            
+            <key>wadors</key>
+            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
+            <key>qido</key>
+            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
+            <key>stow</key>
+            <string id="stow"></string>
+            
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS</string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
+            <key>html5dicomuserserviceuri</key>
+            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <key>html5dicomuseractive</key>
+            <false/>
+            
+            <key>services</key>
+            <dict>
+                <key>Resonador</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname">Resonador</string>
+                    <key>description</key>
+                    <string id="description">Siemens - Symphony</string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
+                    <key>modalities</key>
+                    <string id="modalities">MR</string>
+                </dict>
+                <key>Scanner CT</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname">Scanner CT</string>
+                    <key>description</key>
+                    <string id="description">Siemens - Sensation 16</string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
+                    <key>modalities</key>
+                    <string id="modalities">CT</string>
+                </dict>
+                <key>Ecografo 1</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname">Ecografo 1</string>
+                    <key>description</key>
+                    <string id="description">ATL</string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
+                    <key>modalities</key>
+                    <string id="modalities">USr</string>
+                </dict>
+                <key>Ecografo 2</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname">Ecografo 2</string>
+                    <key>description</key>
+                    <string id="description">Philips</string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
+                    <key>modalities</key>
+                    <string id="modalities">US USm</string>
+                </dict>
+                <key>Ecografo 3</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname">Ecografo 3</string>
+                    <key>description</key>
+                    <string id="description">Philips</string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
+                    <key>modalities</key>
+                    <string id="modalities">US</string>
+                </dict>
+                <key>Ecografo 4</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname">Ecografo 4</string>
+                    <key>description</key>
+                    <string id="description">Philips</string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
+                    <key>modalities</key>
+                    <string id="modalities">US</string>
+                </dict>
+                <key>Flat Panel</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname">Flat Panel</string>
+                    <key>description</key>
+                    <string id="description">Flat Panel DX Directo Rx Fuji</string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>aetitles</key>
+                    <string id="aetitles">FCR_CDS</string>
+                    <key>modalities</key>
+                    <string id="modalities">CR</string>
+                </dict>
+                <key>Digitalizador</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname">Digitalizador</string>
+                    <key>description</key>
+                    <string id="description">Digitalizador CR Rx/Mg Fuji</string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>aetitles</key>
+                    <string id="aetitles">FCR_CSL_MX</string>
+                    <key>modalities</key>
+                    <string id="modalities">CR DXm</string>
+                </dict>
+            </dict>
+        </dict>
+    </array>
+</plist>
