@@ -5,7 +5,8 @@
  [2] httpdicomport
  [3] loglevel [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION]
  [4] defaultTimezone
- [5] auditFiles dir path
+ [5] deploy dir path
+ [6] auditFiles dir path
  */
 
 //
@@ -27,17 +28,16 @@ int main(int argc, const char* argv[])
         
 
 NSArray *args=[[NSProcessInfo processInfo] arguments];
-if ([args count]!=6)
+if ([args count]!=7)
 {
-    NSLog(@"syntax: httpdicom defaultpacsoid httpdicomport loglevel defaultTimezone");
+    NSLog(@"syntax: httpdicom defaultpacsoid httpdicomport loglevel defaultTimezone deploydir tmpdir");
     return 1;
 }
         
         
-//arg [1] deploypath
-NSString *deployPath=@"/Users/Shared/httpdicom/deploy";//@"/Users/Shared/GitHub/httpdicomNew/deploy"
+//args[5] deploypath
 BOOL isDirectory=FALSE;
-if (![[NSFileManager defaultManager]fileExistsAtPath:deployPath isDirectory:&isDirectory] || !isDirectory)
+if (![[NSFileManager defaultManager]fileExistsAtPath:args[5] isDirectory:&isDirectory] || !isDirectory)
 {
     LOG_ERROR(@"deploy folder does not exist");
     return 1;
@@ -82,13 +82,13 @@ else [K setDefaultTimezone:args[4]];
         
 
 // /voc/scheme
-NSDictionary *scheme=[NSDictionary dictionaryWithContentsOfFile:[deployPath stringByAppendingPathComponent:@"voc/scheme.xml"]];
+NSDictionary *scheme=[NSDictionary dictionaryWithContentsOfFile:[args[5] stringByAppendingPathComponent:@"voc/scheme.xml"]];
 if (!scheme) [K loadScheme:@{}];
 else [K loadScheme:scheme];
 
         
 // /voc/code
-NSArray *codes=[[NSFileManager defaultManager]contentsOfDirectoryAtPath:[deployPath stringByAppendingPathComponent:@"voc/code/"] error:nil];
+NSArray *codes=[[NSFileManager defaultManager]contentsOfDirectoryAtPath:[args[5] stringByAppendingPathComponent:@"voc/code/"] error:nil];
 if (!codes) LOG_WARNING(@"no folder voc/code into deploy");
 else if (![codes count]) LOG_WARNING(@"no code file registered");
 else
@@ -96,13 +96,13 @@ else
      for (NSString *code in codes)
     {
         if ([code hasPrefix:@"."]) continue;
-        [K loadCode:[NSDictionary dictionaryWithContentsOfFile:[[deployPath stringByAppendingPathComponent:@"voc/code"] stringByAppendingPathComponent:code]] forKey:[[code stringByDeletingPathExtension]stringByDeletingPathExtension]];
+        [K loadCode:[NSDictionary dictionaryWithContentsOfFile:[[args[5] stringByAppendingPathComponent:@"voc/code"] stringByAppendingPathComponent:code]] forKey:[[code stringByDeletingPathExtension]stringByDeletingPathExtension]];
     }
     
 }
         
 // /voc/procedure
-NSArray *procedures=[[NSFileManager defaultManager]contentsOfDirectoryAtPath:[deployPath stringByAppendingPathComponent:@"voc/procedure/"] error:nil];
+NSArray *procedures=[[NSFileManager defaultManager]contentsOfDirectoryAtPath:[args[5] stringByAppendingPathComponent:@"voc/procedure/"] error:nil];
 if (!procedures) LOG_WARNING(@"no folder voc/procedure into deploy");
 else if (![procedures count]) LOG_WARNING(@"no procedure file registered");
 else
@@ -110,14 +110,14 @@ else
     for (NSString *procedure in procedures)
     {
         if ([procedure hasPrefix:@"."]) continue;
-        [K loadProcedure:[NSDictionary dictionaryWithContentsOfFile:[[deployPath stringByAppendingPathComponent:@"voc/procedure"]stringByAppendingPathComponent:procedure]] forKey:[[procedure stringByDeletingPathExtension] stringByDeletingPathExtension]];
+        [K loadProcedure:[NSDictionary dictionaryWithContentsOfFile:[[args[5] stringByAppendingPathComponent:@"voc/procedure"]stringByAppendingPathComponent:procedure]] forKey:[[procedure stringByDeletingPathExtension] stringByDeletingPathExtension]];
 
     }
 }
 
         
 // /voc/country (iso3166)
-NSArray *iso3166ByCountry=[NSArray arrayWithContentsOfFile:[deployPath stringByAppendingPathComponent:@"voc/country.plist"]];
+NSArray *iso3166ByCountry=[NSArray arrayWithContentsOfFile:[args[5] stringByAppendingPathComponent:@"voc/country.plist"]];
 if (!iso3166ByCountry)
 {
     LOG_ERROR(@"no folder voc/country.plist into deploy");
@@ -128,7 +128,7 @@ else [K loadIso3166ByCountry:iso3166ByCountry];
         
 
 // /voc/personIDType (ica)
-NSDictionary *personIDTypes=[NSDictionary dictionaryWithContentsOfFile:[deployPath stringByAppendingPathComponent:@"voc/personIDType.plist"]];
+NSDictionary *personIDTypes=[NSDictionary dictionaryWithContentsOfFile:[args[5] stringByAppendingPathComponent:@"voc/personIDType.plist"]];
 if (!personIDTypes)
 {
     LOG_ERROR(@"no folder voc/personIDType.plist into deploy");
@@ -143,7 +143,7 @@ else [K loadPersonIDTypes:personIDTypes];
 //arg [1] defaultpacsoid
 NSString *defaultpacsoid=args[1];
 NSArray *pacs=[NSArray arrayWithContentsOfFile:
-                    [[[deployPath
+                    [[[args[5]
                        stringByAppendingPathComponent:@"pacs"]
                       stringByAppendingPathComponent:defaultpacsoid]
                      stringByAppendingPathExtension:@"pacs.xml"]
@@ -165,7 +165,7 @@ for (NSDictionary *d in pacs)
 NSMutableDictionary *sqls=[NSMutableDictionary dictionary];
 for (NSString *sqlname in sqlset)
 {
-    NSString *sqlpath=[[[[deployPath
+    NSString *sqlpath=[[[[args[5]
                           stringByAppendingPathComponent:@"sql/map"]
                          stringByAppendingPathComponent:sqlname]
                         stringByAppendingPathExtension:@"sql"]
@@ -191,7 +191,7 @@ for (NSString *sqlname in sqlset)
                                       pacs:pacs
                                    drsport:port
                             defaultpacsoid:defaultpacsoid
-                                 auditFolderPath:args[5]
+                                 tmpDir:args[6]
                   ];
 
 

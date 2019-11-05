@@ -29,7 +29,8 @@ BOOL parseRequestParams(RSRequest       *  request,
                         NSMutableArray  *  values, 
                         NSMutableArray  *  types,
                         NSString        ** jsonString,
-                        NSString        ** errorString
+                        NSString        ** errorString,
+                        NSURL           *  url
                         )
 {
    //method
@@ -46,11 +47,9 @@ BOOL parseRequestParams(RSRequest       *  request,
    //Content-Type
    NSString * contentType=request.contentType;
    if (contentType) {
-      
-      
-      //json
-      if ([request.contentType hasPrefix:@"application/json"]) {
-         
+      if ([request.contentType hasPrefix:@"application/json"])
+      {
+         //json
          NSData *requestData=request.data;
          if (!requestData){
             *errorString=@"Content-Type:\"application/json\" with no body";
@@ -58,12 +57,15 @@ BOOL parseRequestParams(RSRequest       *  request,
          }
          
          
-         if (![requestData length]) return true;
+         if (![requestData length]){
+            *errorString=@"Content-Type:\"application/json\" with empty body";
+            return false;
+         }
          
          
          NSString *string=[[NSString alloc]initWithData:requestData encoding:NSUTF8StringEncoding];
          if (!string){
-            *errorString=@"json not readable UTF-8";
+            *errorString=@"Content-Type:\"application/json\" with json not readable UTF-8";
             return false;
          }
          *jsonString=string;
@@ -83,13 +85,10 @@ BOOL parseRequestParams(RSRequest       *  request,
          
          [names addObjectsFromArray:[requestJson allKeys]];
          [values addObjectsFromArray:[requestJson allValues]];
-         return true;
       }
-      
-      
-      //form html5
-      if ([request.contentType hasPrefix:@"multipart/form-data"])
+      else if ([request.contentType hasPrefix:@"multipart/form-data"])
       {
+         //html5 form
          NSString *boundaryString=[request.contentType valueForName:@"boundary"];
          if (!boundaryString || ![boundaryString length]){
             *errorString=[NSString stringWithFormat:@"multipart/form-data with no boundary"];
@@ -101,13 +100,10 @@ BOOL parseRequestParams(RSRequest       *  request,
          names=components[@"names"];
          values=components[@"values"];
          types=components[@"types"];
-         return true;
       }
-      
-      
-      //x-www-form-urlencoded
-      if ([request.contentType hasPrefix:@"application/x-www-form-urlencoded"])
+      else if ([request.contentType hasPrefix:@"application/x-www-form-urlencoded"])
       {
+         //x-www-form-urlencoded
          NSArray *queryItems=[[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO]queryItems];
          for (NSURLQueryItem *queryItem in queryItems)
          {
@@ -116,10 +112,22 @@ BOOL parseRequestParams(RSRequest       *  request,
          }
          return true;
       }
+      else
+      {
+         *errorString=[NSString stringWithFormat:@"Content-Type:\"%@\" not accepted",request.contentType];
+         return false;
+      }
       
+      NSMutableString *requestString=[NSMutableString stringWithString:@"curl --header \"Content-Type: application/json\" --request POST --data '{"];
+      NSUInteger beforeLast=[names count]-1;
+      for (NSUInteger idx=0;idx<beforeLast;idx++)
+      {
+          [requestString appendFormat:@"\"%@\":\"%@\",",names[idx],values[idx]];
+      }
+      LOG_VERBOSE(@"\r\n%@\"%@\":\"%@\"}' %@ > dcm.zip",requestString,names[beforeLast],values[beforeLast],[url absoluteString]);
       
-      *errorString=[NSString stringWithFormat:@"Content-Type:\"%@\" not accepted",request.contentType];
-      return false;
+      return true;
+
    }
    
    
@@ -296,8 +304,8 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType)
 static NSDictionary        *_sqls=nil;
 static long long           _drsport;
 static NSString            *_defaultpacsoid;
-static NSString            *_auditFolderPath;
-static NSString            *_tokenAuditFolderPath;
+static NSString            *_tmpDir;
+static NSString            *_tokentmpDir;
 
 static NSDictionary        *_oids=nil;
 static NSDictionary        *_titles=nil;
@@ -407,7 +415,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
              pacs:(NSArray*)pacsArray
           drsport:(long long)drsport
    defaultpacsoid:(NSString*)defaultpacsoid
-        auditFolderPath:(NSString*)auditFolderPath
+        tmpDir:(NSString*)tmpDir
 {
    [NSData initPCS];
     self = [super init];
@@ -415,8 +423,8 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         _sqls=sqls;
         _drsport=drsport;
         _defaultpacsoid=defaultpacsoid;
-        _auditFolderPath=[auditFolderPath stringByExpandingTildeInPath];
-        _tokenAuditFolderPath=[auditFolderPath stringByAppendingPathComponent:@"token"];
+        _tmpDir=[tmpDir stringByExpandingTildeInPath];
+        _tokentmpDir=[tmpDir stringByAppendingPathComponent:@"token"];
 
 #pragma mark custodians
 
@@ -654,8 +662,8 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 
 +(long long)drsport                  { return _drsport;}
 +(NSString*)defaultpacsoid           { return _defaultpacsoid;}
-+(NSString*)auditFolderPath          { return _auditFolderPath;}
-+(NSString*)tokenAuditFolderPath     { return _tokenAuditFolderPath;}
++(NSString*)tmpDir          { return _tmpDir;}
++(NSString*)tokentmpDir     { return _tokentmpDir;}
 
 +(NSDictionary*)oids                 { return _oids;}
 +(NSDictionary*)titles               { return _titles;}

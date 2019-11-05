@@ -1154,10 +1154,10 @@ NSXMLElement *PatientElement=nil;
            ];
            */
          NSData *docData=[doc XMLData];
-         if (DRS.tokenAuditFolderPath.length)
+         if (DRS.tokentmpDir.length)
          [docData writeToFile:
            [
-            [DRS.tokenAuditFolderPath stringByAppendingPathComponent:sessionString]
+            [DRS.tokentmpDir stringByAppendingPathComponent:sessionString]
             stringByAppendingPathExtension:@"xml"]
           atomically:NO];
          
@@ -1473,10 +1473,10 @@ NSMutableArray *studyArray=[NSMutableArray array];
          }
          NSData *cornerstoneJson=[NSJSONSerialization dataWithJSONObject:JSONArray options:0 error:nil];
             
-         if (DRS.tokenAuditFolderPath.length)
+         if (DRS.tokentmpDir.length)
          [cornerstoneJson writeToFile:
            [
-            [DRS.tokenAuditFolderPath stringByAppendingPathComponent:sessionString]
+            [DRS.tokentmpDir stringByAppendingPathComponent:sessionString]
             stringByAppendingPathExtension:@"json"]
           atomically:NO];
 
@@ -1519,7 +1519,7 @@ RSResponse* dicomzip(
    //cache made of a session.json manifest file and a corresponding session/ directory
    __block NSFileManager *fileManager=[NSFileManager defaultManager];
    __block NSString *DIR=
-     [DRS.tokenAuditFolderPath
+     [DRS.tokentmpDir
       stringByAppendingPathComponent:sessionString
       ];
     NSError *error=nil;
@@ -2043,7 +2043,7 @@ RSResponse* osirixdcmURLs(
    NSMutableArray *types=[NSMutableArray array];
    NSString *jsonString;
    NSString *errorString;
-   if (!parseRequestParams(request, names, values, types, &jsonString, &errorString))
+   if (!parseRequestParams(request, names, values, types, &jsonString, &errorString, request.URL))
    {
       LOG_WARNING(@"studyToken PARAMS error: %@",errorString);
       return [RSErrorResponse responseWithClientError:404 message:@"%@",errorString];
