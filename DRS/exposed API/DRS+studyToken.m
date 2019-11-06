@@ -1535,9 +1535,10 @@ RSResponse* dicomzip(
              error:&error]
            ) return [RSErrorResponse responseWithClientError:404 message:@"studyToken no access to token cache: %@",[error description]];
     }
-        
-    __block NSString *JSON=[DIR stringByAppendingPathExtension:@"json"];
+
     __block BOOL fromCache=false;
+/*
+    __block NSString *JSON=[DIR stringByAppendingPathExtension:@"json"];
     if ([fileManager fileExistsAtPath:JSON])
     {
         jsonArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:JSON] options:NSJSONReadingMutableContainers error:&error];
@@ -1578,7 +1579,7 @@ RSResponse* dicomzip(
         
         if (!fromCache) [fileManager moveItemAtPath:JSON toPath:[JSON stringByAppendingPathExtension:@"bad"] error:nil];
     }
-    
+*/
     
     if (!fromCache)
     {
@@ -1964,7 +1965,7 @@ RSResponse* dicomzip(
       {
         completionBlock(CENTRAL, nil);//empty last chunck
         
-        //write JSON
+/*        //write JSON
         NSError *error;
         if (![[NSString
                stringWithFormat:@"[[\"%@\"],[\"%@\"],[%@],[%@]]",
@@ -1979,6 +1980,7 @@ RSResponse* dicomzip(
               error:&error
             ])
            LOG_WARNING(@"studyToken could not save dicomzip json");
+ */
      }
    }];
 }
