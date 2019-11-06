@@ -1756,7 +1756,6 @@ RSResponse* dicomzip(
       if (needsProlog)
       {
          needsProlog=false;
-         
       }
 #pragma mark 2. DATA
       else if (LOCALIndex < wados.count)
@@ -1932,6 +1931,7 @@ RSResponse* dicomzip(
 
             }
          }
+         LOCALIndex++;
       }
 #pragma mark 3. DIRECTORY
       else if (CENTRAL.length) //chunk with directory
