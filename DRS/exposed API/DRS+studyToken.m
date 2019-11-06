@@ -1797,12 +1797,12 @@ RSResponse* dicomzip(
              ]
             ];
            switch (accessType) {
-              case accessTypeDicomzip:
               case accessTypeIsoDicomZip:
               case accessTypeWadoRSDicom:
                  entryData=uncompressedData;
                  break;
                  
+              case accessTypeDicomzip:
               case accessTypeDeflateIsoDicomZip:
                  entryData=[uncompressedData rawzip];
                  break;
@@ -1827,7 +1827,6 @@ RSResponse* dicomzip(
 #pragma mark streamings
 
            switch (accessType) {
-              case accessTypeDicomzip:
               case accessTypeIsoDicomZip:
               case accessTypeDeflateIsoDicomZip:
               case accessTypeMaxDeflateIsoDicomZip:

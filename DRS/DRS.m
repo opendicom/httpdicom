@@ -46,48 +46,48 @@ BOOL parseRequestParams(RSRequest       *  request,
    
    //Content-Type
    NSString * contentType=request.contentType;
-   if (contentType) {
-      if ([request.contentType hasPrefix:@"application/json"])
-      {
-         //json
-         NSData *requestData=request.data;
-         if (!requestData){
-            *errorString=@"Content-Type:\"application/json\" with no body";
-            return false;
-         }
-         
-         
-         if (![requestData length]){
-            *errorString=@"Content-Type:\"application/json\" with empty body";
-            return false;
-         }
-         
-         
-         NSString *string=[[NSString alloc]initWithData:requestData encoding:NSUTF8StringEncoding];
-         if (!string){
-            *errorString=@"Content-Type:\"application/json\" with json not readable UTF-8";
-            return false;
-         }
-         *jsonString=string;
-         
-         
-         NSError *requestJsonError=nil;
-         id requestJson=[NSJSONSerialization JSONObjectWithData:requestData options:0 error:&requestJsonError];
-         if (requestJsonError){
-            *errorString=[NSString stringWithFormat:@"%@\r\n%@",string,[requestJsonError description]];
-            return false;
-         }
-         
-         if (![requestJson isKindOfClass:[NSDictionary class]]){
-            *errorString=[NSString stringWithFormat:@"json dictionary expected, but got\r\n%@",string];
-            return false;
-         }
-         
-         [names addObjectsFromArray:[requestJson allKeys]];
-         [values addObjectsFromArray:[requestJson allValues]];
+   if (!contentType) contentType=@"application/x-www-form-urlencoded";
+   if ([request.contentType hasPrefix:@"application/json"])
+   {
+      //json
+      NSData *requestData=request.data;
+      if (!requestData){
+         *errorString=@"Content-Type:\"application/json\" with no body";
+         return false;
       }
-      else if ([request.contentType hasPrefix:@"multipart/form-data"])
-      {
+      
+      
+      if (![requestData length]){
+         *errorString=@"Content-Type:\"application/json\" with empty body";
+         return false;
+      }
+      
+      
+      NSString *string=[[NSString alloc]initWithData:requestData encoding:NSUTF8StringEncoding];
+      if (!string){
+         *errorString=@"Content-Type:\"application/json\" with json not readable UTF-8";
+         return false;
+      }
+      *jsonString=string;
+      
+      
+      NSError *requestJsonError=nil;
+      id requestJson=[NSJSONSerialization JSONObjectWithData:requestData options:0 error:&requestJsonError];
+      if (requestJsonError){
+         *errorString=[NSString stringWithFormat:@"%@\r\n%@",string,[requestJsonError description]];
+         return false;
+      }
+      
+      if (![requestJson isKindOfClass:[NSDictionary class]]){
+         *errorString=[NSString stringWithFormat:@"json dictionary expected, but got\r\n%@",string];
+         return false;
+      }
+      
+      [names addObjectsFromArray:[requestJson allKeys]];
+      [values addObjectsFromArray:[requestJson allValues]];
+   }
+   else if ([contentType hasPrefix:@"multipart/form-data"])
+   {
          //html5 form
          NSString *boundaryString=[request.contentType valueForName:@"boundary"];
          if (!boundaryString || ![boundaryString length]){
@@ -101,43 +101,31 @@ BOOL parseRequestParams(RSRequest       *  request,
          values=components[@"values"];
          types=components[@"types"];
       }
-      else if ([request.contentType hasPrefix:@"application/x-www-form-urlencoded"])
-      {
-         //x-www-form-urlencoded
-         NSArray *queryItems=[[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO]queryItems];
-         for (NSURLQueryItem *queryItem in queryItems)
-         {
-            [names addObject:queryItem.name];
-            [values addObject:queryItem.value];
-         }
-         return true;
-      }
-      else
-      {
-         *errorString=[NSString stringWithFormat:@"Content-Type:\"%@\" not accepted",request.contentType];
-         return false;
-      }
-      
-      NSMutableString *requestString=[NSMutableString stringWithString:@"curl --header \"Content-Type: application/json\" --request POST --data '{"];
-      NSUInteger beforeLast=[names count]-1;
-      for (NSUInteger idx=0;idx<beforeLast;idx++)
-      {
-          [requestString appendFormat:@"\"%@\":\"%@\",",names[idx],values[idx]];
-      }
-      LOG_VERBOSE(@"\r\n%@\"%@\":\"%@\"}' %@ > dcm.zip",requestString,names[beforeLast],values[beforeLast],[url absoluteString]);
-      
-      return true;
-
-   }
-   
-   
-   //no Content-Type
-   NSArray *queryItems=[[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO]queryItems];
-   for (NSURLQueryItem *queryItem in queryItems)
+   else if ([request.contentType hasPrefix:@"application/x-www-form-urlencoded"])
    {
-      [names addObject:queryItem.name];
-      [values addObject:queryItem.value];
+      //x-www-form-urlencoded
+      NSArray *queryItems=[[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO]queryItems];
+      for (NSURLQueryItem *queryItem in queryItems)
+      {
+         [names addObject:queryItem.name];
+         [values addObject:queryItem.value];
+      }
+      return true;
    }
+   else
+   {
+      *errorString=[NSString stringWithFormat:@"Content-Type:\"%@\" not accepted",request.contentType];
+      return false;
+   }
+      
+   NSMutableString *curlString=[NSMutableString stringWithString:@"curl --header \"Content-Type: application/json\" --request POST --data '{"];
+   NSUInteger beforeLast=[names count]-1;
+   for (NSUInteger idx=0;idx<beforeLast;idx++)
+   {
+       [curlString appendFormat:@"\"%@\":\"%@\",",names[idx],values[idx]];
+   }
+   LOG_VERBOSE(@"%@\"%@\":\"%@\"}' %@ > dcm.zip",curlString,names[beforeLast],values[beforeLast],[url absoluteString]);
+   
    return true;
 }
 
