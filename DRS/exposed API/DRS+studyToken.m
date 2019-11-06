@@ -876,6 +876,7 @@ NSString * SOPCLassOfReturnableSeries(
 RSResponse * weasis(
  NSString            * proxyURIString,
  NSString            * sessionString,
+ NSString            * tokenString,
  NSMutableArray      * devCustodianOIDArray,
  NSMutableArray      * wanCustodianOIDArray,
  NSString            * transferSyntax,
@@ -1190,6 +1191,7 @@ contentType:@"text/xml"];
 RSResponse* cornerstone(
  NSString            * proxyURIString,
  NSString            * sessionString,
+ NSString            * tokenString,
  NSMutableArray      * devCustodianOIDArray,
  NSMutableArray      * wanCustodianOIDArray,
  NSString            * transferSyntax,
@@ -1491,6 +1493,7 @@ NSMutableArray *studyArray=[NSMutableArray array];
 RSResponse* dicomzip(
  NSString            * proxyURIString,
  NSString            * sessionString,
+ NSString            * tokenString,
  NSMutableArray      * devCustodianOIDArray,
  NSMutableArray      * wanCustodianOIDArray,
  NSString            * transferSyntax,
@@ -1520,7 +1523,7 @@ RSResponse* dicomzip(
    __block NSFileManager *fileManager=[NSFileManager defaultManager];
    __block NSString *DIR=
      [DRS.tokentmpDir
-      stringByAppendingPathComponent:sessionString
+      stringByAppendingPathComponent:tokenString
       ];
     NSError *error=nil;
     if (![fileManager fileExistsAtPath:DIR])
@@ -1984,6 +1987,7 @@ RSResponse* dicomzip(
 RSResponse* osirixdcmURLs(
  NSString            * proxyURIString,
  NSString            * sessionString,
+ NSString            * tokenString,
  NSMutableArray      * devCustodianOIDArray,
  NSMutableArray      * wanCustodianOIDArray,
  NSString            * transferSyntax,
@@ -2045,12 +2049,8 @@ RSResponse* osirixdcmURLs(
    NSString *errorString;
    if (!parseRequestParams(request, names, values, types, &jsonString, &errorString, request.URL))
    {
-      LOG_WARNING(@"studyToken PARAMS error: %@",errorString);
+      LOG_WARNING(@"%@",errorString);
       return [RSErrorResponse responseWithClientError:404 message:@"%@",errorString];
-   }
-   for (NSUInteger idx=0;idx<[names count];idx++)
-   {
-      LOG_VERBOSE(@"studyToken PARAM \"%@\" = \"%@\"",names[idx],values[idx]);
    }
 
    //proxyURI
@@ -2065,6 +2065,12 @@ RSResponse* osirixdcmURLs(
    if (sessionIndex!=NSNotFound) sessionString=values[sessionIndex];
    else sessionString=@"";
    
+   //token
+   NSString *tokenString=nil;
+   NSInteger tokenIndex=[names indexOfObject:@"token"];
+   if (tokenIndex!=NSNotFound) tokenString=values[tokenIndex];
+   else tokenString=@"";
+
 
    
 #pragma mark custodianOID?
@@ -2297,6 +2303,7 @@ RSResponse* osirixdcmURLs(
          return weasis(
                  proxyURIString,
                  sessionString,
+                 tokenString,
                  devCustodianOIDArray,
                  wanCustodianOIDArray,
                  nil,
@@ -2319,6 +2326,7 @@ RSResponse* osirixdcmURLs(
          return cornerstone(
                  proxyURIString,
                  sessionString,
+                 tokenString,
                  devCustodianOIDArray,
                  wanCustodianOIDArray,
                  nil,
@@ -2345,6 +2353,7 @@ RSResponse* osirixdcmURLs(
             return dicomzip(
                     proxyURIString,
                     sessionString,
+                    tokenString,
                     devCustodianOIDArray,
                     wanCustodianOIDArray,
                     nil,
@@ -2368,6 +2377,7 @@ RSResponse* osirixdcmURLs(
             return osirixdcmURLs(
                     proxyURIString,
                     sessionString,
+                    tokenString,
                     devCustodianOIDArray,
                     wanCustodianOIDArray,
                     nil,
