@@ -18,8 +18,7 @@ BOOL parseRequestParams(RSRequest       *  request,
                         NSMutableArray  *  values,
                         NSMutableArray  *  types,
                         NSString        ** jsonString,
-                        NSString        ** errorString,
-                        NSURL           *  url
+                        NSString        ** errorString
                         )
 ;
 

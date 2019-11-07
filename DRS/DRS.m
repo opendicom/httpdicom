@@ -29,21 +29,19 @@ BOOL parseRequestParams(RSRequest       *  request,
                         NSMutableArray  *  values, 
                         NSMutableArray  *  types,
                         NSString        ** jsonString,
-                        NSString        ** errorString,
-                        NSURL           *  url
+                        NSString        ** errorString
                         )
 {
-   //method
-   [names addObject:@"HTTPMethod"];
-   [values addObject:request.method];
-   
-   //headers
+   LOG_INFO(@"%@ %@", request.method,[request.URL absoluteString]);
+   LOG_VERBOSE(@"content-type: %@ %@", request.contentType,[request.headers description]);
+
+    //headers
    for (NSString * key in [request.headers allKeys])
    {
       [names addObject:key];
       [values addObject:request.headers[key]];
    }
-   
+
    //Content-Type
    NSString * contentType=request.contentType;
    if (!contentType) contentType=@"application/x-www-form-urlencoded";
@@ -85,23 +83,42 @@ BOOL parseRequestParams(RSRequest       *  request,
       
       [names addObjectsFromArray:[requestJson allKeys]];
       [values addObjectsFromArray:[requestJson allValues]];
+       
+       NSMutableString *curlString=[NSMutableString stringWithString:@"curl --header \"Content-Type: application/json\" --request POST --data '{"];
+       NSUInteger beforeLast=[names count]-1;
+       for (NSUInteger idx=0;idx<beforeLast;idx++)
+       {
+           [curlString appendFormat:@"\"%@\":\"%@\",",names[idx],values[idx]];
+       }
+       LOG_DEBUG(@"%@\"%@\":\"%@\"}' %@ > dcm.zip",curlString,names[beforeLast],values[beforeLast],[request.URL absoluteString]);
+
    }
    else if ([contentType hasPrefix:@"multipart/form-data"])
    {
-         //html5 form
-         NSString *boundaryString=[request.contentType valueForName:@"boundary"];
-         if (!boundaryString || ![boundaryString length]){
-            *errorString=[NSString stringWithFormat:@"multipart/form-data with no boundary"];
-            return false;
-         }
-         
-         NSDictionary *components=[request.data parseNamesValuesTypesInBodySeparatedBy:[boundaryString dataUsingEncoding:NSASCIIStringEncoding]];
-         
-         names=components[@"names"];
-         values=components[@"values"];
-         types=components[@"types"];
-      }
-   else if ([request.contentType hasPrefix:@"application/x-www-form-urlencoded"])
+     //html5 form
+     NSString *boundaryString=[request.contentType valueForName:@"boundary"];
+     if (!boundaryString || ![boundaryString length]){
+        *errorString=[NSString stringWithFormat:@"multipart/form-data with no boundary"];
+        return false;
+     }
+     
+     NSDictionary *components=[request.data parseNamesValuesTypesInBodySeparatedBy:[boundaryString dataUsingEncoding:NSASCIIStringEncoding]];
+     
+     names=components[@"names"];
+     values=components[@"values"];
+     types=components[@"types"];
+       
+       
+       NSMutableString *curlString=[NSMutableString stringWithString:@"curl --header \"Content-Type: application/json\" --request POST --data '{"];
+       NSUInteger beforeLast=[names count]-1;
+       for (NSUInteger idx=0;idx<beforeLast;idx++)
+       {
+           [curlString appendFormat:@"\"%@\":\"%@\",",names[idx],values[idx]];
+       }
+       LOG_DEBUG(@"%@\"%@\":\"%@\"}' %@ > dcm.zip",curlString,names[beforeLast],values[beforeLast],[request.URL absoluteString]);
+
+  }
+   else if ([contentType hasPrefix:@"application/x-www-form-urlencoded"])
    {
       //x-www-form-urlencoded
       NSArray *queryItems=[[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO]queryItems];
@@ -110,22 +127,13 @@ BOOL parseRequestParams(RSRequest       *  request,
          [names addObject:queryItem.name];
          [values addObject:queryItem.value];
       }
-      return true;
    }
    else
    {
       *errorString=[NSString stringWithFormat:@"Content-Type:\"%@\" not accepted",request.contentType];
       return false;
    }
-      
-   NSMutableString *curlString=[NSMutableString stringWithString:@"curl --header \"Content-Type: application/json\" --request POST --data '{"];
-   NSUInteger beforeLast=[names count]-1;
-   for (NSUInteger idx=0;idx<beforeLast;idx++)
-   {
-       [curlString appendFormat:@"\"%@\":\"%@\",",names[idx],values[idx]];
-   }
-   LOG_VERBOSE(@"%@\"%@\":\"%@\"}' %@ > dcm.zip",curlString,names[beforeLast],values[beforeLast],[url absoluteString]);
-   
+
    return true;
 }
 

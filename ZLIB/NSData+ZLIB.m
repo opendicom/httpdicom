@@ -72,7 +72,7 @@ void generateCRC32Table(uint32_t *pTable, uint32_t poly)
 
 -(NSData*)gzip
 {
-   return [self zipWithWindowBits:15+16 level:8];
+   return [self zipWithWindowBits:15+16 memLevel:8];
 }
 
 -(NSData*)rawzip
@@ -85,7 +85,7 @@ void generateCRC32Table(uint32_t *pTable, uint32_t poly)
    return [self zipWithWindowBits:-15 memLevel:9];
 }
 
--(NSData*)zipWithWindowBits:(int)windowBits level:(int)memLevel
+-(NSData*)zipWithWindowBits:(int)windowBits memLevel:(int)memLevel
 {
    if (!self.length) return nil;//do not compress empty objects
    

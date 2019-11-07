@@ -37,7 +37,7 @@ NSString* correctedModality(NSString* spaceNormalized)
     NSMutableArray *types=[NSMutableArray array];
     NSString *jsonString;
     NSString *errorString;
-    if (!parseRequestParams(request, names, values, types, &jsonString, &errorString, request.URL))
+    if (!parseRequestParams(request, names, values, types, &jsonString, &errorString))
     {
         LOG_WARNING(@"mwlitem PARAMS error: %@",errorString);
         return [RSErrorResponse responseWithClientError:404 message:@"%@",errorString];
