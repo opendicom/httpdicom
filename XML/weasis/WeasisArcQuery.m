@@ -39,7 +39,7 @@
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"baseUrl" stringValue:baseUrl]];
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"overrideDicomTagsList" stringValue:overrideDicomTagsList]];
    
-   NSMutableString *additionalParameters=[NSMutableString stringWithFormat:@"&amp;session=%@&amp;custodianOID=%@",session,baseUrl];
+   NSMutableString *additionalParameters=[NSMutableString stringWithFormat:@"&amp;session=%@&amp;arcId=%@",session,arcId];
 //add restrictions?
    
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"additionnalParameters" stringValue:additionalParameters]];

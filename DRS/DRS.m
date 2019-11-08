@@ -140,7 +140,7 @@ BOOL parseRequestParams(RSRequest       *  request,
                [request.headers description]
                );
 
-      LOG_DEBUG(@"curl --output httpdicomOutput %@",[request.URL absoluteString]);
+      LOG_DEBUG(@"curl --output httpdicomOutput '%@'",[request.URL absoluteString]);
    }
    else
    {

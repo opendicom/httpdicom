@@ -804,7 +804,7 @@ NSString * SOPCLassOfReturnableSeries(
                       sqlprolog,
                       SProperties[0],
                       @"limit 1",
-                      @"\""
+                      @"\" | awk -F\\t ' BEGIN{ ORS=\"\"; OFS=\"\";}{print $1}'"
                       ],
                      SOPClassData)
        !=0)
@@ -877,8 +877,8 @@ RSResponse * weasis(
  NSString            * proxyURIString,
  NSString            * sessionString,
  NSString            * tokenString,
- NSMutableArray      * devCustodianOIDArray,
- NSMutableArray      * wanCustodianOIDArray,
+ NSMutableArray      * devArray,
+ NSMutableArray      * wanArray,
  NSString            * transferSyntax,
  BOOL                  hasRestriction,
  NSRegularExpression * SeriesInstanceUIDRegex,
@@ -897,17 +897,17 @@ RSResponse * weasis(
 {
    NSXMLElement *XMLRoot=[WeasisManifest manifest];
             
-   if (devCustodianOIDArray.count > 1)
+   if (devArray.count > 1)
    {
       //add nodes and start corresponding processes
    }
 
-   if (wanCustodianOIDArray.count > 0)
+   if (wanArray.count > 0)
    {
       //add nodes and start corresponding processes
    }
 
-   if (devCustodianOIDArray.count == 0)
+   if (devArray.count == 0)
    {
       //add nodes and start corresponding processes
    }
@@ -915,24 +915,24 @@ RSResponse * weasis(
    {
       while (1)
       {
-         NSString *custodianString=devCustodianOIDArray[0];
-         NSDictionary *custodianDict=DRS.pacs[custodianString];
+         NSString *devOID=devArray[0];
+         NSDictionary *devDict=DRS.pacs[devOID];
 
 #pragma mark · GET type index
-         NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:custodianDict[@"get"]];
+         NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
 
 #pragma mark · SELECT switch
-         switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:custodianDict[@"select"]]) {
+         switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:devDict[@"select"]]) {
             
             case NSNotFound:{
-               LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",custodianString);
+               LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",devOID);
             } break;
                
             case selectTypeSql:{
    #pragma mark · SQL SELECT (unique option for now)
-               NSDictionary *sqlcredentials=@{custodianDict[@"sqluser"]:custodianDict[@"sqlpassword"]};
-               NSString *sqlprolog=custodianDict[@"sqlprolog"];
-               NSDictionary *sqlDictionary=DRS.sqls[custodianDict[@"sqlmap"]];
+               NSDictionary *sqlcredentials=@{devDict[@"sqluser"]:devDict[@"sqlpassword"]};
+               NSString *sqlprolog=devDict[@"sqlprolog"];
+               NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
 
                
 #pragma mark · apply EP (Study Patient) filters
@@ -953,7 +953,7 @@ RSResponse * weasis(
                
                NSXMLElement *arcQueryElement=
                      [WeasisArcQuery
-                      arcQueryOID:custodianString
+                      arcQueryOID:devOID
                       session:sessionString
                       custodian:proxyURIString
                       transferSyntax:nil
@@ -971,7 +971,7 @@ RSResponse * weasis(
                switch (getTypeIndex) {
                      
                   case NSNotFound:{
-                     LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",custodianString);
+                     LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",devOID);
                   } break;
 
                   case getTypeWado:{
@@ -1192,8 +1192,8 @@ RSResponse* cornerstone(
  NSString            * proxyURIString,
  NSString            * sessionString,
  NSString            * tokenString,
- NSMutableArray      * devCustodianOIDArray,
- NSMutableArray      * wanCustodianOIDArray,
+ NSMutableArray      * devArray,
+ NSMutableArray      * wanArray,
  NSString            * transferSyntax,
  BOOL                  hasRestriction,
  NSRegularExpression * SeriesInstanceUIDRegex,
@@ -1212,17 +1212,17 @@ RSResponse* cornerstone(
 {
       NSMutableArray *JSONArray=[NSMutableArray array];
 
-      if (devCustodianOIDArray.count > 1)
+      if (devArray.count > 1)
       {
          //add nodes and start corresponding processes
       }
 
-      if (wanCustodianOIDArray.count > 0)
+      if (wanArray.count > 0)
       {
          //add nodes and start corresponding processes
       }
 
-      if (devCustodianOIDArray.count == 0)
+      if (devArray.count == 0)
       {
          //add nodes and start corresponding processes
       }
@@ -1230,24 +1230,24 @@ RSResponse* cornerstone(
       {
          while (1)
          {
-            NSString *custodianString=devCustodianOIDArray[0];
-            NSDictionary *custodianDict=DRS.pacs[custodianString];
+            NSString *devOID=devArray[0];
+            NSDictionary *devDict=DRS.pacs[devOID];
 
    #pragma mark · GET type index
-            NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:custodianDict[@"get"]];
+            NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
 
    #pragma mark · SELECT switch
-            switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:custodianDict[@"select"]]) {
+            switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:devDict[@"select"]]) {
                
                case NSNotFound:{
-                  LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",custodianString);
+                  LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",devOID);
                } break;
                   
                case selectTypeSql:{
       #pragma mark · SQL SELECT (unique option for now)
-                  NSDictionary *sqlcredentials=@{custodianDict[@"sqluser"]:custodianDict[@"sqlpassword"]};
-                  NSString *sqlprolog=custodianDict[@"sqlprolog"];
-                  NSDictionary *sqlDictionary=DRS.sqls[custodianDict[@"sqlmap"]];
+                  NSDictionary *sqlcredentials=@{devDict[@"sqluser"]:devDict[@"sqlpassword"]};
+                  NSString *sqlprolog=devDict[@"sqlprolog"];
+                  NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
 
 #pragma mark · apply EP (Study Patient) filters
                   NSMutableDictionary *EPDict=[NSMutableDictionary dictionary];
@@ -1268,12 +1268,11 @@ RSResponse* cornerstone(
                   NSMutableArray *patientArray=[NSMutableArray array];
                   [JSONArray addObject:
                    @{
-                     @"arcId":custodianString,
+                     @"arcId":devOID,
                      @"baseUrl":proxyURIString,
                      @"additionnalParameters":
-                        [NSString stringWithFormat:@"&amp;session=%@&amp;custodianOID=%@&amp;SeriesInstanceUID=%@&amp;SeriesNumber=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@&amp;SOPClassOff=%@",
+                        [NSString stringWithFormat:@"&amp;session=%@&amp;SeriesInstanceUID=%@&amp;SeriesNumber=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@&amp;SOPClassOff=%@",
                          sessionString,
-                         custodianString,
                          SeriesInstanceUIDRegex.pattern,
                          SeriesNumberRegex.pattern,
                          SeriesDescriptionRegex.pattern,
@@ -1290,7 +1289,7 @@ RSResponse* cornerstone(
                   switch (getTypeIndex) {
                         
                      case NSNotFound:{
-                        LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",custodianString);
+                        LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",devOID);
                      } break;
 
                      case getTypeWado:{
@@ -1455,8 +1454,8 @@ NSMutableArray *studyArray=[NSMutableArray array];
                                                             SProperties[1],
                                                             IProperties[1],
                                                             sessionString,
-                                                            custodianDict[@"custodianoid"],
-                                                    custodianString];
+                                                            devDict[@"custodianoid"],
+                                                    devOID];
                                    [instanceArray addObject:@{
                                                             @"imageId":wadouriInstance,
                                                             @"SOPInstanceUID":IProperties[1],
@@ -1495,8 +1494,8 @@ RSResponse* dicomzip(
  NSString            * proxyURIString,
  NSString            * sessionString,
  NSString            * tokenString,
- NSMutableArray      * devCustodianOIDArray,
- NSMutableArray      * wanCustodianOIDArray,
+ NSMutableArray      * devArray,
+ NSMutableArray      * wanArray,
  NSString            * transferSyntax,
  BOOL                  hasRestriction,
  NSRegularExpression * SeriesInstanceUIDRegex,
@@ -1584,17 +1583,17 @@ RSResponse* dicomzip(
     
     if (!fromCache)
     {
-       if (devCustodianOIDArray.count > 1)
+       if (devArray.count > 1)
        {
           //add nodes and start corresponding processes
        }
 
-       if (wanCustodianOIDArray.count > 0)
+       if (wanArray.count > 0)
        {
           //add nodes and start corresponding processes
        }
 
-       if (devCustodianOIDArray.count == 0)
+       if (devArray.count == 0)
        {
           //add nodes and start corresponding processes
        }
@@ -1602,24 +1601,24 @@ RSResponse* dicomzip(
        {
           while (1)
           {
-             NSString *custodianString=devCustodianOIDArray[0];
-             NSDictionary *custodianDict=DRS.pacs[custodianString];
+             NSString *devOID=devArray[0];
+             NSDictionary *devDict=DRS.pacs[devOID];
 
 #pragma mark · GET type index
-             NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:custodianDict[@"get"]];
+             NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
 
 #pragma mark · SELECT switch
-             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:custodianDict[@"select"]]) {
+             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:devDict[@"select"]]) {
                 
                 case NSNotFound:{
-                   LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",custodianString);
+                   LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",devOID);
                 } break;
                    
                 case selectTypeSql:{
 #pragma mark · SQL SELECT (unique option for now)
-                   NSDictionary *sqlcredentials=@{custodianDict[@"sqluser"]:custodianDict[@"sqlpassword"]};
-                   NSString *sqlprolog=custodianDict[@"sqlprolog"];
-                   NSDictionary *sqlDictionary=DRS.sqls[custodianDict[@"sqlmap"]];
+                   NSDictionary *sqlcredentials=@{devDict[@"sqluser"]:devDict[@"sqlpassword"]};
+                   NSString *sqlprolog=devDict[@"sqlprolog"];
+                   NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
 
                    
 
@@ -1643,7 +1642,7 @@ RSResponse* dicomzip(
                    switch (getTypeIndex) {
                          
                       case NSNotFound:{
-                         LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",custodianString);
+                         LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",devOID);
                       } break;
 
                       case getTypeWado:{
@@ -1708,7 +1707,7 @@ RSResponse* dicomzip(
                                      //remove the / empty component at the end
                                      if (sopuid.length > 1)
                                      {
-                                        [wados addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",custodianDict[@"wadouri"],Eui,SProperties[1],sopuid,custodianDict[@"wadoadditionalparameters"]]];
+                                        [wados addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",devDict[@"wadouri"],Eui,SProperties[1],sopuid,devDict[@"wadoadditionalparameters"]]];
                                      }
                                   }// end for each I
                                }//end if SOPClass
@@ -1991,8 +1990,8 @@ RSResponse* osirixdcmURLs(
  NSString            * proxyURIString,
  NSString            * sessionString,
  NSString            * tokenString,
- NSMutableArray      * devCustodianOIDArray,
- NSMutableArray      * wanCustodianOIDArray,
+ NSMutableArray      * devArray,
+ NSMutableArray      * wanArray,
  NSString            * transferSyntax,
  BOOL                  hasRestriction,
  NSRegularExpression * SeriesInstanceUIDRegex,
@@ -2076,49 +2075,49 @@ RSResponse* osirixdcmURLs(
 
 
    
-#pragma mark custodianOID?
-   NSInteger custodianOIDIndex=[names indexOfObject:@"custodianOID"];
-   if (custodianOIDIndex==NSNotFound)
+#pragma mark institution?
+   NSInteger institutionIndex=[names indexOfObject:@"institution"];
+   if (institutionIndex==NSNotFound)
    {
-      LOG_WARNING(@"studyToken custodianOID not available");
+      LOG_WARNING(@"studyToken institution not available");
       return [RSErrorResponse responseWithClientError:404 message:@"studyToken custloianOID not available"];
    }
    
-   NSMutableArray *wanCustodianOIDArray=[NSMutableArray array];
-   NSMutableArray *devCustodianOIDArray=[NSMutableArray array];
-   NSArray *custodianOIDArray=[values[custodianOIDIndex] componentsSeparatedByString:@"|"];
-   for (NSInteger i=[custodianOIDArray count]-1;i>=0;i--)
+   NSMutableArray *wanArray=[NSMutableArray array];
+   NSMutableArray *devArray=[NSMutableArray array];
+   NSArray *institutionArray=[values[institutionIndex] componentsSeparatedByString:@"|"];
+   for (NSInteger i=[institutionArray count]-1;i>=0;i--)
    {
-      if ([DRS.wan indexOfObject:custodianOIDArray[i]]!=NSNotFound)
+      if ([DRS.wan indexOfObject:institutionArray[i]]!=NSNotFound)
       {
-         [wanCustodianOIDArray addObject:custodianOIDArray[i]];
-         LOG_DEBUG(@"studyToken custodianOID wan %@",custodianOIDArray[i]);
+         [wanArray addObject:institutionArray[i]];
+         LOG_DEBUG(@"studyToken institution wan %@",institutionArray[i]);
       }
-      else if ([DRS.dev indexOfObject:custodianOIDArray[i]]!=NSNotFound)
+      else if ([DRS.dev indexOfObject:institutionArray[i]]!=NSNotFound)
       {
-         [devCustodianOIDArray addObject:custodianOIDArray[i]];
-         LOG_DEBUG(@"studyToken custodianOID dev %@",custodianOIDArray[i]);
+         [devArray addObject:institutionArray[i]];
+         LOG_DEBUG(@"studyToken institution dev %@",institutionArray[i]);
       }
-      else if ([DRS.lan indexOfObject:custodianOIDArray[i]]!=NSNotFound)
+      else if ([DRS.lan indexOfObject:institutionArray[i]]!=NSNotFound)
       {
          //find all dev of local custodian
-         if (DRS.oidsaeis[custodianOIDArray[i]])
+         if (DRS.oidsaeis[institutionArray[i]])
          {
-            [devCustodianOIDArray addObjectsFromArray:DRS.oidsaeis[custodianOIDArray[i]]];
-            LOG_VERBOSE(@"studyToken custodianOID for dev %@:\r\n%@",custodianOIDArray[i],[DRS.oidsaeis[custodianOIDArray[i]]description]);
+            [devArray addObjectsFromArray:DRS.oidsaeis[institutionArray[i]]];
+            LOG_VERBOSE(@"studyToken institution for dev %@:\r\n%@",institutionArray[i],[DRS.oidsaeis[institutionArray[i]]description]);
          }
          else
          {
-            [devCustodianOIDArray addObjectsFromArray:DRS.titlestitlesaets[custodianOIDArray[i]]];
-            LOG_VERBOSE(@"studyToken custodianOID for dev %@:\r\n%@",custodianOIDArray[i],[DRS.titlestitlesaets[custodianOIDArray[i]]description]);
+            [devArray addObjectsFromArray:DRS.titlestitlesaets[institutionArray[i]]];
+            LOG_VERBOSE(@"studyToken institution for dev %@:\r\n%@",institutionArray[i],[DRS.titlestitlesaets[institutionArray[i]]description]);
          }
       }
       else
       {
-         LOG_WARNING(@"studyToken custodianOID '%@' not registered",custodianOIDArray[i]);
+         LOG_WARNING(@"studyToken institution '%@' not registered",institutionArray[i]);
       }
    }
-   if (![devCustodianOIDArray count] && ![wanCustodianOIDArray count]) return [RSErrorResponse responseWithClientError:404 message:@"no known pacs in:\r\n%@",[custodianOIDArray description]];
+   if (![devArray count] && ![wanArray count]) return [RSErrorResponse responseWithClientError:404 message:@"no known pacs in:\r\n%@",[institutionArray description]];
 
 
 #pragma mark series restriction in query?
@@ -2307,8 +2306,8 @@ RSResponse* osirixdcmURLs(
                  proxyURIString,
                  sessionString,
                  tokenString,
-                 devCustodianOIDArray,
-                 wanCustodianOIDArray,
+                 devArray,
+                 wanArray,
                  nil,
                  hasRestriction,
                  SeriesInstanceUIDRegex,
@@ -2330,8 +2329,8 @@ RSResponse* osirixdcmURLs(
                  proxyURIString,
                  sessionString,
                  tokenString,
-                 devCustodianOIDArray,
-                 wanCustodianOIDArray,
+                 devArray,
+                 wanArray,
                  nil,
                  hasRestriction,
                  SeriesInstanceUIDRegex,
@@ -2357,8 +2356,8 @@ RSResponse* osirixdcmURLs(
                     proxyURIString,
                     sessionString,
                     tokenString,
-                    devCustodianOIDArray,
-                    wanCustodianOIDArray,
+                    devArray,
+                    wanArray,
                     nil,
                     hasRestriction,
                     SeriesInstanceUIDRegex,
@@ -2381,8 +2380,8 @@ RSResponse* osirixdcmURLs(
                     proxyURIString,
                     sessionString,
                     tokenString,
-                    devCustodianOIDArray,
-                    wanCustodianOIDArray,
+                    devArray,
+                    wanArray,
                     nil,
                     hasRestriction,
                     SeriesInstanceUIDRegex,
