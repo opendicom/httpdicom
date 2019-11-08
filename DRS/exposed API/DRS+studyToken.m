@@ -1449,14 +1449,14 @@ NSMutableArray *studyArray=[NSMutableArray array];
                                   InstanceNumber
                                   */
                                   NSString *wadouriInstance=[NSString stringWithFormat:
-                                                            @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&wadoURI=%@",
+                                                            @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&arcId=%@",
                                                             proxyURIString,
                                                             (EPropertiesArray[0])[1],
                                                             SProperties[1],
                                                             IProperties[1],
                                                             sessionString,
                                                             custodianDict[@"custodianoid"],
-                                                         custodianDict[@"wadouri"]];
+                                                    custodianString];
                                    [instanceArray addObject:@{
                                                             @"imageId":wadouriInstance,
                                                             @"SOPInstanceUID":IProperties[1],
