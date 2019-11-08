@@ -1449,13 +1449,14 @@ NSMutableArray *studyArray=[NSMutableArray array];
                                   InstanceNumber
                                   */
                                   NSString *wadouriInstance=[NSString stringWithFormat:
-                                                            @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@",
+                                                            @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&wadoURI=%@",
                                                             proxyURIString,
                                                             (EPropertiesArray[0])[1],
                                                             SProperties[1],
                                                             IProperties[1],
                                                             sessionString,
-                                                            @"2.16.858.0.1.4.0"];
+                                                            custodianDict[@"custodianoid"],
+                                                         custodianDict[@"wadouri"]];
                                    [instanceArray addObject:@{
                                                             @"imageId":wadouriInstance,
                                                             @"SOPInstanceUID":IProperties[1],
@@ -2085,7 +2086,7 @@ RSResponse* osirixdcmURLs(
    
    NSMutableArray *wanCustodianOIDArray=[NSMutableArray array];
    NSMutableArray *devCustodianOIDArray=[NSMutableArray array];
-   NSArray *custodianOIDArray=[values[custodianOIDIndex] componentsSeparatedByString:@"~"];
+   NSArray *custodianOIDArray=[values[custodianOIDIndex] componentsSeparatedByString:@"|"];
    for (NSInteger i=[custodianOIDArray count]-1;i>=0;i--)
    {
       if ([DRS.wan indexOfObject:custodianOIDArray[i]]!=NSNotFound)
