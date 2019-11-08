@@ -2022,7 +2022,7 @@ RSResponse* osirixdcmURLs(
 {
    [self
     addHandler:@"POST"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|uncompressed.dicom.zip|deflate.dicom.zip|dicom.zipx|datatablesseries.json|datatablespatient.json|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|iso.dicom.zip|deflate.dicom.zip|deflate.iso.dicom.zip|max.deflate.iso.dicom.zip|zip64.iso.dicom.zip|wadors.dicom|datatablesseries.json|datatablespatient.json|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -2031,7 +2031,7 @@ RSResponse* osirixdcmURLs(
 
    [self
     addHandler:@"GET"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|datatablesseries.json|datatablespatient.json|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|iso.dicom.zip|deflate.dicom.zip|deflate.iso.dicom.zip|max.deflate.iso.dicom.zip|zip64.iso.dicom.zip|wadors.dicom|datatablesseries.json|datatablespatient.json|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));

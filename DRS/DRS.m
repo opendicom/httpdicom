@@ -11,6 +11,7 @@
 //#import "DRS+pdf.h"
 //#import "DRS+encapsulated.h"
 #import "DRS+studyToken.h"
+#import "DRS+store.h"
 
 //RSRequest properties:      NSMutableURLRequest
 //- NSString* method          -> HTTPMethod
@@ -32,9 +33,6 @@ BOOL parseRequestParams(RSRequest       *  request,
                         NSString        ** errorString
                         )
 {
-   LOG_INFO(@"%@ %@", request.method,[request.URL absoluteString]);
-   LOG_VERBOSE(@"content-type: %@ %@", request.contentType,[request.headers description]);
-
     //headers
    for (NSString * key in [request.headers allKeys])
    {
@@ -90,6 +88,14 @@ BOOL parseRequestParams(RSRequest       *  request,
        {
            [curlString appendFormat:@"\"%@\":\"%@\",",names[idx],values[idx]];
        }
+      LOG_INFO(@"%@ %@ content-type: %@ %@",
+               request.method,
+               [request.URL absoluteString],
+               request.contentType,
+               [request.headers description]
+               );
+
+
        LOG_DEBUG(@"%@\"%@\":\"%@\"}' %@ > dcm.zip",curlString,names[beforeLast],values[beforeLast],[request.URL absoluteString]);
 
    }
@@ -127,6 +133,14 @@ BOOL parseRequestParams(RSRequest       *  request,
          [names addObject:queryItem.name];
          [values addObject:queryItem.value];
       }
+      
+      LOG_INFO(@"%@ content-type: %@ %@",
+               request.method,
+               request.contentType,
+               [request.headers description]
+               );
+
+      LOG_DEBUG(@"curl --output httpdicomOutput %@",[request.URL absoluteString]);
    }
    else
    {
@@ -625,7 +639,11 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         [self addGETPacsHandler];//
        [self addGETSqlsHandler];//
         LOG_DEBUG(@"added handler GET /custodians and /pacs /sqls");
-       
+
+#pragma mark /store
+        [self addPOSTstudiesHandler];
+        LOG_DEBUG(@"added handler POST /stowstore");
+
 #pragma mark /qido
        //[self addMWLHandler];
        //LOG_DEBUG(@"added handler /mwlitem");

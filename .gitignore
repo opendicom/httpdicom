@@ -8,3 +8,4 @@ deploy/local/httpdicom/httpdicom
 deploy/local/httpdicom/httpdicom
 deploy/local/httpdicom/httpdicom
 httpdicom.xcodeproj/xcshareddata/xcschemes/httpdicom.xcscheme
+*.xcscheme

@@ -118,9 +118,16 @@
     }(request));}];
 }
 
+//pacs/{pacsoid}/services
+//pacs/{pacsoid}/services/{service}
+//pacs/{pacsoid}/procedures?{textSearch} -> procedure Key:title dictionary
+//pacs/{pacsoid}/procedures/{key}
+//pacs/{pacsoid}/properties
+//pacs/{pacsoid}/properties/{property}
+
 -(void)addGETPacsHandler
 {
-   NSRegularExpression *pacsRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs" options:0 error:NULL];
+   NSRegularExpression *pacsRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs((\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*)\\/(services|procedures|properties)(\\/.*)?)?" options:NSRegularExpressionCaseInsensitive error:NULL];
    [self addHandler:@"GET" regex:pacsRegex processBlock:
     ^(RSRequest* request, RSCompletionBlock completionBlock)
     {completionBlock(^RSResponse* (RSRequest* request){
@@ -128,38 +135,44 @@
       //using NSURLComponents instead of RSRequest
       NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
       
-      NSArray *pComponents=[urlComponents.path componentsSeparatedByString:@"/"];
-      NSUInteger pCount=[pComponents count];
-      if ([[pComponents lastObject]isEqualToString:@""]) pCount--;
+      NSArray *pathComponents=[urlComponents.path componentsSeparatedByString:@"/"];
+      NSUInteger pathCount=[pathComponents count]-1;//starts with /
+      if ([[pathComponents lastObject]isEqualToString:@""]) pathCount--;//ends with /
       
       //  /pacs
-      if (pCount==2) return [RSDataResponse responseWithData:DRS.pacskeysdata contentType:@"application/json"];
+      if (pathCount==1) return [RSDataResponse responseWithData:DRS.pacskeysdata contentType:@"application/json"];
       
-      //pacs/{key}
-      NSDictionary *pacsproperties=DRS.pacs[pComponents[2]];
-      if (!pacsproperties) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown pacs]",pComponents[2]];
+      if (pathCount==2) return [RSErrorResponse responseWithClientError:404 message:@"%@ [no handler]",urlComponents.path];
+
       
-      if (pCount==3) return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:pacsproperties options:0 error:nil] contentType:@"application/json"];
-      
-      //pacs/{key}/{property}
-      id pacsproperty=pacsproperties[pComponents[3]];
-      if (!pacsproperty) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown property]",pComponents[3]];
-      
-      if (pCount==4)
+      if ([pathComponents[3] isEqualToString:@"properties"])
       {
-         if ([pacsproperty isKindOfClass:[NSString class]])
-            return [RSDataResponse responseWithData:[pacsproperty dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+         NSDictionary *pacsproperties=DRS.pacs[pathComponents[2]];
+         if (!pacsproperties) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown pacs]",pathComponents[2]];
          
-         if ([pacsproperty isKindOfClass:[NSNumber class]])
-         {
-            if ([pacsproperty boolValue]==true)
-               return [RSDataResponse responseWithData:[@"true" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
-            return [RSDataResponse responseWithData:[@"false" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
-         }
+         if (pathCount==3) return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:pacsproperties options:0 error:nil] contentType:@"application/json"];
+
+
+         //pacs/{key}/{property}
+         id pacsproperty=pacsproperties[pathComponents[4]];
+         if (!pacsproperty) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown property]",pathComponents[4]];
          
-         if ([pacsproperty isKindOfClass:[NSDictionary class]])
+         if (pathCount==4)
          {
-            return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:pacsproperty options:0 error:nil] contentType:@"application/json"];
+            if ([pacsproperty isKindOfClass:[NSString class]])
+               return [RSDataResponse responseWithData:[pacsproperty dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+            
+            if ([pacsproperty isKindOfClass:[NSNumber class]])
+            {
+               if ([pacsproperty boolValue]==true)
+                  return [RSDataResponse responseWithData:[@"true" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+               return [RSDataResponse responseWithData:[@"false" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+            }
+            
+            if ([pacsproperty isKindOfClass:[NSDictionary class]])
+            {
+               return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:pacsproperty options:0 error:nil] contentType:@"application/json"];
+            }
          }
       }
 
