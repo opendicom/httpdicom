@@ -208,7 +208,7 @@ RSResponse * sqlEP(
          //find patient fk
          if (execUTF8Bash(sqlcredentials,
                            [NSString stringWithFormat:
-                            sqlDictionary[@"PE4Eui"],
+                            sqlDictionary[@"EP4Eui"],
                             sqlprolog,
                             uid,
                             @"",
@@ -236,7 +236,7 @@ RSResponse * sqlEP(
        {
           if (execUTF8Bash(sqlcredentials,
                             [NSString stringWithFormat:
-                             sqlDictionary[@"PE4Ean"],
+                             sqlDictionary[@"EP4Ean"],
                              sqlprolog,
                              AccessionNumberString,
                              @"",
