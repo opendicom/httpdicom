@@ -930,7 +930,7 @@ RSResponse * weasis(
                
             case selectTypeSql:{
    #pragma mark · SQL SELECT (unique option for now)
-               NSDictionary *sqlcredentials=@{devDict[@"sqluser"]:devDict[@"sqlpassword"]};
+               NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
                NSString *sqlprolog=devDict[@"sqlprolog"];
                NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
 
@@ -1245,7 +1245,7 @@ RSResponse* cornerstone(
                   
                case selectTypeSql:{
       #pragma mark · SQL SELECT (unique option for now)
-                  NSDictionary *sqlcredentials=@{devDict[@"sqluser"]:devDict[@"sqlpassword"]};
+                  NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
                   NSString *sqlprolog=devDict[@"sqlprolog"];
                   NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
 
@@ -1616,7 +1616,7 @@ RSResponse* dicomzip(
                    
                 case selectTypeSql:{
 #pragma mark · SQL SELECT (unique option for now)
-                   NSDictionary *sqlcredentials=@{devDict[@"sqluser"]:devDict[@"sqlpassword"]};
+                   NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
                    NSString *sqlprolog=devDict[@"sqlprolog"];
                    NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
 
@@ -2075,9 +2075,9 @@ RSResponse* osirixdcmURLs(
 
 
    
-#pragma mark institution?
-   NSInteger institutionIndex=[names indexOfObject:@"institution"];
-   if (institutionIndex==NSNotFound)
+#pragma mark org?
+   NSInteger orgIndex=[names indexOfObject:@"institution"];
+   if (orgIndex==NSNotFound)
    {
       LOG_WARNING(@"studyToken institution not available");
       return [RSErrorResponse responseWithClientError:404 message:@"studyToken custloianOID not available"];
@@ -2085,39 +2085,39 @@ RSResponse* osirixdcmURLs(
    
    NSMutableArray *wanArray=[NSMutableArray array];
    NSMutableArray *devArray=[NSMutableArray array];
-   NSArray *institutionArray=[values[institutionIndex] componentsSeparatedByString:@"|"];
-   for (NSInteger i=[institutionArray count]-1;i>=0;i--)
+   NSArray *orgArray=[values[orgIndex] componentsSeparatedByString:@"|"];
+   for (NSInteger i=[orgArray count]-1;i>=0;i--)
    {
-      if ([DRS.wan indexOfObject:institutionArray[i]]!=NSNotFound)
+      if ([DRS.wan indexOfObject:orgArray[i]]!=NSNotFound)
       {
-         [wanArray addObject:institutionArray[i]];
-         LOG_DEBUG(@"studyToken institution wan %@",institutionArray[i]);
+         [wanArray addObject:orgArray[i]];
+         LOG_DEBUG(@"studyToken institution wan %@",orgArray[i]);
       }
-      else if ([DRS.dev indexOfObject:institutionArray[i]]!=NSNotFound)
+      else if ([DRS.dev indexOfObject:orgArray[i]]!=NSNotFound)
       {
-         [devArray addObject:institutionArray[i]];
-         LOG_DEBUG(@"studyToken institution dev %@",institutionArray[i]);
+         [devArray addObject:orgArray[i]];
+         LOG_DEBUG(@"studyToken institution dev %@",orgArray[i]);
       }
-      else if ([DRS.lan indexOfObject:institutionArray[i]]!=NSNotFound)
+      else if ([DRS.lan indexOfObject:orgArray[i]]!=NSNotFound)
       {
          //find all dev of local custodian
-         if (DRS.oidsaeis[institutionArray[i]])
+         if (DRS.oidsaeis[orgArray[i]])
          {
-            [devArray addObjectsFromArray:DRS.oidsaeis[institutionArray[i]]];
-            LOG_VERBOSE(@"studyToken institution for dev %@:\r\n%@",institutionArray[i],[DRS.oidsaeis[institutionArray[i]]description]);
+            [devArray addObjectsFromArray:DRS.oidsaeis[orgArray[i]]];
+            LOG_VERBOSE(@"studyToken institution for dev %@:\r\n%@",orgArray[i],[DRS.oidsaeis[orgArray[i]]description]);
          }
          else
          {
-            [devArray addObjectsFromArray:DRS.titlestitlesaets[institutionArray[i]]];
-            LOG_VERBOSE(@"studyToken institution for dev %@:\r\n%@",institutionArray[i],[DRS.titlestitlesaets[institutionArray[i]]description]);
+            [devArray addObjectsFromArray:DRS.titlestitlesaets[orgArray[i]]];
+            LOG_VERBOSE(@"studyToken institution for dev %@:\r\n%@",orgArray[i],[DRS.titlestitlesaets[orgArray[i]]description]);
          }
       }
       else
       {
-         LOG_WARNING(@"studyToken institution '%@' not registered",institutionArray[i]);
+         LOG_WARNING(@"studyToken institution '%@' not registered",orgArray[i]);
       }
    }
-   if (![devArray count] && ![wanArray count]) return [RSErrorResponse responseWithClientError:404 message:@"no known pacs in:\r\n%@",[institutionArray description]];
+   if (![devArray count] && ![wanArray count]) return [RSErrorResponse responseWithClientError:404 message:@"no known pacs in:\r\n%@",[orgArray description]];
 
 
 #pragma mark series restriction in query?

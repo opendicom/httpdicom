@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        
+<!-- pk study + pk patient -->
+        
+        <!-- match study UID -->
+        <key>EP4Eui</key>
+        <string>%@SELECT pk,patient_fk FROM study WHERE rejection_state!=2 AND study_iuid='%@' %@ %@</string>
+        
+        <!-- match accession number -->
+        <key>EP4Ean</key>
+        <string>%@SELECT pk,patient_fk FROM study WHERE rejection_state!=2 AND accession_no='%@' %@ %@</string>
+
+
+
+        <!-- match Pid + Eda (empty) = any -->
+        <key>EP4PidEda0</key>
+        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' %@ %@</string>
+        
+        <!-- match Pid + Eda [aaaa-mm-dd] = on -->
+        <key>EP4PidEda1</key>
+        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk  LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
+        
+        <!-- match Pid + Eda [aaaa-mm-dd][] = since -->
+        <key>EP4PidEda2</key>
+        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk  LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@'' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
+        
+        <!-- match Pid + Eda [][][aaaa-mm-dd] = until -->
+        <key>EP4PidEda3</key>
+        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk  LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        <!-- match Pid + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+        <key>EP4PidEda4</key>
+        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk  LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+
+
+
+        <!-- match Pidis + Eda (empty) -> any -->
+        <key>EP4PidisEda0</key>
+        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk  LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND issuer.entity_id = '%@' %@ %@</string>
+        
+        <!-- match Pidis + Eda [aaaa-mm-dd] = on -->
+        <key>EP4PidisEda1</key>
+        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND issuer.entity_id = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
+        
+        <!-- match Pidis + Eda [aaaa-mm-dd][] = since -->
+        <key>EP4PidisEda2</key>
+        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND issuer.entity_id = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
+        
+        <!-- match Pidis + Eda [][][aaaa-mm-dd] = until -->
+        <key>EP4PidisEda3</key>
+        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND issuer.entity_id = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        <!-- match Pidis + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+        <key>EP4PidisEda4</key>
+        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND issuer.entity_id = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        
+                
+<!-- pk study + studyInstanceUID -->
+        
+        <!-- match study UID -->
+        <key>EuiE4Euid</key>
+        <string>%@SELECT study_iuid, pk FROM study WHERE rejection_state!=2 AND study_iuid='%@' %@ %@</string>
+        
+       <!-- match accession number -->
+       <key>EuiE4Ean</key>
+        <string>%@SELECT study_iuid, pk FROM study WHERE rejection_state!=2 AND accession_no='%@' %@ %@</string>
+
+
+
+        <!-- match Pid + Eda (empty) = any -->
+       <key>EuiE4PidEda0</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk  LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' %@ %@</string>
+        
+        <!-- match Pid + Eda [aaaa-mm-dd] = on -->
+        <key>EuiE4PidEda1</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk  LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
+        
+        <!-- match Pid + Eda [aaaa-mm-dd][] = since -->
+        <key>EuiE4PidEda2</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk  LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
+        
+        <!-- match Pid + Eda [][][aaaa-mm-dd] = until -->
+        <key>EuiE4PidEda3</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk  LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        <!-- match Pid + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+        <key>EuiE4PidEda4</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk  LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+ 
+ 
+ 
+        
+        <!-- match Pidis + Eda (empty) = any -->
+        <key>EuiE4PidisEda0</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND issuer.entity_id = '%@' %@ %@</string>
+        
+        <!-- match Pidis + Eda [aaaa-mm-dd] = on -->
+        <key>EuiE4PidisEda1</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND issuer.entity_id = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
+        
+        <!-- match Pidis + Eda [aaaa-mm-dd][] = since -->
+        <key>EuiE4PidisEda2</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND issuer.entity_id = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
+        
+        <!-- match Pidis + Eda [][][aaaa-mm-dd] = until -->
+        <key>EuiE4PidisEda3</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND issuer.entity_id = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        <!-- match Pidis + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+        <key>EuiE4PidisEda4</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk WHERE study.rejection_state!=2 AND patient_id.pat_id = '%@' AND issuer.entity_id = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+
+
+
+
+       <!-- instance ci 4 series pk -->
+       <!-- check on series rejection state already performed at series level --> 
+       <key>Ici4S</key>
+       <string>%@SELECT sop_cuid FROM instance WHERE series_fk='%@' %@ %@</string>
+              
+       <!-- instance ui 4 series pk -->
+       <key>Iui4S</key>
+       <string>%@SELECT sop_iuid FROM instance WHERE series_fk='%@' %@ %@</string>
+
+ 
+<!-- match on referring physician --> 
+        
+        <!-- family name -->
+        
+        <!-- match Erf + Eda (empty) = any -->
+        <key>EuiE4ErfEda0</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.family_name = '%@' %@ %@</string>
+        
+        <!-- match Erf + Eda [aaaa-mm-dd] = on -->
+        <key>EuiE4ErfEda1</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.family_name = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
+        
+        <!-- match Erf + Eda [aaaa-mm-dd][] = since -->
+        <key>EuiE4ErfEda2</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.family_name = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
+        
+        <!-- match Erf + Eda [][][aaaa-mm-dd] = until -->
+        <key>EuiE4ErfEda3</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.family_name = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        <!-- match Erf + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+        <key>EuiE4ErfEda4</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.family_name = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+
+
+
+
+        <!-- match Erg + Eda (empty) = any -->
+        <key>EuiE4ErgEda0</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.given_name = '%@' %@ %@</string>
+        
+        <!-- match Erg + Eda [aaaa-mm-dd] = on -->
+        <key>EuiE4ErgEda1</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.given_name = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
+        
+        <!-- match Erg + Eda [aaaa-mm-dd][] = since -->
+        <key>EuiE4ErgEda2</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.given_name = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
+        
+        <!-- match Erg + Eda [][][aaaa-mm-dd] = until -->
+        <key>EuiE4ErgEda3</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.given_name = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        <!-- match Erg + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+        <key>EuiE4ErgEda4</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.given_name = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        
+        
+        
+        <!-- middel name -->
+        
+        <!-- match Erm + Eda (empty) = any -->
+        <key>EuiE4ErmEda0</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.middle_name = '%@' %@ %@</string>
+        
+        <!-- match Erm + Eda [aaaa-mm-dd] = on -->
+        <key>EuiE4ErmEda1</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.middle_name = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
+        
+        <!-- match Erm + Eda [aaaa-mm-dd][] = since -->
+        <key>EuiE4ErmEda2</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.middle_name = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
+        
+        <!-- match Erm + Eda [][][aaaa-mm-dd] = until -->
+        <key>EuiE4ErmEda3</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.middle_name = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        <!-- match Erm + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+        <key>EuiE4ErmEda4</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.middle_name = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        
+        
+        <!-- name prefix -->
+        
+        <!-- match Erp + Eda (empty) = any -->
+        <key>EuiE4ErpEda0</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.name_prefix = '%@' %@ %@</string>
+        
+        <!-- match Erp + Eda [aaaa-mm-dd] = on -->
+        <key>EuiE4ErpEda1</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.name_prefix = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
+        
+        <!-- match Erp + Eda [aaaa-mm-dd][] = since -->
+        <key>EuiE4ErpEda2</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.name_prefix = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
+        
+        <!-- match Erp + Eda [][][aaaa-mm-dd] = until -->
+        <key>EuiE4ErpEda3</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.name_prefix = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        <!-- match Erp + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+        <key>EuiE4ErpEda4</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.name_prefix = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        
+        
+        <!-- name suffix -->
+        
+        <!-- match Ers + Eda (empty) = any -->
+        <key>EuiE4ErsEda0</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.name_suffix = '%@' %@ %@</string>
+        
+        <!-- match Ers + Eda [aaaa-mm-dd] = on -->
+        <key>EuiE4ErsEda1</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.name_suffix = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
+        
+        <!-- match Ers + Eda [aaaa-mm-dd][] = since -->
+        <key>EuiE4ErsEda2</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.name_suffix = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
+        
+        <!-- match Ers + Eda [][][aaaa-mm-dd] = until -->
+        <key>EuiE4ErsEda3</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.name_suffix = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        <!-- match Ers + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+        <key>EuiE4ErsEda4</key>
+        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE study.rejection_state!=2 AND person_name.name_suffix = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+        
+        
+<!-- properties-->
+<!-- check on series rejection state already performed at study and series level selection--> 
+        
+        <!-- patient -->
+        <key>P</key>
+        <string>%@SELECT patient.pk,patient_id.pat_id,CONCAT(person_name.family_name, '^', person_name.given_name, '^', person_name.middle_name, '^', person_name.name_prefix, '^', person_name.name_suffix),issuer.entity_id,patient.pat_birthdate,patient.pat_sex FROM patient LEFT JOIN person_name ON patient.pat_name_fk=person_name.pk LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk WHERE pk='%@' %@ %@</string>
+
+        <!-- examen -->
+        <key>E</key>
+        <string>%@SELECT study.pk,study.study_iuid,study.study_desc,study.study_date,study.study_time,study.accession_no,study.study_id,CONCAT(person_name.family_name, '^', person_name.given_name, '^', person_name.middle_name, '^', person_name.name_prefix, '^', person_name.name_suffix),study_query_attrs.num_series,study_query_attrs.mods_in_study FROM study LEFT JOIN study_query_attrs ON study_query_attrs.study_pk=study.pk LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk WHERE pk='%@' %@ %@</string>
+
+        <!-- serie -->
+        <key>S</key>
+        <string>%@SELECT series.pk,series.series_iuid,series.series_desc,series.series_no,series.modality,series.institution,series.department,series.station_name,CONCAT(person_name.family_name, '^', person_name.given_name, '^', person_name.middle_name, '^', person_name.name_prefix, '^', person_name.name_suffix),series.laterality FROM series LEFT JOIN person_name ON series.perf_phys_name_fk=person_name.pk WHERE study_fk='%@' %@ %@</string>
+
+        <!-- instance -->
+        <key>I</key>
+        <string>%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHERE series_fk='%@' %@ %@</string>
+        
+        
+        <!-- other-->
+
+        <!--  -->
+        <key>other</key>
+        <string></string>
+        
+    </dict>
+
+</plist>

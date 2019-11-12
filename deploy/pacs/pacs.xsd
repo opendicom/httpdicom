@@ -41,7 +41,7 @@
                                             <xs:group ref="get"/>
                                             <xs:group ref="mwl"/>
                                             <!--sql/files-->
-                                            <xs:group ref="sqluser"/>
+                                            <xs:group ref="sqlcredentials"/>
                                             <xs:group ref="sqlpassword"/>
                                             <xs:group ref="sqlprolog"/>
                                             <xs:group ref="sqlstringencoding"/>
@@ -236,14 +236,14 @@
         </xs:sequence>
     </xs:group>
     
-    <xs:group name="sqluser">
+    <xs:group name="sqlcredentials">
         <xs:sequence>
-            <xs:element name="key" fixed="sqluser">
+            <xs:element name="key" fixed="sqlcredentials">
                 <xs:annotation>
                     <xs:documentation>should be invisible from GUI?</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="sqluser"/>
+            <xs:element ref="string" id="sqlcredentials"/>
         </xs:sequence>
     </xs:group>
     
@@ -575,7 +575,7 @@
         <xs:alternative test="@id = 'get'"                         type="getidstring"/>
         <xs:alternative test="@id = 'mwl'"                         type="mwlidstring"/>
 
-        <xs:alternative test="@id = 'sqluser'"                     type="titleidstring"/>
+        <xs:alternative test="@id = 'sqlcredentials'"                     type="titleidstring"/>
         <xs:alternative test="@id = 'sqlpassword'"                 type="titleidstring"/>
         <xs:alternative test="@id = 'sqlstringencoding'"           type="stringencodingidstring"/>
 

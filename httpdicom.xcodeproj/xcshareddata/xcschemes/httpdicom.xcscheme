@@ -89,11 +89,11 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/GITHUB/httpdicom/deploy"
+            argument = "/Volumes/IN/GitHub/httpdicom/deploy"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/TMP/httpdicom"
+            argument = "/Users/jacquesfauquex/tmp"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

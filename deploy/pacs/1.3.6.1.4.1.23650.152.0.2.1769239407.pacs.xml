@@ -35,8 +35,8 @@
             <key>mwl</key>
             <string id="mwl">mllp</string>
             
-            <key>sqluser</key>
-            <string id="sqluser">MYSQL_PWD</string>
+            <key>sqlcredentials</key>
+            <string id="sqlcredentials">MYSQL_PWD</string>
             <key>sqlpassword</key>
             <string id="sqlpassword">pcs</string>
             <key>sqlprolog</key>
