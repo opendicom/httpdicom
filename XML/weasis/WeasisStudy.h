@@ -28,17 +28,17 @@
 @interface WeasisStudy : NSXMLElement
 
 +(NSXMLElement*)pk:(NSString*)pk
-               uid:(NSString*)uid
-              desc:(NSString*)desc
-              date:(NSString*)date
-              time:(NSString*)time
-                an:(NSString*)an
-            issuer:(NSString*)issuer
-              type:(NSString*)type
-               eid:(NSString*)eid
-               ref:(NSString*)ref
-               img:(NSString*)img
-               mod:(NSString*)mod
+weasisStudyInstanceUID:(NSString*)weasisStudyInstanceUID
+weasisStudyDescription:(NSString*)weasisStudyDescription
+weasisStudyDate:(NSString*)weasisStudyDate
+weasisStudyTime:(NSString*)weasisStudyTime
+weasisAccessionNumber:(NSString*)weasisAccessionNumber
+weasisStudyId:(NSString*)weasisStudyId
+weasisReferringPhysicianName:(NSString*)weasisReferringPhysicianName
+issuer:(NSString*)issuer
+issuerType:(NSString*)issuerType
+series:(NSString*)series
+modalities:(NSString*)modalities
 ;
 
 @end

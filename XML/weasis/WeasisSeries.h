@@ -28,13 +28,19 @@
 @interface WeasisSeries : NSXMLElement
 
 +(NSXMLElement*)pk:(NSString*)pk
-               uid:(NSString*)uid
-              desc:(NSString*)desc
-               num:(NSString*)num
-               mod:(NSString*)mod
-               wts:(NSString*)wts
-               sop:(NSString*)sop
+weasisSeriesInstanceUID:(NSString*)weasisSeriesInstanceUID
+weasisSeriesDescription:(NSString*)weasisSeriesDescription
+weasisSeriesNumber:(NSString*)weasisSeriesNumber
+weasisModality:(NSString*)weasisModality
+weasisWadoTransferSyntaxUID:(NSString*)weasisWadoTransferSyntaxUID
+weasisWadoCompressionRate:(NSString*)weasisWadoCompressionRate
+weasisDirectDownloadThumbnail:(NSString*)weasisDirectDownloadThumbnail
+sop:(NSString*)sop
+images:(NSString*)images
 ;
+//wts wado transfer syntax uid
+//wcr wado compression rate
+//ddt dicrect download thumbnail
 
 @end
 

@@ -11,28 +11,37 @@
 @implementation WeasisSeries
 
 +(NSXMLElement*)pk:(NSString*)pk
-               uid:(NSString*)uid
-              desc:(NSString*)desc
-               num:(NSString*)num
-               mod:(NSString*)mod
-               wts:(NSString*)wts
-               sop:(NSString*)sop
+weasisSeriesInstanceUID:(NSString*)weasisSeriesInstanceUID
+weasisSeriesDescription:(NSString*)weasisSeriesDescription
+weasisSeriesNumber:(NSString*)weasisSeriesNumber
+weasisModality:(NSString*)weasisModality
+weasisWadoTransferSyntaxUID:(NSString*)weasisWadoTransferSyntaxUID
+weasisWadoCompressionRate:(NSString*)weasisWadoCompressionRate
+weasisDirectDownloadThumbnail:(NSString*)weasisDirectDownloadThumbnail
+sop:(NSString*)sop
+images:(NSString*)images
+
 {
-   if (!pk || !uid) return nil;
+   if (!pk || !weasisSeriesInstanceUID) return nil;
    
    NSXMLElement *Series=[NSXMLElement elementWithName:@"Series"];
 
    //required attributes
-   //[Series addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
-   [Series addAttribute:[NSXMLNode attributeWithName:@"SeriesInstanceUID" stringValue:uid]];
+   [Series addAttribute:[NSXMLNode attributeWithName:@"SeriesInstanceUID" stringValue:weasisSeriesInstanceUID]];
 
    //optional attributes
-   if (desc) [Series addAttribute:[NSXMLNode attributeWithName:@"SeriesDescription" stringValue:desc]];
-   if (num) [Series addAttribute:[NSXMLNode attributeWithName:@"SeriesNumber" stringValue:num]];
-   if (mod) [Series addAttribute:[NSXMLNode attributeWithName:@"Modality" stringValue:mod]];
-   if (wts) [Series addAttribute:[NSXMLNode attributeWithName:@"WadoTransferSyntaxUID" stringValue:wts]];
+   if (weasisSeriesDescription) [Series addAttribute:[NSXMLNode attributeWithName:@"SeriesDescription" stringValue:weasisSeriesDescription]];
+   if (weasisSeriesNumber) [Series addAttribute:[NSXMLNode attributeWithName:@"SeriesNumber" stringValue:weasisSeriesNumber]];
+   if (weasisModality) [Series addAttribute:[NSXMLNode attributeWithName:@"Modality" stringValue:weasisModality]];
+   if (weasisWadoTransferSyntaxUID) [Series addAttribute:[NSXMLNode attributeWithName:@"WadoTransferSyntaxUID" stringValue:weasisWadoTransferSyntaxUID]];
+   if (weasisWadoCompressionRate) [Series addAttribute:[NSXMLNode attributeWithName:@"WadoCompressionRate" stringValue:weasisWadoCompressionRate]];
+   if (weasisDirectDownloadThumbnail) [Series addAttribute:[NSXMLNode attributeWithName:@"DirectDownloadThumbnail" stringValue:weasisDirectDownloadThumbnail]];
+   
    if (sop) [Series addAttribute:[NSXMLNode attributeWithName:@"SOPClass" stringValue:sop]];
+   if (images) [Series addAttribute:[NSXMLNode attributeWithName:@"Images​In​Study" stringValue:images]];
 
+   [Series addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
+   
    return Series;
 }
 

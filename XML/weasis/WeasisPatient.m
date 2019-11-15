@@ -11,21 +11,28 @@
 @implementation WeasisPatient
 
 +(NSXMLElement*)pk:(NSString*)pk
-               pid:(NSString*)pid
-              name:(NSString*)name
-            issuer:(NSString*)issuer
-         birthdate:(NSString*)birthdate
-               sex:(NSString*)sex
+weasisPatientID:(NSString*)weasisPatientID
+weasisPatientName:(NSString*)weasisPatientName
+weasisIssuerOfPatientID:(NSString*)weasisIssuerOfPatientID
+weasisPatientBirthDate:(NSString*)weasisPatientBirthDate
+weasisPatientBirthTime:(NSString*)weasisPatientBirthTime
+weasisPatientSex:(NSString*)weasisPatientSex
 {
+   if (!pk || !weasisPatientID || !weasisPatientName) return nil;
+
    NSXMLElement *Patient=[NSXMLElement elementWithName:@"Patient"];
+      
+   //required attributes
+   [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientID" stringValue:weasisPatientID]];
+   [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientName" stringValue:weasisPatientName]];
    
-   //attributes
-   //[Patient addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
-   [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientID" stringValue:pid]];
-   [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientName" stringValue:name]];
-   [Patient addAttribute:[NSXMLNode attributeWithName:@"IssuerOfPatientID" stringValue:issuer]];
-   [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientBirthDate" stringValue:birthdate]];
-   [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientSex" stringValue:sex]];
+   //optional attributes
+   if (weasisIssuerOfPatientID) [Patient addAttribute:[NSXMLNode attributeWithName:@"IssuerOfPatientID" stringValue:weasisIssuerOfPatientID]];
+   if (weasisPatientBirthDate) [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientBirthDate" stringValue:weasisPatientBirthDate]];
+   if (weasisPatientBirthTime) [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientBirthTime" stringValue:weasisPatientBirthTime]];
+   if (weasisPatientSex) [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientSex" stringValue:weasisPatientSex]];
+   
+   [Patient addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
 
    return Patient;
 }

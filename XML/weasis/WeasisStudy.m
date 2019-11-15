@@ -11,38 +11,40 @@
 @implementation WeasisStudy
 
 +(NSXMLElement*)pk:(NSString*)pk
-               uid:(NSString*)uid
-              desc:(NSString*)desc
-              date:(NSString*)date
-              time:(NSString*)time
-                an:(NSString*)an
-            issuer:(NSString*)issuer
-              type:(NSString*)type
-               eid:(NSString*)eid
-               ref:(NSString*)ref
-               img:(NSString*)img
-               mod:(NSString*)mod
+weasisStudyInstanceUID:(NSString*)weasisStudyInstanceUID
+weasisStudyDescription:(NSString*)weasisStudyDescription
+weasisStudyDate:(NSString*)weasisStudyDate
+weasisStudyTime:(NSString*)weasisStudyTime
+weasisAccessionNumber:(NSString*)weasisAccessionNumber
+weasisStudyId:(NSString*)weasisStudyId
+weasisReferringPhysicianName:(NSString*)weasisReferringPhysicianName
+issuer:(NSString*)issuer
+issuerType:(NSString*)issuerType
+series:(NSString*)series
+modalities:(NSString*)modalities
 {
    //required fields
-   if (!pk || !uid) return nil;
+   if (!pk || !weasisStudyInstanceUID) return nil;
    
    NSXMLElement *Study=[NSXMLElement elementWithName:@"Study"];
    
    //required attributes
-   //[Study addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
-   [Study addAttribute:[NSXMLNode attributeWithName:@"StudyInstanceUID" stringValue:uid]];
+   [Study addAttribute:[NSXMLNode attributeWithName:@"StudyInstanceUID" stringValue:weasisStudyInstanceUID]];
    
    //optional attributes
-   if (desc) [Study addAttribute:[NSXMLNode attributeWithName:@"StudyDescription" stringValue:desc]];
-   if (date) [Study addAttribute:[NSXMLNode attributeWithName:@"StudyDate" stringValue:date]];
-   if (time) [Study addAttribute:[NSXMLNode attributeWithName:@"StudyTime" stringValue:time]];
-   if (an) [Study addAttribute:[NSXMLNode attributeWithName:@"AccessionNumber" stringValue:an]];
+   if (weasisStudyDescription) [Study addAttribute:[NSXMLNode attributeWithName:@"StudyDescription" stringValue:weasisStudyDescription]];
+   if (weasisStudyDate) [Study addAttribute:[NSXMLNode attributeWithName:@"StudyDate" stringValue:weasisStudyDate]];
+   if (weasisStudyTime) [Study addAttribute:[NSXMLNode attributeWithName:@"StudyTime" stringValue:weasisStudyTime]];
+   if (weasisAccessionNumber) [Study addAttribute:[NSXMLNode attributeWithName:@"AccessionNumber" stringValue:weasisAccessionNumber]];
+   if (weasisStudyId) [Study addAttribute:[NSXMLNode attributeWithName:@"StudyID" stringValue:weasisStudyId]];
+   if (weasisReferringPhysicianName) [Study addAttribute:[NSXMLNode attributeWithName:@"ReferringPhysicianName" stringValue:weasisReferringPhysicianName]];
+   
    if (issuer) [Study addAttribute:[NSXMLNode attributeWithName:@"issuer" stringValue:issuer]];
-   if (type) [Study addAttribute:[NSXMLNode attributeWithName:@"issuerType" stringValue:type]];
-   if (eid) [Study addAttribute:[NSXMLNode attributeWithName:@"StudyID" stringValue:eid]];
-   if (ref) [Study addAttribute:[NSXMLNode attributeWithName:@"ReferringPhysicianName" stringValue:ref]];
-   //if (img) [Study addAttribute:[NSXMLNode attributeWithName:@"Images​In​Study" stringValue:img]];
-   //if (mod) [Study addAttribute:[NSXMLNode attributeWithName:@"Modalities​In​Study" stringValue:mod]];
+   if (issuerType) [Study addAttribute:[NSXMLNode attributeWithName:@"issuerType" stringValue:issuerType]];
+   if (series) [Study addAttribute:[NSXMLNode attributeWithName:@"Series​In​Study" stringValue:series]];
+   if (modalities) [Study addAttribute:[NSXMLNode attributeWithName:@"Modalities​In​Study" stringValue:modalities]];
+
+   [Study addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
 
    return Study;
 }

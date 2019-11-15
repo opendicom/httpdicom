@@ -29,7 +29,7 @@
             <string id="principallanguage">es</string>
             
             <key>select</key>
-            <string id="select">qido</string>
+            <string id="select">sql</string>
             <key>get</key>
             <string id="get">wado</string>
             <key>mwl</key>
@@ -69,6 +69,22 @@
             <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>            
+            <key>wadoweasisparameters</key>
+            <string id="wadoweasisparameters">&amp;transferSyntax=*</string>            
+            <key>wadocornerstoneparameters</key>
+            <string id="wadocornerstoneparameters"></string>            
+            <key>wadodicomzipparameters</key>
+            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadoosirixparameters</key>
+            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
+            <key>wadoisodicomzipparameters</key>
+            <string id="wadoisodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadodeflateparameters</key>
+            <string id="wadodeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadomaxdeflateparameters</key>
+            <string id="wadomaxdeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadozip64parameters</key>
+            <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
             <key>qido</key>

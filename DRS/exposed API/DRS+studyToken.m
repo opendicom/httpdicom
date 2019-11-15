@@ -952,18 +952,7 @@ RSResponse * weasis(
 
                
                NSXMLElement *arcQueryElement=
-                     [WeasisArcQuery
-                      arcQueryOID:devOID
-                      session:sessionString
-                      custodian:proxyURIString
-                      transferSyntax:nil
-                      seriesInstanceUID:SeriesInstanceUIDRegex.pattern
-                      seriesNumber:SeriesNumberRegex.pattern
-                      seriesDescription:SeriesDescriptionRegex.pattern
-                      modality:ModalityRegex.pattern
-                      SOPClass:SOPClassRegex.pattern
-                      SOPClassOff:SOPClassOffRegex.pattern
-                      overrideDicomTagsList:@""
+                     [WeasisArcQuery arcQueryId:sessionString weasisarcId:devOID weasisbaseUrl:proxyURIString weasiswebLogin:nil weasisrequireOnlySOPInstanceUID:nil weasisadditionnalParameters:nil weasisoverrideDicomTagsList:nil seriesFilterInstanceUID:SeriesInstanceUIDRegex.pattern seriesFilterNumber:SeriesNumberRegex.pattern seriesFilterDescription:SeriesDescriptionRegex.pattern seriesFilterModality:ModalityRegex.pattern seriesFilterSOPClass:SOPClassRegex.pattern seriesFilterSOPClassOff:SOPClassOffRegex.pattern
                       ];
                      [XMLRoot addChild:arcQueryElement];
 
@@ -999,13 +988,7 @@ RSResponse * weasis(
 NSXMLElement *PatientElement=nil;
                         NSArray *patientPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
                         PatientElement=
-                        [WeasisPatient
-                         pk:(patientPropertiesArray[0])[0]
-                         pid:(patientPropertiesArray[0])[1]
-                         name:(patientPropertiesArray[0])[2]
-                         issuer:(patientPropertiesArray[0])[3]
-                         birthdate:(patientPropertiesArray[0])[4]
-                         sex:(patientPropertiesArray[0])[5]
+                        [WeasisPatient pk:(patientPropertiesArray[0])[0] weasisPatientID:(patientPropertiesArray[0])[1] weasisPatientName:(patientPropertiesArray[0])[2] weasisIssuerOfPatientID:(patientPropertiesArray[0])[3] weasisPatientBirthDate:(patientPropertiesArray[0])[4] weasisPatientBirthTime:nil weasisPatientSex:(patientPropertiesArray[0])[5]
                          ];
                         [arcQueryElement addChild:PatientElement];
                               
@@ -1034,19 +1017,7 @@ NSXMLElement *PatientElement=nil;
                               NSArray *EPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
     
                               StudyElement=
-                              [WeasisStudy
-                               pk:(EPropertiesArray[0])[0]
-                               uid:(EPropertiesArray[0])[1]
-                               desc:(EPropertiesArray[0])[2]
-                               date:[DICMTypes DAStringFromDAISOString:(EPropertiesArray[0])[3]]
-                               time:[DICMTypes TMStringFromTMISOString:(EPropertiesArray[0])[4]]
-                               an:(EPropertiesArray[0])[5]
-                               issuer:nil
-                               type:nil
-                               eid:(EPropertiesArray[0])[6]
-                               ref:(EPropertiesArray[0])[7]
-                               img:(EPropertiesArray[0])[8]
-                               mod:(EPropertiesArray[0])[9]
+                              [WeasisStudy pk:(EPropertiesArray[0])[0] weasisStudyInstanceUID:(EPropertiesArray[0])[1] weasisStudyDescription:(EPropertiesArray[0])[2] weasisStudyDate:[DICMTypes DAStringFromDAISOString:(EPropertiesArray[0])[3]] weasisStudyTime:[DICMTypes TMStringFromTMISOString:(EPropertiesArray[0])[4]] weasisAccessionNumber:(EPropertiesArray[0])[5] weasisStudyId:(EPropertiesArray[0])[6] weasisReferringPhysicianName:(EPropertiesArray[0])[7] issuer:nil issuerType:nil series:(EPropertiesArray[0])[8] modalities:(EPropertiesArray[0])[9]
                                ];
                               [PatientElement addChild:StudyElement];
                                
@@ -1105,15 +1076,8 @@ NSXMLElement *PatientElement=nil;
                                ];//NSUTF8StringEncoding
 
    //#pragma mark series loop
-                              NSXMLElement *SeriesElement=[WeasisSeries
-                               pk:SProperties[0]
-                               uid:SProperties[1]
-                               desc:SProperties[2]
-                               num:SProperties[3]
-                               mod:SProperties[4]
-                               wts:@"*"
-                               sop:SOPClass
-                              ];//DirectDownloadThumbnail=\"%@\"
+                              NSXMLElement *SeriesElement=[WeasisSeries pk:SProperties[0] weasisSeriesInstanceUID:SProperties[1] weasisSeriesDescription:SProperties[2] weasisSeriesNumber:SProperties[3] weasisModality:SProperties[4] weasisWadoTransferSyntaxUID:@"*" weasisWadoCompressionRate:nil weasisDirectDownloadThumbnail:nil sop:nil images:nil
+                              ];
                               [StudyElement addChild:SeriesElement];
                                     
 
@@ -1121,10 +1085,7 @@ NSXMLElement *PatientElement=nil;
                               for (NSArray *IProperties in IPropertiesArray)
                               {
    //#pragma mark instance loop
-                                 NSXMLElement *InstanceElement=[WeasisInstance
-                                  pk:IProperties[0]
-                                  uid:IProperties[1]
-                                  num:IProperties[2]
+                                 NSXMLElement *InstanceElement=[WeasisInstance pk:IProperties[0] weasisSOPInstanceUID:IProperties[1] weasisInstanceNumber:IProperties[2] weasisDirectDownloadFile:nil
                                   ];//DirectDownloadFile
                                   [SeriesElement addChild:InstanceElement];
                                  }
@@ -1448,14 +1409,15 @@ NSMutableArray *studyArray=[NSMutableArray array];
                                   InstanceNumber
                                   */
                                   NSString *wadouriInstance=[NSString stringWithFormat:
-                                                            @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&arcId=%@",
+                                                            @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&arcId=%@%@",
                                                             proxyURIString,
                                                             (EPropertiesArray[0])[1],
                                                             SProperties[1],
                                                             IProperties[1],
                                                             sessionString,
                                                             devDict[@"custodianoid"],
-                                                    devOID];
+                                                    devOID,
+                                                             devDict[@"wadocornerstoneparameters"]];
                                    [instanceArray addObject:@{
                                                             @"imageId":wadouriInstance,
                                                             @"SOPInstanceUID":IProperties[1],
@@ -1707,7 +1669,7 @@ RSResponse* dicomzip(
                                      //remove the / empty component at the end
                                      if (sopuid.length > 1)
                                      {
-                                        [wados addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",devDict[@"wadouri"],Eui,SProperties[1],sopuid,devDict[@"wadoadditionalparameters"]]];
+                                        [wados addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",devDict[@"wadouri"],Eui,SProperties[1],sopuid,devDict[@"wadodicomdicparameters"]]];
                                      }
                                   }// end for each I
                                }//end if SOPClass

@@ -39,17 +39,19 @@
 
 @interface WeasisArcQuery : NSXMLElement
 
-+(NSXMLElement*)arcQueryOID:(NSString*)arcId
-                    session:(NSString*)session
-                  custodian:(NSString*)baseUrl
-             transferSyntax:(NSString*)transferSyntax
-          seriesInstanceUID:(NSString*)seriesInstanceUIDRegexString
-               seriesNumber:(NSString*)seriesNumberRegexString
-          seriesDescription:(NSString*)seriesDescriptionRegexString
-                   modality:(NSString*)modalityRegexString
-                   SOPClass:(NSString*)SOPClassRegexString
-                SOPClassOff:(NSString*)SOPClassOffRegexString
-      overrideDicomTagsList:(NSString*)overrideDicomTagsList
++(NSXMLElement*)arcQueryId:(NSString*)arcQueryId
+weasisarcId:(NSString*)weasisarcId
+weasisbaseUrl:(NSString*)weasisbaseUrl
+weasiswebLogin:(NSString*)weasiswebLogin
+weasisrequireOnlySOPInstanceUID:(NSString*)weasisrequireOnlySOPInstanceUID
+weasisadditionnalParameters:(NSString*)weasisadditionnalParameters
+weasisoverrideDicomTagsList:(NSString*)weasisoverrideDicomTagsList
+seriesFilterInstanceUID:(NSString*)seriesInstanceUIDRegexString
+seriesFilterNumber:(NSString*)seriesNumberRegexString
+seriesFilterDescription:(NSString*)seriesDescriptionRegexString
+seriesFilterModality:(NSString*)modalityRegexString
+seriesFilterSOPClass:(NSString*)SOPClassRegexString
+seriesFilterSOPClassOff:(NSString*)SOPClassOffRegexString
 ;
 
 @end

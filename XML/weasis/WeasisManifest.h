@@ -6,6 +6,8 @@
 //  Copyright © 2019 opendicom.com. All rights reserved.
 //
 
+//https://github.com/nroduit/Weasis/blob/master/weasis-dicom/weasis-dicom-explorer/src/main/resources/config/manifest.xsd
+
 #import <Foundation/Foundation.h>
 
 /*

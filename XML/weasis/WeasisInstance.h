@@ -20,9 +20,9 @@
 @interface WeasisInstance : NSXMLElement
 
 +(NSXMLElement*)pk:(NSString*)pk
-               uid:(NSString*)uid
-               num:(NSString*)num
-;
+weasisSOPInstanceUID:(NSString*)weasisSOPInstanceUID
+weasisInstanceNumber:(NSString*)weasisInstanceNumber
+weasisDirectDownloadFile:(NSString*)weasisDirectDownloadFile;
 
 @end
 
