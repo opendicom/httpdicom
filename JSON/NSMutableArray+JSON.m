@@ -1,4 +1,4 @@
-#import "NSMutableArray+PCS.h"
+#import "NSMutableArray+JSON.h"
 #import "ODLog.h"
 
 /*
@@ -14,7 +14,7 @@
 
 @implementation NSMutableArray (PCS)
 
-+(NSMutableArray *)arrayWithJsonData:(NSData *)data
++(NSMutableArray *)mutableArrayWithJsonData:(NSData *)data
 {
    if (!data) return nil;
    if (![data length]) return [NSMutableArray array];
@@ -27,4 +27,23 @@
    }
    return array;
    
-}@end
+}
+- (NSMutableDictionary *)firstMutableDictionaryWithKey:(NSString*)key isEqualToNumber:(NSNumber*)number;
+{
+    for (NSMutableDictionary *dict in self)
+    {
+       if ([dict[key] isEqualToNumber:number]) return dict;
+    }
+    return nil;
+}
+
+- (NSMutableDictionary *)firstMutableDictionaryWithKey:(NSString*)key isEqualToString:(NSString*)string
+{
+    for (NSMutableDictionary *dict in self)
+    {
+       if ([dict[key] isEqualToString:string]) return dict;
+    }
+    return nil;
+}
+
+@end

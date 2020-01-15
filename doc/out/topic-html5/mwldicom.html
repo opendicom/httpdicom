@@ -1,6 +1,6 @@
 <!DOCTYPE html
   SYSTEM "about:legacy-compat">
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2019"><meta name="DC.rights.owner" content="(C) Copyright 2019"><meta name="DC.Type" content="topic"><meta name="DC.Format" content="XHTML"><meta name="DC.Identifier" content="topic_ckn_z5q_tdb"><link rel="stylesheet" type="text/css" href="commonltr.css"><title>HTTPDICOM: API del servicio MWL</title></head><body id="topic_ckn_z5q_tdb"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2019"><meta name="DC.rights.owner" content="(C) Copyright 2019"><meta name="DC.type" content="topic"><meta name="DC.format" content="HTML5"><meta name="DC.identifier" content="topic_ckn_z5q_tdb"><link rel="stylesheet" type="text/css" href="commonltr.css"><title>HTTPDICOM: API del servicio MWL</title></head><body id="topic_ckn_z5q_tdb"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
     <h1 class="title topictitle1" id="ariaid-title1">HTTPDICOM: API del servicio MWL </h1>
     <div class="body">
         <p class="p">HTTPDICOM incluye funciones de Modality Worklist DICOM (MWL) para disponibilizar la
@@ -175,39 +175,6 @@
             <p class="p">En suma, HTTPDICOM requiere datos, que se pueden subdivir en cuatro grupos, el cuarto
                 pudiendo repetirse hasta 4 veces.</p>
             <p class="p"></p>
-            <p class="p"><strong class="ph b">Notas relativas a las tablas</strong>
-            </p>
-            <div class="p">
-                <ol class="ol" id="topic_ckn_z5q_tdb__ol_o12_mz2_3hb">
-                    <li class="li">la primera columna  contiene nombres con prefijo:<ol class="ol" type="a" id="topic_ckn_z5q_tdb__ol_jv5_zyx_thb">
-                            <li class="li">pat = patient</li>
-                            <li class="li">isr = imaging service request</li>
-                            <li class="li">req = request</li>
-                            <li class="li">sps = scheduled procedure step. Una request agrupa uno o hasta 4
-                                scheduled procedure steps.</li>
-                        </ol></li>
-                    <li class="li">columna "sinonimo" contiene los nombres anteriores de cada elemento. (Pueden
-                        usarse todavía). Los resaltamos en azul.</li>
-                    <li class="li">Resaltamos en violeta los elementos nuevos (sps1AET, sps1Protocol,
-                        sps1Location, sps1Modality, sps2AET, sps2Protocol, …)</li>
-                    <li class="li">columna "op" (opcionalidad): <ol class="ol" type="a" id="topic_ckn_z5q_tdb__ol_s2q_qhb_jhb">
-                            <li class="li">?=opcional</li>
-                            <li class="li">1=obligatorio</li>
-                        </ol></li>
-                    <li class="li">La columna formato contiene unas siglas:<ol class="ol" type="a" id="topic_ckn_z5q_tdb__ol_cvf_ztx_thb">
-                            <li class="li"><strong class="ph b">UID</strong>, <strong class="ph b">OID</strong>: ej 1.2345.2, 64 caracteres máximo</li>
-                            <li class="li"><strong class="ph b">aaaammdd</strong>: año aaaa: 4 cifras, mes mm y día dd: dos cifras
-                                eventualmente empezando por 0</li>
-                            <li class="li"><strong class="ph b">SH</strong>: contiene una palabra de  hasta 16 letras, cifras y - o _ </li>
-                            <li class="li">ISO3166: tabla de siglas para países</li>
-                            <li class="li">ICAO: tabla que asigna numeros a cada tidpo de documento
-                                personal</li>
-                        </ol></li>
-                    <li class="li">La columna =ORMO01 es el equivalente en el protocolo HLV v2.3.1</li>
-                    <li class="li">La columna =DICOM es el equivalente en los atributos copiados dentro de las
-                        imágenes DICOM.</li>
-                </ol>
-            </div>
         </section>
         <p class="p">.</p>
         <section class="section" id="topic_ckn_z5q_tdb__section_bvj_gv2_3hb">
@@ -235,7 +202,7 @@
                         </tbody></table>
             </div>
             <p class="p">.</p>
-            <div class="p"><table class="table frame-all" id="topic_ckn_z5q_tdb__table_uss_ty2_3hb"><caption><span class="table--title-label">Table 2. </span><span class="title">Paciente</span></caption><colgroup><col style="width:14.292828685258963%"><col style="width:14.292828685258963%"><col style="width:4.9800796812749%"><col style="width:19.372509960159363%"><col style="width:18.47609561752988%"><col style="width:14.292828685258963%"><col style="width:14.292828685258963%"></colgroup><thead class="thead">
+            <div class="p"><table class="table frame-all" id="topic_ckn_z5q_tdb__table_uss_ty2_3hb"><caption><span class="table--title-label">Table 2. </span><span class="title">Paciente (Patient)</span></caption><colgroup><col style="width:14.292828685258963%"><col style="width:14.292828685258963%"><col style="width:4.9800796812749%"><col style="width:19.372509960159363%"><col style="width:18.47609561752988%"><col style="width:14.292828685258963%"><col style="width:14.292828685258963%"></colgroup><thead class="thead">
                             <tr class="row">
                                 <th class="entry colsep-1 rowsep-1" id="topic_ckn_z5q_tdb__table_uss_ty2_3hb__entry__1">nombre</th>
                                 <th class="entry colsep-1 rowsep-1" id="topic_ckn_z5q_tdb__table_uss_ty2_3hb__entry__2">sinonimo</th>
@@ -257,8 +224,7 @@
                             </tr>
                             <tr class="row">
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_uss_ty2_3hb__entry__1 ">patFamily2Name</td>
-                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_uss_ty2_3hb__entry__2 ">apellido2,
-                                    motherMaidenName</td>
+                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_uss_ty2_3hb__entry__2 ">apellido2, motherMaidenName</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_uss_ty2_3hb__entry__3 ">?</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_uss_ty2_3hb__entry__4 ">mayusculas</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_uss_ty2_3hb__entry__5 "></td>
@@ -329,7 +295,7 @@
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_uss_ty2_3hb__entry__6 "></td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_uss_ty2_3hb__entry__7 "></td>
                             </tr>
-                        </tbody></table> .<table class="table frame-all" id="topic_ckn_z5q_tdb__table_p1h_5y2_3hb"><caption><span class="table--title-label">Table 3. </span><span class="title">Solicitud</span></caption><colgroup><col style="width:13.232920925228617%"><col style="width:13.232920925228617%"><col style="width:5.3792361484669176%"><col style="width:22.377622377622377%"><col style="width:19.311457772996235%"><col style="width:13.232920925228617%"><col style="width:13.232920925228617%"></colgroup><thead class="thead">
+                        </tbody></table> .<table class="table frame-all" id="topic_ckn_z5q_tdb__table_p1h_5y2_3hb"><caption><span class="table--title-label">Table 3. </span><span class="title">Solicitud (Imaging Service Request)</span></caption><colgroup><col style="width:13.232920925228617%"><col style="width:13.232920925228617%"><col style="width:5.3792361484669176%"><col style="width:22.377622377622377%"><col style="width:19.311457772996235%"><col style="width:13.232920925228617%"><col style="width:13.232920925228617%"></colgroup><thead class="thead">
                             <tr class="row">
                                 <th class="entry colsep-1 rowsep-1" id="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__1">nombre</th>
                                 <th class="entry colsep-1 rowsep-1" id="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__2">sinonimo</th>
@@ -372,7 +338,8 @@
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__2 ">issuerTipo</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__3 ">?</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__4 ">DNS, EUI64, ISO (=OID), URI, UUID, X400, X500</td>
-                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__5 ">local-&gt;vacío, universal-&gt;ISO</td>
+                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__5 ">si el issuer es local, dejar vacío, si el issuer es
+                                    universal, indicar su tipo</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__6 ">ORC_3.4</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__7 ">00080051.00400033</td>
                             </tr>
@@ -380,7 +347,7 @@
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__1 ">isrReferring</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__2 ">ReferringPhysiciansName</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__3 ">?</td>
-                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__4 ">org^serv^user</td>
+                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__4 ">org^serv^user^idType^id</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__5 "></td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__6 "></td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__7 ">00321032</td>
@@ -389,7 +356,7 @@
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__1 ">isrReading</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__2 ">NameOfPhysicianReadingStudy</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__3 ">?</td>
-                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__4 ">org^serv^user</td>
+                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__4 ">org^serv^user^idType^id</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__5 "></td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__6 "></td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__7 ">00081060</td>
@@ -406,8 +373,7 @@
                             </tr>
                             <tr class="row">
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__1 ">reqPriority</td>
-                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__2 ">RequestedProcedurePriority,
-                                    Priority</td>
+                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__2 ">RequestedProcedurePriority, Priority</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__3 ">?</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__4 ">MEDIUM, HIGH</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__5 "></td>
@@ -432,7 +398,7 @@
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__6 "></td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_p1h_5y2_3hb__entry__7 "></td>
                             </tr>
-                        </tbody></table> .<table class="table frame-all" id="topic_ckn_z5q_tdb__table_bjj_5y2_3hb"><caption><span class="table--title-label">Table 4. </span><span class="title">Paso 1 del protocolo</span></caption><colgroup><col style="width:14.285714285714285%"><col style="width:14.285714285714285%"><col style="width:14.285714285714285%"><col style="width:14.285714285714285%"><col style="width:14.285714285714285%"><col style="width:14.285714285714285%"><col style="width:14.285714285714285%"></colgroup><thead class="thead">
+                        </tbody></table> .<table class="table frame-all" id="topic_ckn_z5q_tdb__table_bjj_5y2_3hb"><caption><span class="table--title-label">Table 4. </span><span class="title">Paso 1 del protocolo (Scheduled Procedure Step)</span></caption><colgroup><col style="width:14.285714285714285%"><col style="width:14.285714285714285%"><col style="width:14.285714285714285%"><col style="width:14.285714285714285%"><col style="width:14.285714285714285%"><col style="width:14.285714285714285%"><col style="width:14.285714285714285%"></colgroup><thead class="thead">
                             <tr class="row">
                                 <th class="entry colsep-1 rowsep-1" id="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__1">nombre</th>
                                 <th class="entry colsep-1 rowsep-1" id="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__2">sinonimo</th>
@@ -445,8 +411,7 @@
                         </thead><tbody class="tbody">
                             <tr class="row">
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__1 ">sps1Location</td>
-                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__2 ">sala,
-                                    service, servicio, sps1Service</td>
+                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__2 ">sala, service, servicio, sps1Service</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__3 " rowspan="2">1</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__4 "></td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__5 ">sps1Location es suficiente en caso que corresponda
@@ -457,15 +422,13 @@
                             </tr>
                             <tr class="row">
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__1 ">sps1Modality</td>
-                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__2 ">Modality,
-                                    modalidad</td>
+                                <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__2 ">Modality, modalidad</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__4 ">(**) CR, CT, MR,NM, US, PT, XA, RF, DX, MG, SR</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__5 "></td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__6 "></td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__7 ">00080060</td>
                             </tr>
                             <tr class="row">
-                                
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__1 ">sps1AET</td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__2 "></td>
                                 <td class="entry colsep-1 rowsep-1" headers="topic_ckn_z5q_tdb__table_bjj_5y2_3hb__entry__3 ">?</td>
@@ -487,14 +450,38 @@
                         </tbody></table></div>
             <p class="p"></p>
             <p class="p"><strong class="ph b">Eventuales Paso 2, Paso 3 y Paso 4 del protocolo</strong></p>
-            <p class="p">Repite paso 1 pero con prefijo
-                sps2,
-                sps3
-                y
-                sps4
-                respectivamente, en lugar de sps1.</p>
+            <p class="p">Repite paso 1 pero con prefijo sps2, sps3 y sps4 respectivamente, en lugar de
+                sps1.</p>
             <p class="p"></p>
         </section>
+        <section class="section" id="topic_ckn_z5q_tdb__section_r4x_npf_5jb">
+            <p class="p"><strong class="ph b">Notas relativas a las tablas</strong>
+            </p>
+            <div class="p">
+                <ol class="ol" id="topic_ckn_z5q_tdb__ol_s4x_npf_5jb">
+                    <li class="li">columna "sinonimo" contiene los nombres anteriores de cada elemento. (Pueden
+                        usarse todavía, pero el nombre oficial para cualquier nueva implementación
+                        es el que se encuentra en la primera columna).</li>
+                    <li class="li">columna "op" (opcionalidad): <ol class="ol" type="a" id="topic_ckn_z5q_tdb__ol_u4x_npf_5jb">
+                            <li class="li">?=opcional</li>
+                            <li class="li">1=obligatorio</li>
+                        </ol></li>
+                    <li class="li">La columna formato contiene unas siglas:<ol class="ol" type="a" id="topic_ckn_z5q_tdb__ol_v4x_npf_5jb">
+                            <li class="li"><strong class="ph b">UID</strong>, <strong class="ph b">OID</strong>: ej 1.2345.2, 64 caracteres máximo</li>
+                            <li class="li"><strong class="ph b">aaaammdd</strong>: año aaaa: 4 cifras, mes mm y día dd: dos cifras
+                                eventualmente empezando por 0</li>
+                            <li class="li"><strong class="ph b">SH</strong>: contiene una palabra de hasta 16 letras, cifras y - o _ </li>
+                            <li class="li">ISO3166: tabla de siglas para países</li>
+                            <li class="li">ICAO: tabla que asigna numeros a cada tidpo de documento
+                                personal</li>
+                        </ol></li>
+                    <li class="li">La columna =ORMO01 es el equivalente en el protocolo HLV v2.3.1</li>
+                    <li class="li">La columna =DICOM es el equivalente en los atributos copiados dentro de las
+                        imágenes DICOM.</li>
+                </ol>
+            </div>
+        </section>
+        <p class="p"></p>
         <section class="section" id="topic_ckn_z5q_tdb__section_yvs_m4r_tdb"><h2 class="title sectiontitle">pacs, modalidad, sala</h2>
             
             <p class="p"><strong class="ph b">pacs</strong> es opcional cuando el pedido de creación de item de MWL es local. Sino,
@@ -503,10 +490,10 @@
                 también llamados <strong class="ph b">sala</strong>. En la configuración ya está registrado el AET del
                 equipo de imagenología correspondiente. Pues es suficiente referirse solamente a la
                 sala por su nombre sin necesidad de conocer el AET. </p>
-            <p class="p">El equipo DICOM de una sala permite a veces la creación de objetos DICOM de varias
-                modalidades, en este caso conviene completar la información de la sala por la de la
-                modalidad. Si la sala se usa para una sola modalidad, el nombre de la sala es
-                suficiente.</p>
+            <p class="p">Cuando el equipo DICOM de una sala permite la creación de objetos DICOM de varias
+                modalidades (por ejemplo CR o RF),  conviene completar la información de la sala por
+                la de la modalidad. Si la sala se usa para una sola modalidad, el nombre de la sala
+                es suficiente.</p>
             <p class="p">Alternativamente, en caso de no indicar el nombre de la sala se puede indicar una
                 modalidad DICOM. Por ejemplo:</p>
             <div class="p"><ul class="ul" id="topic_ckn_z5q_tdb__ul_snn_25w_tdb">
@@ -774,14 +761,11 @@
         <section class="section" id="topic_ckn_z5q_tdb__section_h4n_r2x_tdb"><h2 class="title sectiontitle">ReferringPhysiciansName, NameofPhysicianReadingStudy</h2>
             
             <p class="p">ReferringPhysiciansName y NameofPhysicianReadingStudy ambos siguen el formato
-                identificadorDeInstitución^nombreDeServicio^nombreDelUsuarioMedico. El identificador
-                de la institución puede ser el nombre corto o su OID. El servicio puede ser el
-                nombre por defecto del servico, o sea la modalidad de imágenes DICOM producidas en
-                el servicio.</p>
+                identificadorDeInstitución^nombreDeServicio^nombreDelUsuarioMedico^tipoDocumento^idDocumento.
+                El identificador de la institución puede ser el nombre corto o su OID. El servicio
+                puede ser el nombre por defecto del servico, o sea la modalidad de imágenes DICOM
+                producidas en el servicio.</p>
             <p class="p">Es posible indicar solo institución y servicio, o solamente institución.</p>
-            <p class="p">El archivo de configuración de PACS permite asociar un código a
-                ReferringPhysiciansName o NameofPhysicianReadingStudy. Por ejemplo,
-                HospitalA^CT^doctor1 puede corresponder al código 1.</p>
         </section>
         <section class="section" id="topic_ckn_z5q_tdb__section_xvy_k3x_tdb"><h2 class="title sectiontitle">enclosureTextarea, enclosurePdf</h2>
             

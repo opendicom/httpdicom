@@ -7,11 +7,17 @@
         
         <!-- match study UID -->
         <key>EP4Eui</key>
-        <string>%@SELECT pk,patient_fk FROM study WHERE study_iuid='%@' %@ %@</string>
+        <string>%@SELECT pk,patient_fk FROM study WHERE study_iuid REGEXP '%@' %@ %@</string>
         
         <!-- match accession number -->
         <key>EP4Ean</key>
         <string>%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' %@ %@</string>
+        <!-- match accession number and accession issuer -->
+        <key>EP4EanIei</key>
+        <string>%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' AND 'no_issuer' REGEXP '%@' %@ %@</string>
+        <!-- match accession number and accession issuer universal and type -->
+        <key>EP4EanIeiIet</key>
+        <string>%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' AND 'no_issuer' REGEXP '%@' AND 'no_issuer_type' REGEXP '%@' %@ %@</string>
 
 
 
@@ -68,6 +74,12 @@
        <!-- match accession number -->
        <key>EuiE4Ean</key>
        <string>%@SELECT study_iuid, pk FROM study WHERE accession_no='%@' %@ %@</string>
+       <!-- match accession number and accession issuer -->
+       <key>EuiE4EanIei</key>
+       <string>%@SELECT study_iuid, pk FROM study WHERE accession_no='%@' AND 'no_issuer' REGEXP '%@' %@ %@</string>
+       <!-- match accession number and accession issuer universal and type -->
+       <key>EuiE4EanIeiIet</key>
+       <string>%@SELECT study_iuid, pk FROM study WHERE accession_no='%@' AND 'no_issuer' REGEXP '%@' AND 'no_issuer_type' REGEXP '%@' %@ %@</string>
 
 
 

@@ -6,6 +6,7 @@
 
 @implementation NSString (PCS)
 
+
 +(NSString*)regexDicomString:(NSString*)dicomString withFormat:(NSString*)formatString
 {
     NSString *regex;
@@ -49,13 +50,34 @@
 
 -(NSString*)MD5String
 {
+   //self data
     const char *cStr = [self UTF8String];
-    unsigned char digest[16];
+   
+   //digest
+    unsigned char digest[CC_MD5_DIGEST_LENGTH];
     CC_MD5( cStr, (unsigned int)strlen(cStr), digest );
-    NSMutableString *output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
-    for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
+   
+   //digest data to string
+   NSMutableString *output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
+   for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
         [output appendFormat:@"%02x", digest[i]];
-    return  output;
+   return  output;
+}
+
+-(NSString*)SHA512String
+{
+    //self data
+    const char *cStr = [self UTF8String];
+   
+    //digest
+    unsigned char digest[CC_SHA512_DIGEST_LENGTH];
+    CC_SHA512(cStr, (unsigned int)strlen(cStr), digest);
+   
+    //digest data to string
+   NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA512_DIGEST_LENGTH * 2];
+   for(int i = 0; i < CC_SHA512_DIGEST_LENGTH; i++)
+        [output appendFormat:@"%02x", digest[i]];
+   return  [NSString stringWithString:output];
 }
 
 -(NSString*)normalizeHeaderValue
@@ -307,6 +329,134 @@
    return [self procedureCodeArrayForContextPacs:nil];
 }
 
+
+-(NSString*)regexQuoteEscapedString
+{
+   /*
+    NSCaseInsensitiveSearch
+    NSLiteralSearch: Exact character-by-character equivalence
+    NSBackwardsSearch
+    NSAnchoredSearch: Search is limited to start (or end, if NSBackwardsSearch) of source string.
+    NSNumericSearch: Numbers within strings are compared using numeric value, that is, Name2.txt < Name7.txt < Name25.txt.
+    NSDiacriticInsensitiveSearch
+    NSWidthInsensitiveSearch: Search ignores width differences in characters that have full-width and half-width forms, as occurs in East Asian character sets.
+    NSForcedOrderingSearch: Comparisons are forced to return either NSOrderedAscending or NSOrderedDescending if the strings are equivalent but not strictly equal.
+    NSRegularExpressionSearch: The search string is treated as an ICU-compatible regular expression. If set, no other options can apply except NSCaseInsensitiveSearch and NSAnchoredSearch. You can use this option only with the rangeOfString:… methods and
+    stringByReplacingOccurrencesOfString:withString:options:range:
+    .
+    */
+   
+   //string delimiters become char joker
+   NSMutableString *escapedString=[NSMutableString stringWithString:self];
+   NSUInteger escapesPerformed=0;
+   escapesPerformed+=[escapedString
+    replaceOccurrencesOfString:@"'"
+    withString:@"."
+    options:0
+    range:NSMakeRange(0, escapedString.length)
+    ];
+   escapesPerformed+=[escapedString
+    replaceOccurrencesOfString:@"\""
+    withString:@"."
+    options:0
+    range:NSMakeRange(0, escapedString.length)
+    ];
+   if (escapesPerformed>0) LOG_DEBUG(@"|%@| -> |%@|", self, escapedString);
+   return [NSString stringWithString:escapedString];
+}
+
+
+-(NSString*)sqlLikeEscapedString
+{
+   /*
+    NSCaseInsensitiveSearch
+    NSLiteralSearch: Exact character-by-character equivalence
+    NSBackwardsSearch
+    NSAnchoredSearch: Search is limited to start (or end, if NSBackwardsSearch) of source string.
+    NSNumericSearch: Numbers within strings are compared using numeric value, that is, Name2.txt < Name7.txt < Name25.txt.
+    NSDiacriticInsensitiveSearch
+    NSWidthInsensitiveSearch: Search ignores width differences in characters that have full-width and half-width forms, as occurs in East Asian character sets.
+    NSForcedOrderingSearch: Comparisons are forced to return either NSOrderedAscending or NSOrderedDescending if the strings are equivalent but not strictly equal.
+    NSRegularExpressionSearch: The search string is treated as an ICU-compatible regular expression. If set, no other options can apply except NSCaseInsensitiveSearch and NSAnchoredSearch. You can use this option only with the rangeOfString:… methods and
+    stringByReplacingOccurrencesOfString:withString:options:range:
+    .
+    */
+   
+   NSMutableString *escapedString=[NSMutableString stringWithString:self];
+   NSUInteger escapesPerformed=0;
+
+   //sql like wild cards escaped
+   escapesPerformed+=[escapedString
+    replaceOccurrencesOfString:@"_"
+    withString:@"\\_"
+    options:0
+    range:NSMakeRange(0, escapedString.length)
+    ];
+   escapesPerformed+=[escapedString
+    replaceOccurrencesOfString:@"%"
+    withString:@"\\%"
+    options:0
+    range:NSMakeRange(0, escapedString.length)
+    ];
+
+   //sql and json string delimiters transformed in char joker
+   escapesPerformed+=[escapedString
+    replaceOccurrencesOfString:@"'"
+    withString:@"_"
+    options:0
+    range:NSMakeRange(0, escapedString.length)
+    ];
+   escapesPerformed+=[escapedString
+    replaceOccurrencesOfString:@"\""
+    withString:@"_"
+    options:0
+    range:NSMakeRange(0, escapedString.length)
+    ];
+   
+   if (escapesPerformed>0) LOG_DEBUG(@"|%@| -> |%@|", self, escapedString);
+   if ((self.length - escapesPerformed > 4) || (escapesPerformed == 0))
+   return [NSString stringWithString:escapedString];
+   return nil;
+}
+
+-(NSString*)sqlEqualEscapedString
+{
+   /*
+    NSCaseInsensitiveSearch
+    NSLiteralSearch: Exact character-by-character equivalence
+    NSBackwardsSearch
+    NSAnchoredSearch: Search is limited to start (or end, if NSBackwardsSearch) of source string.
+    NSNumericSearch: Numbers within strings are compared using numeric value, that is, Name2.txt < Name7.txt < Name25.txt.
+    NSDiacriticInsensitiveSearch
+    NSWidthInsensitiveSearch: Search ignores width differences in characters that have full-width and half-width forms, as occurs in East Asian character sets.
+    NSForcedOrderingSearch: Comparisons are forced to return either NSOrderedAscending or NSOrderedDescending if the strings are equivalent but not strictly equal.
+    NSRegularExpressionSearch: The search string is treated as an ICU-compatible regular expression. If set, no other options can apply except NSCaseInsensitiveSearch and NSAnchoredSearch. You can use this option only with the rangeOfString:… methods and
+    stringByReplacingOccurrencesOfString:withString:options:range:
+    .
+    */
+   
+   NSMutableString *escapedString=[NSMutableString stringWithString:self];
+   NSUInteger escapesPerformed=0;
+
+   //sql and json string delimiters transformed in char joker
+   escapesPerformed+=[escapedString
+    replaceOccurrencesOfString:@"'"
+    withString:@"_"
+    options:0
+    range:NSMakeRange(0, escapedString.length)
+    ];
+   escapesPerformed+=[escapedString
+    replaceOccurrencesOfString:@"\""
+    withString:@"_"
+    options:0
+    range:NSMakeRange(0, escapedString.length)
+    ];
+   
+   if (escapesPerformed>0) LOG_DEBUG(@"|%@| -> |%@|", self, escapedString);
+   if ((self.length - escapesPerformed > 4) || (escapesPerformed == 0))
+   return [NSString stringWithString:escapedString];
+   return nil;
+}
 @end
 
 

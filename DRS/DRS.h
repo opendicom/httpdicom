@@ -13,13 +13,10 @@
 
 //RSRequest
 
-BOOL parseRequestParams(RSRequest       *  request,
-                        NSMutableArray  *  names,
-                        NSMutableArray  *  values,
-                        NSMutableArray  *  types,
-                        NSString        ** jsonString,
-                        NSString        ** errorString
-                        )
+NSString *  parseRequestParams(RSRequest       *  request,
+                               NSMutableArray  *  names,
+                               NSMutableArray  *  values
+                               )
 ;
 
 //pacs

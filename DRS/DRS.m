@@ -13,6 +13,7 @@
 #import "DRS+studyToken.h"
 #import "DRS+store.h"
 
+
 //RSRequest properties:      NSMutableURLRequest
 //- NSString* method          -> HTTPMethod
 //- NSURL* URL                -> URL
@@ -25,21 +26,11 @@
 
 
 
-BOOL parseRequestParams(RSRequest       *  request,
-                        NSMutableArray  *  names,
-                        NSMutableArray  *  values, 
-                        NSMutableArray  *  types,
-                        NSString        ** jsonString,
-                        NSString        ** errorString
-                        )
+NSString * parseRequestParams(RSRequest       *  request,
+                              NSMutableArray  *  names,
+                              NSMutableArray  *  values
+                              )
 {
-    //headers
-   for (NSString * key in [request.headers allKeys])
-   {
-      [names addObject:key];
-      [values addObject:request.headers[key]];
-   }
-
    //Content-Type
    NSString * contentType=request.contentType;
    if (!contentType) contentType=@"application/x-www-form-urlencoded";
@@ -47,83 +38,33 @@ BOOL parseRequestParams(RSRequest       *  request,
    {
       //json
       NSData *requestData=request.data;
-      if (!requestData){
-         *errorString=@"Content-Type:\"application/json\" with no body";
-         return false;
-      }
+      if (!requestData) return @"ERROR Content-Type:\"application/json\" with no body";
       
-      
-      if (![requestData length]){
-         *errorString=@"Content-Type:\"application/json\" with empty body";
-         return false;
-      }
-      
+      if (![requestData length])return @"ERROR Content-Type:\"application/json\" with empty body";
       
       NSString *string=[[NSString alloc]initWithData:requestData encoding:NSUTF8StringEncoding];
-      if (!string){
-         *errorString=@"Content-Type:\"application/json\" with json not readable UTF-8";
-         return false;
-      }
-      *jsonString=string;
-      
+      if (!string) return @"ERROR Content-Type:\"application/json\" with json not readable UTF-8";
       
       NSError *requestJsonError=nil;
       id requestJson=[NSJSONSerialization JSONObjectWithData:requestData options:0 error:&requestJsonError];
-      if (requestJsonError){
-         *errorString=[NSString stringWithFormat:@"%@\r\n%@",string,[requestJsonError description]];
-         return false;
-      }
+      if (requestJsonError)return [NSString stringWithFormat:@"ERROR %@\r\n%@",string,[requestJsonError description]];
       
-      if (![requestJson isKindOfClass:[NSDictionary class]]){
-         *errorString=[NSString stringWithFormat:@"json dictionary expected, but got\r\n%@",string];
-         return false;
-      }
+      if (![requestJson isKindOfClass:[NSDictionary class]]) return [NSString stringWithFormat:@"ERROR json dictionary expected, but got\r\n%@",string];
       
       [names addObjectsFromArray:[requestJson allKeys]];
       [values addObjectsFromArray:[requestJson allValues]];
-       
-       NSMutableString *curlString=[NSMutableString stringWithString:@"curl --header \"Content-Type: application/json\" --request POST --data '{"];
-       NSUInteger beforeLast=[names count]-1;
-       for (NSUInteger idx=0;idx<beforeLast;idx++)
-       {
-           [curlString appendFormat:@"\"%@\":\"%@\",",names[idx],values[idx]];
-       }
-      LOG_INFO(@"%@ %@ content-type: %@ %@",
-               request.method,
-               [request.URL absoluteString],
-               request.contentType,
-               [request.headers description]
-               );
-
-
-       LOG_DEBUG(@"%@\"%@\":\"%@\"}' %@ > dcm.zip",curlString,names[beforeLast],values[beforeLast],[request.URL absoluteString]);
-
    }
    else if ([contentType hasPrefix:@"multipart/form-data"])
    {
      //html5 form
      NSString *boundaryString=[request.contentType valueForName:@"boundary"];
-     if (!boundaryString || ![boundaryString length]){
-        *errorString=[NSString stringWithFormat:@"multipart/form-data with no boundary"];
-        return false;
-     }
+     if (!boundaryString || ![boundaryString length]) return [NSString stringWithFormat:@"ERROR multipart/form-data with no boundary"];
      
      NSDictionary *components=[request.data parseNamesValuesTypesInBodySeparatedBy:[boundaryString dataUsingEncoding:NSASCIIStringEncoding]];
      
      names=components[@"names"];
      values=components[@"values"];
-     types=components[@"types"];
-       
-       
-       NSMutableString *curlString=[NSMutableString stringWithString:@"curl --header \"Content-Type: application/json\" --request POST --data '{"];
-       NSUInteger beforeLast=[names count]-1;
-       for (NSUInteger idx=0;idx<beforeLast;idx++)
-       {
-           [curlString appendFormat:@"\"%@\":\"%@\",",names[idx],values[idx]];
-       }
-       LOG_DEBUG(@"%@\"%@\":\"%@\"}' %@ > dcm.zip",curlString,names[beforeLast],values[beforeLast],[request.URL absoluteString]);
-
-  }
+   }
    else if ([contentType hasPrefix:@"application/x-www-form-urlencoded"])
    {
       //x-www-form-urlencoded
@@ -133,22 +74,23 @@ BOOL parseRequestParams(RSRequest       *  request,
          [names addObject:queryItem.name];
          [values addObject:queryItem.value];
       }
-      
-      LOG_INFO(@"%@ content-type: %@ %@",
-               request.method,
-               request.contentType,
-               [request.headers description]
-               );
-
-      LOG_DEBUG(@"curl --output httpdicomOutput '%@'",[request.URL absoluteString]);
    }
-   else
+   else return [NSString stringWithFormat:@"ERROR Content-Type:\"%@\" not accepted",request.contentType];
+   
+   
+   LOG_INFO(@"%@ %@ content-type: %@ %@",
+            request.method,
+            [request.URL absoluteString],
+            request.contentType,
+            [request.headers description]
+            );
+   
+   for (NSString * key in [request.headers allKeys])
    {
-      *errorString=[NSString stringWithFormat:@"Content-Type:\"%@\" not accepted",request.contentType];
-      return false;
+      [names addObject:key];
+      [values addObject:request.headers[key]];
    }
-
-   return true;
+   return nil;
 }
 
 

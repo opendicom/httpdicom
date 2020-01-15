@@ -74,6 +74,8 @@
 		4A2D906F218342F800371484 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A2D906E218342F800371484 /* libz.tbd */; };
 		4A2D90772183455100371484 /* zlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2D90732183455000371484 /* zlib.h */; };
 		4A2D90792183455100371484 /* zconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2D90752183455000371484 /* zconf.h */; };
+		4A2E7D9C239730B600F28B89 /* NSMutableArray+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A2E7D9A239730B600F28B89 /* NSMutableArray+JSON.m */; };
+		4A2E7D9D239730B600F28B89 /* NSMutableArray+JSON.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2E7D9B239730B600F28B89 /* NSMutableArray+JSON.h */; };
 		4A2F37EF22884855004BE2A2 /* RequestMwlitems.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2F37ED22884855004BE2A2 /* RequestMwlitems.h */; };
 		4A2F37F022884855004BE2A2 /* RequestMwlitems.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A2F37EE22884855004BE2A2 /* RequestMwlitems.m */; };
 		4A2F37F322884AC2004BE2A2 /* ResponseMwlitems.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A2F37F122884AC1004BE2A2 /* ResponseMwlitems.m */; };
@@ -88,8 +90,6 @@
 		4A57EE432295442400EB3962 /* ResponseQido.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A57EE412295442400EB3962 /* ResponseQido.h */; };
 		4A57EE4622957BB100EB3962 /* NSArray+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A57EE4422957BB100EB3962 /* NSArray+PCS.h */; };
 		4A57EE4722957BB100EB3962 /* NSArray+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A57EE4522957BB100EB3962 /* NSArray+PCS.m */; };
-		4A57EE4A22957BDA00EB3962 /* NSMutableArray+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A57EE4822957BDA00EB3962 /* NSMutableArray+PCS.h */; };
-		4A57EE4B22957BDA00EB3962 /* NSMutableArray+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A57EE4922957BDA00EB3962 /* NSMutableArray+PCS.m */; };
 		4A57EE4E229580DA00EB3962 /* NSMutableDictionary+PCS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A57EE4C229580DA00EB3962 /* NSMutableDictionary+PCS.h */; };
 		4A57EE4F229580DA00EB3962 /* NSMutableDictionary+PCS.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A57EE4D229580DA00EB3962 /* NSMutableDictionary+PCS.m */; };
 		4A57EE5222961E8800EB3962 /* ResponseStow.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A57EE5022961E8800EB3962 /* ResponseStow.h */; };
@@ -283,6 +283,9 @@
 		4A2D906E218342F800371484 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		4A2D90732183455000371484 /* zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zlib.h; sourceTree = "<group>"; };
 		4A2D90752183455000371484 /* zconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zconf.h; sourceTree = "<group>"; };
+		4A2E7D952396E02700F28B89 /* cornerstone.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cornerstone.json; sourceTree = "<group>"; };
+		4A2E7D9A239730B600F28B89 /* NSMutableArray+JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+JSON.m"; sourceTree = "<group>"; };
+		4A2E7D9B239730B600F28B89 /* NSMutableArray+JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+JSON.h"; sourceTree = "<group>"; };
 		4A2F37ED22884855004BE2A2 /* RequestMwlitems.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RequestMwlitems.h; sourceTree = "<group>"; };
 		4A2F37EE22884855004BE2A2 /* RequestMwlitems.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RequestMwlitems.m; sourceTree = "<group>"; };
 		4A2F37F122884AC1004BE2A2 /* ResponseMwlitems.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResponseMwlitems.m; sourceTree = "<group>"; };
@@ -298,8 +301,6 @@
 		4A57EE412295442400EB3962 /* ResponseQido.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResponseQido.h; sourceTree = "<group>"; };
 		4A57EE4422957BB100EB3962 /* NSArray+PCS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSArray+PCS.h"; sourceTree = "<group>"; };
 		4A57EE4522957BB100EB3962 /* NSArray+PCS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSArray+PCS.m"; sourceTree = "<group>"; };
-		4A57EE4822957BDA00EB3962 /* NSMutableArray+PCS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+PCS.h"; sourceTree = "<group>"; };
-		4A57EE4922957BDA00EB3962 /* NSMutableArray+PCS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+PCS.m"; sourceTree = "<group>"; };
 		4A57EE4C229580DA00EB3962 /* NSMutableDictionary+PCS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+PCS.h"; sourceTree = "<group>"; };
 		4A57EE4D229580DA00EB3962 /* NSMutableDictionary+PCS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+PCS.m"; sourceTree = "<group>"; };
 		4A57EE5022961E8800EB3962 /* ResponseStow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResponseStow.h; sourceTree = "<group>"; };
@@ -433,6 +434,7 @@
 				4A19C9171E8F15B700DDD35D /* RS */,
 				4AE49DEF2009E3F200B8F321 /* DRS */,
 				4AA20C4923101B0A005BD76D /* XML */,
+				4A2E7D942396D4A800F28B89 /* JSON */,
 				2A31F5E41C87295A00A78C7C /* Frameworks */,
 				2A31F5E31C87295A00A78C7C /* Products */,
 				4A2D905021802EDC00371484 /* test */,
@@ -553,6 +555,16 @@
 				4A2D90752183455000371484 /* zconf.h */,
 			);
 			path = ZLIB;
+			sourceTree = "<group>";
+		};
+		4A2E7D942396D4A800F28B89 /* JSON */ = {
+			isa = PBXGroup;
+			children = (
+				4A2E7D9B239730B600F28B89 /* NSMutableArray+JSON.h */,
+				4A2E7D9A239730B600F28B89 /* NSMutableArray+JSON.m */,
+				4A2E7D952396E02700F28B89 /* cornerstone.json */,
+			);
+			path = JSON;
 			sourceTree = "<group>";
 		};
 		4A3FB3972379A18B00D98F9C /* studyToken */ = {
@@ -680,8 +692,6 @@
 				4A94BEA3209228E10009C4AB /* NSDictionary+PCS.m */,
 				4A57EE4422957BB100EB3962 /* NSArray+PCS.h */,
 				4A57EE4522957BB100EB3962 /* NSArray+PCS.m */,
-				4A57EE4822957BDA00EB3962 /* NSMutableArray+PCS.h */,
-				4A57EE4922957BDA00EB3962 /* NSMutableArray+PCS.m */,
 				4A57EE4C229580DA00EB3962 /* NSMutableDictionary+PCS.h */,
 				4A57EE4D229580DA00EB3962 /* NSMutableDictionary+PCS.m */,
 			);
@@ -880,7 +890,6 @@
 				4A2D90682181E37D00371484 /* DRS+wadors.h in Headers */,
 				4ABF12021FE89413000B8DE6 /* Const.h in Headers */,
 				4A19C9341E8F15B700DDD35D /* RSHandler.h in Headers */,
-				4A57EE4A22957BDA00EB3962 /* NSMutableArray+PCS.h in Headers */,
 				4A2D90652181E37D00371484 /* DRS+datatables.h in Headers */,
 				4ABF11DF1FE5C11C000B8DE6 /* NSString+PCS.h in Headers */,
 				4A96C5611E843CBD002EB09E /* RFC822.h in Headers */,
@@ -922,6 +931,7 @@
 				4A2F37EF22884855004BE2A2 /* RequestMwlitems.h in Headers */,
 				4ABF11E11FE5C11C000B8DE6 /* NSURLComponents+PCS.h in Headers */,
 				4AF40D4D22169D2A00103F99 /* RequestWadouri.h in Headers */,
+				4A2E7D9D239730B600F28B89 /* NSMutableArray+JSON.h in Headers */,
 				4A625A73226F4C87005AEBF4 /* DRS+mwlitem.h in Headers */,
 				4A07FB6621F2235B00007B8B /* RequestQido.h in Headers */,
 			);
@@ -1079,7 +1089,6 @@
 				4AF40DD6222431B000103F99 /* NSString+PID.m in Sources */,
 				4ABF12031FE89413000B8DE6 /* Const.m in Sources */,
 				4AF40D4E22169D2A00103F99 /* RequestWadouri.m in Sources */,
-				4A57EE4B22957BDA00EB3962 /* NSMutableArray+PCS.m in Sources */,
 				4AF40DCE2224317400103F99 /* NSString+MSH.m in Sources */,
 				4A0FDF521E91078C001E3426 /* RS.m in Sources */,
 				4A494CF123745B62006F69DF /* DRS+store.m in Sources */,
@@ -1101,6 +1110,7 @@
 				4AF9AE112348CAF300BB8188 /* NSData+ZLIB.m in Sources */,
 				4A57EE422295442400EB3962 /* ResponseQido.m in Sources */,
 				4A57EE5322961E8800EB3962 /* ResponseStow.m in Sources */,
+				4A2E7D9C239730B600F28B89 /* NSMutableArray+JSON.m in Sources */,
 				4A96C55F1E843C9E002EB09E /* RFC822.m in Sources */,
 				4ABF11F41FE5C13B000B8DE6 /* NSDictionary+DICM.m in Sources */,
 				4AA20C5A23101C72005BD76D /* WeasisStudy.m in Sources */,

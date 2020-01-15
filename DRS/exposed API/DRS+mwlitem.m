@@ -35,13 +35,9 @@ NSString* correctedModality(NSString* spaceNormalized)
     NSMutableArray *names=[NSMutableArray array];
     NSMutableArray *values=[NSMutableArray array];
     NSMutableArray *types=[NSMutableArray array];
-    NSString *jsonString;
-    NSString *errorString;
-    if (!parseRequestParams(request, names, values, types, &jsonString, &errorString))
-    {
-        LOG_WARNING(@"mwlitem PARAMS error: %@",errorString);
-        return [RSErrorResponse responseWithClientError:404 message:@"%@",errorString];
-    }
+    NSString *RequestParamsSHA512String=parseRequestParams(request, names, values);
+    if ([RequestParamsSHA512String hasPrefix:@"ERROR"]) return [RSErrorResponse responseWithClientError:404 message:@"%@",RequestParamsSHA512String];
+    
     for (NSUInteger idx=0;idx<[names count];idx++)
     {
         if ([values[idx]length]<256)
