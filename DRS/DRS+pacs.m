@@ -6,6 +6,22 @@
 @implementation DRS (pacs)
 
 -(void)addGETCustodiansHandler
+//custodians/titles -> lista de los titulos de custodians conocidos
+//custodians/titles/{title}  -> oid correspondiente
+//custodians/titles/{title}/aets -> lista de las aets vinculadas al custodian
+//custodians/titles/{title}/aets/{aet}  -> oid correspondiente
+
+//custodians/oids -> lista de los oid de custodians conocidos
+//custodians/oids/{OID} -> titulo correspondiente
+//custodians/oids/{OID}/aeis -> lista de los oids vinculados al custodian
+//custodians/oids/{OID}/aeis/{aei} -> titulo correspondiente
+
+//notas:
+// titulos y aets are easy to remember
+// oids are for computers
+
+//do we want this exposed on the net.... ???
+
 {
     NSRegularExpression *custodiansRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/custodians" options:0 error:NULL];
     [self addHandler:@"GET" regex:custodiansRegex processBlock:
@@ -118,14 +134,14 @@
     }(request));}];
 }
 
+
+-(void)addGETPacsHandler
 //pacs/{pacsoid}/services
 //pacs/{pacsoid}/services/{service}
 //pacs/{pacsoid}/procedures?{textSearch} -> procedure Key:title dictionary
 //pacs/{pacsoid}/procedures/{key}
 //pacs/{pacsoid}/properties
 //pacs/{pacsoid}/properties/{property}
-
--(void)addGETPacsHandler
 {
    NSRegularExpression *pacsRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs((\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*)\\/(services|procedures|properties)(\\/.*)?)?" options:NSRegularExpressionCaseInsensitive error:NULL];
    [self addHandler:@"GET" regex:pacsRegex processBlock:
@@ -182,6 +198,10 @@
 }
 
 -(void)addGETSqlsHandler
+//sqls
+//sqls/{sql}
+//sqls/{sql}/{property}
+
 {
    NSRegularExpression *sqlsRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/sqls" options:0 error:NULL];
    [self addHandler:@"GET" regex:sqlsRegex processBlock:
@@ -198,17 +218,17 @@
       //  /sqls
       if (pCount==2) return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:[DRS.sqls allKeys] options:0 error:nil] contentType:@"application/json"];
       
-      //pacs/{key}
+      //sqls/{sql}
       NSDictionary *sqlproperties=DRS.sqls[pComponents[2]];
       if (!sqlproperties) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown sql]",pComponents[2]];
       
       if (pCount==3) return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:sqlproperties options:0 error:nil] contentType:@"application/json"];
       
-      //pacs/{key}/{property}
+      //sqls/{sql}/{property}
       id sqlproperty=sqlproperties[pComponents[3]];
       if (!sqlproperty) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown property]",pComponents[3]];
       
-      if (pCount==4)
+      if (pCount>=4)
       {
          if ([sqlproperty isKindOfClass:[NSString class]])
             return [RSDataResponse responseWithData:[sqlproperty dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
@@ -220,12 +240,19 @@
             return [RSDataResponse responseWithData:[@"false" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
          }
          
+         if ([sqlproperty isKindOfClass:[NSArray class]])
+         {
+            if (pCount==5) return [RSDataResponse responseWithData:[sqlproperty[[pComponents[3]intValue]] dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+
+            return [RSDataResponse responseWithData:[[sqlproperty componentsJoinedByString:@"\r"] dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+         }
+
          if ([sqlproperty isKindOfClass:[NSDictionary class]])
          {
             return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:sqlproperty options:0 error:nil] contentType:@"application/json"];
          }
       }
-      
+
       return [RSErrorResponse responseWithClientError:404 message:@"%@ [no handler]",urlComponents.path];
       
    }(request));}];
