@@ -242,7 +242,7 @@
          
          if ([sqlproperty isKindOfClass:[NSArray class]])
          {
-            if (pCount==5) return [RSDataResponse responseWithData:[sqlproperty[[pComponents[3]intValue]] dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+            if (pCount==5) return [RSDataResponse responseWithData:[sqlproperty[[pComponents[4]intValue]] dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
 
             return [RSDataResponse responseWithData:[[sqlproperty componentsJoinedByString:@"\r"] dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
          }
