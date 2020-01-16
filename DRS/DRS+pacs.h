@@ -28,6 +28,12 @@
 //pacs/{pacsoid}/properties
 //pacs/{pacsoid}/properties/{property}
 
+
 -(void)addGETSqlsHandler;
+//sqls
+//sqls/{sql}
+//sqls/{sql}/{name}
+//sqls/{sql}/{array name}{index}
+
 
 @end

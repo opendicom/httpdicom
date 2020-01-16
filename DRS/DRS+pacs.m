@@ -200,8 +200,8 @@
 -(void)addGETSqlsHandler
 //sqls
 //sqls/{sql}
-//sqls/{sql}/{property}
-
+//sqls/{sql}/{name}
+//sqls/{sql}/{array name}{index}
 {
    NSRegularExpression *sqlsRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/sqls" options:0 error:NULL];
    [self addHandler:@"GET" regex:sqlsRegex processBlock:

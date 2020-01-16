@@ -1968,7 +1968,7 @@ RSResponse* dicomzip(
 
 
 RSResponse* osirixdcmURLs(
- NSMutableArray * JSONArray,
+ NSMutableArray      * JSONArray,
  NSString            * canonicalQuerySHA512String,
  NSString            * proxyURIString,
  NSString            * sessionString,
