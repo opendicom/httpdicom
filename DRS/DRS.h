@@ -71,6 +71,9 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType);
 @property (class, nonatomic, readonly) NSArray           *lan;//every local
 @property (class, nonatomic, readonly) NSArray           *dev;//a specific local
 
+@property (class, nonatomic, readonly) NSArray           *InstanceUniqueFrameSOPClass;
+@property (class, nonatomic, readonly) NSArray           *InstanceMultiFrameSOPClass;
+
 -(id)initWithSqls:(NSDictionary*)sqls
              pacs:(NSArray*)pacs
           drsport:(long long)drsport

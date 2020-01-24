@@ -275,6 +275,10 @@ static NSArray             *_wan=nil;
 static NSArray             *_lan=nil;
 static NSArray             *_dev=nil;
 
+static NSArray             *_InstanceUniqueFrameSOPClass=nil;
+static NSArray             *_InstanceMultiFrameSOPClass=nil;
+
+
 
 int execUTF8Bash(NSDictionary *environment, NSString *writeString, NSMutableData *readData)
 {
@@ -369,6 +373,51 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
    defaultpacsoid:(NSString*)defaultpacsoid
         tmpDir:(NSString*)tmpDir
 {
+   _InstanceUniqueFrameSOPClass=
+   @[
+      @"1.2.840.10008.5.1.4.1.1.1",
+      @"1.2.840.10008.5.1.4.1.1.1.1",
+      @"1.2.840.10008.5.1.4.1.1.1.1.1",
+      @"1.2.840.10008.5.1.4.1.1.1.2",
+      @"1.2.840.10008.5.1.4.1.1.1.2.1",
+      @"1.2.840.10008.5.1.4.1.1.1.3",
+      @"1.2.840.10008.5.1.4.1.1.1.3.1",
+      @"1.2.840.10008.5.1.4.1.1.2",
+      @"1.2.840.10008.5.1.4.1.1.4",
+      @"1.2.840.10008.5.1.4.1.1.6.1",
+      @"1.2.840.10008.5.1.4.1.1.7",
+      @"1.2.840.10008.5.1.4.1.1.20",
+      @"1.2.840.10008.5.1.4.1.1.128"
+   ];
+   _InstanceMultiFrameSOPClass=
+   @[
+      @"1.2.840.10008.5.1.4.1.1.2.1",
+      @"1.2.840.10008.5.1.4.1.1.2.2",
+      @"1.2.840.10008.5.1.4.1.1.3.1",
+      @"1.2.840.10008.5.1.4.1.1.4.1",
+      @"1.2.840.10008.5.1.4.1.1.4.2",
+      @"1.2.840.10008.5.1.4.1.1.4.3",
+      @"1.2.840.10008.5.1.4.1.1.4.4",
+      @"1.2.840.10008.5.1.4.1.1.6.2",
+      @"1.2.840.10008.5.1.4.1.1.7.1",
+      @"1.2.840.10008.5.1.4.1.1.7.2",
+      @"1.2.840.10008.5.1.4.1.1.7.3",
+      @"1.2.840.10008.5.1.4.1.1.7.4",
+      @"1.2.840.10008.5.1.4.1.1.12.1",
+      @"1.2.840.10008.5.1.4.1.1.12.1.1",
+      @"1.2.840.10008.5.1.4.1.1.12.2",
+      @"1.2.840.10008.5.1.4.1.1.12.2.1",
+      @"1.2.840.10008.5.1.4.1.1.13.1.1",
+      @"1.2.840.10008.5.1.4.1.1.13.1.2",
+      @"1.2.840.10008.5.1.4.1.1.13.1.3",
+      @"1.2.840.10008.5.1.4.1.1.13.1.4",
+      @"1.2.840.10008.5.1.4.1.1.13.1.5",
+      @"1.2.840.10008.5.1.4.1.1.14.1",
+      @"1.2.840.10008.5.1.4.1.1.14.2",
+      @"1.2.840.10008.5.1.4.1.1.30",
+      @"1.2.840.10008.5.1.4.1.1.130",
+      @"1.2.840.10008.5.1.4.1.1.128.1"
+   ];
    [NSData initPCS];
     self = [super init];
     if(self) {
@@ -636,4 +685,8 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 +(NSArray*)wan                       { return _wan;}
 +(NSArray*)lan                       { return _lan;}
 +(NSArray*)dev                       { return _dev;}
+
++(NSArray*)InstanceUniqueFrameSOPClass { return _InstanceUniqueFrameSOPClass;}
++(NSArray*)InstanceMultiFrameSOPClass { return _InstanceMultiFrameSOPClass;}
+
 @end

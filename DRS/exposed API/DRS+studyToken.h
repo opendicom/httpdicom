@@ -42,6 +42,62 @@
  find the separation between studyToken and studyTokenTask
 */
 
+
+/*
+
+  "arcId":"devOID",
+  "baseUrl":"proxyURIString",
+  "patientList":
+  [
+   {
+    "PatientID":"",
+    "PatientName":"",
+    "IssuerOfPatientID":"",
+    "PatientBirthDate":"",
+    "PatientSex":"",
+    "studyList":
+    [
+     {
+      "StudyInstanceUID":"",
+      "studyDescription":"",
+      "studyDate":"",
+      "StudyTime":"",
+      "AccessionNumber":"",
+      "StudyID":"",
+      "ReferringPhysicianName":"",
+      "numImages":"",
+      "modality":"",
+      "patientId":"",
+      "patientName":"",
+      "seriesList":
+      [
+       {
+        "seriesDescription":"",
+        "seriesNumber":"",
+        "SeriesInstanceUID":"",
+        "SOPClassUID":"",
+        "Modality":"",
+        "WadoTransferSyntaxUID":"",
+        "instanceList":
+        [
+         {
+          "imageId":"wadouriInstance",
+          "SOPInstanceUID":"",
+          "InstanceNumber":"",
+          "numFrames":1
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+ 
+ (-1=info not available, 0=not an image, 1=monoframe, x=multiframe)
+ */
+
 #import "DRS.h"
 
 @interface DRS (studyToken)

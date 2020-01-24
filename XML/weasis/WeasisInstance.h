@@ -22,7 +22,8 @@
 +(NSXMLElement*)pk:(NSString*)pk
 weasisSOPInstanceUID:(NSString*)weasisSOPInstanceUID
 weasisInstanceNumber:(NSString*)weasisInstanceNumber
-weasisDirectDownloadFile:(NSString*)weasisDirectDownloadFile;
+weasisDirectDownloadFile:(NSString*)weasisDirectDownloadFile
+NumberOfFrames:(NSString*)NumberOfFrames;
 
 @end
 

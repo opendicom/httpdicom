@@ -14,7 +14,9 @@
 
 //mysql parsing
 -(NSArray*)arrayOfRecordsOfStringUnitsEncoding:(NSStringEncoding)encoding orderedByUnitIndex:(NSUInteger)index decreasing:(BOOL)decreasing;
--(NSArray*)arrayOfStringUnitsForRecordRange:(NSRange)recordRange encoding:(NSStringEncoding)encoding;
+-(NSArray*)arrayOfRecordsOfStringUnitsEncoding:(NSStringEncoding)encoding stringUnitsPostProcessTitle:(NSString*)stringUnitsPostProcessTitle orderedByUnitIndex:(NSUInteger)index decreasing:(BOOL)decreasing;
+
+-(NSArray*)arrayOfStringUnitsForRecordRange:(NSRange)recordRange encoding:(NSStringEncoding)encoding stringUnitsPostProcessTitle:(NSString*)stringUnitsPostProcessTitle;
 
 //html5 form parsing
 +(void)initPCS;

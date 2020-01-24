@@ -17,53 +17,41 @@
                             
                             <xs:group ref="sqlTitle"/>
                             
-<!-- select -->    
-                            <xs:group ref="EP"/>
-                            <xs:group ref="EuiE"/>
-<!-- where rejection_state -->
-                            <xs:group ref="WHERE"/>
-<!-- study exclusive -->
-                            <!-- 1. match study UID -->                            
-                            <xs:group ref="Eui"/>                        
-                            <!-- 2. match accession number [0, 1 issuer, 2 issuer+type] -->                            
-                            <xs:group ref="Ean"/>
-
-<!-- study optionals -->
-                            <!-- 10. ReferringPhysician -->
-                            <xs:group ref="Epn"/>
-                            <!-- 11. ReadingPhysician -->
-                            <xs:group ref="Rpn"/>
-                            <!-- 12. StudyDate -->
-                            <xs:group ref="Eda"/>                            
-                            <!-- 13. StudyDescription -->
-                            <xs:group ref="Elo"/>
-                            <!-- 14 SOPClassesInStudy -->
-                            <xs:group ref="Ecu"/>                            
-                            <!-- 15 ModalitiesInStudy -->                            
-                            <xs:group ref="Emo"/>
+<!-- E select -->    
+                            <xs:group ref="EselectEP"/>
+                            <xs:group ref="EselectEuiE"/>
+                            <xs:group ref="Ewhere"/><!-- rejection state -->
+<!-- E exclusive match-->                
+                            <xs:group ref="EmatchEui"/><!-- 1. match study UID -->                                                  
+                            <xs:group ref="EmatchEan"/><!-- 2. match accession number -->
+<!-- E cumulative matches-->
+                            <!-- 1. match PID [0, 1 issuer] -->                            
+                            <!-- 2. match PatientName -->
+                            <!-- 3. match StudyID -->
+                            <!-- 4. match StudyDate -->
+                            <!-- 5. match StudyDescription -->
+                            <!-- 6. match ReferringPhysician -->
+                            <!-- 7. match ReadingPhysician -->
+                            <!-- 8. match SOPClassesInStudy -->
+                            <!-- 9. match ModalitiesInStudy -->                            
+                            <xs:group ref="Ejoin"/>
+                            <xs:group ref="Eand"/>
+                           
                             
-<!-- study base -->
-                            <!-- 19. StudyID -->                            
-                            <xs:group ref="Eid"/>
-
-<!-- patient optionals -->
-                            <!--20. PatientName -->
-                            <xs:group ref="Ppn"/>
-
-<!-- patient base -->
-                            <!-- 29. match PID [0, 1 issuer] -->                            
-                            <xs:group ref="Pid"/>
-                            
-                            
-                            <!-- instance -->
+ <!-- I -->
                             <xs:group ref="Ici4S"/>
                             <xs:group ref="Iui4S"/>
                             
-                            <!-- properties -->
+ <!-- properties -->
                             <xs:group ref="P"/>
                             <xs:group ref="E"/>
                             <xs:group ref="S"/>
+                            <xs:group ref="I0"/>
+                            <xs:group ref="I1"/>
                             <xs:group ref="I"/>
+                            <xs:group ref="IpostprocessingCommandsSh"/>      
+                            <xs:group ref="IpostprocessingTitleMain"/>                            
+                            
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -80,123 +68,66 @@
             <xs:element name="string"/>
         </xs:sequence>
     </xs:group>
+
+<!-- E select -->
     
-    <xs:group name="EP">
+    <xs:group name="EselectEP">
         <xs:sequence>
-            <xs:element name="key" fixed="EP"/>
+            <xs:element name="key" fixed="EselectEP"/>
             <xs:element name="string"/>
         </xs:sequence>
     </xs:group>
 
-    <xs:group name="EuiE">
+    <xs:group name="EselectEuiE">
         <xs:sequence>
-            <xs:element name="key" fixed="EuiE"/>
+            <xs:element name="key" fixed="EselectEuiE"/>
             <xs:element name="string"/>
         </xs:sequence>
     </xs:group>
 
-    <xs:group name="WHERE">
-        <xs:sequence>
-            <xs:element name="key" fixed="WHERE"/>
-            <xs:element name="string"/>
-        </xs:sequence>
-    </xs:group>
-    
+<!-- E exclusive match-->
+
     <!-- 1. match study UID -->
-    <xs:group name="Eui">
+    <xs:group name="EmatchEui">
         <xs:sequence>
-            <xs:element name="key" fixed="Eui"/>
+            <xs:element name="key" fixed="EmatchEui"/>
             <xs:element name="string"/>
         </xs:sequence>
     </xs:group>
-
+    
     <!-- 2. match accession number [0, 1 issuer, 2 issuer+type] -->
-    <xs:group name="Ean">
+    <xs:group name="EmatchEan">
         <xs:sequence>
-            <xs:element name="key" fixed="Ean"/>
+            <xs:element name="key" fixed="EmatchEan"/>
             <xs:group ref="array"/>
         </xs:sequence>
     </xs:group>    
     
-    <!-- 10. ReferringPhysician-->
-    <!-- [0] = one field, [1][2][3][4][5] five fields-->
-    <xs:group name="Epn">
-        <xs:sequence>
-            <xs:element name="key" fixed="Epn"/>
-            <xs:group ref="array"/>
-        </xs:sequence>
-    </xs:group>    
-    
-    <!-- 11. ReadingPhysician-->
-    <!-- [0] = one field, [1][2][3][4][5] five fields-->
-    <xs:group name="Rpn">
-        <xs:sequence>
-            <xs:element name="key" fixed="Rpn"/>
-            <xs:group ref="array"/>
-        </xs:sequence>
-    </xs:group>    
-    
-    <!-- 12. StudyDate -->
-    <xs:group name="Eda">
-        <xs:sequence>
-            <xs:element name="key" fixed="Eda"/>
-            <xs:group ref="array"/>
-        </xs:sequence>
-    </xs:group>
-    
-    <!-- 13. StudyDescription -->
-    <xs:group name="Elo">
-        <xs:sequence>
-            <xs:element name="key" fixed="Elo"/>
-            <xs:element name="string"/>
-        </xs:sequence>
-    </xs:group>
-    
-    <!-- 14. sopclassInStudy -->    
-    <xs:group name="Ecu">
-        <xs:sequence>
-            <xs:element name="key" fixed="Ecu"/>
-            <xs:element name="string"/>
-        </xs:sequence>
-    </xs:group>
-    
-    <!-- 15. modalityInStudy -->
-    <xs:group name="Emo">
-        <xs:sequence>
-            <xs:element name="key" fixed="Emo"/>
-            <xs:element name="string"/>
-        </xs:sequence>
-    </xs:group>
-    
-    
-    <!-- 19. StudyID -->
-    <xs:group name="Eid">
-        <xs:sequence>
-            <xs:element name="key" fixed="Eid"/>
-            <xs:element name="string"/>
-        </xs:sequence>
-    </xs:group>
+<!-- E cumulative matches-->
 
-    <!--20. PatientName-->
-    <!-- [0] = one field, [1][2][3][4][5] five fields-->
-    <xs:group name="Ppn">
+    <xs:group name="Ejoin">
         <xs:sequence>
-            <xs:element name="key" fixed="Ppn"/>
-            <xs:group ref="array"/>
-         </xs:sequence>
-    </xs:group>
-    
-    <!-- 29. PID [0, 1 issuer] + 4 optionals + limit + epilog -->                            
-    <xs:group name="Pid">
-        <xs:sequence>
-            <xs:element name="key" fixed="Pid"/>
+            <xs:element name="key" fixed="Ejoin"/>
             <xs:group ref="array"/>
         </xs:sequence>
-    </xs:group>    
+    </xs:group>
+    
+    <xs:group name="Ewhere">
+        <xs:sequence>
+            <xs:element name="key" fixed="Ewhere"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="Eand">
+        <xs:sequence>
+            <xs:element name="key" fixed="Eand"/>
+            <xs:group ref="array"/>
+        </xs:sequence>
+    </xs:group>
     
     
-    
-    <!-- instance -->
+<!-- I -->
     
     <xs:group name="Ici4S">
         <xs:sequence>
@@ -231,6 +162,21 @@
             <xs:element name="string"/>
         </xs:sequence>
     </xs:group>
+    
+    <xs:group name="I0">
+        <xs:sequence>
+            <xs:element name="key" fixed="I0"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="I1">
+        <xs:sequence>
+            <xs:element name="key" fixed="I1"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
     <xs:group name="I">
         <xs:sequence>
             <xs:element name="key" fixed="I"/>
@@ -238,19 +184,39 @@
         </xs:sequence>
     </xs:group>
     
+    <xs:group name="IpostprocessingCommandsSh">
+        <xs:sequence>
+            <xs:element name="key" fixed="IpostprocessingCommandsSh"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="IpostprocessingTitleMain">
+        <xs:sequence>
+            <xs:element name="key" fixed="IpostprocessingTitleMain"/>
+            <xs:element name="string"/>
+            <!-- option: lastTextUnitHEX2ASCII -->
+        </xs:sequence>
+    </xs:group>
+    
+    
     <!-- ================================================================= -->
     
     
     
     <!-- ================================================================= -->
-    
+    <!-- not sufficiently described -->
+    <!-- missing determinations:  -->
+    <!-- Ejoin and Eand are symetric arrays (no string) -->
+    <!-- There is a max of 2 levels of arrays -->
     <xs:group name="array">
         <xs:sequence>
             <xs:element name="array">
                 <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="string" maxOccurs="6"/>
-                    </xs:sequence>
+                    <xs:choice maxOccurs="unbounded">
+                        <xs:element name="string"/>
+                        <xs:element name="array"/>
+                    </xs:choice>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
