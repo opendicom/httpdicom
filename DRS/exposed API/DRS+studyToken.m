@@ -185,29 +185,29 @@ static uint16 zipDiskCentralStarts=0x0000;
 
 
 // pk.pk/
-static NSString *sqlTwoPks=@"\" | awk ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";} {print $1, $2}'";//BEGIN{ ORS=\"/\"; OFS=\".\";}
+static NSString *sqlTwoPks=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\".\";} {print $1, $2} '";
 
 // item/
-static NSString *sqlsingleslash=@"\" | awk ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";} {print $1}'";//BEGIN{ ORS=\"/\"; OFS=\"\";}
+static NSString *sqlsingleslash=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\"\";} {print $1} '";
 
 
 
 //recordSeparator+/n  unitSeparator+|
-// | sed -e 's/\\x0F\\x0A$//'  (no necesario
+// | sed -e 's/\\x0F\\x0A$//'
 
-static NSString *sqlRecordFourUnits=@"\" | awk ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4}'";
+static NSString *sqlRecordFourUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4}'";
 
-static NSString *sqlRecordFiveUnits=@"\" | awk ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5}'";
+static NSString *sqlRecordFiveUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5}'";
 
-static NSString *sqlRecordSixUnits=@"\" | awk ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6}'";
+static NSString *sqlRecordSixUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6}'";
 
-static NSString *sqlRecordEightUnits=@"\" | awk ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8}'";
+static NSString *sqlRecordEightUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8}'";
 
-static NSString *sqlRecordNineUnits=@"\" | awk ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9}'";
+static NSString *sqlRecordNineUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9}'";
 
-static NSString *sqlRecordTenUnits=@"\" | awk ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}'";
+static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}'";
 
-static NSString *sqlRecordElevenUnits=@"\" | awk ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11}'";
+static NSString *sqlRecordElevenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11}'";
 
 //prolog
 //filters...(including eventual IOCM
@@ -263,7 +263,7 @@ RSResponse * sqlEP(
           sqlcredentials,
           [NSString stringWithFormat:@"%@%@%@%@%@%@",
            sqlprolog,
-           EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+            EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
            sqlDictionary[@"Ewhere"],
            [NSString stringWithFormat:
             sqlDictionary[@"EmatchEui"],
@@ -1181,7 +1181,7 @@ RSResponse* cornerstone(
 
 
                   //find devOID in JSONArray
-                  NSMutableArray *patientArray=nil;
+NSMutableArray *patientArray=nil;
                   NSMutableDictionary *arc=[JSONArray firstMutableDictionaryWithKey:@"arcId" isEqualToString:devOID];
                   if (arc)
                   {
@@ -1203,6 +1203,7 @@ RSResponse* cornerstone(
                           proxyURIString,@"baseUrl",
                           patientArray,@"patientList",
                           nil];
+                     [JSONArray addObject:arc];
                   }
 
    #pragma mark ·· GET switch
@@ -1237,8 +1238,8 @@ RSResponse* cornerstone(
                            NSArray *patientSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
                            
                            NSMutableDictionary *patient=[patientArray firstMutableDictionaryWithKey:@"key" isEqualToString:P];
-                           NSMutableArray *studyArray=nil;
-                           
+NSMutableArray *studyArray=nil;
+
 if (patient)
 {
    //report eventual actualizations
@@ -1247,7 +1248,7 @@ if (patient)
    [patient setObject:(patientSqlPropertiesArray[0])[3] forKey:@"IssuerOfPatientID"];
    [patient setObject:(patientSqlPropertiesArray[0])[4] forKey:@"PatientBirthDate"];
    [patient setObject:(patientSqlPropertiesArray[0])[5] forKey:@"PatientSex"];
-   studyArray=arc[@"studyList"];
+   [studyArray setArray:arc[@"studyList"]];
    if (!studyArray)
    {
       studyArray=[NSMutableArray array];
@@ -1256,7 +1257,7 @@ if (patient)
 }
 else //no patient
 {
-   patientArray=[NSMutableArray array];
+   studyArray=[NSMutableArray array];
    patient=[NSMutableDictionary dictionaryWithObjectsAndKeys:
             [NSNumber numberWithLongLong:[(patientSqlPropertiesArray[0])[0] longLongValue]],@"key",
             (patientSqlPropertiesArray[0])[1], @"PatientID",
@@ -1267,6 +1268,7 @@ else //no patient
             studyArray,@"studyList",
             nil
            ];
+    [patientArray addObject:patient];
 }
 #pragma mark ...study loop
                         for (NSString *E in EPDict)
@@ -1280,7 +1282,7 @@ else //no patient
                                                  sqlprolog,
                                                  E,
                                                  @"",
-                                                 sqlRecordNineUnits
+                                                 sqlRecordTenUnits
                                                  ],
                                                 mutableData)
                                   !=0)
@@ -1291,7 +1293,7 @@ else //no patient
                               NSArray *studySqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
 
                               NSMutableDictionary *study=[studyArray firstMutableDictionaryWithKey:@"key" isEqualToString:E];
-                              NSMutableArray *seriesArray=nil;
+NSMutableArray *seriesArray=nil;
 if (study)
 {
    //report eventual actualizations
@@ -1307,9 +1309,6 @@ if (study)
 else //no study
 {
 #pragma mark TODO accessionNumber issuer
-   //pk
-                                 //study_iuid,study_desc,DATE(study_datetime),TIME(study_datetime),accession_no,study_id,ref_physician,
-                                 //mods_in_study
    seriesArray=[NSMutableArray array];
    study=[NSMutableDictionary dictionaryWithObjectsAndKeys:
       [NSNumber numberWithLongLong:[(studySqlPropertiesArray[0])[0] longLongValue]],@"key",
@@ -1326,6 +1325,7 @@ else //no study
       seriesArray,@"seriesList",
       nil
    ];
+    [studyArray addObject:study];
 }
                               
 #pragma mark ...series loop
@@ -1337,7 +1337,7 @@ else //no study
                                            sqlprolog,
                                            E,
                                            @"",
-                                           sqlRecordElevenUnits
+                                           sqlRecordTenUnits
                                            ],
                                           mutableData)
                             !=0)
@@ -1354,10 +1354,11 @@ else //no study
                            {
                               //SOP Class already known
                               //loop series only if numImages doesn´t correspond
-                              if ([series[@"numImages"] longLongValue]!=[seriesSqlProperties[10]longLongValue])
+#pragma mark TODO
+                              //find numImages for the series
+                              //if ([series[@"numImages"] longLongValue]!=[seriesSqlProperties[10]longLongValue])
                               {
                                  //loop instances
-#pragma mark TODO
                               }
                            }
                            else //series does not exist in cache
@@ -1392,13 +1393,14 @@ seriesSqlProperties[6], @"Department",
 seriesSqlProperties[7], @"StationName",
 seriesSqlProperties[8], @"PerformingPhysician",
 seriesSqlProperties[9], @"Laterality",
-[NSNumber numberWithLongLong:[seriesSqlProperties[10] longLongValue]], @"numImages",
 instanceArray,@"instanceList",
 nil
-];
+];//not available [NSNumber numberWithLongLong:[seriesSqlProperties[10] longLongValue]], @"numImages",
+[seriesArray addObject:series];
 
                                  //add institution to studies
 [study setObject:seriesSqlProperties[5] forKey:@"institution"];
+                                  
                                  
                               
 #pragma mark instances depending on the SOP Class

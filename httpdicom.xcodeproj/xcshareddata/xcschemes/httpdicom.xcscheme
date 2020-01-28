@@ -61,7 +61,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "2.16.858.0.2.16.86.9.0.0.9.212659800019"
+            argument = "2.16.858.0.1.4.0.72769.217215590012.2"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -89,11 +89,11 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/IN/GitHub/httpdicom/deploy"
+            argument = "/Volumes/GITHUB/httpdicom/deploy"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/tmp"
+            argument = "/Volumes/TMP"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

@@ -13,7 +13,7 @@
             <key>pacsoid</key>
             <string id="pacsoid">2.16.858.0.1.4.0.72769.217215590012.2</string>
             <key>pacsaet</key>
-            <string id="pacsaet">CUDIM</string>
+            <string id="pacsaet">DCM4CHEE</string>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
             <key>timezoneoffsetfromutc</key>
@@ -39,13 +39,13 @@
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
             <key>sqlpassword</key>
-            <string id="sqlpassword">pcs</string>
+            <string id="sqlpassword">root</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upcs -h 192.168.250.1 -b pacsdb2 -e &quot;</string>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -uroot -h 127.0.0.1 -b pacsdb -e &quot;</string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dcm4chee2147mysql</string>
+            <string id="sqlmap">dcm4cheearc517mysql</string>
             
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
@@ -59,7 +59,7 @@
             <string id="mllpport">2575</string>
 
             <key>DICMip</key>
-            <string id="DICMip">192.168.250.1</string>
+            <string id="DICMip">127.0.0.1</string>
             <key>DICMport</key>
             <string id="DICMport">11112</string>
             
@@ -68,7 +68,7 @@
             <key>timeoutinterval</key>
             <string id="timeoutinterval">60</string>
             <key>wadouri</key>
-            <string id="wadouri">http://192.168.250.1:8080/wado</string>
+            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/DCM4CHEE/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>            
             <key>wadoweasisparameters</key>

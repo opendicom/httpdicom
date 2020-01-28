@@ -70,14 +70,24 @@ static NSRegularExpression *_noSingleQuoteRegex=nil;
     return [DAFormatter stringFromDate:date];
 }
 
+
 +(NSString*)DAStringFromDAISOString:(NSString*)string
 {
-   return [NSString stringWithFormat:@"%@%@%@",
-           [string substringWithRange:NSMakeRange(0,4)],
-           [string substringWithRange:NSMakeRange(5,2)],
-           [string substringWithRange:NSMakeRange(8,2)]
-           ];
+    switch (string.length) {
+        case 10:
+            return [NSString stringWithFormat:@"%@%@%@",
+            [string substringWithRange:NSMakeRange(0,4)],
+            [string substringWithRange:NSMakeRange(5,2)],
+            [string substringWithRange:NSMakeRange(8,2)]
+            ];
+        case 8:
+            return string;
+        default:
+            NSLog(@"bad date format %@",string);
+    }
+    return nil;
 }
+
 
 +(NSDate*)dateFromTMString:(NSString*)string
 {
