@@ -184,7 +184,7 @@ for (NSString *sqlname in sqlset)
 
 
 #pragma mark /TMP basic structure
-       NSString *tmppath=[args[5] stringByExpandingTildeInPath];
+       NSString *tmppath=[args[6] stringByExpandingTildeInPath];
 
        if (![defaultManager fileExistsAtPath:tmppath isDirectory:&isDirectory] || !isDirectory)
        {

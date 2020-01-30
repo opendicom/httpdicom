@@ -68,7 +68,7 @@
             <key>timeoutinterval</key>
             <string id="timeoutinterval">60</string>
             <key>wadouri</key>
-            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/DCM4CHEE/wado</string>
+            <string id="wadouri">http://192.168.1.102:8080/dcm4chee-arc/aets/DCM4CHEE/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>            
             <key>wadoweasisparameters</key>

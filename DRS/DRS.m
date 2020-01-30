@@ -424,7 +424,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         _sqls=sqls;
         _drsport=drsport;
         _defaultpacsoid=defaultpacsoid;
-        _tmpDir=[tmpDir stringByExpandingTildeInPath];
+        _tmpDir=tmpDir;
         _tokentmpDir=[tmpDir stringByAppendingPathComponent:@"token"];
 
 #pragma mark custodians
