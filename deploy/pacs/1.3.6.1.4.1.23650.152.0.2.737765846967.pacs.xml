@@ -30,7 +30,7 @@
             <string id="principallanguage">es</string>
             
             <key>select</key>
-            <string id="select">qido</string>
+            <string id="select">sql</string>
             <key>get</key>
             <string id="get">wado</string>
             <key>mwl</key>
@@ -70,6 +70,22 @@
             <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>
+            <key>wadoweasisparameters</key>
+            <string id="wadoweasisparameters">&amp;transferSyntax=*</string>            
+            <key>wadocornerstoneparameters</key>
+            <string id="wadocornerstoneparameters"></string>            
+            <key>wadodicomzipparameters</key>
+            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadoosirixparameters</key>
+            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
+            <key>wadoisodicomzipparameters</key>
+            <string id="wadoisodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadodeflateparameters</key>
+            <string id="wadodeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadomaxdeflateparameters</key>
+            <string id="wadomaxdeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadozip64parameters</key>
+            <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC/rs</string>
             <key>qido</key>
@@ -149,6 +165,22 @@
             <string id="wadouri">http://192.168.4.15:8080/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>
+            <key>wadoweasisparameters</key>
+            <string id="wadoweasisparameters">&amp;transferSyntax=*</string>            
+            <key>wadocornerstoneparameters</key>
+            <string id="wadocornerstoneparameters"></string>            
+            <key>wadodicomzipparameters</key>
+            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadoosirixparameters</key>
+            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
+            <key>wadoisodicomzipparameters</key>
+            <string id="wadoisodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadodeflateparameters</key>
+            <string id="wadodeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadomaxdeflateparameters</key>
+            <string id="wadomaxdeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadozip64parameters</key>
+            <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
             <string id="wadors"></string>
             <key>qido</key>
@@ -188,7 +220,7 @@
             <string id="principallanguage">es</string>
             
             <key>select</key>
-            <string id="select">qido</string>
+            <string id="select">sql</string>
             <key>get</key>
             <string id="get">wado</string>
             <key>mwl</key>
@@ -228,6 +260,22 @@
             <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_LASERENA/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>
+            <key>wadoweasisparameters</key>
+            <string id="wadoweasisparameters">&amp;transferSyntax=*</string>            
+            <key>wadocornerstoneparameters</key>
+            <string id="wadocornerstoneparameters"></string>            
+            <key>wadodicomzipparameters</key>
+            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadoosirixparameters</key>
+            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
+            <key>wadoisodicomzipparameters</key>
+            <string id="wadoisodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadodeflateparameters</key>
+            <string id="wadodeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadomaxdeflateparameters</key>
+            <string id="wadomaxdeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadozip64parameters</key>
+            <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_LASERENA/rs</string>
             <key>qido</key>
@@ -373,7 +421,7 @@
             <string id="principallanguage">es</string>
             
             <key>select</key>
-            <string id="select">qido</string>
+            <string id="select">sql</string>
             <key>get</key>
             <string id="get">wado</string>
             <key>mwl</key>
@@ -413,6 +461,22 @@
             <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_OVALLE/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>
+            <key>wadoweasisparameters</key>
+            <string id="wadoweasisparameters">&amp;transferSyntax=*</string>            
+            <key>wadocornerstoneparameters</key>
+            <string id="wadocornerstoneparameters"></string>            
+            <key>wadodicomzipparameters</key>
+            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadoosirixparameters</key>
+            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
+            <key>wadoisodicomzipparameters</key>
+            <string id="wadoisodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadodeflateparameters</key>
+            <string id="wadodeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadomaxdeflateparameters</key>
+            <string id="wadomaxdeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadozip64parameters</key>
+            <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_OVALLE/rs</string>
             <key>qido</key>
@@ -558,7 +622,7 @@
             <string id="principallanguage">es</string>
             
             <key>select</key>
-            <string id="select">qido</string>
+            <string id="select">sql</string>
             <key>get</key>
             <string id="get">wado</string>
             <key>mwl</key>
@@ -598,6 +662,22 @@
             <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>
+            <key>wadoweasisparameters</key>
+            <string id="wadoweasisparameters">&amp;transferSyntax=*</string>            
+            <key>wadocornerstoneparameters</key>
+            <string id="wadocornerstoneparameters"></string>            
+            <key>wadodicomzipparameters</key>
+            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadoosirixparameters</key>
+            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
+            <key>wadoisodicomzipparameters</key>
+            <string id="wadoisodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadodeflateparameters</key>
+            <string id="wadodeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadomaxdeflateparameters</key>
+            <string id="wadomaxdeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadozip64parameters</key>
+            <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/rs</string>
             <key>qido</key>

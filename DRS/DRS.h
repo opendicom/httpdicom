@@ -13,13 +13,10 @@
 
 //RSRequest
 
-BOOL parseRequestParams(RSRequest       *  request,
-                        NSMutableArray  *  names,
-                        NSMutableArray  *  values,
-                        NSMutableArray  *  types,
-                        NSString        ** jsonString,
-                        NSString        ** errorString
-                        )
+NSString *  parseRequestParams(RSRequest       *  request,
+                               NSMutableArray  *  names,
+                               NSMutableArray  *  values
+                               )
 ;
 
 //pacs
@@ -73,6 +70,9 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType);
 @property (class, nonatomic, readonly) NSArray           *wan;//proxying to pcs
 @property (class, nonatomic, readonly) NSArray           *lan;//every local
 @property (class, nonatomic, readonly) NSArray           *dev;//a specific local
+
+@property (class, nonatomic, readonly) NSArray           *InstanceUniqueFrameSOPClass;
+@property (class, nonatomic, readonly) NSArray           *InstanceMultiFrameSOPClass;
 
 -(id)initWithSqls:(NSDictionary*)sqls
              pacs:(NSArray*)pacs

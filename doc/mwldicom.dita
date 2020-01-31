@@ -190,39 +190,6 @@
             <p>En suma, HTTPDICOM requiere datos, que se pueden subdivir en cuatro grupos, el cuarto
                 pudiendo repetirse hasta 4 veces.</p>
             <p/>
-            <p><b>Notas relativas a las tablas</b>
-            </p>
-            <p>
-                <ol id="ol_o12_mz2_3hb">
-                    <li>la primera columna  contiene nombres con prefijo:<ol id="ol_jv5_zyx_thb">
-                            <li>pat = patient</li>
-                            <li>isr = imaging service request</li>
-                            <li>req = request</li>
-                            <li>sps = scheduled procedure step. Una request agrupa uno o hasta 4
-                                scheduled procedure steps.</li>
-                        </ol></li>
-                    <li>columna "sinonimo" contiene los nombres anteriores de cada elemento. (Pueden
-                        usarse todavía). Los resaltamos en azul.</li>
-                    <li>Resaltamos en violeta los elementos nuevos (sps1AET, sps1Protocol,
-                        sps1Location, sps1Modality, sps2AET, sps2Protocol, …)</li>
-                    <li>columna "op" (opcionalidad): <ol id="ol_s2q_qhb_jhb">
-                            <li>?=opcional</li>
-                            <li>1=obligatorio</li>
-                        </ol></li>
-                    <li>La columna formato contiene unas siglas:<ol id="ol_cvf_ztx_thb">
-                            <li><b>UID</b>, <b>OID</b>: ej 1.2345.2, 64 caracteres máximo</li>
-                            <li><b>aaaammdd</b>: año aaaa: 4 cifras, mes mm y día dd: dos cifras
-                                eventualmente empezando por 0</li>
-                            <li><b>SH</b>: contiene una palabra de  hasta 16 letras, cifras y - o _ </li>
-                            <li>ISO3166: tabla de siglas para países</li>
-                            <li>ICAO: tabla que asigna numeros a cada tidpo de documento
-                                personal</li>
-                        </ol></li>
-                    <li>La columna =ORMO01 es el equivalente en el protocolo HLV v2.3.1</li>
-                    <li>La columna =DICOM es el equivalente en los atributos copiados dentro de las
-                        imágenes DICOM.</li>
-                </ol>
-            </p>
         </section>
         <p>.</p>
         <section id="section_bvj_gv2_3hb">
@@ -247,7 +214,7 @@
                         <tbody>
                             <?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>
                             <row>
-                                <entry><?oxy_custom_end?><b><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>pacs<?oxy_custom_end?></b><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?></entry>
+                                <entry><?oxy_custom_end?><b>pacs</b><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?></entry>
                                 <entry/><?oxy_custom_end?>
                                 <entry>? </entry>
                                 <?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>
@@ -262,7 +229,7 @@
             </p>
             <p>.</p>
             <p><table frame="all" rowsep="1" colsep="1" id="table_uss_ty2_3hb">
-                    <title>Paciente</title>
+                    <title>Paciente (Patient)</title>
                     <tgroup cols="7">
                         <colspec colname="c1" colnum="1" colwidth="2.87*"/>
                         <colspec colname="c2" colnum="2" colwidth="2.87*"/>
@@ -285,7 +252,7 @@
                         <tbody>
                             <row>
                                 <entry>patFamily1Name</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>apellido1<?oxy_custom_end?></entry>
+                                <entry>apellido1</entry>
                                 <entry>1</entry>
                                 <entry>mayusculas</entry>
                                 <entry/>
@@ -294,8 +261,7 @@
                             </row>
                             <row>
                                 <entry>patFamily2Name</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>apellido2<?oxy_custom_end?>,
-                                    motherMaidenName</entry>
+                                <entry>apellido2, motherMaidenName</entry>
                                 <entry>?</entry>
                                 <entry>mayusculas</entry>
                                 <entry/>
@@ -304,7 +270,7 @@
                             </row>
                             <row>
                                 <entry>patGivenNames</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>nombres<?oxy_custom_end?></entry>
+                                <entry>nombres</entry>
                                 <entry>?</entry>
                                 <entry>mayusculas</entry>
                                 <entry/>
@@ -313,7 +279,7 @@
                             </row>
                             <row>
                                 <entry>patBirthDate</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>PatientBirthDate<?oxy_custom_end?></entry>
+                                <entry>PatientBirthDate</entry>
                                 <entry>?</entry>
                                 <entry>aaaammdd</entry>
                                 <entry/>
@@ -322,7 +288,7 @@
                             </row>
                             <row>
                                 <entry>patAdministrativeGender</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>PatientSex<?oxy_custom_end?></entry>
+                                <entry>PatientSex</entry>
                                 <entry>?</entry>
                                 <entry>M | F | O</entry>
                                 <entry>masculino, feminino, otro</entry>
@@ -331,7 +297,7 @@
                             </row>
                             <row>
                                 <entry>patID</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>PatientID<?oxy_custom_end?></entry>
+                                <entry>PatientID</entry>
                                 <entry>1</entry>
                                 <entry>SH</entry>
                                 <entry/>
@@ -340,7 +306,7 @@
                             </row>
                             <row>
                                 <entry>patIDCountry</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>PatientIDCountry<?oxy_custom_end?></entry>
+                                <entry>PatientIDCountry</entry>
                                 <entry>1</entry>
                                 <entry>ISO3166</entry>
                                 <entry>2 o 3 letras</entry>
@@ -350,7 +316,7 @@
                             <row>
                                 <entry>patIDType</entry>
                                 <?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>
-                                <entry>PatientIDType</entry><?oxy_custom_end?>
+                                <entry><?oxy_custom_end?>PatientIDType<?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?></entry><?oxy_custom_end?>
                                 <entry>1</entry>
                                 <entry>ICAO</entry>
                                 <entry/>
@@ -359,7 +325,7 @@
                             </row>
                             <row>
                                 <entry>patPassword</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>clave<?oxy_custom_end?></entry>
+                                <entry>clave</entry>
                                 <entry>?</entry>
                                 <entry>min 7 caracteres</entry>
                                 <entry>se envia a HTML5DICOM para crear el usuario</entry>
@@ -369,7 +335,7 @@
                         </tbody>
                     </tgroup>
                 </table> .<table frame="all" rowsep="1" colsep="1" id="table_p1h_5y2_3hb">
-                    <title>Solicitud</title>
+                    <title>Solicitud (Imaging Service Request)</title>
                     <tgroup cols="7">
                         <colspec colname="c1" colnum="1" colwidth="2.46*"/>
                         <colspec colname="c2" colnum="2" colwidth="2.46*"/>
@@ -392,7 +358,7 @@
                         <tbody>
                             <row>
                                 <entry>isrAN</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>AccessionNumber<?oxy_custom_end?></entry>
+                                <entry>AccessionNumber</entry>
                                 <entry>1</entry>
                                 <entry>SH</entry>
                                 <entry>Para ORMO01, igualamos AN con Filler Issuer and Number, no
@@ -402,7 +368,7 @@
                             </row>
                             <row>
                                 <entry morerows="1">isrANIssuer</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>issuerLocal<?oxy_custom_end?></entry>
+                                <entry>issuerLocal</entry>
                                 <entry morerows="1">?</entry>
                                 <entry>SH (por defecto se atribuye al custodian del pacs de
                                     destino)</entry>
@@ -411,7 +377,7 @@
                                 <entry>00080051.00400031</entry>
                             </row>
                             <row>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>issuerUniversal<?oxy_custom_end?></entry>
+                                <entry>issuerUniversal</entry>
                                 <entry>OID</entry>
                                 <entry>usamos OID</entry>
                                 <entry>ORC_3.3</entry>
@@ -419,34 +385,35 @@
                             </row>
                             <row>
                                 <entry>isrANType</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>issuerTipo<?oxy_custom_end?></entry>
+                                <entry>issuerTipo</entry>
                                 <entry>?</entry>
                                 <entry>DNS, EUI64, ISO (=OID), URI, UUID, X400, X500</entry>
-                                <entry>local->vacío, universal->ISO</entry>
+                                <entry>si el issuer es local, dejar vacío, si el issuer es
+                                    universal, indicar su tipo</entry>
                                 <entry>ORC_3.4</entry>
                                 <entry>00080051.00400033</entry>
                             </row>
                             <row>
                                 <entry>isrReferring</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>ReferringPhysiciansName<?oxy_custom_end?></entry>
+                                <entry>ReferringPhysiciansName</entry>
                                 <entry>?</entry>
-                                <entry>org^serv^user</entry>
+                                <entry>org^serv^user^idType^id</entry>
                                 <entry/>
                                 <entry/>
                                 <entry>00321032</entry>
                             </row>
                             <row>
                                 <entry>isrReading</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>NameOfPhysicianReadingStudy<?oxy_custom_end?></entry>
+                                <entry>NameOfPhysicianReadingStudy</entry>
                                 <entry>?</entry>
-                                <entry>org^serv^user</entry>
+                                <entry>org^serv^user^idType^id</entry>
                                 <entry/>
                                 <entry/>
                                 <entry>00081060</entry>
                             </row>
                             <row>
                                 <entry>reqProcedure</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>StudyDescription<?oxy_custom_end?></entry>
+                                <entry>StudyDescription</entry>
                                 <entry>?</entry>
                                 <entry>código^titulo^vocabulario ( no  acepta "|" en el texto
                                     )</entry>
@@ -456,8 +423,7 @@
                             </row>
                             <row>
                                 <entry>reqPriority</entry>
-                                <entry>RequestedProcedurePriority,
-                                    <?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>Priority<?oxy_custom_end?></entry>
+                                <entry>RequestedProcedurePriority, Priority</entry>
                                 <entry>?</entry>
                                 <entry>MEDIUM, HIGH</entry>
                                 <entry/>
@@ -466,7 +432,7 @@
                             </row>
                             <row>
                                 <entry>reqMsg</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>enclosureTextarea<?oxy_custom_end?></entry>
+                                <entry>enclosureTextarea</entry>
                                 <entry>?</entry>
                                 <entry/>
                                 <entry/>
@@ -475,7 +441,7 @@
                             </row>
                             <row>
                                 <entry>reqPdf</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>enclosurePdf<?oxy_custom_end?></entry>
+                                <entry>enclosurePdf</entry>
                                 <entry>?</entry>
                                 <entry/>
                                 <entry/>
@@ -485,7 +451,7 @@
                         </tbody>
                     </tgroup>
                 </table> .<table frame="all" rowsep="1" colsep="1" id="table_bjj_5y2_3hb">
-                    <title>Paso 1 del protocolo</title>
+                    <title>Paso 1 del protocolo (Scheduled Procedure Step)</title>
                     <tgroup cols="7">
                         <colspec colname="c1" colnum="1" colwidth="1*"/>
                         <colspec colname="c2" colnum="2" colwidth="1*"/>
@@ -508,8 +474,7 @@
                         <tbody>
                             <row>
                                 <entry>sps1Location</entry>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>sala<?oxy_custom_end?>,
-                                    service, servicio, sps1Service</entry>
+                                <entry>sala, service, servicio, sps1Service</entry>
                                 <entry morerows="1">1</entry>
                                 <entry/>
                                 <entry>sps1Location es suficiente en caso que corresponda
@@ -520,16 +485,14 @@
                             </row>
                             <row>
                                 <entry>sps1Modality</entry>
-                                <entry>Modality,
-                                    <?oxy_custom_start type="oxy_content_highlight" color="0,128,255"?>modalidad<?oxy_custom_end?></entry>
+                                <entry>Modality, modalidad</entry>
                                 <entry>(**) CR, CT, MR,NM, US, PT, XA, RF, DX, MG, SR</entry>
                                 <entry/>
                                 <entry/>
                                 <entry>00080060</entry>
                             </row>
                             <row>
-                                <?oxy_custom_start type="oxy_content_highlight" color="255,60,255"?>
-                                <entry>sps1AET</entry><?oxy_custom_end?>
+                                <entry>sps1AET</entry>
                                 <entry/>
                                 <entry>?</entry>
                                 <entry>SH</entry>
@@ -538,7 +501,7 @@
                                 <entry>00400001</entry>
                             </row>
                             <row>
-                                <entry><?oxy_custom_start type="oxy_content_highlight" color="255,60,255"?>sps1Protocol<?oxy_custom_end?></entry>
+                                <entry>sps1Protocol</entry>
                                 <entry/>
                                 <entry>?</entry>
                                 <entry>código^titulo^vocabulario ( no  acepta "|" en el texto
@@ -552,14 +515,38 @@
                 </table></p>
             <p/>
             <p><b>Eventuales Paso 2, Paso 3 y Paso 4 del protocolo</b></p>
-            <p>Repite paso 1 pero con prefijo
-                <?oxy_custom_start type="oxy_content_highlight" color="255,60,255"?>sps2<?oxy_custom_end?>,
-                <?oxy_custom_start type="oxy_content_highlight" color="255,60,255"?>sps3<?oxy_custom_end?>
-                y
-                <?oxy_custom_start type="oxy_content_highlight" color="255,60,255"?>sps4<?oxy_custom_end?>
-                respectivamente, en lugar de sps1.</p>
+            <p>Repite paso 1 pero con prefijo sps2, sps3 y sps4 respectivamente, en lugar de
+                sps1.</p>
             <p/>
         </section>
+        <section id="section_r4x_npf_5jb">
+            <p><b>Notas relativas a las tablas</b>
+            </p>
+            <p>
+                <ol id="ol_s4x_npf_5jb">
+                    <li>columna "sinonimo" contiene los nombres anteriores de cada elemento. (Pueden
+                        usarse todavía, pero el nombre oficial para cualquier nueva implementación
+                        es el que se encuentra en la primera columna).</li>
+                    <li>columna "op" (opcionalidad): <ol id="ol_u4x_npf_5jb">
+                            <li>?=opcional</li>
+                            <li>1=obligatorio</li>
+                        </ol></li>
+                    <li>La columna formato contiene unas siglas:<ol id="ol_v4x_npf_5jb">
+                            <li><b>UID</b>, <b>OID</b>: ej 1.2345.2, 64 caracteres máximo</li>
+                            <li><b>aaaammdd</b>: año aaaa: 4 cifras, mes mm y día dd: dos cifras
+                                eventualmente empezando por 0</li>
+                            <li><b>SH</b>: contiene una palabra de hasta 16 letras, cifras y - o _ </li>
+                            <li>ISO3166: tabla de siglas para países</li>
+                            <li>ICAO: tabla que asigna numeros a cada tidpo de documento
+                                personal</li>
+                        </ol></li>
+                    <li>La columna =ORMO01 es el equivalente en el protocolo HLV v2.3.1</li>
+                    <li>La columna =DICOM es el equivalente en los atributos copiados dentro de las
+                        imágenes DICOM.</li>
+                </ol>
+            </p>
+        </section>
+        <p/>
         <section id="section_yvs_m4r_tdb">
             <title>pacs, modalidad, sala</title>
             <p><b>pacs</b> es opcional cuando el pedido de creación de item de MWL es local. Sino,
@@ -568,10 +555,10 @@
                 también llamados <b>sala</b>. En la configuración ya está registrado el AET del
                 equipo de imagenología correspondiente. Pues es suficiente referirse solamente a la
                 sala por su nombre sin necesidad de conocer el AET. </p>
-            <p>El equipo DICOM de una sala permite a veces la creación de objetos DICOM de varias
-                modalidades, en este caso conviene completar la información de la sala por la de la
-                modalidad. Si la sala se usa para una sola modalidad, el nombre de la sala es
-                suficiente.</p>
+            <p>Cuando el equipo DICOM de una sala permite la creación de objetos DICOM de varias
+                modalidades (por ejemplo CR o RF),  conviene completar la información de la sala por
+                la de la modalidad. Si la sala se usa para una sola modalidad, el nombre de la sala
+                es suficiente.</p>
             <p>Alternativamente, en caso de no indicar el nombre de la sala se puede indicar una
                 modalidad DICOM. Por ejemplo:</p>
             <p><ul id="ul_snn_25w_tdb">
@@ -848,14 +835,11 @@
         <section id="section_h4n_r2x_tdb">
             <title>ReferringPhysiciansName, NameofPhysicianReadingStudy</title>
             <p>ReferringPhysiciansName y NameofPhysicianReadingStudy ambos siguen el formato
-                identificadorDeInstitución^nombreDeServicio^nombreDelUsuarioMedico. El identificador
-                de la institución puede ser el nombre corto o su OID. El servicio puede ser el
-                nombre por defecto del servico, o sea la modalidad de imágenes DICOM producidas en
-                el servicio.</p>
+                identificadorDeInstitución^nombreDeServicio^nombreDelUsuarioMedico^tipoDocumento^idDocumento.
+                El identificador de la institución puede ser el nombre corto o su OID. El servicio
+                puede ser el nombre por defecto del servico, o sea la modalidad de imágenes DICOM
+                producidas en el servicio.</p>
             <p>Es posible indicar solo institución y servicio, o solamente institución.</p>
-            <p>El archivo de configuración de PACS permite asociar un código a
-                ReferringPhysiciansName o NameofPhysicianReadingStudy. Por ejemplo,
-                HospitalA^CT^doctor1 puede corresponder al código 1.</p>
         </section>
         <section id="section_xvy_k3x_tdb">
             <title>enclosureTextarea, enclosurePdf</title>

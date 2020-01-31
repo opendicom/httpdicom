@@ -24,6 +24,7 @@ int main(int argc, const char* argv[])
 {
     @autoreleasepool
     {
+       NSFileManager *defaultManager=[NSFileManager defaultManager];
 
         
 
@@ -36,8 +37,9 @@ if ([args count]!=7)
         
         
 //args[5] deploypath
+NSString *deploypath=[args[5] stringByExpandingTildeInPath];
 BOOL isDirectory=FALSE;
-if (![[NSFileManager defaultManager]fileExistsAtPath:args[5] isDirectory:&isDirectory] || !isDirectory)
+if (![defaultManager fileExistsAtPath:deploypath isDirectory:&isDirectory] || !isDirectory)
 {
     LOG_ERROR(@"deploy folder does not exist");
     return 1;
@@ -82,13 +84,13 @@ else [K setDefaultTimezone:args[4]];
         
 
 // /voc/scheme
-NSDictionary *scheme=[NSDictionary dictionaryWithContentsOfFile:[args[5] stringByAppendingPathComponent:@"voc/scheme.xml"]];
+NSDictionary *scheme=[NSDictionary dictionaryWithContentsOfFile:[deploypath stringByAppendingPathComponent:@"voc/scheme.xml"]];
 if (!scheme) [K loadScheme:@{}];
 else [K loadScheme:scheme];
 
         
 // /voc/code
-NSArray *codes=[[NSFileManager defaultManager]contentsOfDirectoryAtPath:[args[5] stringByAppendingPathComponent:@"voc/code/"] error:nil];
+NSArray *codes=[[NSFileManager defaultManager]contentsOfDirectoryAtPath:[deploypath stringByAppendingPathComponent:@"voc/code/"] error:nil];
 if (!codes) LOG_WARNING(@"no folder voc/code into deploy");
 else if (![codes count]) LOG_WARNING(@"no code file registered");
 else
@@ -96,13 +98,13 @@ else
      for (NSString *code in codes)
     {
         if ([code hasPrefix:@"."]) continue;
-        [K loadCode:[NSDictionary dictionaryWithContentsOfFile:[[args[5] stringByAppendingPathComponent:@"voc/code"] stringByAppendingPathComponent:code]] forKey:[[code stringByDeletingPathExtension]stringByDeletingPathExtension]];
+        [K loadCode:[NSDictionary dictionaryWithContentsOfFile:[[deploypath stringByAppendingPathComponent:@"voc/code"] stringByAppendingPathComponent:code]] forKey:[[code stringByDeletingPathExtension]stringByDeletingPathExtension]];
     }
     
 }
         
 // /voc/procedure
-NSArray *procedures=[[NSFileManager defaultManager]contentsOfDirectoryAtPath:[args[5] stringByAppendingPathComponent:@"voc/procedure/"] error:nil];
+NSArray *procedures=[[NSFileManager defaultManager]contentsOfDirectoryAtPath:[deploypath stringByAppendingPathComponent:@"voc/procedure/"] error:nil];
 if (!procedures) LOG_WARNING(@"no folder voc/procedure into deploy");
 else if (![procedures count]) LOG_WARNING(@"no procedure file registered");
 else
@@ -110,14 +112,14 @@ else
     for (NSString *procedure in procedures)
     {
         if ([procedure hasPrefix:@"."]) continue;
-        [K loadProcedure:[NSDictionary dictionaryWithContentsOfFile:[[args[5] stringByAppendingPathComponent:@"voc/procedure"]stringByAppendingPathComponent:procedure]] forKey:[[procedure stringByDeletingPathExtension] stringByDeletingPathExtension]];
+        [K loadProcedure:[NSDictionary dictionaryWithContentsOfFile:[[deploypath stringByAppendingPathComponent:@"voc/procedure"]stringByAppendingPathComponent:procedure]] forKey:[[procedure stringByDeletingPathExtension] stringByDeletingPathExtension]];
 
     }
 }
 
         
 // /voc/country (iso3166)
-NSArray *iso3166ByCountry=[NSArray arrayWithContentsOfFile:[args[5] stringByAppendingPathComponent:@"voc/country.plist"]];
+NSArray *iso3166ByCountry=[NSArray arrayWithContentsOfFile:[deploypath stringByAppendingPathComponent:@"voc/country.plist"]];
 if (!iso3166ByCountry)
 {
     LOG_ERROR(@"no folder voc/country.plist into deploy");
@@ -128,7 +130,7 @@ else [K loadIso3166ByCountry:iso3166ByCountry];
         
 
 // /voc/personIDType (ica)
-NSDictionary *personIDTypes=[NSDictionary dictionaryWithContentsOfFile:[args[5] stringByAppendingPathComponent:@"voc/personIDType.plist"]];
+NSDictionary *personIDTypes=[NSDictionary dictionaryWithContentsOfFile:[deploypath stringByAppendingPathComponent:@"voc/personIDType.plist"]];
 if (!personIDTypes)
 {
     LOG_ERROR(@"no folder voc/personIDType.plist into deploy");
@@ -143,7 +145,7 @@ else [K loadPersonIDTypes:personIDTypes];
 //arg [1] defaultpacsoid
 NSString *defaultpacsoid=args[1];
 NSArray *pacs=[NSArray arrayWithContentsOfFile:
-                    [[[args[5]
+                    [[[deploypath
                        stringByAppendingPathComponent:@"pacs"]
                       stringByAppendingPathComponent:defaultpacsoid]
                      stringByAppendingPathExtension:@"pacs.xml"]
@@ -165,7 +167,7 @@ for (NSDictionary *d in pacs)
 NSMutableDictionary *sqls=[NSMutableDictionary dictionary];
 for (NSString *sqlname in sqlset)
 {
-    NSString *sqlpath=[[[[args[5]
+    NSString *sqlpath=[[[[deploypath
                           stringByAppendingPathComponent:@"sql/map"]
                          stringByAppendingPathComponent:sqlname]
                         stringByAppendingPathExtension:@"sql"]
@@ -181,7 +183,42 @@ for (NSString *sqlname in sqlset)
 }
 
 
-        
+#pragma mark /TMP basic structure
+       NSString *tmppath=[args[6] stringByExpandingTildeInPath];
+
+       if (![defaultManager fileExistsAtPath:tmppath isDirectory:&isDirectory] || !isDirectory)
+       {
+           LOG_ERROR(@"tmp folder does not exist");
+           return 1;
+       }
+       
+       isDirectory=FALSE;
+       NSString *queryPath=[tmppath stringByAppendingString:@"query"];
+       if (![defaultManager fileExistsAtPath:queryPath isDirectory:&isDirectory] || !isDirectory)
+       {
+          [defaultManager createDirectoryAtPath:queryPath withIntermediateDirectories:false attributes:nil error:nil];
+       }
+       
+       isDirectory=FALSE;
+       NSString *matchPath=[tmppath stringByAppendingString:@"match"];
+       if (![defaultManager fileExistsAtPath:matchPath isDirectory:&isDirectory] || !isDirectory)
+       {
+          [defaultManager createDirectoryAtPath:matchPath withIntermediateDirectories:false attributes:nil error:nil];
+       }
+       
+       isDirectory=FALSE;
+       NSString *dicomPath=[tmppath stringByAppendingString:@"dicom"];
+       if (![defaultManager fileExistsAtPath:dicomPath isDirectory:&isDirectory] || !isDirectory)
+       {
+          [defaultManager createDirectoryAtPath:dicomPath withIntermediateDirectories:false attributes:nil error:nil];
+       }
+       
+       isDirectory=FALSE;
+       NSString *descartedPath=[tmppath stringByAppendingString:@"descarted"];
+       if (![defaultManager fileExistsAtPath:descartedPath isDirectory:&isDirectory] || !isDirectory)
+       {
+          [defaultManager createDirectoryAtPath:descartedPath withIntermediateDirectories:false attributes:nil error:nil];
+       }
 
         
 #pragma mark server init and run
@@ -191,7 +228,7 @@ for (NSString *sqlname in sqlset)
                                       pacs:pacs
                                    drsport:port
                             defaultpacsoid:defaultpacsoid
-                                 tmpDir:args[6]
+                                    tmpDir:tmppath
                   ];
 
 

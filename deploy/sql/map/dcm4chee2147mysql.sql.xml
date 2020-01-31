@@ -1,158 +1,208 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-    <dict>
-        
-<!-- pk study + pk patient -->
-        
-        <!-- match study UID -->
-        <key>EP4Eui</key>
-        <string>%@SELECT pk,patient_fk FROM study WHERE study_iuid='%@' %@ %@</string>
-        
-        <!-- match accession number -->
-        <key>EP4Ean</key>
-        <string>%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' %@ %@</string>
-
-
-
-        <!-- match Pid + Eda (empty) = any -->
-        <key>EP4PidEda0</key>
-        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' %@ %@</string>
-        
-        <!-- match Pid + Eda [aaaa-mm-dd] = on -->
-        <key>EP4PidEda1</key>
-        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
-        
-        <!-- match Pid + Eda [aaaa-mm-dd][] = since -->
-        <key>EP4PidEda2</key>
-        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
-        
-        <!-- match Pid + Eda [][][aaaa-mm-dd] = until -->
-        <key>EP4PidEda3</key>
-        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
-        
-        <!-- match Pid + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
-        <key>EP4PidEda4</key>
-        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
-
-
-
-        <!-- match Pidis + Eda (empty) -> any -->
-        <key>EP4PidisEda0</key>
-        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND patient.pat_id_issuer = '%@' %@ %@</string>
-        
-        <!-- match Pidis + Eda [aaaa-mm-dd] = on -->
-        <key>EP4PidisEda1</key>
-        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
-        
-        <!-- match Pidis + Eda [aaaa-mm-dd][] = since -->
-        <key>EP4PidisEda2</key>
-        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
-        
-        <!-- match Pidis + Eda [][][aaaa-mm-dd] = until -->
-        <key>EP4PidisEda3</key>
-        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
-        
-        <!-- match Pidis + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
-        <key>EP4PidisEda4</key>
-        <string>%@SELECT study.pk,study.patient_fk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id = '%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
-        
-        
-                
-<!-- pk study + studyInstanceUID -->
-        
-        <!-- match study UID -->
-        <key>EuiE4Euid</key>
-        <string>%@SELECT study_iuid, pk FROM study WHERE study_iuid='%@' %@ %@</string>
-        
-       <!-- match accession number -->
-       <key>EuiE4Ean</key>
-       <string>%@SELECT study_iuid, pk FROM study WHERE accession_no='%@' %@ %@</string>
-
-
-
-        <!-- match Pid + Eda (empty) = any -->
-       <key>EuiE4PidEda0</key>
-       <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' %@ %@</string>
-        
-        <!-- match Pid + Eda [aaaa-mm-dd] = on -->
-        <key>EuiE4PidEda1</key>
-        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
-        
-        <!-- match Pid + Eda [aaaa-mm-dd][] = since -->
-        <key>EuiE4PidEda2</key>
-        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
-        
-        <!-- match Pid + Eda [][][aaaa-mm-dd] = until -->
-        <key>EuiE4PidEda3</key>
-        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
-        
-        <!-- match Pid + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
-        <key>EuiE4PidEda4</key>
-        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
+<plist
+ xmlns="http://www.opendicom.com/xsd/plist/sql.xsd"
  
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.opendicom.com/xsd/plist/sql.xsd sql.xsd"
  
+ version="1.0"
+>
+<dict>
+
+<key>sqlTitle</key>
+<string>dcm4chee2147mysql</string>
  
-        
-        <!-- match Pidis + Eda (empty) = any -->
-        <key>EuiE4PidisEda0</key>
-        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND patient.pat_id_issuer = '%@' %@ %@</string>
-        
-        <!-- match Pidis + Eda [aaaa-mm-dd] = on -->
-        <key>EuiE4PidisEda1</key>
-        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) = '%@' %@ %@</string>
-        
-        <!-- match Pidis + Eda [aaaa-mm-dd][] = since -->
-        <key>EuiE4PidisEda2</key>
-        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) &gt;= '%@' %@ %@</string>
-        
-        <!-- match Pidis + Eda [][][aaaa-mm-dd] = until -->
-        <key>EuiE4PidisEda3</key>
-        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
-        
-        <!-- match Pidis + Eda [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
-        <key>EuiE4PidisEda4</key>
-        <string>%@SELECT study.study_iuid, study.pk FROM study LEFT JOIN patient ON study.patient_fk=patient.pk WHERE patient.pat_id='%@' AND patient.pat_id_issuer = '%@' AND DATE(study.study_datetime) &gt;= '%@' AND DATE(study.study_datetime) &lt;= '%@' %@ %@</string>
-        
+<key>EP</key>
+<string>SELECT study.pk, study.patient_fk FROM study</string>
+<key>EuiE</key>
+<string>SELECT study.study_iuid, study.pk FROM study</string>
+<key>WHERE</key>
+<string>WHERE 1=1</string>
+
+<!-- ============================= -->
+<!-- filtros exclusivos de estudio -->
+<!-- ============================= -->
+ 
+<!-- 1. match study UID -->
+<key>Eui</key>
+<string>%@ %@ \
+%@ \
+AND study.study_iuid REGEXP '%@' \
+%@ %@</string>
+
+
+<!-- 2. match accession number [0, 1 entity_id, 2 entity_uid + type, 3 entity_uid + type + entity_id]-->
+<!-- dcm4chee2 registers no issuer. The four options resumes to one only, without any issuer-->
+<key>Ean</key>
+<array>
+ 
+<string>%@ %@ \
+%@ \
+AND study.accession_no='%@' \
+%@ %@</string>
+ 
+<string>%@ %@ \
+%@ \
+AND study.accession_no='%@' \
+%@ %@</string>
+ 
+<string>%@ %@ \
+%@ \
+AND study.accession_no='%@' \
+%@ %@</string>
+ 
+<string>%@ %@ \
+%@ \
+AND study.accession_no='%@' \
+%@ %@</string>
+ 
+</array>
+
+
+<!-- ============================= -->
+<!-- filtros opcionales de estudio -->
+<!-- ============================= -->
+ 
+<!--10. ReferringPhysician-->
+<key>Epn</key>
+<array>
+<string>AND study.ref_physician REGEXP '%@'</string>
+<string>%@</string>
+<string>%@</string>
+<string>%@</string>
+<string>%@</string>
+<string>%@</string>
+</array>
+
+<!--11. ReadingPhysician = study_custom3-->
+<key>Rpn</key>
+<array>
+<string>AND study.study_custom3 REGEXP '%@'</string>
+<string>%@</string>
+<string>%@</string>
+<string>%@</string>
+<string>%@</string>
+<string>%@</string>
+</array>        
+ 
+<!--12. studyDate-->
+<key>Eda</key>
+<array>
+<string></string> <!-- (empty) = any -->
+<string>AND DATE(study.study_datetime) = '%@'</string> <!-- [aaaa-mm-dd] = on -->
+<string>AND DATE(study.study_datetime) >= '%@'</string><!-- [aaaa-mm-dd][] = since -->
+<string>AND NOT(DATE(study.study_datetime) > '%@')</string><!-- [][][aaaa-mm-dd] = until -->
+<string>AND DATE(study.study_datetime) >= '%@' AND NOT(DATE(study.study_datetime) > '%@')</string><!-- [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+</array>
+ 
+<!--13. StudyDescription study_desc REGEXP-->
+<key>Elo</key>
+<string>AND study.study_desc REGEXP '%@'</string>
+ 
+<!--14. SOPClassesInStudy cuids_in_study REGEXP -->
+<key>Ecu</key>
+<string>AND study.cuids_in_study REGEXP '%@'</string>
+ 
+<!--15. ModalitiesInStudy mods_in_study (REGEXP) ¡¡¡repeat for each modality !!!-->
+<key>Emo</key>
+<string>AND study.cuids_in_study REGEXP '%@'</string>
+ 
+<!-- ======================= -->
+<!-- filtros base de estudio -->
+<!-- ======================= -->
+
+<!--19. StudyID-->
+<key>Eid</key>
+<string>%@ %@ \
+%@ \
+AND study_id LIKE '%@' \
+%@ \
+%@ %@</string>
+
+<!--18. StudyDescriptionCode-->
+<!-- TODO -->
+ 
+
+<!-- ============================== -->
+<!-- filtros opcionales de paciente -->
+<!-- ============================== -->
+ 
+<!-- ======================== -->
+<!-- filtros base de paciente -->
+<!-- ======================== -->
+ 
+<!-- 29. match PID [0, 1 issuer] + 4 optionals + limit + epilog-->
+
+<!--20. PatientName-->
+<key>Ppn</key>
+<array>
+<string>AND patient.pat_name REGEXP '%@'</string>
+<string>%@</string>
+<string>%@</string>
+<string>%@</string>
+<string>%@</string>
+<string>%@</string>
+</array> 
+
+<!-- ======================== -->
+<!-- filtros base de paciente -->
+<!-- ======================== -->
+ 
+<!-- 29. match PID [0, 1 issuer]-->
+<key>Pid</key>
+<array>
+<string>%@ %@ \
+LEFT JOIN patient ON study.patient_fk=patient.pk \
+%@ \
+AND patient.pat_id LIKE '%@' \
+%@ \
+%@ %@</string>
+<string>%@ %@ \
+LEFT JOIN patient ON study.patient_fk=patient.pk \
+%@ \
+AND patient.pat_id LIKE '%@' \
+AND patient.pat_id_issuer = '%@' \
+%@ \
+%@ %@</string>
+</array>
+
+ <!-- instance ci 4 series pk -->
+<key>Ici4S</key>
+<string>%@SELECT sop_cuid FROM instance WHERE series_fk='%@' %@ %@</string>
+  
+<!-- instance ui 4 series pk -->
+<key>Iui4S</key>
+<string>%@SELECT sop_iuid FROM instance WHERE series_fk='%@' %@ %@</string>
 
 
 
-
-       <!-- instance ci 4 series pk -->
-       <key>Ici4S</key>
-       <string>%@SELECT sop_cuid FROM instance WHERE series_fk='%@' %@ %@</string>
-              
-       <!-- instance ui 4 series pk -->
-       <key>Iui4S</key>
-       <string>%@SELECT sop_iuid FROM instance WHERE series_fk='%@' %@ %@</string>
-
-      
-        
 <!-- properties-->
 
-        <!-- patient -->
-        <key>P</key>
-        <string>%@SELECT pk,pat_id,pat_name,pat_id_issuer,pat_birthdate,pat_sex FROM patient WHERE pk='%@' %@ %@</string>
+<!-- patient -->
+<key>P</key>
+<string>%@SELECT pk,pat_id,pat_name,pat_id_issuer,pat_birthdate,pat_sex FROM patient WHERE patient.pk=%@ %@ %@</string>
 
-        <!-- examen -->
-        <key>E</key>
-        <string>%@SELECT pk,study_iuid,study_desc,DATE(study_datetime),TIME(study_datetime),accession_no,study_id,ref_physician,num_series,mods_in_study FROM study WHERE pk='%@' %@ %@</string>
+<!-- examen -->
+<key>E</key>
+<string>%@SELECT pk,study_iuid,study_desc,DATE(study_datetime),TIME(study_datetime),accession_no,study_id,ref_physician,study_custom3,mods_in_study FROM study WHERE pk=%@ %@ %@</string>
 
-        <!-- serie -->
-        <key>S</key>
-        <string>%@SELECT pk,series_iuid,series_desc,series_no,modality,institution,department,station_name,perf_physician,laterality FROM series WHERE study_fk='%@' %@ %@</string>
+<!-- serie -->
+<key>S</key>
+<string>%@SELECT pk,series_iuid,series_desc,series_no,modality,institution,department,station_name,perf_physician,laterality, num_instances FROM series WHERE study_fk=%@ %@ %@</string>
 
-        <!-- instance -->
-        <key>I</key>
-        <string>%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHERE series_fk='%@' %@ %@</string>
-        
-        
-        <!-- other-->
+<!-- instance -->
+ <key>I0</key>
+ <string>%@SELECT pk,sop_iuid,inst_no,0 FROM instance WHERE series_fk=%@ %@ %@</string>
+ <key>I1</key>
+ <string>%@SELECT pk,sop_iuid,inst_no,1 FROM instance WHERE series_fk=%@ %@ %@</string>
+ <key>I</key>
+ <string>%@SELECT pk,sop_iuid,inst_no,HEX(inst_attrs) FROM instance WHERE series_fk=%@ %@ %@</string>
 
-        <!--  -->
-        <key>other</key>
-        <string></string>
-        
-    </dict>
-
+ <key>IpostprocessingCommandsSh</key><!-- if empty, default array  -->      
+ <string> | awk ' BEGIN{ ORS="\x1E\x0A"; OFS="\x1F\x7C";}{print $1, $2, $3, $4, $5}' | sed -e 's/080005004353.*280008004953....//' | sed -e 's/280010005553.*$//' | sed -e 's/20$//'</string>
+ 
+ <key>IpostprocessingTitleMain</key>      
+ <string>lastTextUnitHEX2ASCII</string>
+ 
+ </dict>
 </plist>

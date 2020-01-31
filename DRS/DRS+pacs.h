@@ -1,3 +1,8 @@
+#import "DRS.h"
+
+@interface DRS (pacs)
+
+-(void)addGETCustodiansHandler;
 //custodians/titles -> lista de los titulos de custodians conocidos
 //custodians/titles/{title}  -> oid correspondiente
 //custodians/titles/{title}/aets -> lista de las aets vinculadas al custodian
@@ -14,21 +19,21 @@
 
 //do we want this exposed on the net.... ???
 
+
+-(void)addGETPacsHandler;
 //pacs/{pacsoid}/services
 //pacs/{pacsoid}/services/{service}
 //pacs/{pacsoid}/procedures?{textSearch} -> procedure Key:title dictionary
 //pacs/{pacsoid}/procedures/{key}
+//pacs/{pacsoid}/properties
+//pacs/{pacsoid}/properties/{property}
 
-
-
-#import "DRS.h"
-
-@interface DRS (pacs)
-
--(void)addGETCustodiansHandler;
-
--(void)addGETPacsHandler;
 
 -(void)addGETSqlsHandler;
+//sqls
+//sqls/{sql}
+//sqls/{sql}/{name}
+//sqls/{sql}/{array name}{index}
+
 
 @end

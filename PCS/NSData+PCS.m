@@ -29,6 +29,11 @@
 
 -(NSArray*)arrayOfRecordsOfStringUnitsEncoding:(NSStringEncoding)encoding orderedByUnitIndex:(NSUInteger)index decreasing:(BOOL)decreasing
 {
+   return [self arrayOfRecordsOfStringUnitsEncoding:encoding stringUnitsPostProcessTitle:nil orderedByUnitIndex:index decreasing:decreasing];
+}
+
+-(NSArray*)arrayOfRecordsOfStringUnitsEncoding:(NSStringEncoding)encoding stringUnitsPostProcessTitle:(NSString*)stringUnitsPostProcessTitle orderedByUnitIndex:(NSUInteger)index decreasing:(BOOL)decreasing
+{
    NSUInteger dataLength=[self length];
    if (dataLength==0)return @[];
    
@@ -40,7 +45,7 @@
       currentRecordSeparator=[self rangeOfData:recordSeparator options:0 range:dataRange];
       if (currentRecordSeparator.location==NSNotFound) return nil;//error
 
-      [recordArray addObject:[self arrayOfStringUnitsForRecordRange:NSMakeRange(dataRange.location,currentRecordSeparator.location - dataRange.location) encoding:encoding]];
+      [recordArray addObject:[self arrayOfStringUnitsForRecordRange:NSMakeRange(dataRange.location,currentRecordSeparator.location - dataRange.location) encoding:encoding stringUnitsPostProcessTitle:stringUnitsPostProcessTitle]];
       
       dataRange=NSMakeRange(currentRecordSeparator.location + currentRecordSeparator.length, dataLength - currentRecordSeparator.location - currentRecordSeparator.length);
    }
@@ -54,10 +59,14 @@
    }
    
    return [NSArray arrayWithArray:recordArray];
+
 }
       
--(NSArray*)arrayOfStringUnitsForRecordRange:(NSRange)recordRange encoding:(NSStringEncoding)encoding
+-(NSArray*)arrayOfStringUnitsForRecordRange:(NSRange)recordRange encoding:(NSStringEncoding)encoding stringUnitsPostProcessTitle:(NSString*)stringUnitsPostProcessTitle
 {
+   /*
+    post processing may be placed in various places
+    */
    if (recordRange.length==0) return @[];
    
    NSRange remainingRecordRange=recordRange;
@@ -67,15 +76,55 @@
    NSRange currentUnitSeparator=NSMakeRange(remainingRecordRange.location,0);
    while ((currentUnitSeparator.location + currentUnitSeparator.length) < (recordRange.location + recordRange.length))
    {
+      //first to before last string unit
       currentUnitSeparator=[self rangeOfData:unitSeparator options:0 range:remainingRecordRange];
       if (currentUnitSeparator.location!=NSNotFound)
       {
+         //replace true by a negation of special case
+         if (
+                 (!stringUnitsPostProcessTitle)
+             || ![stringUnitsPostProcessTitle length]
+             || true
+             )
          [unitArray addObject:[[NSString alloc]initWithData:[self subdataWithRange:NSMakeRange(remainingRecordRange.location,currentUnitSeparator.location-remainingRecordRange.location)] encoding:encoding]];
+         else
+         {
+#pragma mark place holder for post processing first string units
+         }
+         
          remainingRecordRange=NSMakeRange(currentUnitSeparator.location + currentUnitSeparator.length, recordRange.location + recordRange.length - currentUnitSeparator.location - currentUnitSeparator.length);
       }
       else
       {
-         [unitArray addObject:[[NSString alloc]initWithData:[self subdataWithRange:NSMakeRange(remainingRecordRange.location,remainingRecordRange.length)] encoding:encoding]];
+         //last string unit
+         
+         if (
+                 (!stringUnitsPostProcessTitle)
+             || ![stringUnitsPostProcessTitle length]
+             || ![stringUnitsPostProcessTitle isEqualToString:@"lastTextUnitHEX2ASCII"]
+             )
+            //default case: no postprocessing
+            [unitArray addObject:[[NSString alloc]initWithData:[self subdataWithRange:NSMakeRange(remainingRecordRange.location,remainingRecordRange.length)] encoding:encoding]];
+         else
+         {
+#pragma mark postprocessing last string unit
+            
+            if ([stringUnitsPostProcessTitle isEqualToString:@"lastTextUnitHEX2ASCII"])
+            {
+               NSMutableString *decodedString=[NSMutableString string];
+               uint16 asciiCode;
+               BOOL numbersOnly=(remainingRecordRange.length > 1);
+               for (NSUInteger i=remainingRecordRange.location;i < remainingRecordRange.location + remainingRecordRange.length ; i+=2)
+               {
+                  [self getBytes:&asciiCode range:NSMakeRange(i,2)];
+                  if (asciiCode / 30 != 1) numbersOnly=false;
+                  [decodedString appendString:[NSString stringWithFormat:@"%c", asciiCode]];
+               }
+               
+               if (numbersOnly) [unitArray addObject:decodedString];
+               else [unitArray addObject:@"-1"];
+            }
+         }
           
          remainingRecordRange=NSMakeRange(remainingRecordRange.location + remainingRecordRange.length, 0);
       }

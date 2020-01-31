@@ -1,7 +1,6 @@
 /*
  TODO
  socket in messages
- accessNumber and issuer
  access types other lan and wan nodes
  osirix dcmURLs
  datatablesSeries
@@ -14,6 +13,7 @@
 
 #import "DRS+studyToken.h"
 #import "DICMTypes.h"
+#import "NSString+PCS.h"
 #import "NSData+PCS.h"
 #import "NSData+ZLIB.h"
 #import "WeasisManifest.h"
@@ -22,6 +22,7 @@
 #import "WeasisStudy.h"
 #import "WeasisSeries.h"
 #import "WeasisInstance.h"
+#import "NSMutableArray+JSON.h"
 
 #pragma mark enums
 
@@ -60,6 +61,37 @@ enum dateMatch{
    dateMatchSince,
    dateMatchUntil,
    dateMatchBetween,
+};
+
+enum issuer{
+   issuerNone,
+   issuerLocal,
+   issuerUniversal,
+   issuerType,
+   issuerDivision
+};
+
+
+enum EcumulativeFilter{
+   EcumulativeFilterPid=1,
+   EcumulativeFilterPpn,
+   EcumulativeFilterEid,
+   EcumulativeFilterEda,
+   EcumulativeFilterElo,
+   EcumulativeFilterRef,
+   EcumulativeFilterRead,
+   EcumulativeFilterEsc,
+   EcumulativeFilterEmo,
+};
+
+
+enum pnFilter{
+   pnFilterCompound,
+   pnFilterFamily,
+   pnFilterGiven,
+   pnFilterMiddle,
+   pnFilterPrefix,
+   pnFilterSuffix
 };
 
 #pragma mark static
@@ -101,7 +133,6 @@ static uint16 zipBitFlagsDescriptor=0x0008;//post data descriptor
  */
 static uint16 zipCompression0=0x0000;
 static uint16 zipCompression8=0x0008;
-static uint16 zipCompression9=0x0009;
 //uint16 zipTime;
 //uint16 zipDate;
 //uint32 zipCRC32=0x00000000;
@@ -154,15 +185,15 @@ static uint16 zipDiskCentralStarts=0x0000;
 
 
 // pk.pk/
-static NSString *sqlTwoPks=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\".\";}{print $1, $2}'";
+static NSString *sqlTwoPks=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\".\";} {print $1, $2} '";
 
 // item/
-static NSString *sqlsingleslash=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\"\";}{print $1}'";
+static NSString *sqlsingleslash=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\"\";} {print $1} '";
 
 
 
 //recordSeparator+/n  unitSeparator+|
-// | sed -e 's/\\x0F\\x0A$//'  (no necesario
+// | sed -e 's/\\x0F\\x0A$//'
 
 static NSString *sqlRecordFourUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4}'";
 
@@ -172,8 +203,11 @@ static NSString *sqlRecordSixUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";
 
 static NSString *sqlRecordEightUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8}'";
 
+static NSString *sqlRecordNineUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9}'";
+
 static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}'";
 
+static NSString *sqlRecordElevenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x1E\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11}'";
 
 //prolog
 //filters...(including eventual IOCM
@@ -192,596 +226,458 @@ RSResponse * sqlEP(
  NSDictionary        * sqlcredentials,
  NSDictionary        * sqlDictionary,
  NSString            * sqlprolog,
- NSArray             * StudyInstanceUIDArray,
- NSString            * AccessionNumberString,
- NSString            * PatientIDString,
- NSString            * issuerString,
- NSArray             * StudyDateArray
+ BOOL                EuiE,
+ NSString            * StudyInstanceUIDRegexpString,
+ NSString            * AccessionNumberEqualString,
+ NSString            * refInstitutionLikeString,
+ NSString            * refServiceLikeString,
+ NSString            * refUserLikeString,
+ NSString            * refIDLikeString,
+ NSString            * refIDTypeLikeString,
+ NSString            * readInstitutionSqlLikeString,
+ NSString            * readServiceSqlLikeString,
+ NSString            * readUserSqlLikeString,
+ NSString            * readIDSqlLikeString,
+ NSString            * readIDTypeSqlLikeString,
+ NSString            * StudyIDLikeString,
+ NSString            * PatientIDLikeString,
+ NSString            * patientFamilyLikeString,
+ NSString            * patientGivenLikeString,
+ NSString            * patientMiddleLikeString,
+ NSString            * patientPrefixLikeString,
+ NSString            * patientSuffixLikeString,
+ NSArray             * issuerArray,
+ NSArray             * StudyDateArray,
+ NSString            * SOPClassInStudyRegexpString,
+ NSString            * ModalityInStudyRegexpString,
+ NSString            * StudyDescriptionRegexpString
 )
 {
    NSMutableData * mutableData=[NSMutableData data];
-   
-   if (StudyInstanceUIDArray)
+#pragma mark - exclusive study matches
+   if (StudyInstanceUIDRegexpString)
+#pragma mark · StudyInstanceUID (no optionals)
    {
-      for (NSString *uid in StudyInstanceUIDArray)
-      {
-         //find patient fk
-         if (execUTF8Bash(sqlcredentials,
-                           [NSString stringWithFormat:
-                            sqlDictionary[@"PE4Eui"],
-                            sqlprolog,
-                            uid,
-                            @"",
-                            sqlTwoPks
-                            ],
-                           mutableData)
-             !=0)
+//six parts: prolog,select,where,and,limit&order,format
+      if (execUTF8Bash(
+          sqlcredentials,
+          [NSString stringWithFormat:@"%@%@%@%@%@%@",
+           sqlprolog,
+            EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+           sqlDictionary[@"Ewhere"],
+           [NSString stringWithFormat:
+            sqlDictionary[@"EmatchEui"],
+            StudyInstanceUIDRegexpString
+            ],
+           @"",
+           sqlTwoPks
+          ],
+          mutableData)
+          !=0) return [RSErrorResponse responseWithClientError:404 message:@"studyToken StudyInstanceUID %@ db error",StudyInstanceUIDRegexpString];
+   }
+   else if (AccessionNumberEqualString)//3
+#pragma mark · AccessionNumber (no optionals)
+   {
+
+      switch (issuerArray.count) {
+            
+         case issuerNone:
          {
-            LOG_ERROR(@"studyToken StudyInstanceUID %@ db error",uid);
-            continue;
-         }
-         if ([mutableData length]==0)
+            if (execUTF8Bash(sqlcredentials,
+                        [NSString stringWithFormat:@"%@%@%@%@%@%@",
+                         sqlprolog,
+                         EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+                         sqlDictionary[@"Ewhere"],
+                         [NSString stringWithFormat:
+                          (sqlDictionary[@"EmatchEan"])[issuerNone],
+                          AccessionNumberEqualString
+                          ],
+                         @"",
+                         sqlTwoPks
+                        ],
+                        mutableData)
+                !=0) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessionNumber db error. AN='%@' issuer='%@'",AccessionNumberEqualString,[issuerArray componentsJoinedByString:@"^"]];
+            } break;
+
+         case issuerLocal:
          {
-            LOG_VERBOSE(@"studyToken StudyInstanceUID %@ empty response",uid);
-            continue;
-         }
-         NSString *EPString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
-         [EPDict setObject:[EPString pathExtension] forKey:[EPString stringByDeletingPathExtension]];
-         [mutableData setLength:0];
+            if (execUTF8Bash(sqlcredentials,
+                             [NSString stringWithFormat:@"%@%@%@%@%@%@",
+                              sqlprolog,
+                              EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+                              sqlDictionary[@"Ewhere"],
+                              [NSString stringWithFormat:
+                               (sqlDictionary[@"EmatchEan"])[issuerLocal],
+                               AccessionNumberEqualString,
+                               issuerArray[0]
+                               ],
+                              @"",
+                              sqlTwoPks
+                             ],
+                             mutableData)
+                !=0) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessionNumber db error. AN='%@' issuer='%@'",AccessionNumberEqualString,[issuerArray componentsJoinedByString:@"^"]];
+         } break;
+                  
+         case issuerUniversal:
+         {
+            if (execUTF8Bash(sqlcredentials,
+                             [NSString stringWithFormat:@"%@%@%@%@%@%@",
+                              sqlprolog,
+                              EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+                              sqlDictionary[@"Ewhere"],
+                              [NSString stringWithFormat:
+                               (sqlDictionary[@"EmatchEan"])[issuerUniversal],
+                               AccessionNumberEqualString,
+                               issuerArray[1],
+                               issuerArray[2]
+                               ],
+                              @"",
+                              sqlTwoPks
+                             ],
+                             mutableData)
+               !=0) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessionNumber db error. AN='%@' issuer='%@'",AccessionNumberEqualString,[issuerArray componentsJoinedByString:@"^"]];
+         } break;
+
+                     
+         case issuerDivision:
+         {
+            if (execUTF8Bash(sqlcredentials,
+                             [NSString stringWithFormat:@"%@%@%@%@%@%@",
+                              sqlprolog,
+                              EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+                              sqlDictionary[@"Ewhere"],
+                              [NSString stringWithFormat:
+                               (sqlDictionary[@"EmatchEan"])[issuerDivision],
+                               AccessionNumberEqualString,
+                               issuerArray[0],
+                               issuerArray[1],
+                               issuerArray[2]
+                               ],
+                              @"",
+                              sqlTwoPks
+                             ],
+                             mutableData)
+               !=0) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessionNumber db error. AN='%@' issuer='%@'",AccessionNumberEqualString,[issuerArray componentsJoinedByString:@"^"]];
+         } break;
+
+         default:
+            return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessionNumber issuer error '%@'",[issuerArray componentsJoinedByString:@"^"]];
+            break;
       }
    }
-   else //AccessionNumber or PatientID + StudyDate
+   else
    {
-       if (AccessionNumberString)
-       {
-          if (execUTF8Bash(sqlcredentials,
-                            [NSString stringWithFormat:
-                             sqlDictionary[@"PE4Ean"],
-                             sqlprolog,
-                             AccessionNumberString,
-                             @"",
-                             sqlTwoPks
-                             ],
-                            mutableData)
-              !=0)
-          {
-             LOG_ERROR(@"studyToken accessionNumber db error");
-             return nil;//ignoring this node but not responding with an error
-          }
-       }
-       else if (PatientIDString)
-       {
-           if (issuerString)
-           {
-              switch (StudyDateArray.count) {
-                 case dateMatchAny:
-                    {
-                       if (execUTF8Bash(sqlcredentials,
-                                        [NSString stringWithFormat:
-                                         sqlDictionary[@"EP4PidisEda0"],
-                                         sqlprolog,
-                                         PatientIDString,
-                                         issuerString,
-                                         @"",
-                                         sqlTwoPks
-                                         ],
-                                        mutableData)
-                           !=0)
-                       {
-                           LOG_ERROR(@"studyToken EP4PidisEda0");
-                           return nil;//ignoring this node but not responding with an error
-                       }
-                    }
-                    break;
-
-                 case dateMatchOn:
-                    {
-                       if (execUTF8Bash(sqlcredentials,
-                                        [NSString stringWithFormat:
-                                         sqlDictionary[@"EP4PidisEda1"],
-                                         sqlprolog,
-                                         PatientIDString,
-                                         issuerString,
-                                         StudyDateArray[0],
-                                         @"",
-                                         sqlTwoPks
-                                         ],
-                                        mutableData)
-                           !=0)
-                       {
-                           LOG_ERROR(@"studyToken EP4PidisEda1");
-                           return nil;//ignoring this node but not responding with an error
-                       }
-                    }
-                    break;
-
-                 case dateMatchSince:
-                    {
-                       if (execUTF8Bash(sqlcredentials,
-                                        [NSString stringWithFormat:
-                                         sqlDictionary[@"EP4PidisEda2"],
-                                         sqlprolog,
-                                         PatientIDString,
-                                         issuerString,
-                                         StudyDateArray[0],
-                                         @"",
-                                         sqlTwoPks
-                                         ],
-                                        mutableData)
-                           !=0)
-                       {
-                           LOG_ERROR(@"studyToken EP4PidisEda2");
-                           return nil;//ignoring this node but not responding with an error
-                       }
-                    }
-                    break;
-
-                 case dateMatchUntil:
-                    {
-                       if (execUTF8Bash(sqlcredentials,
-                                        [NSString stringWithFormat:
-                                         sqlDictionary[@"EP4PidisEda3"],
-                                         sqlprolog,
-                                         PatientIDString,
-                                         issuerString,
-                                         StudyDateArray[2],
-                                         @"",
-                                         sqlTwoPks
-                                         ],
-                                        mutableData)
-                           !=0)
-                       {
-                           LOG_ERROR(@"studyToken EP4PidisEda3");
-                           return nil;//ignoring this node but not responding with an error
-                       }
-                    }
-                    break;
-
-                 case dateMatchBetween:
-                    {
-                       if (execUTF8Bash(sqlcredentials,
-                                        [NSString stringWithFormat:
-                                         sqlDictionary[@"EP4PidisEda4"],
-                                         sqlprolog,
-                                         PatientIDString,
-                                         issuerString,
-                                         StudyDateArray[0],
-                                         StudyDateArray[3],
-                                         @"",
-                                         sqlTwoPks
-                                         ],
-                                        mutableData)
-                           !=0)
-                       {
-                           LOG_ERROR(@"studyToken EP4PidisEda4");
-                           return nil;//ignoring this node but not responding with an error
-                       }
-                    }
-                    break;
-              }
-           }
-          else //no issuer
-          {
-             switch (StudyDateArray.count) {
-                case dateMatchAny:
-                   {
-                      if (execUTF8Bash(sqlcredentials,
-                                       [NSString stringWithFormat:
-                                        sqlDictionary[@"EP4PidEda0"],
-                                        sqlprolog,
-                                        PatientIDString,
-                                        @"",
-                                        sqlTwoPks
-                                        ],
-                                       mutableData)
-                          !=0)
-                      {
-                          LOG_ERROR(@"studyToken EP4PidEda0");
-                          return nil;//ignoring this node but not responding with an error
-                      }
-                   }
-                   break;
-
-                case dateMatchOn:
-                   {
-                      if (execUTF8Bash(sqlcredentials,
-                                       [NSString stringWithFormat:
-                                        sqlDictionary[@"EP4PidEda1"],
-                                        sqlprolog,
-                                        PatientIDString,
-                                        StudyDateArray[0],
-                                        @"",
-                                        sqlTwoPks
-                                        ],
-                                       mutableData)
-                          !=0)
-                      {
-                          LOG_ERROR(@"studyToken EP4PidEda1");
-                          return nil;//ignoring this node but not responding with an error
-                      }
-                   }
-                   break;
-
-                case dateMatchSince:
-                   {
-                      if (execUTF8Bash(sqlcredentials,
-                                       [NSString stringWithFormat:
-                                        sqlDictionary[@"EP4PidEda2"],
-                                        sqlprolog,
-                                        PatientIDString,
-                                        StudyDateArray[0],
-                                        @"",
-                                        sqlTwoPks
-                                        ],
-                                       mutableData)
-                          !=0)
-                      {
-                          LOG_ERROR(@"studyToken EP4PidEda2");
-                          return nil;//ignoring this node but not responding with an error
-                      }
-                   }
-                   break;
-
-                case dateMatchUntil:
-                   {
-                      if (execUTF8Bash(sqlcredentials,
-                                       [NSString stringWithFormat:
-                                        sqlDictionary[@"EP4PidEda3"],
-                                        sqlprolog,
-                                        PatientIDString,
-                                        StudyDateArray[2],
-                                        @"",
-                                        sqlTwoPks
-                                        ],
-                                       mutableData)
-                          !=0)
-                      {
-                          LOG_ERROR(@"studyToken EP4PidEda3");
-                          return nil;//ignoring this node but not responding with an error
-                      }
-                   }
-                   break;
-
-                case dateMatchBetween:
-                   {
-                      if (execUTF8Bash(sqlcredentials,
-                                       [NSString stringWithFormat:
-                                        sqlDictionary[@"EP4PidEda4"],
-                                        sqlprolog,
-                                        PatientIDString,
-                                        StudyDateArray[0],
-                                        StudyDateArray[3],
-                                        @"",
-                                        sqlTwoPks
-                                        ],
-                                       mutableData)
-                          !=0)
-                      {
-                          LOG_ERROR(@"studyToken EP4PidEda4");
-                          return nil;//ignoring this node but not responding with an error
-                      }
-                   }
-                   break;
-             }
-
-          }
-       }
-   
-       if ([mutableData length]==0)
-       {
-         LOG_VERBOSE(@"studyToken empty response");
-         return nil;
-       }
-       for (NSString *pkdotpk in [[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding]componentsSeparatedByString:@"/"])
-       {
-           if (pkdotpk.length) [EPDict setObject:[pkdotpk pathExtension] forKey:[pkdotpk stringByDeletingPathExtension]];
-       }
-       //record terminated by /
-   }
-
-   return nil;
-}
-
-/*
- pk and uid of studies selected
- */
-RSResponse * sqlEuiE(
- NSMutableDictionary * EuiEDict,
- NSDictionary        * sqlcredentials,
- NSDictionary        * sqlDictionary,
- NSString            * sqlprolog,
- NSArray             * StudyInstanceUIDArray,
- NSString            * AccessionNumberString,
- NSString            * PatientIDString,
- NSString            * issuerString,
- NSArray             * StudyDateArray
-)
-{
-   NSMutableData * mutableData=[NSMutableData data];
-   
-   if (StudyInstanceUIDArray)
-   {
-      for (NSString *uid in StudyInstanceUIDArray)
+#pragma mark - cumulative matches
+      
+      NSMutableArray *sqlJoins=[NSMutableArray array];
+      NSMutableString *filters=[NSMutableString string];
+      
+      if (PatientIDLikeString)
+#pragma mark 1 Pid
       {
-         //find patient fk
-         if (execUTF8Bash(sqlcredentials,
-                           [NSString stringWithFormat:
-                            sqlDictionary[@"EuiE4Euid"],
-                            sqlprolog,
-                            uid,
-                            @"",
-                            sqlTwoPks
-                            ],
-                           mutableData)
-             !=0)
-         {
-            LOG_ERROR(@"studyToken StudyInstanceUID %@ db error",uid);
-            continue;
+         [sqlJoins addObjectsFromArray:(sqlDictionary[@"Ejoin"])[EcumulativeFilterPid]];
+         switch (issuerArray.count) {
+               
+            case issuerNone:
+               [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPid])[issuerNone],PatientIDLikeString];
+               break;
+
+            case issuerLocal:
+               [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPid])[issuerLocal],PatientIDLikeString,issuerArray[0]];
+               break;
+
+            default:
+               return [RSErrorResponse responseWithClientError:404 message:@"studyToken patientID issuer error '%@'",[issuerArray componentsJoinedByString:@"^"]];
+               break;
          }
-         if ([mutableData length]==0)
-         {
-            LOG_VERBOSE(@"studyToken StudyInstanceUID %@ empty response",uid);
-            continue;
-         }
-         NSString *EuiEString=[[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding] stringByDeletingLastPathComponent];//record terminated by /
-         [EuiEDict setObject:[EuiEString pathExtension] forKey:[EuiEString stringByDeletingPathExtension]];
-         [mutableData setLength:0];
       }
-   }
-   else //AccessionNumber or PatientID + StudyDate
-   {
-       if (AccessionNumberString)
-       {
-          if (execUTF8Bash(sqlcredentials,
-                            [NSString stringWithFormat:
-                             sqlDictionary[@"EuiE4Ean"],
-                             sqlprolog,
-                             AccessionNumberString,
-                             @"",
-                             sqlTwoPks
-                             ],
-                            mutableData)
-              !=0)
+      
+
+      if (   patientFamilyLikeString
+          || patientGivenLikeString
+          || patientMiddleLikeString
+          || patientPrefixLikeString
+          || patientSuffixLikeString
+          )
+#pragma mark 2 Ppn
+      {
+          for (NSString *moreJoin in (sqlDictionary[@"Ejoin"])[EcumulativeFilterPpn])
           {
-             LOG_ERROR(@"studyToken accessionNumber db error");
-             return nil;//ignoring this node but not responding with an error
+              if ([sqlJoins indexOfObject:moreJoin]==NSNotFound)[sqlJoins addObject:moreJoin];
           }
-       }
-       else if (PatientIDString)
-       {
-           if (issuerString)
-           {
-              switch (StudyDateArray.count) {
-                 case dateMatchAny:
-                    {
-                       if (execUTF8Bash(sqlcredentials,
-                                        [NSString stringWithFormat:
-                                         sqlDictionary[@"EuiE4PidisEda0"],
-                                         sqlprolog,
-                                         PatientIDString,
-                                         issuerString,
-                                         @"",
-                                         sqlTwoPks
-                                         ],
-                                        mutableData)
-                           !=0)
-                       {
-                           LOG_ERROR(@"studyToken EuiE4PidisEda0");
-                           return nil;//ignoring this node but not responding with an error
-                       }
-                    }
-                    break;
+          NSString *pnFilterCompoundString=((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterCompound];
+         if (![pnFilterCompoundString isEqualToString:@""])
+         {
+            // DB with pn compound field
+            NSString *regexp=nil;
+            if (patientSuffixLikeString)
+               regexp=[NSString stringWithFormat:@"%@^%@^%@^%@^%@",
+               patientFamilyLikeString?patientFamilyLikeString:@"",
+               patientGivenLikeString?patientGivenLikeString:@"",
+               patientMiddleLikeString?patientMiddleLikeString:@"",
+               patientPrefixLikeString?patientPrefixLikeString:@"",
+               patientSuffixLikeString];
+            else if (patientPrefixLikeString)
+               regexp=[NSString stringWithFormat:@"%@^%@^%@^%@",
+               patientFamilyLikeString?patientFamilyLikeString:@"",
+               patientGivenLikeString?patientGivenLikeString:@"",
+               patientMiddleLikeString?patientMiddleLikeString:@"",
+               patientPrefixLikeString];
+            else if (patientMiddleLikeString)
+               regexp=[NSString stringWithFormat:@"%@^%@^%@",
+               patientFamilyLikeString?patientFamilyLikeString:@"",
+               patientGivenLikeString?patientGivenLikeString:@"",
+               patientMiddleLikeString];
+            else if (patientGivenLikeString)
+               regexp=[NSString stringWithFormat:@"%@^%@",
+               patientFamilyLikeString?patientFamilyLikeString:@"",
+               patientGivenLikeString];
+            else if (patientFamilyLikeString)
+               regexp=[NSString stringWithString:patientFamilyLikeString];
+            
+            if (regexp) [filters appendFormat:pnFilterCompoundString,regexp];
+         }
+         else
+         {
+            //DB with pn detailed fields
+            if (patientFamilyLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterFamily],patientFamilyLikeString];
+            if (patientGivenLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterGiven],patientGivenLikeString];
+            if (patientMiddleLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterMiddle],patientMiddleLikeString];
+            if (patientPrefixLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterPrefix],patientPrefixLikeString];
+            if (patientSuffixLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterSuffix],patientSuffixLikeString];
+         }
 
-                 case dateMatchOn:
-                    {
-                       if (execUTF8Bash(sqlcredentials,
-                                        [NSString stringWithFormat:
-                                         sqlDictionary[@"EuiE4PidisEda1"],
-                                         sqlprolog,
-                                         PatientIDString,
-                                         issuerString,
-                                         StudyDateArray[0],
-                                         @"",
-                                         sqlTwoPks
-                                         ],
-                                        mutableData)
-                           !=0)
-                       {
-                           LOG_ERROR(@"studyToken EuiE4PidisEda1");
-                           return nil;//ignoring this node but not responding with an error
-                       }
-                    }
-                    break;
-
-                 case dateMatchSince:
-                    {
-                       if (execUTF8Bash(sqlcredentials,
-                                        [NSString stringWithFormat:
-                                         sqlDictionary[@"EuiE4PidisEda2"],
-                                         sqlprolog,
-                                         PatientIDString,
-                                         issuerString,
-                                         StudyDateArray[0],
-                                         @"",
-                                         sqlTwoPks
-                                         ],
-                                        mutableData)
-                           !=0)
-                       {
-                           LOG_ERROR(@"studyToken EuiE4PidisEda2");
-                           return nil;//ignoring this node but not responding with an error
-                       }
-                    }
-                    break;
-
-                 case dateMatchUntil:
-                    {
-                       if (execUTF8Bash(sqlcredentials,
-                                        [NSString stringWithFormat:
-                                         sqlDictionary[@"EuiE4PidisEda3"],
-                                         sqlprolog,
-                                         PatientIDString,
-                                         issuerString,
-                                         StudyDateArray[2],
-                                         @"",
-                                         sqlTwoPks
-                                         ],
-                                        mutableData)
-                           !=0)
-                       {
-                           LOG_ERROR(@"studyToken EuiE4PidisEda3");
-                           return nil;//ignoring this node but not responding with an error
-                       }
-                    }
-                    break;
-
-                 case dateMatchBetween:
-                    {
-                       if (execUTF8Bash(sqlcredentials,
-                                        [NSString stringWithFormat:
-                                         sqlDictionary[@"EuiE4PidisEda4"],
-                                         sqlprolog,
-                                         PatientIDString,
-                                         issuerString,
-                                         StudyDateArray[0],
-                                         StudyDateArray[3],
-                                         @"",
-                                         sqlTwoPks
-                                         ],
-                                        mutableData)
-                           !=0)
-                       {
-                           LOG_ERROR(@"studyToken EuiE4PidisEda4");
-                           return nil;//ignoring this node but not responding with an error
-                       }
-                    }
-                    break;
-              }
-           }
-          else //no issuer
+      }
+      
+      
+      
+      if (StudyIDLikeString)
+#pragma mark 3 Eid
+      {
+          for (NSString *moreJoin in (sqlDictionary[@"Ejoin"])[EcumulativeFilterEid])
           {
-             switch (StudyDateArray.count) {
-                case dateMatchAny:
-                   {
-                      if (execUTF8Bash(sqlcredentials,
-                                       [NSString stringWithFormat:
-                                        sqlDictionary[@"EuiE4PidEda0"],
-                                        sqlprolog,
-                                        PatientIDString,
-                                        @"",
-                                        sqlTwoPks
-                                        ],
-                                       mutableData)
-                          !=0)
-                      {
-                          LOG_ERROR(@"studyToken EuiE4PidEda0");
-                          return nil;//ignoring this node but not responding with an error
-                      }
-                   }
-                   break;
-
-                case dateMatchOn:
-                   {
-                      if (execUTF8Bash(sqlcredentials,
-                                       [NSString stringWithFormat:
-                                        sqlDictionary[@"EuiE4PidEda1"],
-                                        sqlprolog,
-                                        PatientIDString,
-                                        StudyDateArray[0],
-                                        @"",
-                                        sqlTwoPks
-                                        ],
-                                       mutableData)
-                          !=0)
-                      {
-                          LOG_ERROR(@"studyToken EuiE4PidEda1");
-                          return nil;//ignoring this node but not responding with an error
-                      }
-                   }
-                   break;
-
-                case dateMatchSince:
-                   {
-                      if (execUTF8Bash(sqlcredentials,
-                                       [NSString stringWithFormat:
-                                        sqlDictionary[@"EuiE4PidEda2"],
-                                        sqlprolog,
-                                        PatientIDString,
-                                        StudyDateArray[0],
-                                        @"",
-                                        sqlTwoPks
-                                        ],
-                                       mutableData)
-                          !=0)
-                      {
-                          LOG_ERROR(@"studyToken EuiE4PidEda2");
-                          return nil;//ignoring this node but not responding with an error
-                      }
-                   }
-                   break;
-
-                case dateMatchUntil:
-                   {
-                      if (execUTF8Bash(sqlcredentials,
-                                       [NSString stringWithFormat:
-                                        sqlDictionary[@"EuiE4PidEda3"],
-                                        sqlprolog,
-                                        PatientIDString,
-                                        StudyDateArray[2],
-                                        @"",
-                                        sqlTwoPks
-                                        ],
-                                       mutableData)
-                          !=0)
-                      {
-                          LOG_ERROR(@"studyToken EuiE4PidEda3");
-                          return nil;//ignoring this node but not responding with an error
-                      }
-                   }
-                   break;
-
-                case dateMatchBetween:
-                   {
-                      if (execUTF8Bash(sqlcredentials,
-                                       [NSString stringWithFormat:
-                                        sqlDictionary[@"EuiE4PidEda4"],
-                                        sqlprolog,
-                                        PatientIDString,
-                                        StudyDateArray[0],
-                                        StudyDateArray[3],
-                                        @"",
-                                        sqlTwoPks
-                                        ],
-                                       mutableData)
-                          !=0)
-                      {
-                          LOG_ERROR(@"studyToken EuiE4PidEda4");
-                          return nil;//ignoring this node but not responding with an error
-                      }
-                   }
-                   break;
-             }
-
+              if ([sqlJoins indexOfObject:moreJoin]==NSNotFound)[sqlJoins addObject:moreJoin];
           }
-       }
-   
-       if ([mutableData length]==0)
-       {
-         LOG_VERBOSE(@"studyToken empty response");
-         return nil;
-       }
-       for (NSString *pkdotpk in [[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding]componentsSeparatedByString:@"/"])
-       {
-           if (pkdotpk.length) [EuiEDict setObject:[pkdotpk pathExtension] forKey:[pkdotpk stringByDeletingPathExtension]];
-       }
-       //record terminated by /
-   }
+         [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEid],StudyIDLikeString];
+      }
 
-   return nil;
+
+
+      //(Eda)
+      if (StudyDateArray)
+#pragma mark 4 Eda
+      {
+         for (NSString *moreJoin in (sqlDictionary[@"Ejoin"])[EcumulativeFilterEda])
+         {
+             if ([sqlJoins indexOfObject:moreJoin]==NSNotFound)[sqlJoins addObject:moreJoin];
+         }
+         switch (StudyDateArray.count) {
+            case dateMatchAny:
+               break;
+            case dateMatchOn:
+            {
+               [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[dateMatchOn],StudyDateArray[0]];
+            } break;
+            case dateMatchSince:
+            {
+               [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[dateMatchSince],StudyDateArray[0]];
+            } break;
+            case dateMatchUntil:
+            {
+               [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[dateMatchUntil],StudyDateArray[2]];
+
+            } break;
+            case dateMatchBetween:
+            {
+               [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[dateMatchBetween],StudyDateArray[0],StudyDateArray[3]];
+
+            } break;
+         }
+      }
+
+
+
+#pragma mark 5 Elo
+      if (StudyDescriptionRegexpString)
+      {
+         for (NSString *moreJoin in (sqlDictionary[@"Ejoin"])[EcumulativeFilterElo])
+         {
+             if ([sqlJoins indexOfObject:moreJoin]==NSNotFound)[sqlJoins addObject:moreJoin];
+         }
+         [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterElo],StudyDescriptionRegexpString];
+      }
+      
+      
+      if (   refInstitutionLikeString
+          || refServiceLikeString
+          || refUserLikeString
+          || refIDLikeString
+          || refIDTypeLikeString
+          )
+#pragma mark 6 Ref
+      {
+          NSLog(@"%d",EcumulativeFilterRef);
+         for (NSString *moreJoin in (sqlDictionary[@"Ejoin"])[EcumulativeFilterRef])
+         {
+             if ([sqlJoins indexOfObject:moreJoin]==NSNotFound)[sqlJoins addObject:moreJoin];
+         }
+         NSString *pnFilterCompoundString=((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterCompound];
+         if (![pnFilterCompoundString isEqualToString:@""])
+         {
+            // DB with pn compound field
+            NSString *regexp=nil;
+            if (refIDTypeLikeString)
+               regexp=[NSString stringWithFormat:@"%@^%@^%@^%@^%@",
+               refInstitutionLikeString?refInstitutionLikeString:@"",
+               refServiceLikeString?refServiceLikeString:@"",
+               refUserLikeString?refUserLikeString:@"",
+               refIDLikeString?refIDLikeString:@"",
+               refIDTypeLikeString];
+            else if (refIDLikeString)
+               regexp=[NSString stringWithFormat:@"%@^%@^%@^%@",
+               refInstitutionLikeString?refInstitutionLikeString:@"",
+               refServiceLikeString?refServiceLikeString:@"",
+               refUserLikeString?refUserLikeString:@"",
+               refIDLikeString];
+            else if (refUserLikeString)
+               regexp=[NSString stringWithFormat:@"%@^%@^%@",
+               refInstitutionLikeString?refInstitutionLikeString:@"",
+               refServiceLikeString?refServiceLikeString:@"",
+               refUserLikeString];
+            else if (refServiceLikeString)
+               regexp=[NSString stringWithFormat:@"%@^%@",
+               refInstitutionLikeString?refInstitutionLikeString:@"",
+               refServiceLikeString];
+            else if (refInstitutionLikeString)
+               regexp=[NSString stringWithString:refInstitutionLikeString];
+            
+            if (regexp) [filters appendFormat:pnFilterCompoundString,regexp];
+         }
+         else
+         {
+            //DB with pn detailed fields
+            if (refInstitutionLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterFamily],refInstitutionLikeString];
+            if (refServiceLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],refServiceLikeString];
+            if (refUserLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],refUserLikeString];
+            if (refIDLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],refIDLikeString];
+            if (refIDTypeLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],refIDTypeLikeString];
+         }
+      }
+      
+      
+      if (   readInstitutionSqlLikeString
+          || readServiceSqlLikeString
+          || readUserSqlLikeString
+          || readIDSqlLikeString
+          || readIDTypeSqlLikeString
+          )
+#pragma mark 7 Read
+      {
+         for (NSString *moreJoin in (sqlDictionary[@"Ejoin"])[EcumulativeFilterRead])
+         {
+             if ([sqlJoins indexOfObject:moreJoin]==NSNotFound)[sqlJoins addObject:moreJoin];
+         }
+         NSString *pnFilterCompoundString=((sqlDictionary[@"Eand"])[EcumulativeFilterRead])[pnFilterCompound];
+         if (![pnFilterCompoundString isEqualToString:@""])
+         {
+            // DB with pn compound field
+            NSString *regexp=nil;
+            if (refIDTypeLikeString)
+               regexp=[NSString stringWithFormat:@"%@^%@^%@^%@^%@",
+               refInstitutionLikeString?refInstitutionLikeString:@"",
+               refServiceLikeString?refServiceLikeString:@"",
+               refUserLikeString?refUserLikeString:@"",
+               refIDLikeString?refIDLikeString:@"",
+               refIDTypeLikeString];
+            else if (refIDLikeString)
+               regexp=[NSString stringWithFormat:@"%@^%@^%@^%@",
+               refInstitutionLikeString?refInstitutionLikeString:@"",
+               refServiceLikeString?refServiceLikeString:@"",
+               refUserLikeString?refUserLikeString:@"",
+               refIDLikeString];
+            else if (refUserLikeString)
+               regexp=[NSString stringWithFormat:@"%@^%@^%@",
+               refInstitutionLikeString?refInstitutionLikeString:@"",
+               refServiceLikeString?refServiceLikeString:@"",
+               refUserLikeString];
+            else if (refServiceLikeString)
+               regexp=[NSString stringWithFormat:@"%@^%@",
+               refInstitutionLikeString?refInstitutionLikeString:@"",
+               refServiceLikeString];
+            else if (refInstitutionLikeString)
+               regexp=[NSString stringWithString:refInstitutionLikeString];
+            
+            if (regexp) [filters appendFormat:pnFilterCompoundString,regexp];
+         }
+         else
+         {
+            //DB with pn detailed fields
+            if (refInstitutionLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRead])[pnFilterFamily],refInstitutionLikeString];
+            if (refServiceLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRead])[pnFilterGiven],refServiceLikeString];
+            if (refUserLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRead])[pnFilterGiven],refUserLikeString];
+            if (refIDLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRead])[pnFilterGiven],refIDLikeString];
+            if (refIDTypeLikeString) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRead])[pnFilterGiven],refIDTypeLikeString];
+         }
+      }
+      
+
+      if (SOPClassInStudyRegexpString)
+#pragma mark 8 Esc (SOPClassesInStudy)
+         {
+            for (NSString *moreJoin in (sqlDictionary[@"Ejoin"])[EcumulativeFilterEsc])
+            {
+                if ([sqlJoins indexOfObject:moreJoin]==NSNotFound)[sqlJoins addObject:moreJoin];
+            }
+            [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEsc],SOPClassInStudyRegexpString];
+         }
+
+      
+      
+      if (ModalityInStudyRegexpString)
+#pragma mark 9 (optional) ModalitiesInStudy Emo
+         {
+            for (NSString *moreJoin in (sqlDictionary[@"Ejoin"])[EcumulativeFilterEmo])
+            {
+                if ([sqlJoins indexOfObject:moreJoin]==NSNotFound)[sqlJoins addObject:moreJoin];
+            }
+            [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEmo],SOPClassInStudyRegexpString];
+         }
+            
+       //six parts: prolog,select,where,and,limit&order,format
+       if (execUTF8Bash(
+           sqlcredentials,
+           [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
+            sqlprolog,
+            EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+            [sqlJoins componentsJoinedByString:@""],
+            sqlDictionary[@"Ewhere"],
+            filters,
+            @"",
+            sqlTwoPks
+           ],
+           mutableData)
+           !=0) return [RSErrorResponse responseWithClientError:404 message:@"studyToken StudyInstanceUID %@ db error",StudyInstanceUIDRegexpString];
+
+      
+    }
+
+    if ([mutableData length]==0)
+    {
+      LOG_VERBOSE(@"studyToken empty response");
+      return nil;
+    }
+    for (NSString *pkdotpk in [[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding]componentsSeparatedByString:@"/"])
+    {
+        if (pkdotpk.length) [EPDict setObject:[pkdotpk pathExtension] forKey:[pkdotpk stringByDeletingPathExtension]];
+    }
+    //record terminated by /
+
+    return nil;
 }
 
+
 /*
- applied at series level in each of the access type in order to restricted returned series.
+ applied at series level in each of the access type to restrict returned series.
  The function returns the SOPClass of series to be included
  */
 NSString * SOPCLassOfReturnableSeries(
@@ -874,12 +770,37 @@ NSString * SOPCLassOfReturnableSeries(
 #pragma mark - accessType functions
 
 RSResponse * weasis(
+ NSMutableArray      * JSONArray,
+ NSString            * canonicalQuerySHA512String,
  NSString            * proxyURIString,
  NSString            * sessionString,
  NSString            * tokenString,
- NSMutableArray      * devArray,
+ NSMutableArray      * lanArray,
  NSMutableArray      * wanArray,
- NSString            * transferSyntax,
+ NSString            * StudyInstanceUIDRegexpString,
+ NSString            * AccessionNumberEqualString,
+ NSString            * refInstitutionLikeString,
+ NSString            * refServiceLikeString,
+ NSString            * refUserLikeString,
+ NSString            * refIDLikeString,
+ NSString            * refIDTypeLikeString,
+ NSString            * readInstitutionSqlLikeString,
+ NSString            * readServiceSqlLikeString,
+ NSString            * readUserSqlLikeString,
+ NSString            * readIDSqlLikeString,
+ NSString            * readIDTypeSqlLikeString,
+ NSString            * StudyIDLikeString,
+ NSString            * PatientIDLikeString,
+ NSString            * patientFamilyLikeString,
+ NSString            * patientGivenLikeString,
+ NSString            * patientMiddleLikeString,
+ NSString            * patientPrefixLikeString,
+ NSString            * patientSuffixLikeString,
+ NSArray             * issuerArray,
+ NSArray             * StudyDateArray,
+ NSString            * SOPClassInStudyRegexpString,
+ NSString            * ModalityInStudyRegexpString,
+ NSString            * StudyDescriptionRegexpString,
  BOOL                  hasRestriction,
  NSRegularExpression * SeriesInstanceUIDRegex,
  NSRegularExpression * SeriesNumberRegex,
@@ -887,17 +808,12 @@ RSResponse * weasis(
  NSRegularExpression * ModalityRegex,
  NSRegularExpression * SOPClassRegex,
  NSRegularExpression * SOPClassOffRegex,
- NSArray             * StudyInstanceUIDArray,
- NSString            * AccessionNumberString,
- NSString            * PatientIDString,
- NSArray             * StudyDateArray,
- NSString            * issuerString,
  NSInteger             accessType
 )
 {
    NSXMLElement *XMLRoot=[WeasisManifest manifest];
             
-   if (devArray.count > 1)
+   if (lanArray.count > 1)
    {
       //add nodes and start corresponding processes
    }
@@ -907,7 +823,7 @@ RSResponse * weasis(
       //add nodes and start corresponding processes
    }
 
-   if (devArray.count == 0)
+   if (lanArray.count == 0)
    {
       //add nodes and start corresponding processes
    }
@@ -915,7 +831,7 @@ RSResponse * weasis(
    {
       while (1)
       {
-         NSString *devOID=devArray[0];
+         NSString *devOID=lanArray[0];
          NSDictionary *devDict=DRS.pacs[devOID];
 
 #pragma mark · GET type index
@@ -942,28 +858,37 @@ RSResponse * weasis(
                 sqlcredentials,
                 sqlDictionary,
                 sqlprolog,
-                StudyInstanceUIDArray,
-                AccessionNumberString,
-                PatientIDString,
-                issuerString,
-                StudyDateArray
+                false,
+                StudyInstanceUIDRegexpString,
+                AccessionNumberEqualString,
+                refInstitutionLikeString,
+                refServiceLikeString,
+                refUserLikeString,
+                refIDLikeString,
+                refIDTypeLikeString,
+                readInstitutionSqlLikeString,
+                readServiceSqlLikeString,
+                readUserSqlLikeString,
+                readIDSqlLikeString,
+                readIDTypeSqlLikeString,
+                StudyIDLikeString,
+                PatientIDLikeString,
+                patientFamilyLikeString,
+                patientGivenLikeString,
+                patientMiddleLikeString,
+                patientPrefixLikeString,
+                patientSuffixLikeString,
+                issuerArray,
+                StudyDateArray,
+                SOPClassInStudyRegexpString,
+                ModalityInStudyRegexpString,
+                StudyDescriptionRegexpString
                );
                if (sqlEPErrorReturned) return sqlEPErrorReturned;
 
                
                NSXMLElement *arcQueryElement=
-                     [WeasisArcQuery
-                      arcQueryOID:devOID
-                      session:sessionString
-                      custodian:proxyURIString
-                      transferSyntax:nil
-                      seriesInstanceUID:SeriesInstanceUIDRegex.pattern
-                      seriesNumber:SeriesNumberRegex.pattern
-                      seriesDescription:SeriesDescriptionRegex.pattern
-                      modality:ModalityRegex.pattern
-                      SOPClass:SOPClassRegex.pattern
-                      SOPClassOff:SOPClassOffRegex.pattern
-                      overrideDicomTagsList:@""
+                     [WeasisArcQuery arcQueryId:sessionString weasisarcId:devOID weasisbaseUrl:proxyURIString weasiswebLogin:nil weasisrequireOnlySOPInstanceUID:nil weasisadditionnalParameters:nil weasisoverrideDicomTagsList:nil seriesFilterInstanceUID:SeriesInstanceUIDRegex.pattern seriesFilterNumber:SeriesNumberRegex.pattern seriesFilterDescription:SeriesDescriptionRegex.pattern seriesFilterModality:ModalityRegex.pattern seriesFilterSOPClass:SOPClassRegex.pattern seriesFilterSOPClassOff:SOPClassOffRegex.pattern
                       ];
                      [XMLRoot addChild:arcQueryElement];
 
@@ -997,15 +922,9 @@ RSResponse * weasis(
                            continue;
                         }
 NSXMLElement *PatientElement=nil;
-                        NSArray *patientPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+                        NSArray *patientSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
                         PatientElement=
-                        [WeasisPatient
-                         pk:(patientPropertiesArray[0])[0]
-                         pid:(patientPropertiesArray[0])[1]
-                         name:(patientPropertiesArray[0])[2]
-                         issuer:(patientPropertiesArray[0])[3]
-                         birthdate:(patientPropertiesArray[0])[4]
-                         sex:(patientPropertiesArray[0])[5]
+                        [WeasisPatient pk:(patientSqlPropertiesArray[0])[0] weasisPatientID:(patientSqlPropertiesArray[0])[1] weasisPatientName:(patientSqlPropertiesArray[0])[2] weasisIssuerOfPatientID:(patientSqlPropertiesArray[0])[3] weasisPatientBirthDate:(patientSqlPropertiesArray[0])[4] weasisPatientBirthTime:nil weasisPatientSex:(patientSqlPropertiesArray[0])[5]
                          ];
                         [arcQueryElement addChild:PatientElement];
                               
@@ -1034,19 +953,7 @@ NSXMLElement *PatientElement=nil;
                               NSArray *EPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
     
                               StudyElement=
-                              [WeasisStudy
-                               pk:(EPropertiesArray[0])[0]
-                               uid:(EPropertiesArray[0])[1]
-                               desc:(EPropertiesArray[0])[2]
-                               date:[DICMTypes DAStringFromDAISOString:(EPropertiesArray[0])[3]]
-                               time:[DICMTypes TMStringFromTMISOString:(EPropertiesArray[0])[4]]
-                               an:(EPropertiesArray[0])[5]
-                               issuer:nil
-                               type:nil
-                               eid:(EPropertiesArray[0])[6]
-                               ref:(EPropertiesArray[0])[7]
-                               img:(EPropertiesArray[0])[8]
-                               mod:(EPropertiesArray[0])[9]
+                              [WeasisStudy pk:(EPropertiesArray[0])[0] weasisStudyInstanceUID:(EPropertiesArray[0])[1] weasisStudyDescription:(EPropertiesArray[0])[2] weasisStudyDate:[DICMTypes DAStringFromDAISOString:(EPropertiesArray[0])[3]] weasisStudyTime:[DICMTypes TMStringFromTMISOString:(EPropertiesArray[0])[4]] weasisAccessionNumber:(EPropertiesArray[0])[5] weasisStudyId:(EPropertiesArray[0])[6] weasisReferringPhysicianName:(EPropertiesArray[0])[7] issuer:nil issuerType:nil series:(EPropertiesArray[0])[8] modalities:(EPropertiesArray[0])[9]
                                ];
                               [PatientElement addChild:StudyElement];
                                
@@ -1105,15 +1012,8 @@ NSXMLElement *PatientElement=nil;
                                ];//NSUTF8StringEncoding
 
    //#pragma mark series loop
-                              NSXMLElement *SeriesElement=[WeasisSeries
-                               pk:SProperties[0]
-                               uid:SProperties[1]
-                               desc:SProperties[2]
-                               num:SProperties[3]
-                               mod:SProperties[4]
-                               wts:@"*"
-                               sop:SOPClass
-                              ];//DirectDownloadThumbnail=\"%@\"
+                              NSXMLElement *SeriesElement=[WeasisSeries pk:SProperties[0] weasisSeriesInstanceUID:SProperties[1] weasisSeriesDescription:SProperties[2] weasisSeriesNumber:SProperties[3] weasisModality:SProperties[4] weasisWadoTransferSyntaxUID:@"*" weasisWadoCompressionRate:nil weasisDirectDownloadThumbnail:nil sop:nil images:nil
+                              ];
                               [StudyElement addChild:SeriesElement];
                                     
 
@@ -1121,11 +1021,8 @@ NSXMLElement *PatientElement=nil;
                               for (NSArray *IProperties in IPropertiesArray)
                               {
    //#pragma mark instance loop
-                                 NSXMLElement *InstanceElement=[WeasisInstance
-                                  pk:IProperties[0]
-                                  uid:IProperties[1]
-                                  num:IProperties[2]
-                                  ];//DirectDownloadFile
+                                 NSXMLElement *InstanceElement=[WeasisInstance pk:IProperties[0] weasisSOPInstanceUID:IProperties[1] weasisInstanceNumber:IProperties[2] weasisDirectDownloadFile:nil NumberOfFrames:IProperties[3]];
+
                                   [SeriesElement addChild:InstanceElement];
                                  }
                                  }//end for each I
@@ -1189,12 +1086,37 @@ contentType:@"text/xml"];
 
 
 RSResponse* cornerstone(
+ NSMutableArray      * JSONArray,
+ NSString            * canonicalQuerySHA512String,
  NSString            * proxyURIString,
  NSString            * sessionString,
  NSString            * tokenString,
- NSMutableArray      * devArray,
+ NSMutableArray      * lanArray,
  NSMutableArray      * wanArray,
- NSString            * transferSyntax,
+ NSString            * StudyInstanceUIDRegexpString,
+ NSString            * AccessionNumberEqualString,
+ NSString            * refInstitutionLikeString,
+ NSString            * refServiceLikeString,
+ NSString            * refUserLikeString,
+ NSString            * refIDLikeString,
+ NSString            * refIDTypeLikeString,
+ NSString            * readInstitutionSqlLikeString,
+ NSString            * readServiceSqlLikeString,
+ NSString            * readUserSqlLikeString,
+ NSString            * readIDSqlLikeString,
+ NSString            * readIDTypeSqlLikeString,
+ NSString            * StudyIDLikeString,
+ NSString            * PatientIDLikeString,
+ NSString            * patientFamilyLikeString,
+ NSString            * patientGivenLikeString,
+ NSString            * patientMiddleLikeString,
+ NSString            * patientPrefixLikeString,
+ NSString            * patientSuffixLikeString,
+ NSArray             * issuerArray,
+ NSArray             * StudyDateArray,
+ NSString            * SOPClassInStudyRegexpString,
+ NSString            * ModalityInStudyRegexpString,
+ NSString            * StudyDescriptionRegexpString,
  BOOL                  hasRestriction,
  NSRegularExpression * SeriesInstanceUIDRegex,
  NSRegularExpression * SeriesNumberRegex,
@@ -1202,17 +1124,11 @@ RSResponse* cornerstone(
  NSRegularExpression * ModalityRegex,
  NSRegularExpression * SOPClassRegex,
  NSRegularExpression * SOPClassOffRegex,
- NSArray             * StudyInstanceUIDArray,
- NSString            * AccessionNumberString,
- NSString            * PatientIDString,
- NSArray             * StudyDateArray,
- NSString            * issuerString,
  NSInteger             accessType
 )
 {
-      NSMutableArray *JSONArray=[NSMutableArray array];
 
-      if (devArray.count > 1)
+      if (lanArray.count > 1)
       {
          //add nodes and start corresponding processes
       }
@@ -1222,7 +1138,7 @@ RSResponse* cornerstone(
          //add nodes and start corresponding processes
       }
 
-      if (devArray.count == 0)
+      if (lanArray.count == 0)
       {
          //add nodes and start corresponding processes
       }
@@ -1230,14 +1146,14 @@ RSResponse* cornerstone(
       {
          while (1)
          {
-            NSString *devOID=devArray[0];
+            NSString *devOID=lanArray[0];
             NSDictionary *devDict=DRS.pacs[devOID];
-
-   #pragma mark · GET type index
+#pragma mark · GET type index
             NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
 
-   #pragma mark · SELECT switch
-            switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:devDict[@"select"]]) {
+#pragma mark · SELECT switch
+                  
+               switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:devDict[@"select"]]) {
                
                case NSNotFound:{
                   LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",devOID);
@@ -1256,34 +1172,60 @@ RSResponse* cornerstone(
                    sqlcredentials,
                    sqlDictionary,
                    sqlprolog,
-                   StudyInstanceUIDArray,
-                   AccessionNumberString,
-                   PatientIDString,
-                   issuerString,
-                   StudyDateArray
+                   false,
+                   StudyInstanceUIDRegexpString,
+                   AccessionNumberEqualString,
+                   refInstitutionLikeString,
+                   refServiceLikeString,
+                   refUserLikeString,
+                   refIDLikeString,
+                   refIDTypeLikeString,
+                   readInstitutionSqlLikeString,
+                   readServiceSqlLikeString,
+                   readUserSqlLikeString,
+                   readIDSqlLikeString,
+                   readIDTypeSqlLikeString,
+                   StudyIDLikeString,
+                   PatientIDLikeString,
+                   patientFamilyLikeString,
+                   patientGivenLikeString,
+                   patientMiddleLikeString,
+                   patientPrefixLikeString,
+                   patientSuffixLikeString,
+                   issuerArray,
+                   StudyDateArray,
+                   SOPClassInStudyRegexpString,
+                   ModalityInStudyRegexpString,
+                   StudyDescriptionRegexpString
                   );
                   if (sqlEPErrorReturned) return sqlEPErrorReturned;
 
 
-                  NSMutableArray *patientArray=[NSMutableArray array];
-                  [JSONArray addObject:
-                   @{
-                     @"arcId":devOID,
-                     @"baseUrl":proxyURIString,
-                     @"additionnalParameters":
-                        [NSString stringWithFormat:@"&amp;session=%@&amp;SeriesInstanceUID=%@&amp;SeriesNumber=%@&amp;SeriesDescription=%@&amp;Modality=%@&amp;SOPClass=%@&amp;SOPClassOff=%@",
-                         sessionString,
-                         SeriesInstanceUIDRegex.pattern,
-                         SeriesNumberRegex.pattern,
-                         SeriesDescriptionRegex.pattern,
-                         ModalityRegex.pattern,
-                         SOPClassRegex.pattern,
-                         SOPClassOffRegex.pattern
-                        ],
-                     @"overrideDicomTagsList":@"",
-                     @"patientList":patientArray
+                  //find devOID in JSONArray
+NSMutableArray *patientArray=nil;
+                  NSMutableDictionary *arc=[JSONArray firstMutableDictionaryWithKey:@"arcId" isEqualToString:devOID];
+                  if (arc)
+                  {
+                     //update cached arc and get cached patients
+                     [arc setObject:proxyURIString forKey:@"baseUrl"];
+                     patientArray=arc[@"patientList"];
+                     if (!patientArray)
+                     {
+                        patientArray=[NSMutableArray array];
+                        [arc setObject:patientArray forKey:@"patientList"];
                      }
-                   ];
+                  }
+                  else //no arc
+                  {
+                     //create arc
+                     patientArray=[NSMutableArray array];
+                     arc=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+                          devOID, @"arcId",
+                          proxyURIString,@"baseUrl",
+                          patientArray,@"patientList",
+                          nil];
+                     [JSONArray addObject:arc];
+                  }
 
    #pragma mark ·· GET switch
                   switch (getTypeIndex) {
@@ -1314,20 +1256,42 @@ RSResponse* cornerstone(
                               LOG_ERROR(@"studyToken patient db error");
                               continue;
                            }
-                           NSArray *patientPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
-NSMutableArray *studyArray=[NSMutableArray array];
-                           [patientArray addObject:
-                            @{
-                              @"PatientID":(patientPropertiesArray[0])[1],
-                              @"PatientName":(patientPropertiesArray[0])[2],
-                              @"IssuerOfPatientID":(patientPropertiesArray[0])[3],
-                              @"PatientBirthDate":(patientPropertiesArray[0])[4],
-                              @"PatientSex":(patientPropertiesArray[0])[5],
-                              @"studyList":studyArray
-                              }];
-                                 
+                           NSArray *patientSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+                           
+                           NSMutableDictionary *patient=[patientArray firstMutableDictionaryWithKey:@"key" isEqualToString:P];
+NSMutableArray *studyArray=nil;
 
-//#pragma mark study loop
+if (patient)
+{
+   //report eventual actualizations
+   [patient setObject:(patientSqlPropertiesArray[0])[1] forKey:@"PatientID"];
+   [patient setObject:(patientSqlPropertiesArray[0])[2] forKey:@"PatientName"];
+   [patient setObject:(patientSqlPropertiesArray[0])[3] forKey:@"IssuerOfPatientID"];
+   [patient setObject:(patientSqlPropertiesArray[0])[4] forKey:@"PatientBirthDate"];
+   [patient setObject:(patientSqlPropertiesArray[0])[5] forKey:@"PatientSex"];
+   [studyArray setArray:arc[@"studyList"]];
+   if (!studyArray)
+   {
+      studyArray=[NSMutableArray array];
+      [patient setObject:studyArray forKey:@"studyList"];
+   }
+}
+else //no patient
+{
+   studyArray=[NSMutableArray array];
+   patient=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+            [NSNumber numberWithLongLong:[(patientSqlPropertiesArray[0])[0] longLongValue]],@"key",
+            (patientSqlPropertiesArray[0])[1], @"PatientID",
+            [(patientSqlPropertiesArray[0])[2] removeTrailingCarets],@"PatientName",
+            (patientSqlPropertiesArray[0])[3],@"IssuerOfPatientID",
+            (patientSqlPropertiesArray[0])[4],@"PatientBirthDate",
+            (patientSqlPropertiesArray[0])[5],@"PatientSex",
+            studyArray,@"studyList",
+            nil
+           ];
+    [patientArray addObject:patient];
+}
+#pragma mark ...study loop
                         for (NSString *E in EPDict)
                         {
                            if ([EPDict[E] isEqualToString:P])
@@ -1339,7 +1303,7 @@ NSMutableArray *studyArray=[NSMutableArray array];
                                                  sqlprolog,
                                                  E,
                                                  @"",
-                                                 sqlRecordTenUnits
+                                                 sqlRecordElevenUnits
                                                  ],
                                                 mutableData)
                                   !=0)
@@ -1347,33 +1311,47 @@ NSMutableArray *studyArray=[NSMutableArray array];
                                  LOG_ERROR(@"studyToken study db error");
                                  continue;
                               }
-                              NSArray *EPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
+                              NSArray *studySqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
+
+                              NSMutableDictionary *study=[studyArray firstMutableDictionaryWithKey:@"key" isEqualToString:E];
+NSMutableArray *seriesArray=nil;
+if (study)
+{
+   //report eventual actualizations
+   [study  setObject:(studySqlPropertiesArray[0])[2] forKey:@"studyDescription"];
+   [study  setObject:(studySqlPropertiesArray[0])[6] forKey:@"StudyID"];
+   [study  setObject:[(studySqlPropertiesArray[0])[7] removeTrailingCarets] forKey:@"ReferringPhysicianName"];
+   [study  setObject:[(studySqlPropertiesArray[0])[8] removeTrailingCarets] forKey:@"NameOfPhysiciansReadingStudy"];
+   if (!seriesArray)
+   {
+      seriesArray=[NSMutableArray array];
+      [study setObject:seriesArray forKey:@"seriesList"];
+   }
+}
+else //no study
+{
+#pragma mark TODO accessionNumber issuer
+   seriesArray=[NSMutableArray array];
+   study=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+      [NSNumber numberWithLongLong:[(studySqlPropertiesArray[0])[0] longLongValue]],@"key",
+      (studySqlPropertiesArray[0])[1], @"StudyInstanceUID",
+      (studySqlPropertiesArray[0])[2], @"studyDescription",
+      [DICMTypes DAStringFromDAISOString:(studySqlPropertiesArray[0])[3]], @"studyDate",
+      [DICMTypes TMStringFromTMISOString:(studySqlPropertiesArray[0])[4]],@"StudyTime",
+      (studySqlPropertiesArray[0])[5],@"AccessionNumber",
+      (studySqlPropertiesArray[0])[6],@"StudyID",
+      [(studySqlPropertiesArray[0])[7] removeTrailingCarets],@"ReferringPhysicianName",
+      [(studySqlPropertiesArray[0])[8] removeTrailingCarets],@"NameOfPhysiciansReadingStudy",
+      (studySqlPropertiesArray[0])[9],@"modality",
+      (patientSqlPropertiesArray[0])[1],@"patientId",
+      [(patientSqlPropertiesArray[0])[2] removeTrailingCarets],@"PatientName",
+      seriesArray,@"seriesList",
+      nil
+   ];
+    [studyArray addObject:study];
+}
                               
-                              /*
-                               patientName
-                               patientId
-                               studyDate
-                               modality (in Study)
-                               studyDescription
-                               numImages
-                               studyId
-                               */
-                              NSMutableArray *seriesArray=[NSMutableArray array];//Study=Exam
-                              [studyArray addObject:
-                               @{
-                                 @"StudyInstanceUID":(EPropertiesArray[0])[1],
-                                 @"studyDescription":(EPropertiesArray[0])[2],
-                                 @"studyDate":[DICMTypes DAStringFromDAISOString:(EPropertiesArray[0])[3]],
-                                 @"StudyTime":[DICMTypes TMStringFromTMISOString:(EPropertiesArray[0])[4]],
-                                 @"AccessionNumber":(EPropertiesArray[0])[5],
-                                 @"StudyID":(EPropertiesArray[0])[6],
-                                 @"ReferringPhysicianName":(EPropertiesArray[0])[7],
-                                 @"numImages":(EPropertiesArray[0])[8],
-                                 @"modality":(EPropertiesArray[0])[9],
-                                 @"patientId":(patientPropertiesArray[0])[1],
-                                 @"patientName":(patientPropertiesArray[0])[2],
-                                 @"seriesList":seriesArray
-                                 }];
+#pragma mark ...series loop
 
                         [mutableData setData:[NSData data]];
                         if (execUTF8Bash(sqlcredentials,
@@ -1382,89 +1360,188 @@ NSMutableArray *studyArray=[NSMutableArray array];
                                            sqlprolog,
                                            E,
                                            @"",
-                                           sqlRecordFiveUnits
+                                           sqlRecordTenUnits
                                            ],
                                           mutableData)
                             !=0)
                         {
-                           LOG_ERROR(@"studyToken study db error");
+                           LOG_ERROR(@"studyToken series db error");
                            continue;
                         }
-                        NSArray *SPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
-                        for (NSArray *SProperties in SPropertiesArray)
+                        NSArray *seriesSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
+                        for (NSArray *seriesSqlProperties in seriesSqlPropertiesArray)
                         {
-//#pragma mark series loop
-                           NSString *SOPClass=SOPCLassOfReturnableSeries(
-                            sqlcredentials,
-                            sqlDictionary[@"Ici4S"],
-                            sqlprolog,
-                            SProperties,
-                            SeriesInstanceUIDRegex,
-                            SeriesNumberRegex,
-                            SeriesDescriptionRegex,
-                            ModalityRegex,
-                            SOPClassRegex,
-                            SOPClassOffRegex
-                           );
-                           if (SOPClass)
+                           //if series exists in cache
+                           NSMutableDictionary *series=[seriesArray firstMutableDictionaryWithKey:@"key" isEqualToString:seriesSqlProperties[0]];
+                           if (series)
                            {
-                              //instances
-                              [mutableData setData:[NSData data]];
-                              if (execUTF8Bash(sqlcredentials,
-                                                [NSString stringWithFormat:
-                                                 sqlDictionary[@"I"],
-                                                 sqlprolog,
-                                                 SProperties[0],
-                                                 @"",
-                                                 sqlRecordFourUnits
-                                                 ],
-                                                mutableData)
-                                  !=0)
+                              //SOP Class already known
+                              //loop series only if numImages doesn´t correspond
+#pragma mark TODO
+                              //find numImages for the series
+                              //if ([series[@"numImages"] longLongValue]!=[seriesSqlProperties[10]longLongValue])
                               {
-                                 LOG_ERROR(@"studyToken study db error");
-                                 continue;
+                                 //loop instances
                               }
-                              NSArray *IPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
-                              NSMutableArray *instanceArray=[NSMutableArray array];
-                              [seriesArray addObject:
-                              @{
-                                @"seriesDescription":SProperties[2],
-                                @"seriesNumber":SProperties[3],
-                                @"SeriesInstanceUID":SProperties[1],
-                                @"Modality":SProperties[4],
-                                @"WadoTransferSyntaxUID":@"*",
-                                @"instanceList":instanceArray
-                                }];
-                                    
-//#pragma mark instance loop
-                              for (NSArray *IProperties in IPropertiesArray)
+                           }
+                           else //series does not exist in cache
+                           {
+                              //add it?
+                              NSString *SOPClass=SOPCLassOfReturnableSeries(
+                                                       sqlcredentials,
+                                                       sqlDictionary[@"Ici4S"],
+                                                       sqlprolog,
+                                                       seriesSqlProperties,
+                                                       SeriesInstanceUIDRegex,
+                                                       SeriesNumberRegex,
+                                                       SeriesDescriptionRegex,
+                                                       ModalityRegex,
+                                                       SOPClassRegex,
+                                                       SOPClassOffRegex
+                                                      );
+                              if (SOPClass)
                               {
-                                 /*
-                                  instanceList
-                                  ============
-                                  imageId = (weasis) DirectDownloadFile
-                                  
-                                  SOPInstanceUID
-                                  InstanceNumber
-                                  */
-                                  NSString *wadouriInstance=[NSString stringWithFormat:
-                                                            @"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&arcId=%@",
-                                                            proxyURIString,
-                                                            (EPropertiesArray[0])[1],
-                                                            SProperties[1],
-                                                            IProperties[1],
-                                                            sessionString,
-                                                            devDict[@"custodianoid"],
-                                                    devOID];
-                                   [instanceArray addObject:@{
-                                                            @"imageId":wadouriInstance,
-                                                            @"SOPInstanceUID":IProperties[1],
-                                                            @"InstanceNumber":IProperties[2]
-                                                            }
-                                    ];
+                                 //yes, add it
+                                 
+NSMutableArray *instanceArray=[NSMutableArray array];
+series=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+[NSNumber numberWithLongLong:[seriesSqlProperties[0] longLongValue]],@"key",
+seriesSqlProperties[2], @"seriesDescription",
+seriesSqlProperties[3], @"seriesNumber",
+seriesSqlProperties[1], @"SeriesInstanceUID",
+SOPClass, @"SOPClassUID",
+seriesSqlProperties[4], @"Modality",
+@"*",@"WadoTransferSyntaxUID",
+seriesSqlProperties[6], @"Department",
+seriesSqlProperties[7], @"StationName",
+seriesSqlProperties[8], @"PerformingPhysician",
+seriesSqlProperties[9], @"Laterality",
+instanceArray,@"instanceList",
+nil
+];//not available [NSNumber numberWithLongLong:[seriesSqlProperties[10] longLongValue]], @"numImages",
+[seriesArray addObject:series];
 
-                                    }//end for each I
-                                 }
+                                 //add institution to studies
+[study setObject:seriesSqlProperties[5] forKey:@"institution"];
+                                  
+                                 
+                              
+#pragma mark instances depending on the SOP Class
+/*
+ pk, SOPInstanceUID and instance number are common to allo SOP Class
+ 
+ In relation to Cornerstone, the number of frames is also important
+ NumFrames=[NSNumber numberWithInt:[instanceSqlProperties[3] intValue]];
+ 
+ This information is not available in non multiframe objects. Those shall have the value 0 if they are not frame based and 1 if they are always single frame.
+ 
+ In the case of multiframe SOP Classes:
+ Since number of frames may belong to some binary blog of dicom attrs, we allow postprocessing on sql raw data, and then on table-organized results.
+ We reserve the value -1 to state that the info is not available at all in the DB.
+ 
+ As seen some casuistics can be resolved before any query to the instance table, based on the SOP Class already obtained for series filters, we use specific query depending on the case:
+ - I0 corresponde to a non frame based object where number of frames is forced to 0
+ - I1 corresponds to a monoframe object where number of frames is forced to 1
+ - I corresponds to an enhanced SOP Class potentially containing multiframes.
+ */
+
+[mutableData setData:[NSData data]];
+NSArray *instanceSqlPropertiesArray;
+if ([DRS.InstanceUniqueFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)
+{
+   //I1
+   if (execUTF8Bash(sqlcredentials,
+                  [NSString stringWithFormat:
+                     sqlDictionary[@"I1"],
+                     sqlprolog,
+                     seriesSqlProperties[0],
+                     @"",
+                     sqlRecordFourUnits
+                     ],
+                  mutableData)
+       !=0)
+   {
+      LOG_ERROR(@"studyToken study db error");
+      continue;
+   }
+   instanceSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:nil orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+
+}
+else if ([DRS.InstanceMultiFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)
+{
+   //I
+   // watch optional IpostprocessingCommandsSh
+   if (execUTF8Bash(sqlcredentials,
+                  [NSString stringWithFormat:
+                     sqlDictionary[@"I"],
+                     sqlprolog,
+                     seriesSqlProperties[0],
+                     @"",
+                   [sqlDictionary[@"IpostprocessingCommandsSh"]length]?sqlDictionary[@"IpostprocessingCommandsSh"]:sqlRecordFourUnits
+                     ],
+                  mutableData)
+       !=0)
+   {
+      LOG_ERROR(@"studyToken study db error");
+      continue;
+   }
+
+   instanceSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:sqlDictionary[@"IpostprocessingTitleMain"] orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+
+}
+else
+{
+  //I0
+   if (execUTF8Bash(sqlcredentials,
+                  [NSString stringWithFormat:
+                     sqlDictionary[@"I0"],
+                     sqlprolog,
+                     seriesSqlProperties[0],
+                     @"",
+                     sqlRecordFourUnits
+                     ],
+                  mutableData)
+       !=0)
+   {
+      LOG_ERROR(@"studyToken study db error");
+      continue;
+   }
+   instanceSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:nil orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+}
+
+                                 
+                              
+#pragma mark ...instance loop
+for (NSArray *instanceSqlProperties in instanceSqlPropertiesArray)
+{
+   //imageId = (weasis) DirectDownloadFile
+
+
+   
+   
+   NSString *wadouriInstance=[NSString stringWithFormat:
+                           @"wadouri:%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&arcId=%@%@",
+                           proxyURIString,
+                           (studySqlPropertiesArray[0])[1],
+                           seriesSqlProperties[1],
+                           instanceSqlProperties[1],
+                           sessionString,
+                           devDict[@"custodianoid"],
+                           devOID,
+                           devDict[@"wadocornerstoneparameters"]
+                              ];
+   [instanceArray addObject:@{
+                           @"imageId":wadouriInstance,
+                           @"SOPInstanceUID":instanceSqlProperties[1],
+                           @"InstanceNumber":instanceSqlProperties[2],
+                           @"numFrames":instanceSqlProperties[3]
+                           }
+   ];
+
+                                       }//end for each I
+                                   } //end if SOPClass
+                                 }//end series no existe en cache
+
                               }// end for each S
                            }//end for each E
                         }//end for each P
@@ -1474,13 +1551,8 @@ NSMutableArray *studyArray=[NSMutableArray array];
             } //end of SELECT switch
          }
          NSData *cornerstoneJson=[NSJSONSerialization dataWithJSONObject:JSONArray options:0 error:nil];
-            
-         if (DRS.tokentmpDir.length)
-         [cornerstoneJson writeToFile:
-           [
-            [DRS.tokentmpDir stringByAppendingPathComponent:sessionString]
-            stringByAppendingPathExtension:@"json"]
-          atomically:NO];
+             NSString *cornerstonePath=[[DRS.tokentmpDir stringByAppendingPathComponent:canonicalQuerySHA512String]stringByAppendingPathExtension:@"json"];
+         [cornerstoneJson writeToFile:cornerstonePath atomically:NO];
 
          return [RSDataResponse responseWithData:cornerstoneJson contentType:@"application/json"];
       }//end while 1
@@ -1491,12 +1563,37 @@ NSMutableArray *studyArray=[NSMutableArray array];
 
 
 RSResponse* dicomzip(
+ NSMutableArray * JSONArray,
+ NSString            * canonicalQuerySHA512String,
  NSString            * proxyURIString,
  NSString            * sessionString,
  NSString            * tokenString,
- NSMutableArray      * devArray,
+ NSMutableArray      * lanArray,
  NSMutableArray      * wanArray,
- NSString            * transferSyntax,
+ NSString            * StudyInstanceUIDRegexpString,
+ NSString            * AccessionNumberEqualString,
+ NSString            * refInstitutionLikeString,
+ NSString            * refServiceLikeString,
+ NSString            * refUserLikeString,
+ NSString            * refIDLikeString,
+ NSString            * refIDTypeLikeString,
+ NSString            * readInstitutionSqlLikeString,
+ NSString            * readServiceSqlLikeString,
+ NSString            * readUserSqlLikeString,
+ NSString            * readIDSqlLikeString,
+ NSString            * readIDTypeSqlLikeString,
+ NSString            * StudyIDLikeString,
+ NSString            * PatientIDLikeString,
+ NSString            * patientFamilyLikeString,
+ NSString            * patientGivenLikeString,
+ NSString            * patientMiddleLikeString,
+ NSString            * patientPrefixLikeString,
+ NSString            * patientSuffixLikeString,
+ NSArray             * issuerArray,
+ NSArray             * StudyDateArray,
+ NSString            * SOPClassInStudyRegexpString,
+ NSString            * ModalityInStudyRegexpString,
+ NSString            * StudyDescriptionRegexpString,
  BOOL                  hasRestriction,
  NSRegularExpression * SeriesInstanceUIDRegex,
  NSRegularExpression * SeriesNumberRegex,
@@ -1504,16 +1601,10 @@ RSResponse* dicomzip(
  NSRegularExpression * ModalityRegex,
  NSRegularExpression * SOPClassRegex,
  NSRegularExpression * SOPClassOffRegex,
- NSArray             * StudyInstanceUIDArray,
- NSString            * AccessionNumberString,
- NSString            * PatientIDString,
- NSArray             * StudyDateArray,
- NSString            * issuerString,
  NSInteger             accessType
 )
 {
    //information model for getting and pulling the information, either from source or from cache
-   __block NSArray        *jsonArray=[NSArray array];
    __block NSMutableArray *filenames=[NSMutableArray array];
    __block NSMutableArray *wados=    [NSMutableArray array];
    __block NSMutableArray *crc32s=   [NSMutableArray array];
@@ -1583,7 +1674,7 @@ RSResponse* dicomzip(
     
     if (!fromCache)
     {
-       if (devArray.count > 1)
+       if (lanArray.count > 1)
        {
           //add nodes and start corresponding processes
        }
@@ -1593,7 +1684,7 @@ RSResponse* dicomzip(
           //add nodes and start corresponding processes
        }
 
-       if (devArray.count == 0)
+       if (lanArray.count == 0)
        {
           //add nodes and start corresponding processes
        }
@@ -1601,7 +1692,7 @@ RSResponse* dicomzip(
        {
           while (1)
           {
-             NSString *devOID=devArray[0];
+             NSString *devOID=lanArray[0];
              NSDictionary *devDict=DRS.pacs[devOID];
 
 #pragma mark · GET type index
@@ -1623,19 +1714,39 @@ RSResponse* dicomzip(
                    
 
 #pragma mark · apply EuiE (Study Patient) filters
-                         NSMutableDictionary *EuiEDict=[NSMutableDictionary dictionary];
-                         RSResponse *sqlEuiEErrorReturned=sqlEuiE(
-                          EuiEDict,
-                          sqlcredentials,
-                          sqlDictionary,
-                          sqlprolog,
-                          StudyInstanceUIDArray,
-                          AccessionNumberString,
-                          PatientIDString,
-                          issuerString,
-                          StudyDateArray
-                         );
-                         if (sqlEuiEErrorReturned) return sqlEuiEErrorReturned;
+                   NSMutableDictionary *EuiEDict=[NSMutableDictionary dictionary];
+                   RSResponse *sqlEuiEErrorReturned=sqlEP(
+                    EuiEDict,
+                    sqlcredentials,
+                    sqlDictionary,
+                    sqlprolog,
+                    true,
+                    StudyInstanceUIDRegexpString,
+                    AccessionNumberEqualString,
+                    refInstitutionLikeString,
+                    refServiceLikeString,
+                    refUserLikeString,
+                    refIDLikeString,
+                    refIDTypeLikeString,
+                    readInstitutionSqlLikeString,
+                    readServiceSqlLikeString,
+                    readUserSqlLikeString,
+                    readIDSqlLikeString,
+                    readIDTypeSqlLikeString,
+                    StudyIDLikeString,
+                    PatientIDLikeString,
+                    patientFamilyLikeString,
+                    patientGivenLikeString,
+                    patientMiddleLikeString,
+                    patientPrefixLikeString,
+                    patientSuffixLikeString,
+                    issuerArray,
+                    StudyDateArray,
+                    SOPClassInStudyRegexpString,
+                    ModalityInStudyRegexpString,
+                    StudyDescriptionRegexpString
+                   );
+                   if (sqlEuiEErrorReturned) return sqlEuiEErrorReturned;
                  
 
 #pragma mark ·· GET switch
@@ -1707,7 +1818,7 @@ RSResponse* dicomzip(
                                      //remove the / empty component at the end
                                      if (sopuid.length > 1)
                                      {
-                                        [wados addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",devDict[@"wadouri"],Eui,SProperties[1],sopuid,devDict[@"wadoadditionalparameters"]]];
+                                        [wados addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",devDict[@"wadouri"],Eui,SProperties[1],sopuid,devDict[@"wadodicomdicparameters"]]];
                                      }
                                   }// end for each I
                                }//end if SOPClass
@@ -1764,7 +1875,7 @@ RSResponse* dicomzip(
 #pragma mark 2. DATA
       else if (LOCALIndex < wados.count)
       {
-#pragma mark prepar crc32, compressed, uncompressed, entryData
+#pragma mark prepare crc32, compressed, uncompressed, entryData
         NSData *entryData=nil;
         NSString *entryPath=nil;
         uint32 zipCRC32=0x00000000;
@@ -1778,8 +1889,8 @@ RSResponse* dicomzip(
         {
             entryData=[NSData dataWithContentsOfFile:entryPath];
             zipCompressedSize=(uint32)entryData.length;
-            zipCRC32=(uint32)crc32s[LOCALIndex];
-            zipUncompressedSize=(uint32)lengths[LOCALIndex];
+            zipCRC32=(uint32)[[[[entryPath stringByDeletingPathExtension]stringByDeletingPathExtension]pathExtension]intValue];
+            zipUncompressedSize=(uint32)[[[entryPath stringByDeletingPathExtension]pathExtension]intValue];
         }
         else if (wados[LOCALIndex])
         {
@@ -1902,8 +2013,8 @@ RSResponse* dicomzip(
                  
                  [LOCAL appendBytes:&zipDESCRIPTOR length:4];
                  [LOCAL appendBytes:&zipCRC32 length:4];
-                 [LOCAL appendBytes:&zipUncompressedSize length:4];
                  [LOCAL appendBytes:&zipCompressedSize length:4];
+                 [LOCAL appendBytes:&zipUncompressedSize length:4];
 
                  
                  completionBlock(LOCAL, nil);
@@ -1987,12 +2098,37 @@ RSResponse* dicomzip(
 
 
 RSResponse* osirixdcmURLs(
+ NSMutableArray      * JSONArray,
+ NSString            * canonicalQuerySHA512String,
  NSString            * proxyURIString,
  NSString            * sessionString,
  NSString            * tokenString,
- NSMutableArray      * devArray,
+ NSMutableArray      * lanArray,
  NSMutableArray      * wanArray,
- NSString            * transferSyntax,
+ NSString            * StudyInstanceUIDRegexpString,
+ NSString            * AccessionNumberEqualString,
+ NSString            * refInstitutionLikeString,
+ NSString            * refServiceLikeString,
+ NSString            * refUserLikeString,
+ NSString            * refIDLikeString,
+ NSString            * refIDTypeLikeString,
+ NSString            * readInstitutionLikeString,
+ NSString            * readServiceLikeString,
+ NSString            * readUserLikeString,
+ NSString            * readIDLikeString,
+ NSString            * readIDTypeLikeString,
+ NSString            * StudyIDLikeString,
+ NSString            * PatientIDLikeString,
+ NSString            * patientFamilyLikeString,
+ NSString            * patientGivenLikeString,
+ NSString            * patientMiddleLikeString,
+ NSString            * patientPrefixLikeString,
+ NSString            * patientSuffixLikeString,
+ NSArray             * issuerArray,
+ NSArray             * StudyDateArray,
+ NSString            * SOPClassInStudyRegexpString,
+ NSString            * ModalityInStudyRegexpString,
+ NSString            * StudyDescriptionRegexpString,
  BOOL                  hasRestriction,
  NSRegularExpression * SeriesInstanceUIDRegex,
  NSRegularExpression * SeriesNumberRegex,
@@ -2000,11 +2136,6 @@ RSResponse* osirixdcmURLs(
  NSRegularExpression * ModalityRegex,
  NSRegularExpression * SOPClassRegex,
  NSRegularExpression * SOPClassOffRegex,
- NSArray             * StudyInstanceUIDArray,
- NSString            * AccessionNumberString,
- NSString            * PatientIDString,
- NSArray             * StudyDateArray,
- NSString            * issuerString,
  NSInteger             accessType
 )
 {
@@ -2014,9 +2145,6 @@ RSResponse* osirixdcmURLs(
 
 #pragma mark -
 @implementation DRS (studyToken)
-
-
-
 
 -(void)addPostAndGetStudyTokenHandler
 {
@@ -2042,224 +2170,494 @@ RSResponse* osirixdcmURLs(
 
 +(RSResponse*)studyToken:(RSRequest*)request
 {
+#pragma mark parsing request
+   
    LOG_INFO(@"socket number: %i",request.socketNumber);
    //read json
    NSMutableArray *names=[NSMutableArray array];
    NSMutableArray *values=[NSMutableArray array];
-   NSMutableArray *types=[NSMutableArray array];
-   NSString *jsonString;
-   NSString *errorString;
-   if (!parseRequestParams(request, names, values, types, &jsonString, &errorString))
-   {
-      LOG_WARNING(@"%@",errorString);
-      return [RSErrorResponse responseWithClientError:404 message:@"%@",errorString];
-   }
-
-   //proxyURI
+   NSString *errorString=parseRequestParams(request, names, values);
+   if (errorString) return [RSErrorResponse responseWithClientError:404 message:@"%@",errorString];
+   
+   NSMutableArray *JSONArray=nil;
+   NSFileManager *defaultManager=[NSFileManager defaultManager];
+   NSError *error=nil;
+   
+#pragma mark · 1. query context
+   
+   //1.1 proxyURI
    NSString *proxyURIString=nil;
    NSInteger proxyURIIndex=[names indexOfObject:@"proxyURI"];
    if (proxyURIIndex!=NSNotFound) proxyURIString=values[proxyURIIndex];
    else proxyURIString=@"whatIsTheURLToBeInvoked?";
    
-   //session
+   //1.2 session
    NSString *sessionString=nil;
    NSInteger sessionIndex=[names indexOfObject:@"session"];
    if (sessionIndex!=NSNotFound) sessionString=values[sessionIndex];
    else sessionString=@"";
    
-   //token
+   //1.3 token
    NSString *tokenString=nil;
    NSInteger tokenIndex=[names indexOfObject:@"token"];
    if (tokenIndex!=NSNotFound) tokenString=values[tokenIndex];
    else tokenString=@"";
 
 
+#pragma mark · 2. institution
+
+   NSMutableString *canonicalQuery=[NSMutableString stringWithString:@""];
    
-#pragma mark org?
+   
+   //2.1
+   NSMutableArray *lanArray=[NSMutableArray array];
+   NSMutableArray *wanArray=[NSMutableArray array];
+   
    NSInteger orgIndex=[names indexOfObject:@"institution"];
    if (orgIndex==NSNotFound)
    {
-      LOG_WARNING(@"studyToken institution not available");
-      return [RSErrorResponse responseWithClientError:404 message:@"studyToken custloianOID not available"];
+      orgIndex=[names indexOfObject:@"lanPacs"];
+      if (orgIndex!=NSNotFound) [lanArray addObjectsFromArray:[values[orgIndex] componentsSeparatedByString:@"|"]];
+      orgIndex=[names indexOfObject:@"wanPacs"];
+      if (orgIndex!=NSNotFound) [wanArray addObjectsFromArray:[values[orgIndex] componentsSeparatedByString:@"|"]];
    }
-   
-   NSMutableArray *wanArray=[NSMutableArray array];
-   NSMutableArray *devArray=[NSMutableArray array];
-   NSArray *orgArray=[values[orgIndex] componentsSeparatedByString:@"|"];
-   for (NSInteger i=[orgArray count]-1;i>=0;i--)
+   else
    {
-      if ([DRS.wan indexOfObject:orgArray[i]]!=NSNotFound)
+      NSArray *orgArray=[values[orgIndex] componentsSeparatedByString:@"|"];
+      for (NSInteger i=[orgArray count]-1;i>=0;i--)
       {
-         [wanArray addObject:orgArray[i]];
-         LOG_DEBUG(@"studyToken institution wan %@",orgArray[i]);
-      }
-      else if ([DRS.dev indexOfObject:orgArray[i]]!=NSNotFound)
-      {
-         [devArray addObject:orgArray[i]];
-         LOG_DEBUG(@"studyToken institution dev %@",orgArray[i]);
-      }
-      else if ([DRS.lan indexOfObject:orgArray[i]]!=NSNotFound)
-      {
-         //find all dev of local custodian
-         if (DRS.oidsaeis[orgArray[i]])
+         if ([DRS.wan indexOfObject:orgArray[i]]!=NSNotFound)
          {
-            [devArray addObjectsFromArray:DRS.oidsaeis[orgArray[i]]];
-            LOG_VERBOSE(@"studyToken institution for dev %@:\r\n%@",orgArray[i],[DRS.oidsaeis[orgArray[i]]description]);
+            [wanArray addObject:orgArray[i]];
+            LOG_DEBUG(@"studyToken institution wan %@",orgArray[i]);
+         }
+         else if ([DRS.dev indexOfObject:orgArray[i]]!=NSNotFound)
+         {
+            [lanArray addObject:orgArray[i]];
+            LOG_DEBUG(@"studyToken institution lan %@",orgArray[i]);
+         }
+         else if ([DRS.lan indexOfObject:orgArray[i]]!=NSNotFound)
+         {
+            //find all dev of local custodian
+            if (DRS.oidsaeis[orgArray[i]])
+            {
+               [lanArray addObjectsFromArray:DRS.oidsaeis[orgArray[i]]];
+               LOG_VERBOSE(@"studyToken institution for lan %@:\r\n%@",orgArray[i],[DRS.oidsaeis[orgArray[i]]description]);
+            }
+            else
+            {
+               [lanArray addObjectsFromArray:DRS.titlestitlesaets[orgArray[i]]];
+               LOG_VERBOSE(@"studyToken institution for lan %@:\r\n%@",orgArray[i],[DRS.titlestitlesaets[orgArray[i]]description]);
+            }
          }
          else
          {
-            [devArray addObjectsFromArray:DRS.titlestitlesaets[orgArray[i]]];
-            LOG_VERBOSE(@"studyToken institution for dev %@:\r\n%@",orgArray[i],[DRS.titlestitlesaets[orgArray[i]]description]);
+            LOG_WARNING(@"studyToken institution '%@' not registered",orgArray[i]);
          }
       }
-      else
-      {
-         LOG_WARNING(@"studyToken institution '%@' not registered",orgArray[i]);
+   }
+   if (![lanArray count] && ![wanArray count]) return [RSErrorResponse responseWithClientError:404 message:@"no valid pacs in the request"];
+
+   if ([lanArray count]) [canonicalQuery appendFormat:@"\"lanPacs\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
+
+   if ([wanArray count]) [canonicalQuery appendFormat:@"\"wanPacs\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
+
+#pragma mark - exclusive filters
+
+#pragma mark StudyInstanceUID
+    NSString *StudyInstanceUIDRegexpString=nil;
+    NSInteger StudyInstanceUIDIndex=[names indexOfObject:@"StudyInstanceUID"];
+    if (StudyInstanceUIDIndex!=NSNotFound)
+    {
+       if ([values[StudyInstanceUIDIndex] length])
+       {
+          if ([DICMTypes isUIPipeListString:values[StudyInstanceUIDIndex]])
+          {
+             StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
+             [canonicalQuery appendFormat:@"\"StudyInstanceUID\":\"%@\",",StudyInstanceUIDRegexpString];
+          }
+          else return [RSErrorResponse responseWithClientError:404 message:@"studyToken param StudyInstanceUID: %@",values[StudyInstanceUIDIndex]];
+       }
+    }
+
+#pragma mark AccessionNumber
+    NSString *AccessionNumberEqualString=nil;
+    NSInteger AccessionNumberIndex=[names indexOfObject:@"AccessionNumber"];
+    if (AccessionNumberIndex!=NSNotFound)
+    {
+       AccessionNumberEqualString=[values[AccessionNumberIndex] sqlEqualEscapedString];
+       [canonicalQuery appendFormat:@"\"AccessionNumber\":\"%@\",",AccessionNumberEqualString];
+    }
+
+    
+#pragma mark - cumulative filters
+
+#pragma mark 1. PatientID (Pid)
+    NSString *PatientIDLikeString=nil;
+    NSInteger PatientIDIndex=[names indexOfObject:@"PatientID"];
+    if (PatientIDIndex!=NSNotFound)
+    {
+       PatientIDLikeString=[values[PatientIDIndex] sqlLikeEscapedString];
+       [canonicalQuery appendFormat:@"\"PatientID\":\"%@\",",PatientIDLikeString];
+    }
+
+#pragma mark 2. PatientName (Ppn)
+    
+   NSString *patientFamilyLikeString=nil;
+   NSInteger patientFamilyIndex=[names indexOfObject:@"patientFamily"];
+   if (patientFamilyIndex!=NSNotFound)
+   {
+      patientFamilyLikeString=[values[patientFamilyIndex] regexQuoteEscapedString];
+      [canonicalQuery appendFormat:@"\"patientFamily\":\"%@\",",patientFamilyLikeString];
+   }
+
+   NSString *patientGivenLikeString=nil;
+   NSInteger patientGivenIndex=[names indexOfObject:@"patientGiven"];
+   if (patientGivenIndex!=NSNotFound)
+   {
+      patientGivenLikeString=[values[patientGivenIndex] regexQuoteEscapedString];
+      [canonicalQuery appendFormat:@"\"patientGiven\":\"%@\",",patientGivenLikeString];
+   }
+
+   NSString *patientMiddleLikeString=nil;
+   NSInteger patientMiddleIndex=[names indexOfObject:@"patientMiddle"];
+   if (patientMiddleIndex!=NSNotFound)
+   {
+      patientMiddleLikeString=[values[patientMiddleIndex] regexQuoteEscapedString];
+      [canonicalQuery appendFormat:@"\"patientMiddle\":\"%@\",",patientMiddleLikeString];
+   }
+
+   NSString *patientPrefixLikeString=nil;
+   NSInteger patientPrefixIndex=[names indexOfObject:@"patientPrefix"];
+   if (patientPrefixIndex!=NSNotFound)
+   {
+      patientPrefixLikeString=[values[patientPrefixIndex] regexQuoteEscapedString];
+      [canonicalQuery appendFormat:@"\"patientPrefix\":\"%@\",",patientPrefixLikeString];
+   }
+
+   NSString *patientSuffixLikeString=nil;
+   NSInteger patientSuffixIndex=[names indexOfObject:@"patientSuffix"];
+   if (patientSuffixIndex!=NSNotFound)
+   {
+      patientSuffixLikeString=[values[patientSuffixIndex] regexQuoteEscapedString];
+      [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",patientSuffixLikeString];
+   }
+
+    
+#pragma mark 3. StudyID (Eid)
+    
+    NSString *StudyIDLikeString=nil;
+    NSInteger StudyIDIndex=[names indexOfObject:@"StudyID"];
+    if (StudyIDIndex!=NSNotFound)
+    {
+       StudyIDLikeString=[values[StudyIDIndex] sqlLikeEscapedString];
+       [canonicalQuery appendFormat:@"\"StudyID\":\"%@\",",StudyIDLikeString];
+    }
+
+    
+#pragma mark 4. StudyDate (Eda)
+    
+    NSArray *StudyDateArray=nil;
+    NSInteger StudyDateIndex=[names indexOfObject:@"StudyDate"];
+    if (StudyDateIndex!=NSNotFound)
+    {
+       NSString *StudyDateString=values[StudyDateIndex];
+       [canonicalQuery appendFormat:@"\"StudyDate\":\"%@\",",StudyDateString];
+       if (![StudyDateString length]) StudyDateArray=@[];
+       else
+       {
+          if (![DICMTypes isDA0or1PipeString:StudyDateString]) return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad StudyDate %@",StudyDateString];
+          else
+          {
+             NSArray *StudyDatePipeComponents=[StudyDateString componentsSeparatedByString:@"|"];
+             
+             if(![StudyDateArray[1] length])
+             {
+                //aaaa-mm-dd|  =since
+                StudyDateArray=@[StudyDatePipeComponents[0],@""];
+             }
+             else if(![StudyDateArray[0] length])
+             {
+                //|aaaa-mm-dd  =until
+                StudyDateArray=@[@"",@"",StudyDatePipeComponents[1]];
+             }
+             else
+             {
+                //aaaa-mm-dd|aaaa-mm-dd
+                //[aaaa-mm-dd][][][aaaa-mm-dd] = between
+                StudyDateArray=@[StudyDatePipeComponents[0],@"",@"",StudyDatePipeComponents[1]];
+             }
+          }
+        }
+    }
+
+ 
+#pragma mark 5. StudyDescription (Elo)
+    
+    NSString *StudyDescriptionRegexpString=nil;
+    NSInteger StudyDescriptionIndex=[names indexOfObject:@"StudyDescription"];
+    if (StudyDescriptionIndex!=NSNotFound)
+    {
+       StudyDescriptionRegexpString=[values[StudyDescriptionIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"StudyDescription\":\"%@\",",StudyDescriptionRegexpString];
+    }
+
+    
+#pragma mark 6. ref
+    
+    NSString *refInstitutionLikeString=nil;
+    NSInteger refInstitutionIndex=[names indexOfObject:@"refInstitution"];
+    if (refInstitutionIndex!=NSNotFound)
+    {
+       refInstitutionLikeString=[values[refInstitutionIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"refInstitution\":\"%@\",",refInstitutionLikeString];
+    }
+//3.10 refService
+    NSString *refServiceLikeString=nil;
+    NSInteger refServiceIndex=[names indexOfObject:@"refService"];
+    if (refServiceIndex!=NSNotFound)
+    {
+       refServiceLikeString=[values[refServiceIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"refService\":\"%@\",",refServiceLikeString];
+    }
+//3.10 refUser
+    NSString *refUserLikeString=nil;
+    NSInteger refUserIndex=[names indexOfObject:@"refUser"];
+    if (refUserIndex!=NSNotFound)
+    {
+       refUserLikeString=[values[refUserIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"refUser\":\"%@\",",refUserLikeString];
+    }
+//3.10 refID
+    NSString *refIDLikeString=nil;
+    NSInteger refIDIndex=[names indexOfObject:@"refID"];
+    if (refIDIndex!=NSNotFound)
+    {
+       refIDLikeString=[values[refIDIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"refID\":\"%@\",",refIDLikeString];
+    }
+//3.10 refIDType
+    NSString *refIDTypeLikeString=nil;
+    NSInteger refIDTypeIndex=[names indexOfObject:@"refIDType"];
+    if (refIDTypeIndex!=NSNotFound)
+    {
+       refIDTypeLikeString=[values[refIDTypeIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"refIDType\":\"%@\",",refIDTypeLikeString];
+    }
+
+
+#pragma mark 7. read
+    NSString *readInstitutionSqlLikeString=nil;
+    NSInteger readInstitutionIndex=[names indexOfObject:@"readInstitution"];
+    if (readInstitutionIndex!=NSNotFound)
+    {
+       readInstitutionSqlLikeString=[values[readInstitutionIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"readInstitution\":\"%@\",",readInstitutionSqlLikeString];
+    }
+
+    NSString *readServiceSqlLikeString=nil;
+    NSInteger readServiceIndex=[names indexOfObject:@"readService"];
+    if (readServiceIndex!=NSNotFound)
+    {
+       readServiceSqlLikeString=[values[readServiceIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"readService\":\"%@\",",readServiceSqlLikeString];
+    }
+
+    NSString *readUserSqlLikeString=nil;
+    NSInteger readUserIndex=[names indexOfObject:@"readUser"];
+    if (readUserIndex!=NSNotFound)
+    {
+       readUserSqlLikeString=[values[readUserIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"readUser\":\"%@\",",readUserSqlLikeString];
+    }
+
+    NSString *readIDSqlLikeString=nil;
+    NSInteger readIDIndex=[names indexOfObject:@"readID"];
+    if (readIDIndex!=NSNotFound)
+    {
+       readIDSqlLikeString=[values[readIDIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"readID\":\"%@\",",readIDSqlLikeString];
+    }
+    
+    NSString *readIDTypeSqlLikeString=nil;
+    NSInteger readIDTypeIndex=[names indexOfObject:@"readIDType"];
+    if (readIDTypeIndex!=NSNotFound)
+    {
+       readIDTypeSqlLikeString=[values[readIDTypeIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"readIDType\":\"%@\",",readIDTypeSqlLikeString];
+    }
+   
+    
+#pragma mark 8. SOPClassInStudyString
+    
+   NSString *SOPClassInStudyRegexpString=nil;
+   NSInteger SOPClassInStudyIndex=[names indexOfObject:@"SOPClassInStudy"];
+   if (SOPClassInStudyIndex!=NSNotFound)
+   {
+      if ([DICMTypes isSingleUIString:values[SOPClassInStudyIndex]]) SOPClassInStudyRegexpString=values[SOPClassInStudyIndex];
+      [canonicalQuery appendFormat:@"\"SOPClassInStudy\":\"%@\",",SOPClassInStudyRegexpString];
+   }
+
+   
+#pragma mark 9. ModalityInStudyString
+   NSString *ModalityInStudyRegexpString=nil;
+   NSInteger ModalityInStudyIndex=[names indexOfObject:@"ModalityInStudy"];
+   if (ModalityInStudyIndex!=NSNotFound)
+   {
+      if ([DICMTypes isSingleCSString:values[ModalityInStudyIndex]]) ModalityInStudyRegexpString=values[ModalityInStudyIndex];
+      [canonicalQuery appendFormat:@"\"ModalityInStudy\":\"%@\",",ModalityInStudyRegexpString];
+   }
+
+#pragma mark issuer
+    
+   NSArray *issuerArray=nil;
+   NSInteger issuerIndex=[names indexOfObject:@"issuer"];
+   if (issuerIndex==NSNotFound) issuerArray=nil;
+   else
+   {
+      [canonicalQuery appendFormat:@"\"issuer\":\"%@\",",[values[issuerIndex] sqlEqualEscapedString]];
+      NSArray *array=[[values[issuerIndex] sqlEqualEscapedString] componentsSeparatedByString:@"^"];
+      switch (array.count) {
+         case 1:
+         {
+            if ([array[0] length]==0) issuerArray=@[];
+            else if ([array[0] length]<17) issuerArray=[NSArray arrayWithArray:array];
+            else return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad param issuer: '%@'",values[issuerIndex]];
+         } break;
+         case 3:
+         {
+            if ([array[1] length] && ([@[@"DNS",@"EUI64",@"ISO",@"URI",@"UUID",@"X400",@"X500"] indexOfObject:array[2]]!=NSNotFound))
+            {
+               if (![array[0] length]) issuerArray=[NSArray arrayWithArray:array];
+               else if ([array[0] length]<17) issuerArray=[array arrayByAddingObject:array[0]];
+               else return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad param issuer: '%@'",values[issuerIndex]];
+            }
+         } break;
+         default:
+         {
+            return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad param issuer: '%@'",values[issuerIndex]];
+         } break;
       }
    }
-   if (![devArray count] && ![wanArray count]) return [RSErrorResponse responseWithClientError:404 message:@"no known pacs in:\r\n%@",[orgArray description]];
 
 
-#pragma mark series restriction in query?
+#pragma mark series restrictions
 
-//#pragma mark SeriesNumber
+//5.30 SeriesInstanceUID
    NSRegularExpression *SeriesInstanceUIDRegex=nil;
    NSInteger SeriesInstanceUIDIndex=[names indexOfObject:@"SeriesInstanceUID"];
-   if (SeriesInstanceUIDIndex!=NSNotFound) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:values[SeriesInstanceUIDIndex] options:0 error:NULL];
-//#pragma mark SeriesNumber
+   if (SeriesInstanceUIDIndex!=NSNotFound)
+   {
+      SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:values[SeriesInstanceUIDIndex] options:0 error:NULL];
+      [canonicalQuery appendFormat:@"\"SeriesInstanceUID\":\"%@\",",values[SeriesInstanceUIDIndex]];
+   }
+   
+//5.31 SeriesNumber
    NSRegularExpression *SeriesNumberRegex=nil;
    NSInteger SeriesNumberIndex=[names indexOfObject:@"SeriesNumber"];
-   if (SeriesNumberIndex!=NSNotFound) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:values[SeriesNumberIndex] options:0 error:NULL];
-//#pragma mark SeriesDescription
+   if (SeriesNumberIndex!=NSNotFound)
+   {
+      SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:values[SeriesNumberIndex] options:0 error:NULL];
+      [canonicalQuery appendFormat:@"\"SeriesNumber\":\"%@\",",values[SeriesNumberIndex]];
+   }
+
+//5.32 SeriesDescription@StationName@Department@Institution
    NSRegularExpression *SeriesDescriptionRegex=nil;
    NSInteger SeriesDescriptionIndex=[names indexOfObject:@"SeriesDescription"];
-   if (SeriesDescriptionIndex!=NSNotFound) SeriesDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:values[SeriesDescriptionIndex] options:0 error:NULL];
-//#pragma mark Modality
+   if (SeriesDescriptionIndex!=NSNotFound)
+   {
+      SeriesDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:values[SeriesDescriptionIndex] options:0 error:NULL];
+      [canonicalQuery appendFormat:@"\"SeriesDescription\":\"%@\",",values[SeriesDescriptionIndex]];
+   }
+   
+//5.33 Modality
    NSRegularExpression *ModalityRegex=nil;
    NSInteger ModalityIndex=[names indexOfObject:@"Modality"];
-   if (ModalityIndex!=NSNotFound) ModalityRegex=[NSRegularExpression regularExpressionWithPattern:values[ModalityIndex] options:0 error:NULL];
-//#pragma mark SOPClass
+   if (ModalityIndex!=NSNotFound)
+   {
+      ModalityRegex=[NSRegularExpression regularExpressionWithPattern:values[ModalityIndex] options:0 error:NULL];
+      [canonicalQuery appendFormat:@"\"Modality\":\"%@\",",values[ModalityIndex]];
+   }
+
+//5.34 SOPClass
    NSRegularExpression *SOPClassRegex=nil;
    NSInteger SOPClassIndex=[names indexOfObject:@"SOPClass"];
-   if (SOPClassIndex!=NSNotFound) SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:values[SOPClassIndex] options:0 error:NULL];
+   if (SOPClassIndex!=NSNotFound)
+   {
+      SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:values[SOPClassIndex] options:0 error:NULL];
+      [canonicalQuery appendFormat:@"\"SOPClass\":\"%@\",",values[SOPClassIndex]];
+   }
+   
+//5.35 SOPClassOff
+   NSRegularExpression *SOPClassOffRegex=nil;
+   NSInteger SOPClassOffIndex=[names indexOfObject:@"SOPClassOff"];
+   if (SOPClassOffIndex!=NSNotFound)
+   {
+      SOPClassOffRegex=[NSRegularExpression regularExpressionWithPattern:values[SOPClassOffIndex] options:0 error:NULL];
+      [canonicalQuery appendFormat:@"\"SOPClassOff\":\"%@\",",values[SOPClassOffIndex]];
+   }
+
+//hasRestriction?
    BOOL hasRestriction=
       SeriesInstanceUIDRegex
    || SeriesNumberRegex
    || SeriesDescriptionRegex
    || ModalityRegex
-   || SOPClassRegex;
+   || SOPClassRegex
+   || SOPClassOffRegex;
 
+#pragma mark sha512
+   [canonicalQuery replaceCharactersInRange:NSMakeRange(canonicalQuery.length-1, 1) withString:@"}"];
+   LOG_DEBUG(@"curl --header \"Content-Type: application/json\" --request POST --data '%@' %@ > dcm.zip",canonicalQuery,[request.URL absoluteString]);
+   NSString *canonicalQuerySHA512String=[canonicalQuery SHA512String];
+   NSString *queryPath=
+   [
+    [
+     [
+      DRS.tokentmpDir
+      stringByAppendingPathComponent:@"query"
+     ]
+     stringByAppendingPathComponent:canonicalQuerySHA512String
+    ]
+    stringByAppendingPathExtension:@"json"
+   ];
 
-//#pragma mark SOPClassOff
-   NSRegularExpression *SOPClassOffRegex=nil;
-   NSInteger SOPClassOffIndex=[names indexOfObject:@"SOPClassOff"];
-   if (SOPClassOffIndex!=NSNotFound) SOPClassOffRegex=[NSRegularExpression regularExpressionWithPattern:values[SOPClassOffIndex] options:0 error:NULL];
+   NSString *matchPath=
+   [
+    [
+     [
+      DRS.tokentmpDir
+      stringByAppendingPathComponent:@"match"
+     ]
+     stringByAppendingPathComponent:canonicalQuerySHA512String
+    ]
+    stringByAppendingPathExtension:@"json"
+   ];
 
-   
-#pragma mark Patient Study filter formal validity?
-   NSInteger StudyInstanceUIDsIndex=[names indexOfObject:@"StudyInstanceUID"];
-   NSArray *StudyInstanceUIDArray=nil;
-   NSInteger AccessionNumberIndex=[names indexOfObject:@"AccessionNumber"];
-   NSString *AccessionNumberString=nil;
-   NSInteger PatientIDIndex=[names indexOfObject:@"PatientID"];
-   NSString *PatientIDString=nil;
-   NSInteger StudyDateIndex=[names indexOfObject:@"StudyDate"];
-   NSMutableArray *StudyDateArray=[NSMutableArray array];
-   if ((StudyInstanceUIDsIndex!=NSNotFound)&&([values[StudyInstanceUIDsIndex] length]))
+   if (![defaultManager fileExistsAtPath:queryPath])
    {
-      if (
-            ((AccessionNumberIndex!=NSNotFound)&&([values[AccessionNumberIndex] length]))
-          ||((StudyDateIndex!=NSNotFound)&&([values[StudyDateIndex] length]))
-          ||((PatientIDIndex!=NSNotFound)&&([values[PatientIDIndex] length]))
-          ) return [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken StudyInstanceUID shoud not be present together with AccessionNumber or StudyDate or PatientID"];
-      for (NSString *uid in [values[StudyInstanceUIDsIndex]componentsSeparatedByString:@"~"])
-      {
-         if (![DICMTypes isSingleUIString:uid]) return [RSErrorResponse responseWithClientError:404 message:@"studyToken no StudyInstanceUID found in %@",uid];
-      }
-      StudyInstanceUIDArray=[values[StudyInstanceUIDsIndex]componentsSeparatedByString:@"~"];
+      //save first time request
+      [canonicalQuery writeToFile:canonicalQuerySHA512String atomically:NO encoding:NSUTF8StringEncoding error:nil];
    }
-   else if ((AccessionNumberIndex!=NSNotFound)&&([values[AccessionNumberIndex] length]))
+   else
    {
-      if (
-            ((StudyDateIndex!=NSNotFound)&&([values[StudyDateIndex] length]))
-          ||((PatientIDIndex!=NSNotFound)&&([values[StudyDateIndex] length]))
-          ) return [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken AccessionNumber should not be present together with StudyDate or PatientID"];
-       AccessionNumberString=values[AccessionNumberIndex];
-   }
-   else if ((PatientIDIndex!=NSNotFound)&&[values[PatientIDIndex] length])
-   {
-       PatientIDString=values[PatientIDIndex];
-      
-       if (StudyDateIndex!=NSNotFound)
+      //request already exists, load response if exists
+       JSONArray=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:matchPath] options:NSJSONReadingMutableContainers  error:&error];
+       if (! JSONArray)
        {
-          NSString *StudyDateString=values[StudyDateIndex];
-          /*
-           input options are:
-           ()
-           |aaaa-mm-dd
-           aaaa-mm-dd
-           aaaa-mm-dd|
-           aaaa-mm-dd|aaaa-mm-dd
-           
-           output format options are:
-           sqlEP4PidEda0 (empty) = whichever date
-           sqlEP4PidEda1 [aaaa-mm-dd] = on
-           sqlEP4PidEda2 [aaaa-mm-dd][] = since
-           sqlEP4PidEda3 [][][aaaa-mm-dd] = until
-           sqlEP4PidEda4 [aaaa-mm-dd][][][aaaa-mm-dd] = between
-           */
-          if (!StudyDateString.length) StudyDateArray=[NSMutableArray array];
-          else //>0
-          {
-             [StudyDateArray addObjectsFromArray:[StudyDateString componentsSeparatedByString:@"|"]];
-             BOOL date0=NO;
-             if (StudyDateArray.count > 0) date0=[DICMTypes isSingleDAISOString:StudyDateArray[0]];
-             BOOL date1=NO;
-             if (StudyDateArray.count > 1) date1=[DICMTypes isSingleDAISOString:StudyDateArray[1]];
-
-             if ((StudyDateArray.count==1) && date0)
-             {
-                //aaaa-mm-dd
-                //1 [aaaa-mm-dd] -> on
-             }
-             else if ((StudyDateArray.count==2) && date0 && date1)
-             {
-                //aaaa-mm-dd|aaaa-mm-dd
-                //4 [aaaa-mm-dd][][][aaaa-mm-dd] -> since / until
-                [StudyDateArray insertObject:@"" atIndex:1];
-                [StudyDateArray insertObject:@"" atIndex:1];
-             }
-             else if (     (StudyDateArray.count==2)
-                       &&  date0
-                       && ![StudyDateArray[1] length]
-                      )
-             {
-                //aaaa-mm-dd|
-                //2 [aaaa-mm-dd][] -> since
-             }
-             else if (     (StudyDateArray.count==2)
-                       && ![StudyDateArray[0] length]
-                       &&  date1
-                      )
-             {
-                //|aaaa-mm-dd
-                //3 [][][aaaa-mm-dd] -> until
-                [StudyDateArray insertObject:@"" atIndex:0];
-             }
-             else return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad StudyDate %@",StudyDateString];
-          }
+          LOG_WARNING(@"studyToken descarted cached match %@. %@",[matchPath lastPathComponent], [error description]);
+          if (![defaultManager
+                moveItemAtPath:matchPath
+                toPath:[DRS.tokentmpDir stringByAppendingPathComponent:@"descarted"] error:&error])
+          LOG_WARNING(@"studyToken could remove bad match file. %@",[error description]);
        }
    }
-   else return [RSErrorResponse responseWithClientError:404 message:@"%@",@"studyToken one of StudyInstanceUID, AccessionNumber or PatientID+StudyDate should be present"];
-  
-
-   //issuer (may be nil)
-   NSString *issuerString=nil;
-   NSInteger issuerIndex=[names indexOfObject:@"issuer"];
-   if (issuerIndex!=NSNotFound) issuerString=values[issuerIndex];
+   if (!JSONArray) JSONArray=[NSMutableArray array];
 
 
-#pragma mark ACCESS switch
+#pragma mark · 6 accessType
+
+//6.1
    NSInteger accessType=NSNotFound;
    NSString *requestPath=request.path;
    if (![requestPath isEqualToString:@"/studyToken"])
@@ -2303,12 +2701,37 @@ RSResponse* osirixdcmURLs(
    switch (accessType) {
       case accessTypeWeasis:{
          return weasis(
+                 JSONArray,
+                 canonicalQuerySHA512String,
                  proxyURIString,
                  sessionString,
                  tokenString,
-                 devArray,
+                 lanArray,
                  wanArray,
-                 nil,
+                 StudyInstanceUIDRegexpString,
+                 AccessionNumberEqualString,
+                 refInstitutionLikeString,
+                 refServiceLikeString,
+                 refUserLikeString,
+                 refIDLikeString,
+                 refIDTypeLikeString,
+                 readInstitutionSqlLikeString,
+                 readServiceSqlLikeString,
+                 readUserSqlLikeString,
+                 readIDSqlLikeString,
+                 readIDTypeSqlLikeString,
+                 StudyIDLikeString,
+                 PatientIDLikeString,
+                 patientFamilyLikeString,
+                 patientGivenLikeString,
+                 patientMiddleLikeString,
+                 patientPrefixLikeString,
+                 patientSuffixLikeString,
+                 issuerArray,
+                 StudyDateArray,
+                 SOPClassInStudyRegexpString,
+                 ModalityInStudyRegexpString,
+                 StudyDescriptionRegexpString,
                  hasRestriction,
                  SeriesInstanceUIDRegex,
                  SeriesNumberRegex,
@@ -2316,22 +2739,42 @@ RSResponse* osirixdcmURLs(
                  ModalityRegex,
                  SOPClassRegex,
                  SOPClassOffRegex,
-                 StudyInstanceUIDArray,
-                 AccessionNumberString,
-                 PatientIDString,
-                 StudyDateArray,
-                 issuerString,
                  accessType
                  );
          } break;//end of sql wado weasis
       case accessTypeCornerstone:{
          return cornerstone(
+                 JSONArray,
+                 canonicalQuerySHA512String,
                  proxyURIString,
                  sessionString,
                  tokenString,
-                 devArray,
+                 lanArray,
                  wanArray,
-                 nil,
+                 StudyInstanceUIDRegexpString,
+                 AccessionNumberEqualString,
+                 refInstitutionLikeString,
+                 refServiceLikeString,
+                 refUserLikeString,
+                 refIDLikeString,
+                 refIDTypeLikeString,
+                 readInstitutionSqlLikeString,
+                 readServiceSqlLikeString,
+                 readUserSqlLikeString,
+                 readIDSqlLikeString,
+                 readIDTypeSqlLikeString,
+                 StudyIDLikeString,
+                 PatientIDLikeString,
+                 patientFamilyLikeString,
+                 patientGivenLikeString,
+                 patientMiddleLikeString,
+                 patientPrefixLikeString,
+                 patientSuffixLikeString,
+                 issuerArray,
+                 StudyDateArray,
+                 SOPClassInStudyRegexpString,
+                 ModalityInStudyRegexpString,
+                 StudyDescriptionRegexpString,
                  hasRestriction,
                  SeriesInstanceUIDRegex,
                  SeriesNumberRegex,
@@ -2339,11 +2782,6 @@ RSResponse* osirixdcmURLs(
                  ModalityRegex,
                  SOPClassRegex,
                  SOPClassOffRegex,
-                 StudyInstanceUIDArray,
-                 AccessionNumberString,
-                 PatientIDString,
-                 StudyDateArray,
-                 issuerString,
                  accessType
                  );
          } break;//end of sql wado cornerstone
@@ -2353,12 +2791,37 @@ RSResponse* osirixdcmURLs(
       case accessTypeMaxDeflateIsoDicomZip:
       {
             return dicomzip(
+                    JSONArray,
+                    canonicalQuerySHA512String,
                     proxyURIString,
                     sessionString,
                     tokenString,
-                    devArray,
+                    lanArray,
                     wanArray,
-                    nil,
+                    StudyInstanceUIDRegexpString,
+                    AccessionNumberEqualString,
+                    refInstitutionLikeString,
+                    refServiceLikeString,
+                    refUserLikeString,
+                    refIDLikeString,
+                    refIDTypeLikeString,
+                    readInstitutionSqlLikeString,
+                    readServiceSqlLikeString,
+                    readUserSqlLikeString,
+                    readIDSqlLikeString,
+                    readIDTypeSqlLikeString,
+                    StudyIDLikeString,
+                    PatientIDLikeString,
+                    patientFamilyLikeString,
+                    patientGivenLikeString,
+                    patientMiddleLikeString,
+                    patientPrefixLikeString,
+                    patientSuffixLikeString,
+                    issuerArray,
+                    StudyDateArray,
+                    SOPClassInStudyRegexpString,
+                    ModalityInStudyRegexpString,
+                    StudyDescriptionRegexpString,
                     hasRestriction,
                     SeriesInstanceUIDRegex,
                     SeriesNumberRegex,
@@ -2366,23 +2829,43 @@ RSResponse* osirixdcmURLs(
                     ModalityRegex,
                     SOPClassRegex,
                     SOPClassOffRegex,
-                    StudyInstanceUIDArray,
-                    AccessionNumberString,
-                    PatientIDString,
-                    StudyDateArray,
-                    issuerString,
                     accessType
                     );
          
          } break;//end of sql wado dicomzip
       case accessTypeOsirix:{
             return osirixdcmURLs(
+                    JSONArray,
+                    canonicalQuerySHA512String,
                     proxyURIString,
                     sessionString,
                     tokenString,
-                    devArray,
+                    lanArray,
                     wanArray,
-                    nil,
+                    StudyInstanceUIDRegexpString,
+                    AccessionNumberEqualString,
+                    refInstitutionLikeString,
+                    refServiceLikeString,
+                    refUserLikeString,
+                    refIDLikeString,
+                    refIDTypeLikeString,
+                    readInstitutionSqlLikeString,
+                    readServiceSqlLikeString,
+                    readUserSqlLikeString,
+                    readIDSqlLikeString,
+                    readIDTypeSqlLikeString,
+                    StudyIDLikeString,
+                    PatientIDLikeString,
+                    patientFamilyLikeString,
+                    patientGivenLikeString,
+                    patientMiddleLikeString,
+                    patientPrefixLikeString,
+                    patientSuffixLikeString,
+                    issuerArray,
+                    StudyDateArray,
+                    SOPClassInStudyRegexpString,
+                    ModalityInStudyRegexpString,
+                    StudyDescriptionRegexpString,
                     hasRestriction,
                     SeriesInstanceUIDRegex,
                     SeriesNumberRegex,
@@ -2390,11 +2873,6 @@ RSResponse* osirixdcmURLs(
                     ModalityRegex,
                     SOPClassRegex,
                     SOPClassOffRegex,
-                    StudyInstanceUIDArray,
-                    AccessionNumberString,
-                    PatientIDString,
-                    StudyDateArray,
-                    issuerString,
                     accessType
                     );
          } break;//end of sql wado osirix

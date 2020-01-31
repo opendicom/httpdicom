@@ -7,11 +7,17 @@
         
         <!-- match study UID -->
         <key>EP4Eui</key>
-        <string>%@SELECT pk,patient_fk FROM study WHERE study_iuid='%@' %@ %@</string>
+        <string>%@SELECT pk,patient_fk FROM study WHERE study_iuid REGEXP '%@' %@ %@</string>
         
         <!-- match accession number -->
         <key>EP4Ean</key>
         <string>%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' %@ %@</string>
+        <!-- match accession number and accession issuer -->
+        <key>EP4EanIei</key>
+        <string>%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' AND 'no_issuer' REGEXP '%@' %@ %@</string>
+        <!-- match accession number and accession issuer universal and type -->
+        <key>EP4EanIeiIet</key>
+        <string>%@SELECT pk,patient_fk FROM study WHERE accession_no='%@' AND 'no_issuer' REGEXP '%@' AND 'no_issuer_type' REGEXP '%@' %@ %@</string>
 
 
 
@@ -68,6 +74,12 @@
        <!-- match accession number -->
        <key>EuiE4Ean</key>
        <string>%@SELECT study_iuid, pk FROM study WHERE accession_no='%@' %@ %@</string>
+       <!-- match accession number and accession issuer -->
+       <key>EuiE4EanIei</key>
+       <string>%@SELECT study_iuid, pk FROM study WHERE accession_no='%@' AND 'no_issuer' REGEXP '%@' %@ %@</string>
+       <!-- match accession number and accession issuer universal and type -->
+       <key>EuiE4EanIeiIet</key>
+       <string>%@SELECT study_iuid, pk FROM study WHERE accession_no='%@' AND 'no_issuer' REGEXP '%@' AND 'no_issuer_type' REGEXP '%@' %@ %@</string>
 
 
 
@@ -132,26 +144,29 @@
 
         <!-- patient -->
         <key>P</key>
-        <string>%@SELECT pk,pat_id,pat_name,pat_id_issuer,pat_birthdate,pat_sex FROM patient WHERE pk='%@' %@ %@</string>
+        <string>%@SELECT pk,pat_id,pat_name,pat_id_issuer,pat_birthdate,pat_sex FROM patient WHERE pk=%@ %@ %@</string>
 
         <!-- examen -->
         <key>E</key>
-        <string>%@SELECT pk,study_iuid,study_desc,DATE(study_datetime),TIME(study_datetime),accession_no,study_id,ref_physician,num_instances,mods_in_study FROM study WHERE pk='%@' %@ %@</string>
+        <string>%@SELECT pk,study_iuid,study_desc,DATE(study_datetime),TIME(study_datetime),accession_no,study_id,ref_physician,study_custom3,num_instances,mods_in_study FROM study WHERE pk=%@ %@ %@</string>
 
         <!-- serie -->
         <key>S</key>
-        <string>%@SELECT pk,series_iuid,series_desc,series_no,modality,institution,department,station_name,perf_physician,laterality FROM series WHERE study_fk='%@' %@ %@</string>
+        <string>%@SELECT pk,series_iuid,series_desc,series_no,modality,institution,department,station_name,perf_physician,laterality FROM series WHERE study_fk=%@ %@ %@</string>
 
         <!-- instance -->
+        <key>I0</key>
+        <string>%@SELECT pk,sop_iuid,inst_no,0 FROM instance WHERE series_fk=%@ %@ %@</string>
+        <key>I1</key>
+        <string>%@SELECT pk,sop_iuid,inst_no,1 FROM instance WHERE series_fk=%@ %@ %@</string>
         <key>I</key>
-        <string>%@SELECT pk,sop_iuid,inst_no,sop_cuid FROM instance WHERE series_fk='%@' %@ %@</string>
-        
-        
-        <!-- other-->
+        <string>%@SELECT pk,sop_iuid,inst_no,HEX(inst_attrs) FROM instance WHERE series_fk=%@ %@ %@</string>
 
-        <!--  -->
-        <key>other</key>
-        <string></string>
+        <key>IpostprocessingCommandsSh</key><!-- if empty, default array  -->      
+        <string> | awk ' BEGIN{ ORS="\x1E\x0A"; OFS="\x1F\x7C";}{print $1, $2, $3, $4, $5}' | sed -e 's/080005004353.*280008004953....//' | sed -e 's/280010005553.*$//' | sed -e 's/20$//'</string>
+        
+        <key>IpostprocessingTitleMain</key>      
+        <string>lastTextUnitHEX2ASCII</string>
         
     </dict>
 

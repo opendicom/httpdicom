@@ -26,11 +26,12 @@
 @interface WeasisPatient : NSXMLElement
 
 +(NSXMLElement*)pk:(NSString*)pk
-               pid:(NSString*)pid
-              name:(NSString*)name
-            issuer:(NSString*)issuer
-         birthdate:(NSString*)birthdate
-               sex:(NSString*)sex
+weasisPatientID:(NSString*)weasisPatientID
+weasisPatientName:(NSString*)weasisPatientName
+weasisIssuerOfPatientID:(NSString*)weasisIssuerOfPatientID
+weasisPatientBirthDate:(NSString*)weasisPatientBirthDate
+weasisPatientBirthTime:(NSString*)weasisPatientBirthTime
+weasisPatientSex:(NSString*)weasisPatientSex
 ;
 
 @end

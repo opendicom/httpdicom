@@ -7,23 +7,26 @@
     
     version="1.0"
     >
-    <array><!-- CUDIM -->
-        
+    <!-- SWISS MEDICAL URUGUAY S.A -->
+    <!-- Blue Cross / Blue Shield Uruguay -->
+    <!-- BCBSU -->
+    <!-- 10014131 -->
+    <array>
         <dict>
             <key>pacsoid</key>
-            <string id="pacsoid">2.16.858.0.1.4.0.72769.217215590012.2</string>
+            <string id="pacsoid">2.16.858.2.10014131.72769.1</string><!-- .pacs.1 -->
             <key>pacsaet</key>
-            <string id="pacsaet">DCM4CHEE</string>
+            <string id="pacsaet">CUDIM</string>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
             <key>timezoneoffsetfromutc</key>
             <string id="timezoneoffsetfromutc">+0300</string>
             <key>custodiantitle</key>
-            <string id="custodiantitle">CUDIM</string>
+            <string id="custodiantitle">BCBSU</string>
             <key>custodianoid</key>
-            <string id="custodianoid">2.16.858.0.1.4.0</string>
+            <string id="custodianoid">2.16.858.0.2.16.86.9.0.0.9.212659800019</string>
             <key>custodianglobaluri</key>
-            <string id="custodianglobaluri">190.64.48.21</string>
+            <string id="custodianglobaluri">https://html5dicom.bcbsu.com.uy</string>
             <key>countrycode</key>
             <string id="countrycode">uy</string>
             <key>principallanguage</key>
@@ -34,19 +37,18 @@
             <key>get</key>
             <string id="get">wado</string>
             <key>mwl</key>
-            <string id="mwl">none</string>
+            <string id="mwl">mllp</string>
             
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
             <key>sqlpassword</key>
-            <string id="sqlpassword">root</string>
+            <string id="sqlpassword">pacspass</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -uroot -h 127.0.0.1 -b pacsdb -e &quot;</string>
+            <string id="sqlprolog">export MYSQL_PWD=pacspass;mysql --raw --skip-column-names -u pacsuser -h 127.0.0.1 -b pacsdb -e &quot;</string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
             <string id="sqlmap">dcm4cheearc517mysql</string>
-            
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
             
@@ -54,21 +56,21 @@
             <string id="sopstringencoding">4</string>
             
             <key>mllpip</key>
-            <string id="mllpip"></string>
+            <string id="mllpip">127.0.0.1</string>
             <key>mllpport</key>
             <string id="mllpport">2575</string>
 
             <key>DICMip</key>
             <string id="DICMip">127.0.0.1</string>
             <key>DICMport</key>
-            <string id="DICMport">11112</string>
+            <string id="DICMport">11114</string>
             
             <key>cachepolicy</key>
             <string id="cachepolicy">1</string>
             <key>timeoutinterval</key>
             <string id="timeoutinterval">60</string>
             <key>wadouri</key>
-            <string id="wadouri">http://192.168.1.102:8080/dcm4chee-arc/aets/DCM4CHEE/wado</string>
+            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/DCM4CHEE</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>            
             <key>wadoweasisparameters</key>
@@ -88,20 +90,58 @@
             <key>wadozip64parameters</key>
             <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
-            <string id="wadors"></string>
+            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/DCM4CHEE/rs</string>
             <key>qido</key>
-            <string id="qido"></string>
+            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/DCM4CHEE/rs</string>
             <key>stow</key>
             <string id="stow"></string>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri"></string>
+            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/DCM4CHEE</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
             <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
             <key>html5dicomuseractive</key>
-            <false/>            
-         </dict>
+            <false/>
+            
+            <key>services</key>
+            <dict>
+                <key>PE-CR</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname">PO-CR</string>
+                    <key>description</key>
+                    <string id="description">Rayos X en Punta del Este</string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
+                    <key>modalities</key>
+                    <string id="modalities">CR</string>
+                </dict>
+                <key>PO-CR</key>
+                <dict>
+                    <key>shortname</key>
+                    <string id="shortname">PO-CR</string>
+                    <key>description</key>
+                    <string id="description">Rayos X en Pocitos</string>				
+                    <key>location</key>
+                    <string id="location"></string>
+                    <key>html5dicomuserserviceuri</key>
+                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <key>html5dicomuseractive</key>
+                    <false/>
+                    <key>aetitles</key>
+                    <string id="aetitles"></string>
+                    <key>modalities</key>
+                    <string id="modalities">CT</string>
+                </dict>
+            </dict>
+        </dict>
     </array>
 </plist>

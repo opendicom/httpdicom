@@ -11,19 +11,25 @@
 @implementation WeasisInstance
 
 +(NSXMLElement*)pk:(NSString*)pk
-               uid:(NSString*)uid
-               num:(NSString*)num
+weasisSOPInstanceUID:(NSString*)weasisSOPInstanceUID
+weasisInstanceNumber:(NSString*)weasisInstanceNumber
+weasisDirectDownloadFile:(NSString*)weasisDirectDownloadFile 
+NumberOfFrames:(NSString*)NumberOfFrames
 {
-   if (!pk || !uid) return nil;
+   if (!pk || !weasisSOPInstanceUID) return nil;
    
    NSXMLElement *Instance=[NSXMLElement elementWithName:@"Instance"];
    
-   //attributes
-   //[Instance addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
-   [Instance addAttribute:[NSXMLNode attributeWithName:@"SOPInstanceUID" stringValue:uid]];
-   
-   if (num) [Instance addAttribute:[NSXMLNode attributeWithName:@"InstanceNumber" stringValue:num]];
+   //required attributes
+   [Instance addAttribute:[NSXMLNode attributeWithName:@"SOPInstanceUID" stringValue:weasisSOPInstanceUID]];
 
+   //optional attributes
+   if (weasisInstanceNumber) [Instance addAttribute:[NSXMLNode attributeWithName:@"InstanceNumber" stringValue:weasisInstanceNumber]];
+   if (weasisDirectDownloadFile) [Instance addAttribute:[NSXMLNode attributeWithName:@"DirectDownloadFile" stringValue:weasisDirectDownloadFile]];
+   if (NumberOfFrames) [Instance addAttribute:[NSXMLNode attributeWithName:@"NumberOfFrames" stringValue:NumberOfFrames]];
+
+   [Instance addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
+   
    return Instance;
 }
 @end

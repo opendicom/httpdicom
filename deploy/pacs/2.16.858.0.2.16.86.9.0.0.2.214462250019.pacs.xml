@@ -7,21 +7,24 @@
     
     version="1.0"
     >
-    <array><!-- CUDIM -->
+    <!-- Clínica de Imágenes Dres. Parada -->
+    <!-- CIP -->
+    <!-- 214462250019 -->
+    <array>
         
         <dict>
             <key>pacsoid</key>
-            <string id="pacsoid">2.16.858.0.1.4.0.72769.217215590012.2</string>
+            <string id="pacsoid">2.16.858.2.214462250019.72769.1</string><!-- .pacs.1 -->
             <key>pacsaet</key>
-            <string id="pacsaet">DCM4CHEE</string>
+            <string id="pacsaet">CIP</string>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
             <key>timezoneoffsetfromutc</key>
             <string id="timezoneoffsetfromutc">+0300</string>
             <key>custodiantitle</key>
-            <string id="custodiantitle">CUDIM</string>
+            <string id="custodiantitle">CIP</string>
             <key>custodianoid</key>
-            <string id="custodianoid">2.16.858.0.1.4.0</string>
+            <string id="custodianoid">2.16.858.0.2.16.86.9.0.0.2.214462250019</string>
             <key>custodianglobaluri</key>
             <string id="custodianglobaluri">190.64.48.21</string>
             <key>countrycode</key>
@@ -39,13 +42,13 @@
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
             <key>sqlpassword</key>
-            <string id="sqlpassword">root</string>
+            <string id="sqlpassword">pcs</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -uroot -h 127.0.0.1 -b pacsdb -e &quot;</string>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upcs -h 192.168.250.1 -b pacsdb2 -e &quot;</string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dcm4cheearc517mysql</string>
+            <string id="sqlmap">dcm4chee2147mysql</string>
             
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
@@ -59,7 +62,7 @@
             <string id="mllpport">2575</string>
 
             <key>DICMip</key>
-            <string id="DICMip">127.0.0.1</string>
+            <string id="DICMip">192.168.250.1</string>
             <key>DICMport</key>
             <string id="DICMport">11112</string>
             
@@ -68,7 +71,7 @@
             <key>timeoutinterval</key>
             <string id="timeoutinterval">60</string>
             <key>wadouri</key>
-            <string id="wadouri">http://192.168.1.102:8080/dcm4chee-arc/aets/DCM4CHEE/wado</string>
+            <string id="wadouri">http://192.168.250.1:8080/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>            
             <key>wadoweasisparameters</key>
