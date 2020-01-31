@@ -29,4 +29,7 @@
 -(NSString*)regexQuoteEscapedString;
 -(NSString*)sqlLikeEscapedString;
 -(NSString*)sqlEqualEscapedString;
+
+-(NSString*)removeTrailingCarets;
+
 @end

@@ -457,6 +457,16 @@
    return [NSString stringWithString:escapedString];
    return nil;
 }
+
+-(NSString*)removeTrailingCarets
+{
+    if ([self hasSuffix:@"^"])
+    {
+        return [[self substringToIndex:self.length - 1] removeTrailingCarets];
+    }
+    return self;
+}
+
 @end
 
 

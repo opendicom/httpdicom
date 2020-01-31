@@ -168,6 +168,7 @@ study.study_time, \
 study.accession_no, \
 study.study_id, \
 CONCAT(IFNULL(person_name.family_name,''), '^', IFNULL(person_name.given_name,''), '^', IFNULL(person_name.middle_name,''), '^', IFNULL(person_name.name_prefix,''), '^', IFNULL(person_name.name_suffix,'')), \
+study.study_custom3, \
 study_query_attrs.num_series, \
 study_query_attrs.mods_in_study \
 FROM study \

@@ -1282,7 +1282,7 @@ else //no patient
    patient=[NSMutableDictionary dictionaryWithObjectsAndKeys:
             [NSNumber numberWithLongLong:[(patientSqlPropertiesArray[0])[0] longLongValue]],@"key",
             (patientSqlPropertiesArray[0])[1], @"PatientID",
-            (patientSqlPropertiesArray[0])[2],@"PatientName",
+            [(patientSqlPropertiesArray[0])[2] removeTrailingCarets],@"PatientName",
             (patientSqlPropertiesArray[0])[3],@"IssuerOfPatientID",
             (patientSqlPropertiesArray[0])[4],@"PatientBirthDate",
             (patientSqlPropertiesArray[0])[5],@"PatientSex",
@@ -1303,7 +1303,7 @@ else //no patient
                                                  sqlprolog,
                                                  E,
                                                  @"",
-                                                 sqlRecordTenUnits
+                                                 sqlRecordElevenUnits
                                                  ],
                                                 mutableData)
                                   !=0)
@@ -1320,7 +1320,8 @@ if (study)
    //report eventual actualizations
    [study  setObject:(studySqlPropertiesArray[0])[2] forKey:@"studyDescription"];
    [study  setObject:(studySqlPropertiesArray[0])[6] forKey:@"StudyID"];
-   [study  setObject:(studySqlPropertiesArray[0])[7] forKey:@"ReferringPhysicianName"];
+   [study  setObject:[(studySqlPropertiesArray[0])[7] removeTrailingCarets] forKey:@"ReferringPhysicianName"];
+   [study  setObject:[(studySqlPropertiesArray[0])[8] removeTrailingCarets] forKey:@"NameOfPhysiciansReadingStudy"];
    if (!seriesArray)
    {
       seriesArray=[NSMutableArray array];
@@ -1339,10 +1340,11 @@ else //no study
       [DICMTypes TMStringFromTMISOString:(studySqlPropertiesArray[0])[4]],@"StudyTime",
       (studySqlPropertiesArray[0])[5],@"AccessionNumber",
       (studySqlPropertiesArray[0])[6],@"StudyID",
-      (studySqlPropertiesArray[0])[7],@"ReferringPhysicianName",
-      (studySqlPropertiesArray[0])[8],@"modality",
+      [(studySqlPropertiesArray[0])[7] removeTrailingCarets],@"ReferringPhysicianName",
+      [(studySqlPropertiesArray[0])[8] removeTrailingCarets],@"NameOfPhysiciansReadingStudy",
+      (studySqlPropertiesArray[0])[9],@"modality",
       (patientSqlPropertiesArray[0])[1],@"patientId",
-      (patientSqlPropertiesArray[0])[2],@"patientName",
+      [(patientSqlPropertiesArray[0])[2] removeTrailingCarets],@"PatientName",
       seriesArray,@"seriesList",
       nil
    ];

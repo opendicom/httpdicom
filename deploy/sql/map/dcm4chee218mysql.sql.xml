@@ -148,7 +148,7 @@
 
         <!-- examen -->
         <key>E</key>
-        <string>%@SELECT pk,study_iuid,study_desc,DATE(study_datetime),TIME(study_datetime),accession_no,study_id,ref_physician,num_instances,mods_in_study FROM study WHERE pk=%@ %@ %@</string>
+        <string>%@SELECT pk,study_iuid,study_desc,DATE(study_datetime),TIME(study_datetime),accession_no,study_id,ref_physician,study_custom3,num_instances,mods_in_study FROM study WHERE pk=%@ %@ %@</string>
 
         <!-- serie -->
         <key>S</key>
