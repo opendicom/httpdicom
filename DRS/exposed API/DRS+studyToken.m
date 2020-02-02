@@ -256,7 +256,7 @@ RSResponse * sqlEP(
    NSMutableData * mutableData=[NSMutableData data];
 #pragma mark - exclusive study matches
    if (StudyInstanceUIDRegexpString)
-#pragma mark · StudyInstanceUID (no optionals)
+#pragma mark · StudyInstanceUID
    {
 //six parts: prolog,select,where,and,limit&order,format
       if (execUTF8Bash(
@@ -275,8 +275,8 @@ RSResponse * sqlEP(
           mutableData)
           !=0) return [RSErrorResponse responseWithClientError:404 message:@"studyToken StudyInstanceUID %@ db error",StudyInstanceUIDRegexpString];
    }
-   else if (AccessionNumberEqualString)//3
-#pragma mark · AccessionNumber (no optionals)
+   else if (AccessionNumberEqualString)
+#pragma mark · AccessionNumber
    {
 
       switch (issuerArray.count) {
@@ -302,9 +302,10 @@ RSResponse * sqlEP(
          case issuerLocal:
          {
             if (execUTF8Bash(sqlcredentials,
-                             [NSString stringWithFormat:@"%@%@%@%@%@%@",
+                             [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
                               sqlprolog,
                               EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+                              ((sqlDictionary[@"Ejoin"])[0])[0],
                               sqlDictionary[@"Ewhere"],
                               [NSString stringWithFormat:
                                (sqlDictionary[@"EmatchEan"])[issuerLocal],
@@ -321,9 +322,10 @@ RSResponse * sqlEP(
          case issuerUniversal:
          {
             if (execUTF8Bash(sqlcredentials,
-                             [NSString stringWithFormat:@"%@%@%@%@%@%@",
+                             [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
                               sqlprolog,
                               EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+                              ((sqlDictionary[@"Ejoin"])[0])[0],
                               sqlDictionary[@"Ewhere"],
                               [NSString stringWithFormat:
                                (sqlDictionary[@"EmatchEan"])[issuerUniversal],
@@ -342,9 +344,10 @@ RSResponse * sqlEP(
          case issuerDivision:
          {
             if (execUTF8Bash(sqlcredentials,
-                             [NSString stringWithFormat:@"%@%@%@%@%@%@",
+                             [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
                               sqlprolog,
                               EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+                              ((sqlDictionary[@"Ejoin"])[0])[0],
                               sqlDictionary[@"Ewhere"],
                               [NSString stringWithFormat:
                                (sqlDictionary[@"EmatchEan"])[issuerDivision],
@@ -2302,11 +2305,14 @@ RSResponse* osirixdcmURLs(
     }
 
 #pragma mark 2. PatientName (Ppn)
-    
+   
+   BOOL patientNamePart=false;
+   
    NSString *patientFamilyLikeString=nil;
    NSInteger patientFamilyIndex=[names indexOfObject:@"patientFamily"];
    if (patientFamilyIndex!=NSNotFound)
    {
+      patientNamePart=true;
       patientFamilyLikeString=[values[patientFamilyIndex] regexQuoteEscapedString];
       [canonicalQuery appendFormat:@"\"patientFamily\":\"%@\",",patientFamilyLikeString];
    }
@@ -2315,6 +2321,7 @@ RSResponse* osirixdcmURLs(
    NSInteger patientGivenIndex=[names indexOfObject:@"patientGiven"];
    if (patientGivenIndex!=NSNotFound)
    {
+      patientNamePart=true;
       patientGivenLikeString=[values[patientGivenIndex] regexQuoteEscapedString];
       [canonicalQuery appendFormat:@"\"patientGiven\":\"%@\",",patientGivenLikeString];
    }
@@ -2323,6 +2330,7 @@ RSResponse* osirixdcmURLs(
    NSInteger patientMiddleIndex=[names indexOfObject:@"patientMiddle"];
    if (patientMiddleIndex!=NSNotFound)
    {
+      patientNamePart=true;
       patientMiddleLikeString=[values[patientMiddleIndex] regexQuoteEscapedString];
       [canonicalQuery appendFormat:@"\"patientMiddle\":\"%@\",",patientMiddleLikeString];
    }
@@ -2331,6 +2339,7 @@ RSResponse* osirixdcmURLs(
    NSInteger patientPrefixIndex=[names indexOfObject:@"patientPrefix"];
    if (patientPrefixIndex!=NSNotFound)
    {
+      patientNamePart=true;
       patientPrefixLikeString=[values[patientPrefixIndex] regexQuoteEscapedString];
       [canonicalQuery appendFormat:@"\"patientPrefix\":\"%@\",",patientPrefixLikeString];
    }
@@ -2339,10 +2348,45 @@ RSResponse* osirixdcmURLs(
    NSInteger patientSuffixIndex=[names indexOfObject:@"patientSuffix"];
    if (patientSuffixIndex!=NSNotFound)
    {
+      patientNamePart=true;
       patientSuffixLikeString=[values[patientSuffixIndex] regexQuoteEscapedString];
       [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",patientSuffixLikeString];
    }
 
+   if (!patientNamePart)
+   {
+      NSInteger PatientNameIndex=[names indexOfObject:@"PatientName"];
+      if (PatientNameIndex!=NSNotFound)
+      {
+         NSString *PatientNameRegexString=[values[PatientNameIndex] regexQuoteEscapedString];
+         NSArray *PatientNameParts=[PatientNameRegexString componentsSeparatedByString:@"^"];
+         if (PatientNameParts.count>0)
+         {
+            patientFamilyLikeString=PatientNameParts[0];
+            [canonicalQuery appendFormat:@"\"patientFamily\":\"%@\",",patientFamilyLikeString];
+         }
+         if (PatientNameParts.count>1)
+         {
+            patientGivenLikeString=PatientNameParts[1];
+            [canonicalQuery appendFormat:@"\"patientGiven\":\"%@\",",patientGivenLikeString];
+         }
+         if (PatientNameParts.count>2)
+         {
+            patientMiddleLikeString=PatientNameParts[2];
+            [canonicalQuery appendFormat:@"\"patientMiddle\":\"%@\",",patientMiddleLikeString];
+         }
+         if (PatientNameParts.count>3)
+         {
+            patientPrefixLikeString=PatientNameParts[3];
+            [canonicalQuery appendFormat:@"\"patientPrefix\":\"%@\",",patientPrefixLikeString];
+         }
+         if (PatientNameParts.count>4)
+         {
+            patientSuffixLikeString=PatientNameParts[4];
+            [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",patientSuffixLikeString];
+         }
+      }
+   }
     
 #pragma mark 3. StudyID (Eid)
     
@@ -2404,89 +2448,174 @@ RSResponse* osirixdcmURLs(
 
     
 #pragma mark 6. ref
-    
+
+    BOOL refPart=false;
+
     NSString *refInstitutionLikeString=nil;
     NSInteger refInstitutionIndex=[names indexOfObject:@"refInstitution"];
     if (refInstitutionIndex!=NSNotFound)
     {
+       refPart=true;
        refInstitutionLikeString=[values[refInstitutionIndex] regexQuoteEscapedString];
        [canonicalQuery appendFormat:@"\"refInstitution\":\"%@\",",refInstitutionLikeString];
     }
-//3.10 refService
+
     NSString *refServiceLikeString=nil;
     NSInteger refServiceIndex=[names indexOfObject:@"refService"];
     if (refServiceIndex!=NSNotFound)
     {
+       refPart=true;
        refServiceLikeString=[values[refServiceIndex] regexQuoteEscapedString];
        [canonicalQuery appendFormat:@"\"refService\":\"%@\",",refServiceLikeString];
     }
-//3.10 refUser
+
     NSString *refUserLikeString=nil;
     NSInteger refUserIndex=[names indexOfObject:@"refUser"];
     if (refUserIndex!=NSNotFound)
     {
+       refPart=true;
        refUserLikeString=[values[refUserIndex] regexQuoteEscapedString];
        [canonicalQuery appendFormat:@"\"refUser\":\"%@\",",refUserLikeString];
     }
-//3.10 refID
+
     NSString *refIDLikeString=nil;
     NSInteger refIDIndex=[names indexOfObject:@"refID"];
     if (refIDIndex!=NSNotFound)
     {
+       refPart=true;
        refIDLikeString=[values[refIDIndex] regexQuoteEscapedString];
        [canonicalQuery appendFormat:@"\"refID\":\"%@\",",refIDLikeString];
     }
-//3.10 refIDType
+
     NSString *refIDTypeLikeString=nil;
     NSInteger refIDTypeIndex=[names indexOfObject:@"refIDType"];
     if (refIDTypeIndex!=NSNotFound)
     {
+       refPart=true;
        refIDTypeLikeString=[values[refIDTypeIndex] regexQuoteEscapedString];
        [canonicalQuery appendFormat:@"\"refIDType\":\"%@\",",refIDTypeLikeString];
     }
+   
+   if (!refPart)
+   {
+      NSInteger refIndex=[names indexOfObject:@"ref"];
+      if (refIndex!=NSNotFound)
+      {
+         NSString *refRegexString=[values[refIndex] regexQuoteEscapedString];
+         NSArray *refParts=[refRegexString componentsSeparatedByString:@"^"];
+         if (refParts.count>0)
+         {
+            refInstitutionLikeString=refParts[0];
+            [canonicalQuery appendFormat:@"\"refInstitution\":\"%@\",",refInstitutionLikeString];
+         }
+         if (refParts.count>1)
+         {
+            refServiceLikeString=refParts[1];
+            [canonicalQuery appendFormat:@"\"refService\":\"%@\",",refServiceLikeString];
+         }
+         if (refParts.count>2)
+         {
+            refUserLikeString=refParts[2];
+            [canonicalQuery appendFormat:@"\"refUser\":\"%@\",",refUserLikeString];
+         }
+         if (refParts.count>3)
+         {
+            refIDLikeString=refParts[3];
+            [canonicalQuery appendFormat:@"\"refID\":\"%@\",",refIDLikeString];
+         }
+         if (refParts.count>4)
+         {
+            refIDTypeLikeString=refParts[4];
+            [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",refIDTypeLikeString];
+         }
+      }
+   }
 
 
 #pragma mark 7. read
-    NSString *readInstitutionSqlLikeString=nil;
+    
+    BOOL readPart=false;
+
+    NSString *readInstitutionLikeString=nil;
     NSInteger readInstitutionIndex=[names indexOfObject:@"readInstitution"];
     if (readInstitutionIndex!=NSNotFound)
     {
-       readInstitutionSqlLikeString=[values[readInstitutionIndex] regexQuoteEscapedString];
-       [canonicalQuery appendFormat:@"\"readInstitution\":\"%@\",",readInstitutionSqlLikeString];
+       readPart=true;
+       readInstitutionLikeString=[values[readInstitutionIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"readInstitution\":\"%@\",",readInstitutionLikeString];
     }
 
-    NSString *readServiceSqlLikeString=nil;
+    NSString *readServiceLikeString=nil;
     NSInteger readServiceIndex=[names indexOfObject:@"readService"];
     if (readServiceIndex!=NSNotFound)
     {
-       readServiceSqlLikeString=[values[readServiceIndex] regexQuoteEscapedString];
-       [canonicalQuery appendFormat:@"\"readService\":\"%@\",",readServiceSqlLikeString];
+       readPart=true;
+       readServiceLikeString=[values[readServiceIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"readService\":\"%@\",",readServiceLikeString];
     }
 
-    NSString *readUserSqlLikeString=nil;
+    NSString *readUserLikeString=nil;
     NSInteger readUserIndex=[names indexOfObject:@"readUser"];
     if (readUserIndex!=NSNotFound)
     {
-       readUserSqlLikeString=[values[readUserIndex] regexQuoteEscapedString];
-       [canonicalQuery appendFormat:@"\"readUser\":\"%@\",",readUserSqlLikeString];
+       readPart=true;
+       readUserLikeString=[values[readUserIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"readUser\":\"%@\",",readUserLikeString];
     }
 
-    NSString *readIDSqlLikeString=nil;
+    NSString *readIDLikeString=nil;
     NSInteger readIDIndex=[names indexOfObject:@"readID"];
     if (readIDIndex!=NSNotFound)
     {
-       readIDSqlLikeString=[values[readIDIndex] regexQuoteEscapedString];
-       [canonicalQuery appendFormat:@"\"readID\":\"%@\",",readIDSqlLikeString];
+       readPart=true;
+       readIDLikeString=[values[readIDIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"readID\":\"%@\",",readIDLikeString];
     }
     
-    NSString *readIDTypeSqlLikeString=nil;
+    NSString *readIDTypeLikeString=nil;
     NSInteger readIDTypeIndex=[names indexOfObject:@"readIDType"];
     if (readIDTypeIndex!=NSNotFound)
     {
-       readIDTypeSqlLikeString=[values[readIDTypeIndex] regexQuoteEscapedString];
-       [canonicalQuery appendFormat:@"\"readIDType\":\"%@\",",readIDTypeSqlLikeString];
+       readPart=true;
+       readIDTypeLikeString=[values[readIDTypeIndex] regexQuoteEscapedString];
+       [canonicalQuery appendFormat:@"\"readIDType\":\"%@\",",readIDTypeLikeString];
     }
-   
+
+   if (!readPart)
+   {
+      NSInteger readIndex=[names indexOfObject:@"read"];
+      if (readIndex!=NSNotFound)
+      {
+         NSString *readRegexString=[values[readIndex] regexQuoteEscapedString];
+         NSArray *readParts=[readRegexString componentsSeparatedByString:@"^"];
+         if (readParts.count>0)
+         {
+            readInstitutionLikeString=readParts[0];
+            [canonicalQuery appendFormat:@"\"readInstitution\":\"%@\",",readInstitutionLikeString];
+         }
+         if (readParts.count>1)
+         {
+            readServiceLikeString=readParts[1];
+            [canonicalQuery appendFormat:@"\"readService\":\"%@\",",readServiceLikeString];
+         }
+         if (readParts.count>2)
+         {
+            readUserLikeString=readParts[2];
+            [canonicalQuery appendFormat:@"\"readUser\":\"%@\",",readUserLikeString];
+         }
+         if (readParts.count>3)
+         {
+            readIDLikeString=readParts[3];
+            [canonicalQuery appendFormat:@"\"readID\":\"%@\",",readIDLikeString];
+         }
+         if (readParts.count>4)
+         {
+            readIDTypeLikeString=readParts[4];
+            [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",readIDTypeLikeString];
+         }
+      }
+   }
+
     
 #pragma mark 8. SOPClassInStudyString
     
@@ -2715,11 +2844,11 @@ RSResponse* osirixdcmURLs(
                  refUserLikeString,
                  refIDLikeString,
                  refIDTypeLikeString,
-                 readInstitutionSqlLikeString,
-                 readServiceSqlLikeString,
-                 readUserSqlLikeString,
-                 readIDSqlLikeString,
-                 readIDTypeSqlLikeString,
+                 readInstitutionLikeString,
+                 readServiceLikeString,
+                 readUserLikeString,
+                 readIDLikeString,
+                 readIDTypeLikeString,
                  StudyIDLikeString,
                  PatientIDLikeString,
                  patientFamilyLikeString,
@@ -2758,11 +2887,11 @@ RSResponse* osirixdcmURLs(
                  refUserLikeString,
                  refIDLikeString,
                  refIDTypeLikeString,
-                 readInstitutionSqlLikeString,
-                 readServiceSqlLikeString,
-                 readUserSqlLikeString,
-                 readIDSqlLikeString,
-                 readIDTypeSqlLikeString,
+                 readInstitutionLikeString,
+                 readServiceLikeString,
+                 readUserLikeString,
+                 readIDLikeString,
+                 readIDTypeLikeString,
                  StudyIDLikeString,
                  PatientIDLikeString,
                  patientFamilyLikeString,
@@ -2805,11 +2934,11 @@ RSResponse* osirixdcmURLs(
                     refUserLikeString,
                     refIDLikeString,
                     refIDTypeLikeString,
-                    readInstitutionSqlLikeString,
-                    readServiceSqlLikeString,
-                    readUserSqlLikeString,
-                    readIDSqlLikeString,
-                    readIDTypeSqlLikeString,
+                    readInstitutionLikeString,
+                    readServiceLikeString,
+                    readUserLikeString,
+                    readIDLikeString,
+                    readIDTypeLikeString,
                     StudyIDLikeString,
                     PatientIDLikeString,
                     patientFamilyLikeString,
@@ -2849,11 +2978,11 @@ RSResponse* osirixdcmURLs(
                     refUserLikeString,
                     refIDLikeString,
                     refIDTypeLikeString,
-                    readInstitutionSqlLikeString,
-                    readServiceSqlLikeString,
-                    readUserSqlLikeString,
-                    readIDSqlLikeString,
-                    readIDTypeSqlLikeString,
+                    readInstitutionLikeString,
+                    readServiceLikeString,
+                    readUserLikeString,
+                    readIDLikeString,
+                    readIDTypeLikeString,
                     StudyIDLikeString,
                     PatientIDLikeString,
                     patientFamilyLikeString,

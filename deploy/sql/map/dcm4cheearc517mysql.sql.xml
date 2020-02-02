@@ -39,7 +39,10 @@
 
  <key>Ejoin</key>
  <array>
-  <array/>
+  <!-- 0. accessionNumberIssuer -->
+  <array>
+   <string>LEFT JOIN issuer ON study.accno_issuer_fk=issuer.pk </string>
+  </array>
   <!-- 1. match PID [0, 1 issuer] -->
   <array>
    <string>LEFT JOIN patient ON study.patient_fk=patient.pk </string>
@@ -123,7 +126,7 @@
   <!-- 8. match SOPClassesInStudy -->
   <string>AND study_query_attrs.cuids_in_study REGEXP '%@' </string>
   <!-- 9. match ModalitiesInStudy -->    
-  <string>AND study_query_attrs.cuids_in_study REGEXP '%@' </string>
+  <string>AND study_query_attrs.mods_in_study REGEXP '%@' </string>
  </array>
 
  <!-- end of E cumulative matches-->
@@ -143,7 +146,7 @@
         
 <!-- properties (check on series rejection state already performed at study and series level selection) -->       
  <key>P</key><!-- patient -->
- <string>%@\
+ <string>%@ \
 SELECT \
 patient.pk, \
 patient_id.pat_id, \
@@ -158,7 +161,7 @@ LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk \
 WHERE patient.pk=%@ \
 %@ %@ </string>
  <key>E</key><!-- examen -->
- <string>%@\
+ <string>%@ \
 SELECT \
 study.pk, \
 study.study_iuid, \
