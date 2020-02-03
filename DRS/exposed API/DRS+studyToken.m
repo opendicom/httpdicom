@@ -474,25 +474,62 @@ RSResponse * sqlEP(
          {
              if ([sqlJoins indexOfObject:moreJoin]==NSNotFound)[sqlJoins addObject:moreJoin];
          }
+          
+         NSArray *Eda=nil;
+         NSString *StudyDate0=nil;
+         NSString *StudyDate1=nil;
+         NSString *StudyDate2=nil;
+         NSString *StudyDate3=nil;
+         if ([((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[0] count])
+         {
+             //ISO in DB
+             Eda=((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[0];
+             StudyDate0=StudyDateArray[0];
+             StudyDate1=StudyDateArray[1];
+             StudyDate2=StudyDateArray[2];
+             StudyDate3=StudyDateArray[3];
+         }
+         else
+         {
+             //DICOM DA in DB
+             Eda=((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[1];
+             NSUInteger count=StudyDateArray.count;
+             if (count>0)
+             {
+                 StudyDate0=[DICMTypes DAStringFromDAISOString:StudyDateArray[0]];
+                 if (count>1)
+                 {
+                     StudyDate1=[DICMTypes DAStringFromDAISOString:StudyDateArray[1]];
+                     if (count>2)
+                     {
+                         StudyDate2=[DICMTypes DAStringFromDAISOString:StudyDateArray[2]];
+                         if (count>3)
+                         {
+                             StudyDate3=[DICMTypes DAStringFromDAISOString:StudyDateArray[3]];
+                         }
+                     }
+                 }
+             }
+         }
          switch (StudyDateArray.count) {
             case dateMatchAny:
                break;
             case dateMatchOn:
             {
-               [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[dateMatchOn],StudyDateArray[0]];
+               [filters appendFormat:Eda[dateMatchOn],StudyDate0];
             } break;
             case dateMatchSince:
             {
-               [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[dateMatchSince],StudyDateArray[0]];
+               [filters appendFormat:Eda[dateMatchSince],StudyDate0];
             } break;
             case dateMatchUntil:
             {
-               [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[dateMatchUntil],StudyDateArray[2]];
+               [filters appendFormat:Eda[dateMatchUntil],StudyDate2];
 
             } break;
             case dateMatchBetween:
             {
-               [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[dateMatchBetween],StudyDateArray[0],StudyDateArray[3]];
+               [filters appendFormat:Eda[dateMatchBetween],StudyDate0,StudyDate3];
 
             } break;
          }
@@ -2415,21 +2452,29 @@ RSResponse* osirixdcmURLs(
           {
              NSArray *StudyDatePipeComponents=[StudyDateString componentsSeparatedByString:@"|"];
              
-             if(![StudyDateArray[1] length])
+             if (StudyDatePipeComponents.count ==1 )
              {
-                //aaaa-mm-dd|  =since
-                StudyDateArray=@[StudyDatePipeComponents[0],@""];
-             }
-             else if(![StudyDateArray[0] length])
-             {
-                //|aaaa-mm-dd  =until
-                StudyDateArray=@[@"",@"",StudyDatePipeComponents[1]];
+                 StudyDateArray=@[StudyDatePipeComponents[0]];
              }
              else
              {
-                //aaaa-mm-dd|aaaa-mm-dd
-                //[aaaa-mm-dd][][][aaaa-mm-dd] = between
+               
+                 if(![StudyDateArray[1] length])
+                 {
+                     //aaaa-mm-dd|  =since
+                     StudyDateArray=@[StudyDatePipeComponents[0],@""];
+                 }
+                 else if(![StudyDateArray[0] length])
+                 {
+                     //|aaaa-mm-dd  =until
+                     StudyDateArray=@[@"",@"",StudyDatePipeComponents[1]];
+                 }
+                 else
+                 {
+                     //aaaa-mm-dd|aaaa-mm-dd
+                     //[aaaa-mm-dd][][][aaaa-mm-dd] = between
                 StudyDateArray=@[StudyDatePipeComponents[0],@"",@"",StudyDatePipeComponents[1]];
+                 }
              }
           }
         }

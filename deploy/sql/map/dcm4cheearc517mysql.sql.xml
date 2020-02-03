@@ -95,13 +95,16 @@
   </array>
   <!-- 3. match StudyID -->
   <string>AND  study_id like '%@' </string>
-  <!-- 4. match StudyDate -->
+  <!-- 4. match StudyDate-->
   <array>
-   <string></string> <!-- (empty) = any -->
-   <string>AND DATE(study.study_datetime) = '%@' </string> <!-- [aaaa-mm-dd] = on -->
-   <string>AND DATE(study.study_datetime) >= '%@' </string><!-- [aaaa-mm-dd][] = since -->
-   <string>AND NOT(DATE(study.study_datetime) > '%@') </string><!-- [][][aaaa-mm-dd] = until -->
-   <string>AND DATE(study.study_datetime) >= '%@' AND NOT(DATE(study.study_datetime) > '%@') </string><!-- [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+    <array/><!-- ISO in DB-->
+    <array><!-- DICOM DA in DB-->
+        <string></string> <!-- (empty) = any -->
+        <string>AND study.study_date = '%@' </string> <!-- [aaaa-mm-dd] = on -->
+        <string>AND study.study_date >= '%@' </string><!-- [aaaa-mm-dd][] = since -->
+        <string>AND NOT(study.study_date > '%@') </string><!-- [][][aaaa-mm-dd] = until -->
+        <string>AND study.study_date >= '%@' AND NOT(study.study_date > '%@') </string><!-- [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+    </array>
   </array>
   <!-- 5. match StudyDescription -->
   <string>AND study.study_desc REGEXP '%@' </string>
@@ -125,7 +128,7 @@
   </array>                
   <!-- 8. match SOPClassesInStudy -->
   <string>AND study_query_attrs.cuids_in_study REGEXP '%@' </string>
-  <!-- 9. match ModalitiesInStudy -->    
+  <!-- 9. match ModalitiesInStudy -->
   <string>AND study_query_attrs.mods_in_study REGEXP '%@' </string>
  </array>
 
