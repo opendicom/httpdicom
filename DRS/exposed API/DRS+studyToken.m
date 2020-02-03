@@ -1375,7 +1375,7 @@ else //no study
                         for (NSArray *seriesSqlProperties in seriesSqlPropertiesArray)
                         {
                            //if series exists in cache
-                           NSMutableDictionary *series=[seriesArray firstMutableDictionaryWithKey:@"key" isEqualToString:seriesSqlProperties[0]];
+                            NSMutableDictionary *series=[seriesArray firstMutableDictionaryWithKey:@"key" isEqualToNumber:[NSNumber numberWithLongLong:[seriesSqlProperties[0] longLongValue]]];
                            if (series)
                            {
                               //SOP Class already known
@@ -1537,7 +1537,7 @@ for (NSArray *instanceSqlProperties in instanceSqlPropertiesArray)
                            @"imageId":wadouriInstance,
                            @"SOPInstanceUID":instanceSqlProperties[1],
                            @"InstanceNumber":instanceSqlProperties[2],
-                           @"numFrames":instanceSqlProperties[3]
+                           @"numFrames":[NSNumber numberWithLongLong:[instanceSqlProperties[3] longLongValue]]
                            }
    ];
 
