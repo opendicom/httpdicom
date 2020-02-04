@@ -199,7 +199,7 @@ SELECT \
 pk, \
 sop_iuid, \
 inst_no, \
-num_frames \
+HEX(inst_attrs) \
 FROM instance \
 WHERE series_fk='%@' \
 %@ %@ </string>
