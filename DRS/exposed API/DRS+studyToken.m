@@ -476,60 +476,45 @@ RSResponse * sqlEP(
          }
           
          NSArray *Eda=nil;
-         NSString *StudyDate0=nil;
-         NSString *StudyDate1=nil;
-         NSString *StudyDate2=nil;
-         NSString *StudyDate3=nil;
+         BOOL isoMatching=true;
          if ([((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[0] count])
          {
-             //ISO in DB
+             //isoMatching
              Eda=((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[0];
-             StudyDate0=StudyDateArray[0];
-             StudyDate1=StudyDateArray[1];
-             StudyDate2=StudyDateArray[2];
-             StudyDate3=StudyDateArray[3];
          }
          else
          {
-             //DICOM DA in DB
+             isoMatching=false;//dicom DA matching
              Eda=((sqlDictionary[@"Eand"])[EcumulativeFilterEda])[1];
-             NSUInteger count=StudyDateArray.count;
-             if (count>0)
-             {
-                 StudyDate0=[DICMTypes DAStringFromDAISOString:StudyDateArray[0]];
-                 if (count>1)
-                 {
-                     StudyDate1=[DICMTypes DAStringFromDAISOString:StudyDateArray[1]];
-                     if (count>2)
-                     {
-                         StudyDate2=[DICMTypes DAStringFromDAISOString:StudyDateArray[2]];
-                         if (count>3)
-                         {
-                             StudyDate3=[DICMTypes DAStringFromDAISOString:StudyDateArray[3]];
-                         }
-                     }
-                 }
-             }
          }
          switch (StudyDateArray.count) {
             case dateMatchAny:
                break;
             case dateMatchOn:
             {
-               [filters appendFormat:Eda[dateMatchOn],StudyDate0];
+               [filters appendFormat:Eda[dateMatchOn],
+                isoMatching?StudyDateArray[0]:[DICMTypes DAStringFromDAISOString:StudyDateArray[0]]
+                ];
             } break;
             case dateMatchSince:
             {
-               [filters appendFormat:Eda[dateMatchSince],StudyDate0];
+               [filters appendFormat:Eda[dateMatchSince],
+                isoMatching?StudyDateArray[0]:[DICMTypes DAStringFromDAISOString:StudyDateArray[0]]
+                ];
             } break;
             case dateMatchUntil:
             {
-               [filters appendFormat:Eda[dateMatchUntil],StudyDate2];
+               [filters appendFormat:Eda[dateMatchUntil],
+                isoMatching?StudyDateArray[2]:[DICMTypes DAStringFromDAISOString:StudyDateArray[2]]
+                ];
 
             } break;
             case dateMatchBetween:
             {
-               [filters appendFormat:Eda[dateMatchBetween],StudyDate0,StudyDate3];
+               [filters appendFormat:Eda[dateMatchBetween],
+                isoMatching?StudyDateArray[0]:[DICMTypes DAStringFromDAISOString:StudyDateArray[0]],
+                isoMatching?StudyDateArray[3]:[DICMTypes DAStringFromDAISOString:StudyDateArray[3]]
+                ];
 
             } break;
          }
