@@ -44,7 +44,7 @@
             <key>sqlpassword</key>
             <string id="sqlpassword">pacspass</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=pacspass;mysql --raw --skip-column-names -u pacsuser -h 127.0.0.1 -b pacsdb -e &quot;</string>
+            <string id="sqlprolog">export MYSQL_PWD=pacspass;mysql --raw --skip-column-names -u pacsuser -h 127.0.0.1 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>

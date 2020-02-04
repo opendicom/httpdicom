@@ -14,9 +14,9 @@
 
  <!-- E select -->
  <key>EselectEP</key>
- <string>SELECT study.pk, study.patient_fk FROM study </string>
+ <string>"SELECT study.pk, study.patient_fk FROM study </string>
  <key>EselectEuiE</key>
- <string>SELECT study.study_iuid, study.pk FROM study </string>
+ <string>"SELECT study.study_iuid, study.pk FROM study </string>
  
  <key>Ewhere</key>
  <string>WHERE study.rejection_state!=2 </string>
@@ -132,24 +132,24 @@
   <string>AND study_query_attrs.mods_in_study REGEXP '%@' </string>
  </array>
 
- <!-- end of E cumulative matches-->
+<!-- end of E cumulative matches-->
  
  
  
 <!-- instance ci 4 series pk -->
 <!-- check on series rejection state already performed at series level --> 
 <key>Ici4S</key>
-<string>%@SELECT sop_cuid FROM instance WHERE series_fk='%@' %@ %@ </string>
+<string>%@ "SELECT sop_cuid FROM instance WHERE series_fk='%@' %@" %@ </string>
               
 <!-- instance ui 4 series pk -->
 <key>Iui4S</key>
-<string>%@SELECT sop_iuid FROM instance WHERE series_fk='%@' %@ %@ </string>
+<string>%@ "SELECT sop_iuid FROM instance WHERE series_fk='%@' %@" %@ </string>
 
  
         
 <!-- properties (check on series rejection state already performed at study and series level selection) -->       
- <key>P</key><!-- patient -->
- <string>%@ \
+<key>P</key><!-- patient -->
+<string>%@ \
 SELECT \
 patient.pk, \
 patient_id.pat_id, \
@@ -162,9 +162,11 @@ LEFT JOIN person_name ON patient.pat_name_fk=person_name.pk \
 LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk \
 LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk \
 WHERE patient.pk=%@ \
-%@ %@ </string>
- <key>E</key><!-- examen -->
- <string>%@ \
+%@ \
+" %@ </string>
+ 
+<key>E</key><!-- examen -->
+<string>%@ "\
 SELECT \
 study.pk, \
 study.study_iuid, \
@@ -182,9 +184,11 @@ LEFT JOIN study_query_attrs ON study_query_attrs.study_fk=study.pk \
 LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk \
 WHERE study.pk=%@ \
 AND study_query_attrs.view_id='regularUse' \
-%@ %@ </string>
- <key>S</key><!-- serie -->
- <string>%@\
+%@ \
+" %@ </string>
+
+<key>S</key><!-- serie -->
+<string>%@ "\
 SELECT \
 series.pk, \
 series.series_iuid, \
@@ -199,9 +203,11 @@ series.laterality \
 FROM series \
 LEFT JOIN person_name ON series.perf_phys_name_fk=person_name.pk \
 WHERE series.study_fk=%@ \
-%@ %@ </string>
- <key>I0</key><!-- instance of no frame object-->
- <string>%@\
+%@ \
+" %@ </string>
+
+<key>I0</key><!-- instance of no frame object-->
+<string>%@ "\
 SELECT \
 pk, \
 sop_iuid, \
@@ -209,10 +215,11 @@ inst_no, \
 0 \
 FROM instance \
 WHERE series_fk='%@' \
-%@ %@ </string>
+%@ \
+" %@ </string>
 
- <key>I1</key><!-- instance of unique frame object -->
- <string>%@\
+<key>I1</key><!-- instance of unique frame object -->
+<string>%@ "\
 SELECT \
 pk, \
 sop_iuid, \
@@ -220,10 +227,11 @@ inst_no, \
 1 \
 FROM instance \
 WHERE series_fk='%@' \
-%@ %@ </string>
+%@ \
+" %@ </string>
  
- <key>I</key><!-- instance -->
- <string>%@\
+<key>I</key><!-- instance -->
+<string>%@ "\
 SELECT \
 pk, \
 sop_iuid, \
@@ -231,13 +239,14 @@ inst_no, \
 num_frames \
 FROM instance \
 WHERE series_fk='%@' \
-%@ %@ </string>
+%@ \
+" %@ </string>
  
- <key>IpostprocessingCommandsSh</key><!-- if empty, default array  -->      
- <string></string>
- 
- <key>IpostprocessingTitleMain</key>      
- <string></string>
+<key>IpostprocessingCommandsSh</key><!-- if empty, default array  -->
+<string></string>
+
+<key>IpostprocessingTitleMain</key>
+<string></string>
  
 </dict>
 

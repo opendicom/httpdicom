@@ -195,19 +195,19 @@ static NSString *sqlsingleslash=@"\" | awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\"\";} 
 // //r+/n  unitSeparator+|
 // | sed -e 's/\\x0F\\x0A$//'
 
-static NSString *sqlRecordFourUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4}'";
+static NSString *sqlRecordFourUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4}'";
 
-static NSString *sqlRecordFiveUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5}'";
+static NSString *sqlRecordFiveUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5}'";
 
-static NSString *sqlRecordSixUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6}'";
+static NSString *sqlRecordSixUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6}'";
 
-static NSString *sqlRecordEightUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8}'";
+static NSString *sqlRecordEightUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8}'";
 
-static NSString *sqlRecordNineUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9}'";
+static NSString *sqlRecordNineUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9}'";
 
-static NSString *sqlRecordTenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}'";
+static NSString *sqlRecordTenUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}'";
 
-static NSString *sqlRecordElevenUnits=@"\" | awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11}'";
+static NSString *sqlRecordElevenUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x7C\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11}'";
 
 //prolog
 //filters...(including eventual IOCM
@@ -261,7 +261,7 @@ RSResponse * sqlEP(
 //six parts: prolog,select,where,and,limit&order,format
       if (execUTF8Bash(
           sqlcredentials,
-          [NSString stringWithFormat:@"%@%@%@%@%@%@",
+          [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
            sqlprolog,
             EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
            sqlDictionary[@"Ewhere"],
@@ -284,7 +284,7 @@ RSResponse * sqlEP(
          case issuerNone:
          {
             if (execUTF8Bash(sqlcredentials,
-                        [NSString stringWithFormat:@"%@%@%@%@%@%@",
+                        [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
                          sqlprolog,
                          EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
                          sqlDictionary[@"Ewhere"],
@@ -302,7 +302,7 @@ RSResponse * sqlEP(
          case issuerLocal:
          {
             if (execUTF8Bash(sqlcredentials,
-                             [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
+                             [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
                               sqlprolog,
                               EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
                               ((sqlDictionary[@"Ejoin"])[0])[0],
@@ -322,7 +322,7 @@ RSResponse * sqlEP(
          case issuerUniversal:
          {
             if (execUTF8Bash(sqlcredentials,
-                             [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
+                             [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
                               sqlprolog,
                               EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
                               ((sqlDictionary[@"Ejoin"])[0])[0],
@@ -344,7 +344,7 @@ RSResponse * sqlEP(
          case issuerDivision:
          {
             if (execUTF8Bash(sqlcredentials,
-                             [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
+                             [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
                               sqlprolog,
                               EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
                               ((sqlDictionary[@"Ejoin"])[0])[0],
@@ -686,7 +686,7 @@ RSResponse * sqlEP(
        //six parts: prolog,select,where,and,limit&order,format
        if (execUTF8Bash(
            sqlcredentials,
-           [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
+           [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
             sqlprolog,
             EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
             [sqlJoins componentsJoinedByString:@""],
@@ -740,7 +740,7 @@ NSString * SOPCLassOfReturnableSeries(
                       sqlprolog,
                       SProperties[0],
                       @"limit 1",
-                      @"\" | awk -F\\t ' BEGIN{ ORS=\"\"; OFS=\"\";}{print $1}'"
+                      @"| awk -F\\t ' BEGIN{ ORS=\"\"; OFS=\"\";}{print $1}'"
                       ],
                      SOPClassData)
        !=0)

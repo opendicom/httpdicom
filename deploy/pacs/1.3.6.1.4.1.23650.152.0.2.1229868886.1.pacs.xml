@@ -41,7 +41,7 @@
             <key>sqlpassword</key>
             <string id="sqlpassword">inova.Pacs</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -u inovahistorico -h 192.168.1.38 -b pacsdb -e &quot;</string>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -u inovahistorico -h 192.168.1.38 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
