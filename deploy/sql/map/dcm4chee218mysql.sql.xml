@@ -14,9 +14,9 @@ version="1.0"
 
 <!-- E select -->
 <key>EselectEP</key>
-<string>"SELECT study.pk, study.patient_fk FROM study </string>
+<string>SELECT study.pk, study.patient_fk FROM study </string>
 <key>EselectEuiE</key>
-<string>"SELECT study.study_iuid, study.pk FROM study </string>
+<string>SELECT study.study_iuid, study.pk FROM study </string>
 
 <key>Ewhere</key><!-- no IOCM -->
 <string>WHERE true </string>
