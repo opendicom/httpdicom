@@ -1384,7 +1384,7 @@ else //no study
       [(studySqlPropertiesArray[0])[8] removeTrailingCarets],@"NameOfPhysiciansReadingStudy",
       (studySqlPropertiesArray[0])[9],@"modality",
       (patientSqlPropertiesArray[0])[1],@"patientId",
-      [(patientSqlPropertiesArray[0])[2] removeTrailingCarets],@"PatientName",
+      [(patientSqlPropertiesArray[0])[2] removeTrailingCarets],@"patientName",
       seriesArray,@"seriesList",
       nil
    ];
