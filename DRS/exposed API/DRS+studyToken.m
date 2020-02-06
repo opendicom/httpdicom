@@ -1566,7 +1566,7 @@ for (NSArray *instanceSqlProperties in instanceSqlPropertiesArray)
                            proxyURIString,
                            (studySqlPropertiesArray[0])[1],
                            seriesSqlProperties[1],
-                           instanceSqlProperties[1],
+                           instanceSqlProperties[2],
                            sessionString,
                            devDict[@"custodianoid"],
                            devOID,
@@ -1574,10 +1574,10 @@ for (NSArray *instanceSqlProperties in instanceSqlPropertiesArray)
                               ];
    [instanceArray addObject:@{
                            @"key":[NSNumber numberWithLongLong: [instanceSqlProperties[0] longLongValue]],
-                           @"InstanceNumber":instanceSqlProperties[2],
-                           @"numFrames":[NSNumber numberWithLongLong:[instanceSqlProperties[3] longLongValue]],
-                           @"SOPClassUID":instanceSqlProperties[4],
-                           @"SOPInstanceUID":instanceSqlProperties[1],
+                           @"InstanceNumber":instanceSqlProperties[3],
+                           @"numFrames":[NSNumber numberWithLongLong:[instanceSqlProperties[4] longLongValue]],
+                           @"SOPClassUID":instanceSqlProperties[1],
+                           @"SOPInstanceUID":instanceSqlProperties[2],
                            @"imageId":wadouriInstance
                            }
    ];

@@ -210,6 +210,7 @@ WHERE series.study_fk=%@ \
 <string>%@ "\
 SELECT \
 pk, \
+sop_cuid, \
 sop_iuid, \
 inst_no, \
 0 \
@@ -224,6 +225,7 @@ WHERE series_fk='%@' \
 <string>%@ "\
 SELECT \
 pk, \
+sop_cuid, \
 sop_iuid, \
 inst_no, \
 1 \
@@ -238,6 +240,7 @@ WHERE series_fk='%@' \
 <string>%@ "\
 SELECT \
 pk, \
+sop_cuid, \
 sop_iuid, \
 inst_no, \
 num_frames \
