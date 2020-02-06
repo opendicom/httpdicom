@@ -93,15 +93,15 @@
       }
    }
 
-#pragma mark fourthTextUnitHEX2ASCII
+#pragma mark fifthTextUnitHEX2ASCII
    if (
        (stringUnitsPostProcessTitle)
    &&  [stringUnitsPostProcessTitle length]
-   &&  [stringUnitsPostProcessTitle isEqualToString:@"fourthTextUnitHEX2ASCII"]
-   &&  ([unitArray count]>3)
+   &&  [stringUnitsPostProcessTitle isEqualToString:@"fifthTextUnitHEX2ASCII"]
+   &&  ([unitArray count]>4)
    )
    {
-      NSString *codedString=unitArray[3];
+      NSString *codedString=unitArray[4];
       NSMutableString *decodedString=[NSMutableString string];
       NSUInteger codedStringLast=codedString.length - 1;
       for (NSUInteger i=0; i<codedStringLast; i+=2)
@@ -112,8 +112,8 @@
       }
 
       if (decodedString.length > 0)
-         [unitArray replaceObjectAtIndex:3 withObject:decodedString];
-      else [unitArray replaceObjectAtIndex:3 withObject:@"-1"];
+         [unitArray replaceObjectAtIndex:4 withObject:decodedString];
+      else [unitArray replaceObjectAtIndex:4 withObject:@"-1"];
    }
    
    return [NSArray arrayWithArray:unitArray];
