@@ -1257,6 +1257,27 @@ NSMutableArray *patientArray=nil;
                      case getTypeWado:{
    #pragma mark ·· WADO (unique option for now)
                         
+//we prepare the eventual additional filters at instance level
+NSString *instanceANDSOPClass=nil;
+if (SOPClassRegex)
+{
+   instanceANDSOPClass=
+   [NSString stringWithFormat:
+    sqlDictionary[@"ANDinstanceSOPClass"],
+    [SOPClassRegex pattern]
+    ];
+} else instanceANDSOPClass=@"";
+
+NSString *instanceANDSOPClassOff=nil;
+if (SOPClassOffRegex)
+{
+   instanceANDSOPClassOff=
+   [NSString stringWithFormat:
+    sqlDictionary[@"ANDinstanceSOPClassOff"],
+    [SOPClassOffRegex pattern]
+    ];
+} else instanceANDSOPClassOff=@"";
+
    #pragma mark ...patient loop
                         NSMutableData *mutableData=[NSMutableData data];
                         for (NSString *P in [NSSet setWithArray:[EPDict allValues]])
@@ -1475,6 +1496,8 @@ if ([DRS.InstanceUniqueFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)
                      sqlDictionary[@"I1"],
                      sqlprolog,
                      seriesSqlProperties[0],
+                     instanceANDSOPClass,
+                     instanceANDSOPClassOff,
                      @"",
                      sqlRecordFourUnits
                      ],
@@ -1494,8 +1517,10 @@ else if ([DRS.InstanceMultiFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)
                      sqlDictionary[@"I"],
                      sqlprolog,
                      seriesSqlProperties[0],
+                     instanceANDSOPClass,
+                     instanceANDSOPClassOff,
                      @"",
-                   [sqlDictionary[@"IpostprocessingCommandsSh"]length]?sqlDictionary[@"IpostprocessingCommandsSh"]:sqlRecordFourUnits
+                   [sqlDictionary[@"IpostprocessingCommandsSh"]length]?sqlDictionary[@"IpostprocessingCommandsSh"]:sqlRecordFiveUnits
                      ],
                   mutableData)
        !=0)
@@ -1512,8 +1537,10 @@ else
                      sqlDictionary[@"I0"],
                      sqlprolog,
                      seriesSqlProperties[0],
+                     instanceANDSOPClass,
+                     instanceANDSOPClassOff,
                      @"",
-                     sqlRecordFourUnits
+                     sqlRecordFiveUnits
                      ],
                   mutableData)
        !=0)
@@ -1546,10 +1573,12 @@ for (NSArray *instanceSqlProperties in instanceSqlPropertiesArray)
                            devDict[@"wadocornerstoneparameters"]
                               ];
    [instanceArray addObject:@{
-                           @"imageId":wadouriInstance,
-                           @"SOPInstanceUID":instanceSqlProperties[1],
+                           @"key":[NSNumber numberWithLongLong: [instanceSqlProperties[0] longLongValue]],
                            @"InstanceNumber":instanceSqlProperties[2],
-                           @"numFrames":[NSNumber numberWithLongLong:[instanceSqlProperties[3] longLongValue]]
+                           @"numFrames":[NSNumber numberWithLongLong:[instanceSqlProperties[3] longLongValue]],
+                           @"SOPClassUID":instanceSqlProperties[4],
+                           @"SOPInstanceUID":instanceSqlProperties[1],
+                           @"imageId":wadouriInstance
                            }
    ];
 

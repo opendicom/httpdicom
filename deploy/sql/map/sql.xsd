@@ -49,6 +49,8 @@
                             <xs:group ref="I0"/>
                             <xs:group ref="I1"/>
                             <xs:group ref="I"/>
+                            <xs:group ref="ANDinstanceSOPClass"/>
+                            <xs:group ref="ANDinstanceSOPClassOff"/>
                             <xs:group ref="IpostprocessingCommandsSh"/>      
                             <xs:group ref="IpostprocessingTitleMain"/>                            
                             
@@ -184,6 +186,20 @@
         </xs:sequence>
     </xs:group>
     
+    <xs:group name="ANDinstanceSOPClass">
+        <xs:sequence>
+            <xs:element name="key" fixed="ANDinstanceSOPClass"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="ANDinstanceSOPClassOff">
+        <xs:sequence>
+            <xs:element name="key" fixed="ANDinstanceSOPClassOff"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+
     <xs:group name="IpostprocessingCommandsSh">
         <xs:sequence>
             <xs:element name="key" fixed="IpostprocessingCommandsSh"/>

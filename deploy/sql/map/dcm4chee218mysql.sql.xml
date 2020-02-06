@@ -197,11 +197,14 @@ WHERE study_fk=%@ \
 <string>%@ "\
 SELECT \
 pk, \
+sop_cuid, \
 sop_iuid, \
 inst_no, \
 0 \
 FROM instance \
 WHERE series_fk='%@' \
+%@ \
+%@ \
 %@ \
 " %@</string>
 
@@ -209,11 +212,14 @@ WHERE series_fk='%@' \
 <string>%@ "\
 SELECT \
 pk, \
+sop_cuid, \
 sop_iuid, \
 inst_no, \
 1 \
 FROM instance \
 WHERE series_fk='%@' \
+%@ \
+%@ \
 %@ \
 " %@</string>
 
@@ -221,14 +227,22 @@ WHERE series_fk='%@' \
 <string>%@ "\
 SELECT \
 pk, \
+sop_cuid, \
 sop_iuid, \
 inst_no, \
 HEX(inst_attrs) \
 FROM instance \
 WHERE series_fk='%@' \
 %@ \
+%@ \
+%@ \
 " %@</string>
 
+<key>ANDinstanceSOPClass</key>
+<string>AND sop_cuid  REGEXP '%@'</string>
+
+<key>ANDinstanceSOPClassOff</key>
+<string>AND NOT(sop_cuid  REGEXP '%@')</string>
 
 <key>IpostprocessingCommandsSh</key><!-- if empty, default array  -->      
 <string>| awk ' BEGIN{ ORS="\x0D\x0A"; OFS="\x1F\x7C";}{print $1, $2, $3, $4, $5}' | sed 's/080005004353.*280008004953....//'</string>
