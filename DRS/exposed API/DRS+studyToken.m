@@ -1484,8 +1484,6 @@ if ([DRS.InstanceUniqueFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)
       LOG_ERROR(@"studyToken study db error");
       continue;
    }
-   instanceSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:nil orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
-
 }
 else if ([DRS.InstanceMultiFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)
 {
@@ -1505,9 +1503,6 @@ else if ([DRS.InstanceMultiFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)
       LOG_ERROR(@"studyToken study db error");
       continue;
    }
-
-   instanceSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:sqlDictionary[@"IpostprocessingTitleMain"] orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
-
 }
 else
 {
@@ -1526,8 +1521,8 @@ else
       LOG_ERROR(@"studyToken study db error");
       continue;
    }
-   instanceSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:nil orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
 }
+instanceSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:sqlDictionary[@"IpostprocessingTitleMain"] orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
 
                                  
                               

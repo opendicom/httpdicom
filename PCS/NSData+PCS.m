@@ -106,12 +106,12 @@
       NSUInteger codedStringLast=codedString.length - 1;
       for (NSUInteger i=0; i<codedStringLast; i+=2)
       {
-         if ([codedString characterAtIndex:i]==33)
+         if ([[codedString substringWithRange:NSMakeRange(i,1)]isEqualToString:@"3"])
             [decodedString appendString:[codedString substringWithRange:NSMakeRange(i+1,1)]];
          else i=codedStringLast;
       }
 
-      if (decodedString.length > 3)
+      if (decodedString.length > 0)
          [unitArray replaceObjectAtIndex:3 withObject:decodedString];
       else [unitArray replaceObjectAtIndex:3 withObject:@"-1"];
    }
