@@ -233,10 +233,10 @@ WHERE series_fk='%@' \
 
 
 <key>IpostprocessingCommandsSh</key><!-- if empty, default array  -->
-<string>| awk ' BEGIN{ ORS="\x0D\x0A"; OFS="\x1F\x7C";}{print $1, $2, $3, $4, $5}' | sed -e 's/080005004353.*280008004953....//' -e 's/280010005553.*(?:.)$/|/' -e 's/20(?:.)$//'</string>
+<string>| awk ' BEGIN{ ORS="\x0D\x0A"; OFS="\x1F\x7C";}{print $1, $2, $3, $4, $5}' | sed 's/080005004353.*280008004953....//'</string>
 
 <key>IpostprocessingTitleMain</key>
-<string>lastTextUnitHEX2ASCII</string>
+<string>fourthTextUnitHEX2ASCII</string>
 
 </dict>
 </plist>
