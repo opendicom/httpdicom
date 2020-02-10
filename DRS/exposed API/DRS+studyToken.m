@@ -12,210 +12,17 @@
  */
 
 #import "DRS+studyToken.h"
-#import "DICMTypes.h"
-#import "NSString+PCS.h"
-#import "NSData+PCS.h"
-#import "NSData+ZLIB.h"
+
 #import "WeasisManifest.h"
 #import "WeasisArcQuery.h"
 #import "WeasisPatient.h"
 #import "WeasisStudy.h"
 #import "WeasisSeries.h"
 #import "WeasisInstance.h"
-#import "NSMutableArray+JSON.h"
-
-#pragma mark enums
-
-enum accessType{
-   accessTypeWeasis,
-   accessTypeCornerstone,
-   accessTypeDicomzip,
-   accessTypeOsirix,
-   accessTypeDatatablesSeries,
-   accessTypeDatatablesPatient,
-   accessTypeIsoDicomZip,
-   accessTypeDeflateIsoDicomZip,
-   accessTypeMaxDeflateIsoDicomZip,
-   accessTypeZip64IsoDicomZip,
-   accessTypeWadoRSDicom
-};
-
-enum selectType{
-   selectTypeSql,
-   selectTypeQido,
-   selectTypeCfind
-};
-
-enum getType{
-   getTypeFile,
-   getTypeFolder,
-   getTypeWado,
-   getTypeWadors,
-   getTypeCget,
-   getTypeCmove
-};
-
-enum dateMatch{
-   dateMatchAny,
-   dateMatchOn,
-   dateMatchSince,
-   dateMatchUntil,
-   dateMatchBetween,
-};
-
-enum issuer{
-   issuerNone,
-   issuerLocal,
-   issuerUniversal,
-   issuerType,
-   issuerDivision
-};
-
-
-enum EcumulativeFilter{
-   EcumulativeFilterPid=1,
-   EcumulativeFilterPpn,
-   EcumulativeFilterEid,
-   EcumulativeFilterEda,
-   EcumulativeFilterElo,
-   EcumulativeFilterRef,
-   EcumulativeFilterRead,
-   EcumulativeFilterEsc,
-   EcumulativeFilterEmo,
-};
-
-
-enum pnFilter{
-   pnFilterCompound,
-   pnFilterFamily,
-   pnFilterGiven,
-   pnFilterMiddle,
-   pnFilterPrefix,
-   pnFilterSuffix
-};
-
-#pragma mark static
-
-
-// ZIP ISO structure
-
-static uint32 zipLOCAL=0x04034B50;
-
-static uint16 zipVersion=0x000A;//1.0 default value
-
-static uint16 zipBitFlagsNone=0x0000;
-static uint16 zipBitFlagsMaxCompression=0x0002;
-static uint16 zipBitFlagsDescriptor=0x0008;//post data descriptor
-
-/*
- Bit 2  Bit 1
-   0      0    Normal (-en) compression option was used.
-   0      1    Maximum (-exx/-ex) compression option was used.
-   1      0    Fast (-ef) compression option was used.
-   1      1    Super Fast (-es) compression option was used.
-
- Bit 3: If this bit is set, the fields crc-32, compressed
-        size and uncompressed size are set to zero in the
-        local header.  The correct values are put in the
-        data descriptor immediately following the compressed
-        data.  (Note: PKZIP version 2.04g for DOS only
-        recognizes this bit for method 8 compression, newer
-        versions of PKZIP recognize this bit for any
-        compression method.)
-
- Bit 4: Reserved for use with method 8, for enhanced
-        deflating.
-
- Bit 11: Language encoding flag (EFS).  If this bit is set,
-         the filename and comment fields for this file
-         MUST be encoded using UTF-8. (see APPENDIX D)
-         (we don´t need it since all the names are pure ASCII)
- */
-static uint16 zipCompression0=0x0000;
-static uint16 zipCompression8=0x0008;
-//uint16 zipTime;
-//uint16 zipDate;
-//uint32 zipCRC32=0x00000000;
-//uint32 zipCompressedSize=0x00000000;
-//uint32 zipUncompressedSize=0x00000000;
-static uint16 zipNameLength=0x0024;//UUID.dcm
-static uint16 zipExtraLength=0x0000;
-//zipName
-//noExtra
-//zipData
-
-
-static uint32 zipDESCRIPTOR=0x08074B50;
-//zipCRC32
-//zipCompressedSize
-//zipUncompressedSize
-
-
-static uint32 zipCENTRAL=0x02014B50;
-static uint16 zipMadeBy=0x13;
-//zipVersion
-//zipBitFlags
-//zipCompression8
-//zipTime
-//zipDate
-//zipCRC32
-//zipCompressedSize
-//zipUncompressedSize
-//zipNameLength
-//zipExtraLength
-//zipExtraLength comment
-//zipExtraLength disk number start
-//zipExtraLength internal file attribute
-static uint32 zipExternalFileAttributes=0x81A40000;
-//uint32 zipRelativeOffsetOfLocal
-//zipName
-//noExtra
-//noComment
-
-
-static uint32 zipEND=0x06054B50;
-static uint16 zipDiskNumber=0x0000;
-static uint16 zipDiskCentralStarts=0x0000;
-//uint16 zipRecordTotal thisDisk
-//zipRecordTotal
-//uint32 zipCentralSize;
-//uint32 zipCentralOffset;
-//zipExtraLength
-//noComment
-
-
-// pk.pk/
-static NSString *sqlTwoPks=@"| awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\".\";} {print $1, $2} '";
-
-// item/
-static NSString *sqlsingleslash=@"| awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\"\";} {print $1} '";
-
-static NSString *sqlRecordFourUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4}'";
-
-static NSString *sqlRecordFiveUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5}'";
-
-static NSString *sqlRecordSixUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6}'";
-
-static NSString *sqlRecordEightUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8}'";
-
-static NSString *sqlRecordNineUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9}'";
-
-static NSString *sqlRecordTenUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}'";
-
-static NSString *sqlRecordElevenUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11}'";
-
-//prolog
-//filters...(including eventual IOCM
-//limit (or anything else in the MYSQL SELECT after filters)
-//epilog
-
-
-#pragma mark - E,S functions
 
 /*
 study pk and patient pk of studies selected
 */
-
 RSResponse * sqlEP(
  NSMutableDictionary * EPDict,
  NSDictionary        * sqlcredentials,
@@ -249,7 +56,6 @@ RSResponse * sqlEP(
 )
 {
    NSMutableData * mutableData=[NSMutableData data];
-#pragma mark - exclusive study matches
    if (StudyInstanceUIDRegexpString)
 #pragma mark · StudyInstanceUID
    {
@@ -365,8 +171,6 @@ RSResponse * sqlEP(
    }
    else
    {
-#pragma mark - cumulative matches
-      
       NSMutableArray *sqlJoins=[NSMutableArray array];
       NSMutableString *filters=[NSMutableString string];
       
@@ -787,7 +591,7 @@ NSString * SOPCLassOfReturnableSeries(
     return SOPClassString;
 };
 
-#pragma mark - accessType functions
+#pragma mark -
 
 RSResponse * weasis(
  NSMutableArray      * JSONArray,
@@ -921,6 +725,29 @@ RSResponse * weasis(
 
                   case getTypeWado:{
 #pragma mark ·· WADO (unique option for now)
+
+                                             
+                     //we prepare the eventual additional filters at instance level
+                     NSString *instanceANDSOPClass=nil;
+                     if (SOPClassRegex)
+                     {
+                        instanceANDSOPClass=
+                        [NSString stringWithFormat:
+                         sqlDictionary[@"ANDinstanceSOPClass"],
+                         [SOPClassRegex pattern]
+                         ];
+                     } else instanceANDSOPClass=@"";
+
+                     NSString *instanceANDSOPClassOff=nil;
+                     if (SOPClassOffRegex)
+                     {
+                        instanceANDSOPClassOff=
+                        [NSString stringWithFormat:
+                         sqlDictionary[@"ANDinstanceSOPClassOff"],
+                         [SOPClassOffRegex pattern]
+                         ];
+                     } else instanceANDSOPClassOff=@"";
+
                      
 #pragma mark ...patient loop
                      NSMutableData *mutableData=[NSMutableData data];
@@ -1017,7 +844,7 @@ NSXMLElement *PatientElement=nil;
                                                  sqlprolog,
                                                  SProperties[0],
                                                  @"",
-                                                 sqlRecordFourUnits
+                                                 sqlRecordFiveUnits
                                                  ],
                                                 mutableData)
                                   !=0)
@@ -1242,6 +1069,12 @@ NSMutableArray *patientArray=nil;
                      arc=[NSMutableDictionary dictionaryWithObjectsAndKeys:
                           devOID, @"arcId",
                           proxyURIString,@"baseUrl",
+                          SeriesInstanceUIDRegex.pattern,@"seriesFilterInstanceUID",
+                          SeriesNumberRegex.pattern,@"seriesFilterNumber",
+                          SeriesDescriptionRegex.pattern,@"seriesFilterDescription",
+                          ModalityRegex.pattern,@"seriesFilterModality",
+                          SOPClassRegex.pattern,@"seriesFilterSOPClass",
+                          SOPClassOffRegex.pattern,@"seriesFilterSOPClassOff",
                           patientArray,@"patientList",
                           nil];
                      [JSONArray addObject:arc];
@@ -1299,7 +1132,7 @@ if (SOPClassOffRegex)
                            }
                            NSArray *patientSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
                            
-                           NSMutableDictionary *patient=[patientArray firstMutableDictionaryWithKey:@"key" isEqualToString:P];
+                           NSMutableDictionary *patient=[patientArray firstMutableDictionaryWithKey:@"key" isEqualToNumber:[NSNumber numberWithLongLong:[P longLongValue]]];
 NSMutableArray *studyArray=nil;
 
 if (patient)
@@ -1354,7 +1187,7 @@ else //no patient
                               }
                               NSArray *studySqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
 
-                              NSMutableDictionary *study=[studyArray firstMutableDictionaryWithKey:@"key" isEqualToString:E];
+                              NSMutableDictionary *study=[studyArray firstMutableDictionaryWithKey:@"key" isEqualToNumber:[NSNumber numberWithLongLong:[E longLongValue]]];
 NSMutableArray *seriesArray=nil;
 if (study)
 {
@@ -1499,7 +1332,7 @@ if ([DRS.InstanceUniqueFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)
                      instanceANDSOPClass,
                      instanceANDSOPClassOff,
                      @"",
-                     sqlRecordFourUnits
+                     sqlRecordFiveUnits
                      ],
                   mutableData)
        !=0)
@@ -1896,7 +1729,7 @@ RSResponse* dicomzip(
    
    
    
-#pragma mark - handler
+#pragma mark handler
    return [RSStreamedResponse responseWithContentType:@"application/octet-stream" asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
    {
       /*
@@ -2227,28 +2060,28 @@ RSResponse* osirixdcmURLs(
    NSFileManager *defaultManager=[NSFileManager defaultManager];
    NSError *error=nil;
    
-#pragma mark · 1. query context
+#pragma mark query context
    
-   //1.1 proxyURI
+   //proxyURI
    NSString *proxyURIString=nil;
    NSInteger proxyURIIndex=[names indexOfObject:@"proxyURI"];
    if (proxyURIIndex!=NSNotFound) proxyURIString=values[proxyURIIndex];
    else proxyURIString=@"whatIsTheURLToBeInvoked?";
    
-   //1.2 session
+   //session
    NSString *sessionString=nil;
    NSInteger sessionIndex=[names indexOfObject:@"session"];
    if (sessionIndex!=NSNotFound) sessionString=values[sessionIndex];
    else sessionString=@"";
    
-   //1.3 token
+   //token
    NSString *tokenString=nil;
    NSInteger tokenIndex=[names indexOfObject:@"token"];
    if (tokenIndex!=NSNotFound) tokenString=values[tokenIndex];
    else tokenString=@"";
 
 
-#pragma mark · 2. institution
+#pragma mark institution
 
    NSMutableString *canonicalQuery=[NSMutableString stringWithString:@""];
    
@@ -2306,7 +2139,6 @@ RSResponse* osirixdcmURLs(
 
    if ([wanArray count]) [canonicalQuery appendFormat:@"\"wanPacs\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
 
-#pragma mark - exclusive filters
 
 #pragma mark StudyInstanceUID
     NSString *StudyInstanceUIDRegexpString=nil;
@@ -2333,9 +2165,7 @@ RSResponse* osirixdcmURLs(
        [canonicalQuery appendFormat:@"\"AccessionNumber\":\"%@\",",AccessionNumberEqualString];
     }
 
-    
-#pragma mark - cumulative filters
-
+   
 #pragma mark 1. PatientID (Pid)
     NSString *PatientIDLikeString=nil;
     NSInteger PatientIDIndex=[names indexOfObject:@"PatientID"];
@@ -2833,7 +2663,7 @@ RSResponse* osirixdcmURLs(
    if (!JSONArray) JSONArray=[NSMutableArray array];
 
 
-#pragma mark · 6 accessType
+#pragma mark accessType
 
 //6.1
    NSInteger accessType=NSNotFound;
