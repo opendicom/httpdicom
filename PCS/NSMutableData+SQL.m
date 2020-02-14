@@ -106,7 +106,7 @@
      //sqlCharset:(NSStringEncoding)loopDevice[@"sqlstringencoding"]
      //response can be almost empty
      //in this case we remove lost ']'
-     if ([mutableData length]<10) return [RSDataResponse responseWithData:emptyJsonArray contentType:@"application/json"];
+     if ([mutableData length]<10) return [RSDataResponse responseWithData:emptymatchRoot contentType:@"application/json"];
      
      //db response may be in latin1
      NSStringEncoding charset=(NSStringEncoding)[loopDevice[@"sqlstringencoding"] longLongValue ];

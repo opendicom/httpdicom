@@ -1,4 +1,7 @@
 #import "DRS.h"
+#import "DRS+weasis.h"
+#import "DRS+cornerstone.h"
+#import "DRS+dicomzip.h"
 
 #import "DICMTypes.h"
 #import "NSString+PCS.h"
@@ -213,7 +216,8 @@ static NSString *sqlRecordElevenUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";
 
 /*
  JSON returned
-
+ [
+ {
  "arcId":"devOID",
  "baseUrl":"proxyURIString",
  "patientList":
@@ -270,140 +274,4 @@ static NSString *sqlRecordElevenUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";
 }
 
 (-1=info not available, 0=not an image, 1=monoframe, x=multiframe)
-
-
-@interface DRS (studyTokenCornerstone)
-
-- (RSResponse*)cornerstone4JSONArray:(NSMutableArray*)JSONArray
-         canonicalQuerySHA512String:(NSString*)canonicalQuerySHA512String
-                     proxyURIString:(NSString*)proxyURIString
-                      sessionString:(NSString*)sessionString
-                        tokenString:(NSString*)tokenString
-                           lanArray:(NSMutableArray*)lanArray
-                           wanArray:(NSMutableArray*)wanArray
-       StudyInstanceUIDRegexpString:(NSString*)StudyInstanceUIDRegexpString
-         AccessionNumberEqualString:(NSString*)AccessionNumberEqualString
-           refInstitutionLikeString:(NSString*)refInstitutionLikeString
-               refServiceLikeString:(NSString*)refServiceLikeString
-                  refUserLikeString:(NSString*)refUserLikeString
-                    refIDLikeString:(NSString*)refIDLikeString
-                refIDTypeLikeString:(NSString*)refIDTypeLikeString
-       readInstitutionSqlLikeString:(NSString*)readInstitutionSqlLikeString
-           readServiceSqlLikeString:(NSString*)readServiceSqlLikeString
-              readUserSqlLikeString:(NSString*)readUserSqlLikeString
-                readIDSqlLikeString:(NSString*)readIDSqlLikeString
-            readIDTypeSqlLikeString:(NSString*)readIDTypeSqlLikeString
-                  StudyIDLikeString:(NSString*)StudyIDLikeString
-                PatientIDLikeString:(NSString*)PatientIDLikeString
-            patientFamilyLikeString:(NSString*)patientFamilyLikeString
-             patientGivenLikeString:(NSString*)patientGivenLikeString
-            patientMiddleLikeString:(NSString*)patientMiddleLikeString
-            patientPrefixLikeString:(NSString*)patientPrefixLikeString
-            patientSuffixLikeString:(NSString*)patientSuffixLikeString
-                        issuerArray:(NSArray*)issuerArray
-                     StudyDateArray:(NSArray*)StudyDateArray
-        SOPClassInStudyRegexpString:(NSString*)SOPClassInStudyRegexpString
-        ModalityInStudyRegexpString:(NSString*)ModalityInStudyRegexpString
-       StudyDescriptionRegexpString:(NSString*)StudyDescriptionRegexpString
-                     hasRestriction:(BOOL)hasRestriction
-             SeriesInstanceUIDRegex:(NSRegularExpression*)SeriesInstanceUIDRegex
-                  SeriesNumberRegex:(NSRegularExpression*)SeriesNumberRegex
-             SeriesDescriptionRegex:(NSRegularExpression*)SeriesDescriptionRegex
-                      ModalityRegex:(NSRegularExpression*)ModalityRegex
-                      SOPClassRegex:(NSRegularExpression*)SOPClassRegex
-                   SOPClassOffRegex:(NSRegularExpression*)SOPClassOffRegex
-                         accessType:(NSInteger)accessType
-;
-@end
-
-
-@interface DRS (studyTokenDicomzip)
-
-- (RSResponse*)dicomzip4JSONArray:(NSMutableArray*)JSONArray
-         canonicalQuerySHA512String:(NSString*)canonicalQuerySHA512String
-                     proxyURIString:(NSString*)proxyURIString
-                      sessionString:(NSString*)sessionString
-                        tokenString:(NSString*)tokenString
-                           lanArray:(NSMutableArray*)lanArray
-                           wanArray:(NSMutableArray*)wanArray
-       StudyInstanceUIDRegexpString:(NSString*)StudyInstanceUIDRegexpString
-         AccessionNumberEqualString:(NSString*)AccessionNumberEqualString
-           refInstitutionLikeString:(NSString*)refInstitutionLikeString
-               refServiceLikeString:(NSString*)refServiceLikeString
-                  refUserLikeString:(NSString*)refUserLikeString
-                    refIDLikeString:(NSString*)refIDLikeString
-                refIDTypeLikeString:(NSString*)refIDTypeLikeString
-       readInstitutionSqlLikeString:(NSString*)readInstitutionSqlLikeString
-           readServiceSqlLikeString:(NSString*)readServiceSqlLikeString
-              readUserSqlLikeString:(NSString*)readUserSqlLikeString
-                readIDSqlLikeString:(NSString*)readIDSqlLikeString
-            readIDTypeSqlLikeString:(NSString*)readIDTypeSqlLikeString
-                  StudyIDLikeString:(NSString*)StudyIDLikeString
-                PatientIDLikeString:(NSString*)PatientIDLikeString
-            patientFamilyLikeString:(NSString*)patientFamilyLikeString
-             patientGivenLikeString:(NSString*)patientGivenLikeString
-            patientMiddleLikeString:(NSString*)patientMiddleLikeString
-            patientPrefixLikeString:(NSString*)patientPrefixLikeString
-            patientSuffixLikeString:(NSString*)patientSuffixLikeString
-                        issuerArray:(NSArray*)issuerArray
-                     StudyDateArray:(NSArray*)StudyDateArray
-        SOPClassInStudyRegexpString:(NSString*)SOPClassInStudyRegexpString
-        ModalityInStudyRegexpString:(NSString*)ModalityInStudyRegexpString
-       StudyDescriptionRegexpString:(NSString*)StudyDescriptionRegexpString
-                     hasRestriction:(BOOL)hasRestriction
-             SeriesInstanceUIDRegex:(NSRegularExpression*)SeriesInstanceUIDRegex
-                  SeriesNumberRegex:(NSRegularExpression*)SeriesNumberRegex
-             SeriesDescriptionRegex:(NSRegularExpression*)SeriesDescriptionRegex
-                      ModalityRegex:(NSRegularExpression*)ModalityRegex
-                      SOPClassRegex:(NSRegularExpression*)SOPClassRegex
-                   SOPClassOffRegex:(NSRegularExpression*)SOPClassOffRegex
-                         accessType:(NSInteger)accessType
-;
-@end
-
-
-@interface DRS (studyTokenOsirixdcmURLs)
-
-- (RSResponse*)osirixdcmURLs4JSONArray:(NSMutableArray*)JSONArray
-         canonicalQuerySHA512String:(NSString*)canonicalQuerySHA512String
-                     proxyURIString:(NSString*)proxyURIString
-                      sessionString:(NSString*)sessionString
-                        tokenString:(NSString*)tokenString
-                           lanArray:(NSMutableArray*)lanArray
-                           wanArray:(NSMutableArray*)wanArray
-       StudyInstanceUIDRegexpString:(NSString*)StudyInstanceUIDRegexpString
-         AccessionNumberEqualString:(NSString*)AccessionNumberEqualString
-           refInstitutionLikeString:(NSString*)refInstitutionLikeString
-               refServiceLikeString:(NSString*)refServiceLikeString
-                  refUserLikeString:(NSString*)refUserLikeString
-                    refIDLikeString:(NSString*)refIDLikeString
-                refIDTypeLikeString:(NSString*)refIDTypeLikeString
-       readInstitutionSqlLikeString:(NSString*)readInstitutionSqlLikeString
-           readServiceSqlLikeString:(NSString*)readServiceSqlLikeString
-              readUserSqlLikeString:(NSString*)readUserSqlLikeString
-                readIDSqlLikeString:(NSString*)readIDSqlLikeString
-            readIDTypeSqlLikeString:(NSString*)readIDTypeSqlLikeString
-                  StudyIDLikeString:(NSString*)StudyIDLikeString
-                PatientIDLikeString:(NSString*)PatientIDLikeString
-            patientFamilyLikeString:(NSString*)patientFamilyLikeString
-             patientGivenLikeString:(NSString*)patientGivenLikeString
-            patientMiddleLikeString:(NSString*)patientMiddleLikeString
-            patientPrefixLikeString:(NSString*)patientPrefixLikeString
-            patientSuffixLikeString:(NSString*)patientSuffixLikeString
-                        issuerArray:(NSArray*)issuerArray
-                     StudyDateArray:(NSArray*)StudyDateArray
-        SOPClassInStudyRegexpString:(NSString*)SOPClassInStudyRegexpString
-        ModalityInStudyRegexpString:(NSString*)ModalityInStudyRegexpString
-       StudyDescriptionRegexpString:(NSString*)StudyDescriptionRegexpString
-                     hasRestriction:(BOOL)hasRestriction
-             SeriesInstanceUIDRegex:(NSRegularExpression*)SeriesInstanceUIDRegex
-                  SeriesNumberRegex:(NSRegularExpression*)SeriesNumberRegex
-             SeriesDescriptionRegex:(NSRegularExpression*)SeriesDescriptionRegex
-                      ModalityRegex:(NSRegularExpression*)ModalityRegex
-                      SOPClassRegex:(NSRegularExpression*)SOPClassRegex
-                   SOPClassOffRegex:(NSRegularExpression*)SOPClassOffRegex
-                         accessType:(NSInteger)accessType
-;
-
-@end
 */

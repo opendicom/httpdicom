@@ -82,6 +82,12 @@
 		4A2F37F422884AC2004BE2A2 /* ResponseMwlitems.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2F37F222884AC2004BE2A2 /* ResponseMwlitems.h */; };
 		4A34618D22F0ACC300368276 /* DRS+studyToken.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A34618B22F0ACC300368276 /* DRS+studyToken.h */; };
 		4A34618E22F0ACC300368276 /* DRS+studyToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A34618C22F0ACC300368276 /* DRS+studyToken.m */; };
+		4A3F897223F486AA005DE843 /* DRS+weasis.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A3F897023F486AA005DE843 /* DRS+weasis.h */; };
+		4A3F897323F486AA005DE843 /* DRS+weasis.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A3F897123F486AA005DE843 /* DRS+weasis.m */; };
+		4A3F897823F5C794005DE843 /* DRS+cornerstone.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A3F897423F5C794005DE843 /* DRS+cornerstone.m */; };
+		4A3F897923F5C794005DE843 /* DRS+dicomzip.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A3F897523F5C794005DE843 /* DRS+dicomzip.h */; };
+		4A3F897A23F5C794005DE843 /* DRS+cornerstone.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A3F897623F5C794005DE843 /* DRS+cornerstone.h */; };
+		4A3F897B23F5C794005DE843 /* DRS+dicomzip.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A3F897723F5C794005DE843 /* DRS+dicomzip.m */; };
 		4A494CF023745B62006F69DF /* DRS+store.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A494CEE23745B62006F69DF /* DRS+store.h */; };
 		4A494CF123745B62006F69DF /* DRS+store.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A494CEF23745B62006F69DF /* DRS+store.m */; };
 		4A57EE422295442400EB3962 /* ResponseQido.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A57EE402295442400EB3962 /* ResponseQido.m */; };
@@ -290,6 +296,12 @@
 		4A2F37F222884AC2004BE2A2 /* ResponseMwlitems.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResponseMwlitems.h; sourceTree = "<group>"; };
 		4A34618B22F0ACC300368276 /* DRS+studyToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+studyToken.h"; sourceTree = "<group>"; };
 		4A34618C22F0ACC300368276 /* DRS+studyToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+studyToken.m"; sourceTree = "<group>"; };
+		4A3F897023F486AA005DE843 /* DRS+weasis.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DRS+weasis.h"; sourceTree = "<group>"; };
+		4A3F897123F486AA005DE843 /* DRS+weasis.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "DRS+weasis.m"; sourceTree = "<group>"; };
+		4A3F897423F5C794005DE843 /* DRS+cornerstone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+cornerstone.m"; sourceTree = "<group>"; };
+		4A3F897523F5C794005DE843 /* DRS+dicomzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+dicomzip.h"; sourceTree = "<group>"; };
+		4A3F897623F5C794005DE843 /* DRS+cornerstone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+cornerstone.h"; sourceTree = "<group>"; };
+		4A3F897723F5C794005DE843 /* DRS+dicomzip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+dicomzip.m"; sourceTree = "<group>"; };
 		4A494CED2371F879006F69DF /* studyToken.pages */ = {isa = PBXFileReference; lastKnownFileType = file; path = studyToken.pages; sourceTree = "<group>"; };
 		4A494CEE23745B62006F69DF /* DRS+store.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+store.h"; sourceTree = "<group>"; };
 		4A494CEF23745B62006F69DF /* DRS+store.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+store.m"; sourceTree = "<group>"; };
@@ -459,6 +471,7 @@
 		4A07FB6721F24EF900007B8B /* exposed API */ = {
 			isa = PBXGroup;
 			children = (
+				4A3F896F23F485D1005DE843 /* studyToken */,
 				4A494CEE23745B62006F69DF /* DRS+store.h */,
 				4A494CEF23745B62006F69DF /* DRS+store.m */,
 				4A494CED2371F879006F69DF /* studyToken.pages */,
@@ -560,6 +573,19 @@
 				4A2E7D952396E02700F28B89 /* cornerstone.json */,
 			);
 			path = JSON;
+			sourceTree = "<group>";
+		};
+		4A3F896F23F485D1005DE843 /* studyToken */ = {
+			isa = PBXGroup;
+			children = (
+				4A3F897623F5C794005DE843 /* DRS+cornerstone.h */,
+				4A3F897423F5C794005DE843 /* DRS+cornerstone.m */,
+				4A3F897523F5C794005DE843 /* DRS+dicomzip.h */,
+				4A3F897723F5C794005DE843 /* DRS+dicomzip.m */,
+				4A3F897023F486AA005DE843 /* DRS+weasis.h */,
+				4A3F897123F486AA005DE843 /* DRS+weasis.m */,
+			);
+			path = studyToken;
 			sourceTree = "<group>";
 		};
 		4A94BE94208627AD0009C4AB /* DICOMweb */ = {
@@ -882,6 +908,7 @@
 				4AF40DD5222431B000103F99 /* NSString+PID.h in Headers */,
 				4A0FDF4F1E91078C001E3426 /* RSStreamedResponse.h in Headers */,
 				4ABF11F61FE5C13B000B8DE6 /* DICMTypes.h in Headers */,
+				4A3F897923F5C794005DE843 /* DRS+dicomzip.h in Headers */,
 				4A0FDF421E91078C001E3426 /* RSBodyEncoder.h in Headers */,
 				4AF40D5122183E7400103F99 /* RequestJSONMetadata.h in Headers */,
 				4AF40D3B21FF7B8400103F99 /* NSMutableURLRequest+DRS.h in Headers */,
@@ -898,6 +925,7 @@
 				4ABF11FD1FE6879C000B8DE6 /* NSMutableString+DSCD.h in Headers */,
 				4ABF11DE1FE5C11C000B8DE6 /* NSData+PCS.h in Headers */,
 				4AD38B322062D47200CA1ECC /* K.h in Headers */,
+				4A3F897223F486AA005DE843 /* DRS+weasis.h in Headers */,
 				4AF40D932222D08200103F99 /* mllpSend.h in Headers */,
 				4A0FDF5C1E9109EB001E3426 /* RSRequest.h in Headers */,
 				4AA20C5523101C58005BD76D /* WeasisPatient.h in Headers */,
@@ -905,6 +933,7 @@
 				4AA20C4D23101B98005BD76D /* WeasisManifest.h in Headers */,
 				4A2D90792183455100371484 /* zconf.h in Headers */,
 				4A0FDF5B1E9109EB001E3426 /* RSBodyWriterProtocol.h in Headers */,
+				4A3F897A23F5C794005DE843 /* DRS+cornerstone.h in Headers */,
 				4ABF11F31FE5C13B000B8DE6 /* NSDictionary+DICM.h in Headers */,
 				4AF40D49220ED1F400103F99 /* RequestXMLMetadata.h in Headers */,
 				4AF40D3221F8FA8B00103F99 /* DRS+qido.h in Headers */,
@@ -1060,6 +1089,7 @@
 				4ABF11DC1FE5C11C000B8DE6 /* NSString+PCS.m in Sources */,
 				4AE49DF3200D153000B8F321 /* DRS+pacs.m in Sources */,
 				4A2D90622181E37D00371484 /* DRS+wadouri.m in Sources */,
+				4A3F897B23F5C794005DE843 /* DRS+dicomzip.m in Sources */,
 				4AF40D3321F8FA8B00103F99 /* DRS+qido.m in Sources */,
 				4AA20C5E23101C91005BD76D /* WeasisSeries.m in Sources */,
 				4A0FDF4C1E91078C001E3426 /* RSErrorResponse.m in Sources */,
@@ -1095,9 +1125,11 @@
 				4AF9AE112348CAF300BB8188 /* NSData+ZLIB.m in Sources */,
 				4A57EE422295442400EB3962 /* ResponseQido.m in Sources */,
 				4A57EE5322961E8800EB3962 /* ResponseStow.m in Sources */,
+				4A3F897323F486AA005DE843 /* DRS+weasis.m in Sources */,
 				4A2E7D9C239730B600F28B89 /* NSMutableArray+JSON.m in Sources */,
 				4A96C55F1E843C9E002EB09E /* RFC822.m in Sources */,
 				4ABF11F41FE5C13B000B8DE6 /* NSDictionary+DICM.m in Sources */,
+				4A3F897823F5C794005DE843 /* DRS+cornerstone.m in Sources */,
 				4AA20C5A23101C72005BD76D /* WeasisStudy.m in Sources */,
 				4A0FDF541E91078C001E3426 /* RSConnection.m in Sources */,
 				4A07FB6521F2235B00007B8B /* RequestQido.m in Sources */,
