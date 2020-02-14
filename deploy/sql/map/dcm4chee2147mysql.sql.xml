@@ -190,6 +190,7 @@ department, \
 station_name, \
 perf_physician, \
 laterality \
+num_instances \
 FROM series \
 WHERE study_fk=%@ \
 %@ \

@@ -17,10 +17,15 @@
    NSXMLElement *arcQueryElement=nil;
    
    NSString *XMLString=[NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-   if (!XMLString)
+   if (XMLString) arcQueryElement=[[NSXMLElement alloc]initWithXMLString:XMLString error:&error];
+   else if (error) LOG_WARNING(@"reading %@. %@",path,[error description]);
+   if (!arcQueryElement)
    {
-      if (error) LOG_WARNING(@"reading %@. %@",path,[error description]);
-
+      if (error)
+      {
+         LOG_WARNING(@"parsing %@. %@",path,[error description]);
+         [[NSFileManager defaultManager] moveItemAtPath:path toPath:[path stringByAppendingPathExtension:@"badxml"] error:nil];
+      }
       arcQueryElement=
       [WeasisArcQuery
        arcQueryId:d[@"sessionString"]
@@ -38,40 +43,14 @@
        seriesFilterSOPClassOff:d[@"SOPClassOffRegexString"]
       ];
    }
-   else //XMLString
-   {
-      arcQueryElement=[[NSXMLElement alloc]initWithXMLString:XMLString error:&error];
-      if (error)
-      {
-         LOG_WARNING(@"parsing %@. %@",path,[error description]);
-         [[NSFileManager defaultManager] moveItemAtPath:path toPath:[path stringByAppendingPathExtension:@"badxml"] error:nil];
-         
-         arcQueryElement=
-         [WeasisArcQuery
-          arcQueryId:d[@"sessionString"]
-          weasisarcId:devOID
-          weasisbaseUrl:d[@"proxyURIString"]
-          weasiswebLogin:nil
-          weasisrequireOnlySOPInstanceUID:nil
-          weasisadditionnalParameters:nil
-          weasisoverrideDicomTagsList:nil
-          seriesFilterInstanceUID:d[@"SeriesInstanceUIDRegexString"]
-          seriesFilterNumber:d[@"SeriesNumberRegexString"]
-          seriesFilterDescription:d[@"SeriesDescriptionRegexString"]
-          seriesFilterModality:d[@"ModalityRegexString"]
-          seriesFilterSOPClass:d[@"SOPClassRegexString"]
-          seriesFilterSOPClassOff:d[@"SOPClassOffRegexString"]
-         ];
 
-      }
-   }
    
    NSDictionary *devDict=DRS.pacs[devOID];
    NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
    NSString *sqlprolog=devDict[@"sqlprolog"];
    NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
+   NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
 
-   //TODO create regex
    
 #pragma mark · apply EP (Study Patient) filters
    NSMutableDictionary *EPDict=[NSMutableDictionary dictionary];
@@ -106,35 +85,18 @@
     d[@"ModalityInStudyRegexpString"],
     d[@"StudyDescriptionRegexpString"]
    );
-   if (sqlEPErrorReturned) return sqlEPErrorReturned;
-
-
-//find devOID in matchRoot
-   if ([matchRoot elementsForName:@"WeasisArcQuery"]indexO)
-   
-      WeasisArqQueryNodes
-      
-   NSMutableArray *patientArray=nil;
-   NSMutableDictionary *arc=[matchRoot firstMutableDictionaryWithKey:@"arcId" isEqualToString:devOID];
-                     if (arc)
-                     {
-                        //update cached arc and get cached patients
-                        [arc setObject:proxyURIString forKey:@"baseUrl"];
+   if (!sqlEPErrorReturned)
+   {
+      /*
+      NSMutableArray *patientArray=nil;
                         patientArray=arc[@"patientList"];
-                        if (!patientArray)
-                        {
+      if (!patientArray)
+      {
                            patientArray=[NSMutableArray array];
                            [arc setObject:patientArray forKey:@"patientList"];
-                        }
-                     }
-                     else //no arc
-                     {
-                        //create arc
-
-                     }
+      }
 
       //we prepare GET type
-      NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
    
    
    switch (getTypeIndex) {
@@ -145,7 +107,8 @@
       } break;//end of WADO
    }// end of GET switch
 
-                                 
+                                NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:<#(nonnull NSString *)#> options:<#(NSRegularExpressionOptions)#> error:<#(NSError *__autoreleasing  _Nullable * _Nullable)#>];
+
          //we prepare the eventual additional filters at instance level
          NSString *instanceANDSOPClass=nil;
          if (SOPClassRegex)
@@ -296,7 +259,6 @@ NSXMLElement *StudyElement=nil;//Study=Exam
                }// end for each S
             }//end for each E
          }//end for each P
-            
 
    NSXMLDocument *doc=[NSXMLDocument documentWithRootElement:weasisArcQuery];
    doc.documentContentKind=NSXMLDocumentXMLKind;
@@ -304,5 +266,9 @@ NSXMLElement *StudyElement=nil;//Study=Exam
    doc.standalone=true;
    NSData *docData=[doc XMLData];
    [docData writeToFile:path atomically:YES];
+       
+       */
+
+   }
 }
 @end

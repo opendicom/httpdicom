@@ -1786,7 +1786,6 @@ RSResponse* osirixdcmURLs(
    if (errorString) return [RSErrorResponse responseWithClientError:404 message:@"%@",errorString];
    
    NSFileManager *defaultManager=[NSFileManager defaultManager];
-   NSError *error=nil;
    
 #pragma mark query context
    

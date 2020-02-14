@@ -34,7 +34,6 @@ NSString* correctedModality(NSString* spaceNormalized)
 #pragma mark params
     NSMutableArray *names=[NSMutableArray array];
     NSMutableArray *values=[NSMutableArray array];
-    NSMutableArray *types=[NSMutableArray array];
     NSString *RequestParamsSHA512String=parseRequestParams(request, names, values);
     if ([RequestParamsSHA512String hasPrefix:@"ERROR"]) return [RSErrorResponse responseWithClientError:404 message:@"%@",RequestParamsSHA512String];
     
