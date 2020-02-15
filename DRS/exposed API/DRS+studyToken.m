@@ -1786,38 +1786,28 @@ RSResponse* osirixdcmURLs(
    if (errorString) return [RSErrorResponse responseWithClientError:404 message:@"%@",errorString];
    
    NSFileManager *defaultManager=[NSFileManager defaultManager];
-   
+   NSMutableDictionary *requestDict=[NSMutableDictionary dictionary];
 #pragma mark query context
    
-   //proxyURI
-   NSString *proxyURIString=nil;
    NSInteger proxyURIIndex=[names indexOfObject:@"proxyURI"];
-   if (proxyURIIndex!=NSNotFound) proxyURIString=values[proxyURIIndex];
-   else proxyURIString=@"whatIsTheURLToBeInvoked?";
+    if (proxyURIIndex!=NSNotFound) [requestDict setObject:values[proxyURIIndex] forKey:@"proxyURIString"];
    
-   //session
-   NSString *sessionString=nil;
    NSInteger sessionIndex=[names indexOfObject:@"session"];
-   if (sessionIndex!=NSNotFound) sessionString=values[sessionIndex];
-   else sessionString=@"";
-   
-   //token
-   NSString *tokenString=nil;
+   if (sessionIndex!=NSNotFound) [requestDict setObject:values[sessionIndex] forKey:@"sessionString"];
+
    NSInteger tokenIndex=[names indexOfObject:@"token"];
-   if (tokenIndex!=NSNotFound) tokenString=values[tokenIndex];
-   else tokenString=@"";
+   if (tokenIndex!=NSNotFound) [requestDict setObject:values[tokenIndex] forKey:@"tokenString"];
 
 
 #pragma mark institution
 
-   NSMutableString *canonicalQuery=[NSMutableString stringWithString:@""];
+   NSMutableString *canonicalQuery=[NSMutableString stringWithString:@"{"];
    
-   
-   //2.1
    NSMutableArray *lanArray=[NSMutableArray array];
    NSMutableArray *wanArray=[NSMutableArray array];
    
    NSInteger orgIndex=[names indexOfObject:@"institution"];
+   [requestDict setObject:values[orgIndex] forKey:@"institutionString"];
    if (orgIndex==NSNotFound)
    {
       orgIndex=[names indexOfObject:@"lanPacs"];
@@ -1854,17 +1844,14 @@ RSResponse* osirixdcmURLs(
                LOG_VERBOSE(@"studyToken institution for lan %@:\r\n%@",orgArray[i],[DRS.titlestitlesaets[orgArray[i]]description]);
             }
          }
-         else
-         {
-            LOG_WARNING(@"studyToken institution '%@' not registered",orgArray[i]);
-         }
+         else LOG_WARNING(@"studyToken institution '%@' not registered",orgArray[i]);
       }
    }
    if (![lanArray count] && ![wanArray count]) return [RSErrorResponse responseWithClientError:404 message:@"no valid pacs in the request"];
 
-   if ([lanArray count]) [canonicalQuery appendFormat:@"\"lanPacs\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
+   if ([lanArray count]) [canonicalQuery appendFormat:@"\"lanArray\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
 
-   if ([wanArray count]) [canonicalQuery appendFormat:@"\"wanPacs\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
+   if ([wanArray count]) [canonicalQuery appendFormat:@"\"wanArray\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
 
 
 #pragma mark StudyInstanceUID
@@ -1877,6 +1864,7 @@ RSResponse* osirixdcmURLs(
           if ([DICMTypes isUIPipeListString:values[StudyInstanceUIDIndex]])
           {
              StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
+             [requestDict setObject:StudyInstanceUIDRegexpString forKey:@"StudyInstanceUIDRegexpString"];
              [canonicalQuery appendFormat:@"\"StudyInstanceUID\":\"%@\",",StudyInstanceUIDRegexpString];
           }
           else return [RSErrorResponse responseWithClientError:404 message:@"studyToken param StudyInstanceUID: %@",values[StudyInstanceUIDIndex]];
@@ -1889,6 +1877,7 @@ RSResponse* osirixdcmURLs(
     if (AccessionNumberIndex!=NSNotFound)
     {
        AccessionNumberEqualString=[values[AccessionNumberIndex] sqlEqualEscapedString];
+       [requestDict setObject:AccessionNumberEqualString forKey:@"AccessionNumberEqualString"];
        [canonicalQuery appendFormat:@"\"AccessionNumber\":\"%@\",",AccessionNumberEqualString];
     }
 
@@ -1899,6 +1888,7 @@ RSResponse* osirixdcmURLs(
     if (PatientIDIndex!=NSNotFound)
     {
        PatientIDLikeString=[values[PatientIDIndex] sqlLikeEscapedString];
+       [requestDict setObject:PatientIDLikeString forKey:@"PatientIDLikeString"];
        [canonicalQuery appendFormat:@"\"PatientID\":\"%@\",",PatientIDLikeString];
     }
 
@@ -1912,6 +1902,7 @@ RSResponse* osirixdcmURLs(
    {
       patientNamePart=true;
       patientFamilyLikeString=[values[patientFamilyIndex] regexQuoteEscapedString];
+      [requestDict setObject:patientFamilyLikeString forKey:@"patientFamilyLikeString"];
       [canonicalQuery appendFormat:@"\"patientFamily\":\"%@\",",patientFamilyLikeString];
    }
 
@@ -1921,6 +1912,7 @@ RSResponse* osirixdcmURLs(
    {
       patientNamePart=true;
       patientGivenLikeString=[values[patientGivenIndex] regexQuoteEscapedString];
+      [requestDict setObject:patientGivenLikeString forKey:@"patientGivenLikeString"];
       [canonicalQuery appendFormat:@"\"patientGiven\":\"%@\",",patientGivenLikeString];
    }
 
@@ -1930,6 +1922,7 @@ RSResponse* osirixdcmURLs(
    {
       patientNamePart=true;
       patientMiddleLikeString=[values[patientMiddleIndex] regexQuoteEscapedString];
+      [requestDict setObject:patientMiddleLikeString forKey:@"patientMiddleLikeString"];
       [canonicalQuery appendFormat:@"\"patientMiddle\":\"%@\",",patientMiddleLikeString];
    }
 
@@ -1939,6 +1932,7 @@ RSResponse* osirixdcmURLs(
    {
       patientNamePart=true;
       patientPrefixLikeString=[values[patientPrefixIndex] regexQuoteEscapedString];
+      [requestDict setObject:patientPrefixLikeString forKey:@"patientPrefixLikeString"];
       [canonicalQuery appendFormat:@"\"patientPrefix\":\"%@\",",patientPrefixLikeString];
    }
 
@@ -1948,6 +1942,7 @@ RSResponse* osirixdcmURLs(
    {
       patientNamePart=true;
       patientSuffixLikeString=[values[patientSuffixIndex] regexQuoteEscapedString];
+      [requestDict setObject:patientSuffixLikeString forKey:@"patientSuffixLikeString"];
       [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",patientSuffixLikeString];
    }
 
@@ -1961,26 +1956,31 @@ RSResponse* osirixdcmURLs(
          if (PatientNameParts.count>0)
          {
             patientFamilyLikeString=PatientNameParts[0];
+            [requestDict setObject:patientFamilyLikeString forKey:@"patientFamilyLikeString"];
             [canonicalQuery appendFormat:@"\"patientFamily\":\"%@\",",patientFamilyLikeString];
          }
          if (PatientNameParts.count>1)
          {
             patientGivenLikeString=PatientNameParts[1];
+            [requestDict setObject:patientGivenLikeString forKey:@"patientGivenLikeString"];
             [canonicalQuery appendFormat:@"\"patientGiven\":\"%@\",",patientGivenLikeString];
          }
          if (PatientNameParts.count>2)
          {
             patientMiddleLikeString=PatientNameParts[2];
+            [requestDict setObject:patientMiddleLikeString forKey:@"patientMiddleLikeString"];
             [canonicalQuery appendFormat:@"\"patientMiddle\":\"%@\",",patientMiddleLikeString];
          }
          if (PatientNameParts.count>3)
          {
             patientPrefixLikeString=PatientNameParts[3];
+            [requestDict setObject:patientPrefixLikeString forKey:@"patientPrefixLikeString"];
             [canonicalQuery appendFormat:@"\"patientPrefix\":\"%@\",",patientPrefixLikeString];
          }
          if (PatientNameParts.count>4)
          {
             patientSuffixLikeString=PatientNameParts[4];
+            [requestDict setObject:patientSuffixLikeString forKey:@"patientSuffixLikeString"];
             [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",patientSuffixLikeString];
          }
       }
@@ -1993,6 +1993,7 @@ RSResponse* osirixdcmURLs(
     if (StudyIDIndex!=NSNotFound)
     {
        StudyIDLikeString=[values[StudyIDIndex] sqlLikeEscapedString];
+       [requestDict setObject:StudyIDLikeString forKey:@"StudyIDLikeString"];
        [canonicalQuery appendFormat:@"\"StudyID\":\"%@\",",StudyIDLikeString];
     }
 
@@ -2005,8 +2006,7 @@ RSResponse* osirixdcmURLs(
     {
        NSString *StudyDateString=values[StudyDateIndex];
        [canonicalQuery appendFormat:@"\"StudyDate\":\"%@\",",StudyDateString];
-       if (![StudyDateString length]) StudyDateArray=@[];
-       else
+       if ([StudyDateString length])
        {
           if (![DICMTypes isDA0or1PipeString:StudyDateString]) return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad StudyDate %@",StudyDateString];
           else
@@ -2037,8 +2037,9 @@ RSResponse* osirixdcmURLs(
                 StudyDateArray=@[StudyDatePipeComponents[0],@"",@"",StudyDatePipeComponents[1]];
                  }
              }
+             [requestDict setObject:StudyDateArray forKey:@"StudyDateArray"];
           }
-        }
+       }
     }
 
  
@@ -2049,6 +2050,7 @@ RSResponse* osirixdcmURLs(
     if (StudyDescriptionIndex!=NSNotFound)
     {
        StudyDescriptionRegexpString=[values[StudyDescriptionIndex] regexQuoteEscapedString];
+       [requestDict setObject:StudyDescriptionRegexpString forKey:@"StudyDescriptionRegexpString"];
        [canonicalQuery appendFormat:@"\"StudyDescription\":\"%@\",",StudyDescriptionRegexpString];
     }
 
@@ -2063,6 +2065,7 @@ RSResponse* osirixdcmURLs(
     {
        refPart=true;
        refInstitutionLikeString=[values[refInstitutionIndex] regexQuoteEscapedString];
+       [requestDict setObject:refInstitutionLikeString forKey:@"refInstitutionLikeString"];
        [canonicalQuery appendFormat:@"\"refInstitution\":\"%@\",",refInstitutionLikeString];
     }
 
@@ -2072,6 +2075,7 @@ RSResponse* osirixdcmURLs(
     {
        refPart=true;
        refServiceLikeString=[values[refServiceIndex] regexQuoteEscapedString];
+       [requestDict setObject:refServiceLikeString forKey:@"refServiceLikeString"];
        [canonicalQuery appendFormat:@"\"refService\":\"%@\",",refServiceLikeString];
     }
 
@@ -2081,6 +2085,7 @@ RSResponse* osirixdcmURLs(
     {
        refPart=true;
        refUserLikeString=[values[refUserIndex] regexQuoteEscapedString];
+       [requestDict setObject:refUserLikeString forKey:@"refUserLikeString"];
        [canonicalQuery appendFormat:@"\"refUser\":\"%@\",",refUserLikeString];
     }
 
@@ -2090,6 +2095,7 @@ RSResponse* osirixdcmURLs(
     {
        refPart=true;
        refIDLikeString=[values[refIDIndex] regexQuoteEscapedString];
+       [requestDict setObject:refIDLikeString forKey:@"refIDLikeString"];
        [canonicalQuery appendFormat:@"\"refID\":\"%@\",",refIDLikeString];
     }
 
@@ -2099,6 +2105,7 @@ RSResponse* osirixdcmURLs(
     {
        refPart=true;
        refIDTypeLikeString=[values[refIDTypeIndex] regexQuoteEscapedString];
+       [requestDict setObject:refIDTypeLikeString forKey:@"refIDTypeLikeString"];
        [canonicalQuery appendFormat:@"\"refIDType\":\"%@\",",refIDTypeLikeString];
     }
    
@@ -2112,26 +2119,31 @@ RSResponse* osirixdcmURLs(
          if (refParts.count>0)
          {
             refInstitutionLikeString=refParts[0];
+            [requestDict setObject:refInstitutionLikeString forKey:@"refInstitutionLikeString"];
             [canonicalQuery appendFormat:@"\"refInstitution\":\"%@\",",refInstitutionLikeString];
          }
          if (refParts.count>1)
          {
             refServiceLikeString=refParts[1];
+            [requestDict setObject:refServiceLikeString forKey:@"refServiceLikeString"];
             [canonicalQuery appendFormat:@"\"refService\":\"%@\",",refServiceLikeString];
          }
          if (refParts.count>2)
          {
             refUserLikeString=refParts[2];
+            [requestDict setObject:refUserLikeString forKey:@"refUserLikeString"];
             [canonicalQuery appendFormat:@"\"refUser\":\"%@\",",refUserLikeString];
          }
          if (refParts.count>3)
          {
             refIDLikeString=refParts[3];
+            [requestDict setObject:refIDLikeString forKey:@"refIDLikeString"];
             [canonicalQuery appendFormat:@"\"refID\":\"%@\",",refIDLikeString];
          }
          if (refParts.count>4)
          {
             refIDTypeLikeString=refParts[4];
+            [requestDict setObject:refIDTypeLikeString forKey:@"refIDTypeLikeString"];
             [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",refIDTypeLikeString];
          }
       }
@@ -2148,6 +2160,7 @@ RSResponse* osirixdcmURLs(
     {
        readPart=true;
        readInstitutionLikeString=[values[readInstitutionIndex] regexQuoteEscapedString];
+       [requestDict setObject:readInstitutionLikeString forKey:@"readInstitutionLikeString"];
        [canonicalQuery appendFormat:@"\"readInstitution\":\"%@\",",readInstitutionLikeString];
     }
 
@@ -2157,7 +2170,8 @@ RSResponse* osirixdcmURLs(
     {
        readPart=true;
        readServiceLikeString=[values[readServiceIndex] regexQuoteEscapedString];
-       [canonicalQuery appendFormat:@"\"readService\":\"%@\",",readServiceLikeString];
+       [requestDict setObject:readServiceLikeString forKey:@"readServiceLikeString"];
+[canonicalQuery appendFormat:@"\"readService\":\"%@\",",readServiceLikeString];
     }
 
     NSString *readUserLikeString=nil;
@@ -2166,6 +2180,7 @@ RSResponse* osirixdcmURLs(
     {
        readPart=true;
        readUserLikeString=[values[readUserIndex] regexQuoteEscapedString];
+       [requestDict setObject:readUserLikeString forKey:@"readUserLikeString"];
        [canonicalQuery appendFormat:@"\"readUser\":\"%@\",",readUserLikeString];
     }
 
@@ -2175,6 +2190,7 @@ RSResponse* osirixdcmURLs(
     {
        readPart=true;
        readIDLikeString=[values[readIDIndex] regexQuoteEscapedString];
+       [requestDict setObject:readIDLikeString forKey:@"readIDLikeString"];
        [canonicalQuery appendFormat:@"\"readID\":\"%@\",",readIDLikeString];
     }
     
@@ -2184,6 +2200,7 @@ RSResponse* osirixdcmURLs(
     {
        readPart=true;
        readIDTypeLikeString=[values[readIDTypeIndex] regexQuoteEscapedString];
+       [requestDict setObject:readIDTypeLikeString forKey:@"readIDTypeLikeString"];
        [canonicalQuery appendFormat:@"\"readIDType\":\"%@\",",readIDTypeLikeString];
     }
 
@@ -2197,26 +2214,31 @@ RSResponse* osirixdcmURLs(
          if (readParts.count>0)
          {
             readInstitutionLikeString=readParts[0];
+            [requestDict setObject:readInstitutionLikeString forKey:@"readInstitutionLikeString"];
             [canonicalQuery appendFormat:@"\"readInstitution\":\"%@\",",readInstitutionLikeString];
          }
          if (readParts.count>1)
          {
             readServiceLikeString=readParts[1];
+            [requestDict setObject:readServiceLikeString forKey:@"readServiceLikeString"];
             [canonicalQuery appendFormat:@"\"readService\":\"%@\",",readServiceLikeString];
          }
          if (readParts.count>2)
          {
             readUserLikeString=readParts[2];
+            [requestDict setObject:readUserLikeString forKey:@"readUserLikeString"];
             [canonicalQuery appendFormat:@"\"readUser\":\"%@\",",readUserLikeString];
          }
          if (readParts.count>3)
          {
             readIDLikeString=readParts[3];
+            [requestDict setObject:readIDLikeString forKey:@"readIDLikeString"];
             [canonicalQuery appendFormat:@"\"readID\":\"%@\",",readIDLikeString];
          }
          if (readParts.count>4)
          {
             readIDTypeLikeString=readParts[4];
+            [requestDict setObject:readIDTypeLikeString forKey:@"readIDTypeLikeString"];
             [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",readIDTypeLikeString];
          }
       }
@@ -2225,30 +2247,27 @@ RSResponse* osirixdcmURLs(
     
 #pragma mark 8. SOPClassInStudyString
     
-   NSString *SOPClassInStudyRegexpString=nil;
    NSInteger SOPClassInStudyIndex=[names indexOfObject:@"SOPClassInStudy"];
-   if (SOPClassInStudyIndex!=NSNotFound)
+   if ((SOPClassInStudyIndex!=NSNotFound) && [DICMTypes isSingleUIString:values[SOPClassInStudyIndex]])
    {
-      if ([DICMTypes isSingleUIString:values[SOPClassInStudyIndex]]) SOPClassInStudyRegexpString=values[SOPClassInStudyIndex];
-      [canonicalQuery appendFormat:@"\"SOPClassInStudy\":\"%@\",",SOPClassInStudyRegexpString];
+           [requestDict setObject:values[SOPClassInStudyIndex] forKey:@"SOPClassInStudyRegexpString"];
+           [canonicalQuery appendFormat:@"\"SOPClassInStudy\":\"%@\",",values[SOPClassInStudyIndex]];
    }
 
    
 #pragma mark 9. ModalityInStudyString
-   NSString *ModalityInStudyRegexpString=nil;
    NSInteger ModalityInStudyIndex=[names indexOfObject:@"ModalityInStudy"];
-   if (ModalityInStudyIndex!=NSNotFound)
+   if ((ModalityInStudyIndex!=NSNotFound) && [DICMTypes isSingleCSString:values[ModalityInStudyIndex]])
    {
-      if ([DICMTypes isSingleCSString:values[ModalityInStudyIndex]]) ModalityInStudyRegexpString=values[ModalityInStudyIndex];
-      [canonicalQuery appendFormat:@"\"ModalityInStudy\":\"%@\",",ModalityInStudyRegexpString];
+      [requestDict setObject:values[ModalityInStudyIndex] forKey:@"ModalityInStudyRegexpString"];
+      [canonicalQuery appendFormat:@"\"ModalityInStudy\":\"%@\",",values[ModalityInStudyIndex]];
    }
 
 #pragma mark issuer
     
    NSArray *issuerArray=nil;
    NSInteger issuerIndex=[names indexOfObject:@"issuer"];
-   if (issuerIndex==NSNotFound) issuerArray=nil;
-   else
+   if (issuerIndex!=NSNotFound)
    {
       [canonicalQuery appendFormat:@"\"issuer\":\"%@\",",[values[issuerIndex] sqlEqualEscapedString]];
       NSArray *array=[[values[issuerIndex] sqlEqualEscapedString] componentsSeparatedByString:@"^"];
@@ -2273,73 +2292,68 @@ RSResponse* osirixdcmURLs(
             return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad param issuer: '%@'",values[issuerIndex]];
          } break;
       }
+      [requestDict setObject:issuerArray forKey:@"issuerArray"];
    }
 
 
 #pragma mark series restrictions
 
-//5.30 SeriesInstanceUID
-   NSString *SeriesInstanceUIDRegexString=nil;
+// SeriesInstanceUID
    NSInteger SeriesInstanceUIDIndex=[names indexOfObject:@"SeriesInstanceUID"];
    if (SeriesInstanceUIDIndex!=NSNotFound)
    {
-      SeriesInstanceUIDRegexString=values[SeriesInstanceUIDIndex];
-      [canonicalQuery appendFormat:@"\"SeriesInstanceUID\":\"%@\",",SeriesInstanceUIDRegexString];
+      [requestDict setObject:values[SeriesInstanceUIDIndex] forKey:@"SeriesInstanceUIDRegexString"];
+      [canonicalQuery appendFormat:@"\"SeriesInstanceUID\":\"%@\",",values[SeriesInstanceUIDIndex]];
    }
    
-//5.31 SeriesNumber
-   NSString *SeriesNumberRegexString=nil;
+// SeriesNumber
    NSInteger SeriesNumberIndex=[names indexOfObject:@"SeriesNumber"];
    if (SeriesNumberIndex!=NSNotFound)
    {
-      SeriesNumberRegexString=values[SeriesNumberIndex];
-      [canonicalQuery appendFormat:@"\"SeriesNumber\":\"%@\",",SeriesNumberRegexString];
+      [requestDict setObject:values[SeriesNumberIndex] forKey:@"SeriesNumberRegexString"];
+      [canonicalQuery appendFormat:@"\"SeriesNumber\":\"%@\",",values[SeriesNumberIndex]];
    }
 
-//5.32 SeriesDescription@StationName@Department@Institution
-   NSString *SeriesDescriptionRegexString=nil;
+// SeriesDescription@StationName@Department@Institution
    NSInteger SeriesDescriptionIndex=[names indexOfObject:@"SeriesDescription"];
    if (SeriesDescriptionIndex!=NSNotFound)
    {
-      SeriesDescriptionRegexString=values[SeriesDescriptionIndex];
-      [canonicalQuery appendFormat:@"\"SeriesDescription\":\"%@\",",SeriesDescriptionRegexString];
+      [requestDict setObject:values[SeriesDescriptionIndex] forKey:@"SeriesDescriptionRegexString"];
+      [canonicalQuery appendFormat:@"\"SeriesDescription\":\"%@\",",values[SeriesDescriptionIndex]];
    }
    
-//5.33 Modality
-   NSString *ModalityRegexString=nil;
+// Modality
    NSInteger ModalityIndex=[names indexOfObject:@"Modality"];
    if (ModalityIndex!=NSNotFound)
    {
-      ModalityRegexString=values[ModalityIndex];
-      [canonicalQuery appendFormat:@"\"Modality\":\"%@\",",ModalityRegexString];
+      [requestDict setObject:values[ModalityIndex] forKey:@"ModalityRegexString"];
+      [canonicalQuery appendFormat:@"\"Modality\":\"%@\",",values[ModalityIndex]];
    }
 
-//5.34 SOPClass
-   NSString *SOPClassRegexString=nil;
+// SOPClass
    NSInteger SOPClassIndex=[names indexOfObject:@"SOPClass"];
    if (SOPClassIndex!=NSNotFound)
    {
-      SOPClassRegexString=values[SOPClassIndex];
-      [canonicalQuery appendFormat:@"\"SOPClass\":\"%@\",",SOPClassRegexString];
+      [requestDict setObject:values[SOPClassIndex] forKey:@"SOPClassRegexString"];
+      [canonicalQuery appendFormat:@"\"SOPClass\":\"%@\",",values[SOPClassIndex]];
    }
    
-//5.35 SOPClassOff
-   NSString *SOPClassOffRegexString=nil;
+// SOPClassOff
    NSInteger SOPClassOffIndex=[names indexOfObject:@"SOPClassOff"];
    if (SOPClassOffIndex!=NSNotFound)
    {
-      SOPClassOffRegexString=values[SOPClassOffIndex];
-      [canonicalQuery appendFormat:@"\"SOPClassOff\":\"%@\",",SOPClassOffRegexString];
+      [requestDict setObject:values[SOPClassOffIndex] forKey:@"SOPClassOffRegexString"];
+      [canonicalQuery appendFormat:@"\"SOPClassOff\":\"%@\",",values[SOPClassOffIndex]];
    }
 
 //hasRestriction?
    BOOL hasRestriction=
-      SeriesInstanceUIDRegexString
-   || SeriesNumberRegexString
-   || SeriesDescriptionRegexString
-   || ModalityRegexString
-   || SOPClassRegexString
-   || SOPClassOffRegexString;
+      requestDict[@"SeriesInstanceUIDRegexString"]
+   || requestDict[@"SeriesNumberRegexString"]
+   || requestDict[@"SeriesDescriptionRegexString"]
+   || requestDict[@"ModalityRegexString"]
+   || requestDict[@"SOPClassRegexString"]
+   || requestDict[@"SOPClassOffRegexString"];
 
 #pragma mark sha512
    [canonicalQuery replaceCharactersInRange:NSMakeRange(canonicalQuery.length-1, 1) withString:@"}"];
@@ -2419,45 +2433,7 @@ RSResponse* osirixdcmURLs(
             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
                case selectTypeSql:
-                  [DRS weasisSql4dictionary:@{
-                     @"path":path,
-                     @"devOID":devOID,
-                     @"proxyURIString":proxyURIString,
-                     @"sessionString":sessionString,
-                     @"tokenString":tokenString,
-                     @"StudyInstanceUIDRegexpString":StudyInstanceUIDRegexpString,
-                     @"AccessionNumberEqualString":AccessionNumberEqualString,
-                     @"refInstitutionLikeString":refInstitutionLikeString,
-                     @"refServiceLikeString":refServiceLikeString,
-                     @"refUserLikeString":refUserLikeString,
-                     @"refIDLikeString":refIDLikeString,
-                     @"refIDTypeLikeString":refIDTypeLikeString,
-                     @"readInstitutionLikeString":readInstitutionLikeString,
-                     @"readServiceLikeString":readServiceLikeString,
-                     @"readUserLikeString":readUserLikeString,
-                     @"readIDLikeString":readIDLikeString,
-                     @"readIDTypeLikeString":readIDTypeLikeString,
-                     @"StudyIDLikeString":StudyIDLikeString,
-                     @"PatientIDLikeString":PatientIDLikeString,
-                     @"patientFamilyLikeString":patientFamilyLikeString,
-                     @"patientGivenLikeString":patientGivenLikeString,
-                     @"patientMiddleLikeString":patientMiddleLikeString,
-                     @"patientPrefixLikeString":patientPrefixLikeString,
-                     @"patientSuffixLikeString":patientSuffixLikeString,
-                     @"issuerArray":issuerArray,
-                     @"StudyDateArray":StudyDateArray,
-                     @"SOPClassInStudyRegexpString":SOPClassInStudyRegexpString,
-                     @"ModalityInStudyRegexpString":ModalityInStudyRegexpString,
-                     @"StudyDescriptionRegexpString":StudyDescriptionRegexpString,
-                     @"hasRestrictionNumber":[NSNumber numberWithBool:hasRestriction],
-                     @"SeriesInstanceUIDRegexString":SeriesInstanceUIDRegexString,
-                     @"SeriesNumberRegexString":SeriesNumberRegexString,
-                     @"SeriesDescriptionRegexString":SeriesDescriptionRegexString,
-                     @"ModalityRegexString":ModalityRegexString,
-                     @"SOPClassRegexString":SOPClassRegexString,
-                     @"SOPClassOffRegexString":SOPClassOffRegexString,
-                     @"accessTypeNumber":[NSNumber numberWithInteger:accessTypeNumber]
-                  }];
+                  [DRS weasisSql4dictionary:requestDict];
             }
          }
          //reply with result found in path
@@ -2494,45 +2470,7 @@ RSResponse* osirixdcmURLs(
             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
                 case selectTypeSql:
-                  [DRS cornerstoneSql4dictionary:@{
-                     @"path":path,
-                     @"devOID":devOID,
-                     @"proxyURIString":proxyURIString,
-                     @"sessionString":sessionString,
-                     @"tokenString":tokenString,
-                     @"StudyInstanceUIDRegexpString":StudyInstanceUIDRegexpString,
-                     @"AccessionNumberEqualString":AccessionNumberEqualString,
-                     @"refInstitutionLikeString":refInstitutionLikeString,
-                     @"refServiceLikeString":refServiceLikeString,
-                     @"refUserLikeString":refUserLikeString,
-                     @"refIDLikeString":refIDLikeString,
-                     @"refIDTypeLikeString":refIDTypeLikeString,
-                     @"readInstitutionLikeString":readInstitutionLikeString,
-                     @"readServiceLikeString":readServiceLikeString,
-                     @"readUserLikeString":readUserLikeString,
-                     @"readIDLikeString":readIDLikeString,
-                     @"readIDTypeLikeString":readIDTypeLikeString,
-                     @"StudyIDLikeString":StudyIDLikeString,
-                     @"PatientIDLikeString":PatientIDLikeString,
-                     @"patientFamilyLikeString":patientFamilyLikeString,
-                     @"patientGivenLikeString":patientGivenLikeString,
-                     @"patientMiddleLikeString":patientMiddleLikeString,
-                     @"patientPrefixLikeString":patientPrefixLikeString,
-                     @"patientSuffixLikeString":patientSuffixLikeString,
-                     @"issuerArray":issuerArray,
-                     @"StudyDateArray":StudyDateArray,
-                     @"SOPClassInStudyRegexpString":SOPClassInStudyRegexpString,
-                     @"ModalityInStudyRegexpString":ModalityInStudyRegexpString,
-                     @"StudyDescriptionRegexpString":StudyDescriptionRegexpString,
-                     @"hasRestrictionNumber":[NSNumber numberWithBool:hasRestriction],
-                     @"SeriesInstanceUIDRegexString":SeriesInstanceUIDRegexString,
-                     @"SeriesNumberRegexString":SeriesNumberRegexString,
-                     @"SeriesDescriptionRegexString":SeriesDescriptionRegexString,
-                     @"ModalityRegexString":ModalityRegexString,
-                     @"SOPClassRegexString":SOPClassRegexString,
-                     @"SOPClassOffRegexString":SOPClassOffRegexString,
-                     @"accessTypeNumber":[NSNumber numberWithInteger:accessTypeNumber]
-                  }];
+                  [DRS cornerstoneSql4dictionary:requestDict];
             }
          }
          //reply with result found in path
