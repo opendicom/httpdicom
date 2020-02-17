@@ -25,7 +25,7 @@
 
 @interface WeasisPatient : NSXMLElement
 
-+(NSXMLElement*)pk:(NSString*)pk
++(NSXMLElement*)key:(NSString*)key
 weasisPatientID:(NSString*)weasisPatientID
 weasisPatientName:(NSString*)weasisPatientName
 weasisIssuerOfPatientID:(NSString*)weasisIssuerOfPatientID

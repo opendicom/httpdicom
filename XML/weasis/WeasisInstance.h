@@ -19,7 +19,7 @@
 
 @interface WeasisInstance : NSXMLElement
 
-+(NSXMLElement*)pk:(NSString*)pk
++(NSXMLElement*)key:(NSString*)key
 weasisSOPInstanceUID:(NSString*)weasisSOPInstanceUID
 weasisInstanceNumber:(NSString*)weasisInstanceNumber
 weasisDirectDownloadFile:(NSString*)weasisDirectDownloadFile

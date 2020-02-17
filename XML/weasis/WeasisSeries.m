@@ -10,7 +10,7 @@
 
 @implementation WeasisSeries
 
-+(NSXMLElement*)pk:(NSString*)pk
++(NSXMLElement*)key:(NSString*)key
 weasisSeriesInstanceUID:(NSString*)weasisSeriesInstanceUID
 weasisSeriesDescription:(NSString*)weasisSeriesDescription
 weasisSeriesNumber:(NSString*)weasisSeriesNumber
@@ -22,7 +22,7 @@ sop:(NSString*)sop
 images:(NSString*)images
 
 {
-   if (!pk || !weasisSeriesInstanceUID) return nil;
+   if (!key || !weasisSeriesInstanceUID) return nil;
    
    NSXMLElement *Series=[NSXMLElement elementWithName:@"Series"];
 
@@ -40,7 +40,7 @@ images:(NSString*)images
    if (sop) [Series addAttribute:[NSXMLNode attributeWithName:@"SOPClass" stringValue:sop]];
    if (images) [Series addAttribute:[NSXMLNode attributeWithName:@"Images​In​Study" stringValue:images]];
 
-   [Series addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
+   [Series addAttribute:[NSXMLNode attributeWithName:@"key" stringValue:key]];
    
    return Series;
 }

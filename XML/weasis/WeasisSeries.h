@@ -27,7 +27,7 @@
 
 @interface WeasisSeries : NSXMLElement
 
-+(NSXMLElement*)pk:(NSString*)pk
++(NSXMLElement*)key:(NSString*)key
 weasisSeriesInstanceUID:(NSString*)weasisSeriesInstanceUID
 weasisSeriesDescription:(NSString*)weasisSeriesDescription
 weasisSeriesNumber:(NSString*)weasisSeriesNumber

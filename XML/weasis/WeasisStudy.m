@@ -10,7 +10,7 @@
 
 @implementation WeasisStudy
 
-+(NSXMLElement*)pk:(NSString*)pk
++(NSXMLElement*)key:(NSString*)key
 weasisStudyInstanceUID:(NSString*)weasisStudyInstanceUID
 weasisStudyDescription:(NSString*)weasisStudyDescription
 weasisStudyDate:(NSString*)weasisStudyDate
@@ -24,7 +24,7 @@ series:(NSString*)series
 modalities:(NSString*)modalities
 {
    //required fields
-   if (!pk || !weasisStudyInstanceUID) return nil;
+   if (!key || !weasisStudyInstanceUID) return nil;
    
    NSXMLElement *Study=[NSXMLElement elementWithName:@"Study"];
    
@@ -44,7 +44,7 @@ modalities:(NSString*)modalities
    if (series) [Study addAttribute:[NSXMLNode attributeWithName:@"Series​In​Study" stringValue:series]];
    if (modalities) [Study addAttribute:[NSXMLNode attributeWithName:@"Modalities​In​Study" stringValue:modalities]];
 
-   [Study addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
+   [Study addAttribute:[NSXMLNode attributeWithName:@"key" stringValue:key]];
 
    return Study;
 }

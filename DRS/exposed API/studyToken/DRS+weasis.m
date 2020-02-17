@@ -54,6 +54,7 @@
    );
    if (!sqlEPErrorReturned && EPDict.count)
    {
+      //sql instance inits
       NSString *instanceANDSOPClass=nil;
       if (d[@"SOPClassRegexString"]) instanceANDSOPClass=
       [NSString stringWithFormat:
@@ -71,14 +72,13 @@
       else instanceANDSOPClassOff=@"";
 
       
-   //get
+      //get
       NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
 
 
 
       NSError  *error=nil;
       NSXMLElement *arcQueryElement=nil;
-      
       NSString *XMLString=[NSString stringWithContentsOfFile:d[@"path"] encoding:NSUTF8StringEncoding error:&error];
       if (XMLString) arcQueryElement=[[NSXMLElement alloc]initWithXMLString:XMLString error:&error];
       else if (error) LOG_WARNING(@"reading %@. %@",d[@"path"],[error description]);
@@ -107,77 +107,58 @@
          ];
       }
 
-/*
+      
+      //prepare regex level series
+       NSRegularExpression *SeriesInstanceUIDRegex = nil;
+       NSRegularExpression *SeriesNumberRegex = nil;
+       NSRegularExpression *SeriesDescriptionRegex = nil;
+       NSRegularExpression *ModalityRegex = nil;
+       NSRegularExpression *SOPClassRegex = nil;
+       NSRegularExpression *SOPClassOffRegex = nil;
+       if (d[@"hasRestriction"])
+       {
+           if (d[@"SeriesInstanceUIDRegexString"]) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
+           if (d[@"SeriesNumberRegexString"]) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesNumberRegexString"] options:0 error:NULL];
+           if (d[@"SeriesDescriptionRegexString"]) SeriesDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesDescriptionRegexString"] options:0  error:NULL];
+           if (d[@"ModalityRegexString"]) ModalityRegex=[NSRegularExpression regularExpressionWithPattern:d[@"ModalityRegexString"] options:0 error:NULL];
+           if (d[@"SOPClassRegexString"]) SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SOPClassRegexString"] options:0 error:NULL];
+           if (d[@"SOPClassOffRegexString"]) SOPClassOffRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SOPClassOffRegexString"] options:0 error:NULL];
+       }
 
-      NSMutableArray *patientArray=nil;
-                        patientArray=arc[@"patientList"];
-      if (!patientArray)
+      NSArray *patientArray=[arcQueryElement elementsForName:@"PatientElement"];
+      NSMutableDictionary *patientDictionary=[NSMutableDictionary dictionary];
+      for (NSXMLElement *cachedPatient in patientArray)
       {
-                           patientArray=[NSMutableArray array];
-                           [arc setObject:patientArray forKey:@"patientList"];
+         [patientDictionary setObject:cachedPatient forKey:[cachedPatient attributeForName:@"key"]];
       }
-
-      //we prepare GET type
-   
-   
-   switch (getTypeIndex) {
-      case NSNotFound:{
-         LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",devOID);
-      } break;
-      case getTypeWado:{
-      } break;//end of WADO
-   }// end of GET switch
-
-                                NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:<#(nonnull NSString *)#> options:<#(NSRegularExpressionOptions)#> error:<#(NSError *__autoreleasing  _Nullable * _Nullable)#>];
-
-         //we prepare the eventual additional filters at instance level
-         NSString *instanceANDSOPClass=nil;
-         if (SOPClassRegex)
-         {
-            instanceANDSOPClass=
-            [NSString stringWithFormat:
-             sqlDictionary[@"ANDinstanceSOPClass"],
-             [SOPClassRegex pattern]
-             ];
-         } else instanceANDSOPClass=@"";
-
-         NSString *instanceANDSOPClassOff=nil;
-         if (SOPClassOffRegex)
-         {
-            instanceANDSOPClassOff=
-            [NSString stringWithFormat:
-             sqlDictionary[@"ANDinstanceSOPClassOff"],
-             [SOPClassOffRegex pattern]
-             ];
-         } else instanceANDSOPClassOff=@"";
-
          
 #pragma mark ...patient loop
-         NSMutableData *mutableData=[NSMutableData data];
          for (NSString *P in [NSSet setWithArray:[EPDict allValues]])
          {
-            [mutableData setData:[NSData data]];
-            if (execUTF8Bash(sqlcredentials,
-                              [NSString stringWithFormat:
-                               sqlDictionary[@"P"],
-                               sqlprolog,
-                               P,
-                               @"",
-                               sqlRecordSixUnits
-                               ],
-                              mutableData)
-                !=0)
+            NSXMLElement *PatientElement=patientDictionary[P];
+            if (!PatientElement)
             {
-               LOG_ERROR(@"studyToken patient db error");
-               continue;
+               NSMutableData *patientData=[NSMutableData data];
+               if (execUTF8Bash(sqlcredentials,
+                                 [NSString stringWithFormat:
+                                  sqlDictionary[@"P"],
+                                  sqlprolog,
+                                  P,
+                                  @"",
+                                  sqlRecordSixUnits
+                                  ],
+                                 patientData)
+                   !=0)
+               {
+                  LOG_ERROR(@"studyToken patient db error");
+                  continue;
+               }
+               NSArray *patientSqlPropertiesArray=[patientData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+               PatientElement=
+               [WeasisPatient key:(patientSqlPropertiesArray[0])[0] weasisPatientID:(patientSqlPropertiesArray[0])[1] weasisPatientName:(patientSqlPropertiesArray[0])[2] weasisIssuerOfPatientID:(patientSqlPropertiesArray[0])[3] weasisPatientBirthDate:(patientSqlPropertiesArray[0])[4] weasisPatientBirthTime:nil weasisPatientSex:(patientSqlPropertiesArray[0])[5]
+                ];
+               [arcQueryElement addChild:PatientElement];
             }
-NSXMLElement *PatientElement=nil;
-            NSArray *patientSqlPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
-            PatientElement=
-            [WeasisPatient pk:(patientSqlPropertiesArray[0])[0] weasisPatientID:(patientSqlPropertiesArray[0])[1] weasisPatientName:(patientSqlPropertiesArray[0])[2] weasisIssuerOfPatientID:(patientSqlPropertiesArray[0])[3] weasisPatientBirthDate:(patientSqlPropertiesArray[0])[4] weasisPatientBirthTime:nil weasisPatientSex:(patientSqlPropertiesArray[0])[5]
-             ];
-            [arcQueryElement addChild:PatientElement];
-                  
 
 //#pragma mark study loop
             for (NSString *E in EPDict)
@@ -288,7 +269,9 @@ NSXMLElement *StudyElement=nil;//Study=Exam
    NSData *docData=[doc XMLData];
    [docData writeToFile:[[d[@"path"] stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"xml"] atomically:YES];
        
-*/
+
    }
 }
 @end
+
+//    NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:<#(nonnull NSString *)#> options:<#(NSRegularExpressionOptions)#> error:<#(NSError *__autoreleasing  _Nullable * _Nullable)#>];

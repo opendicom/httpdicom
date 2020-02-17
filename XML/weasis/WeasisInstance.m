@@ -10,13 +10,13 @@
 
 @implementation WeasisInstance
 
-+(NSXMLElement*)pk:(NSString*)pk
++(NSXMLElement*)key:(NSString*)key
 weasisSOPInstanceUID:(NSString*)weasisSOPInstanceUID
 weasisInstanceNumber:(NSString*)weasisInstanceNumber
 weasisDirectDownloadFile:(NSString*)weasisDirectDownloadFile 
 NumberOfFrames:(NSString*)NumberOfFrames
 {
-   if (!pk || !weasisSOPInstanceUID) return nil;
+   if (!key || !weasisSOPInstanceUID) return nil;
    
    NSXMLElement *Instance=[NSXMLElement elementWithName:@"Instance"];
    
@@ -28,7 +28,7 @@ NumberOfFrames:(NSString*)NumberOfFrames
    if (weasisDirectDownloadFile) [Instance addAttribute:[NSXMLNode attributeWithName:@"DirectDownloadFile" stringValue:weasisDirectDownloadFile]];
    if (NumberOfFrames) [Instance addAttribute:[NSXMLNode attributeWithName:@"NumberOfFrames" stringValue:NumberOfFrames]];
 
-   [Instance addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
+   [Instance addAttribute:[NSXMLNode attributeWithName:@"key" stringValue:key]];
    
    return Instance;
 }

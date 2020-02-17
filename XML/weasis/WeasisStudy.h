@@ -27,7 +27,7 @@
 
 @interface WeasisStudy : NSXMLElement
 
-+(NSXMLElement*)pk:(NSString*)pk
++(NSXMLElement*)key:(NSString*)key
 weasisStudyInstanceUID:(NSString*)weasisStudyInstanceUID
 weasisStudyDescription:(NSString*)weasisStudyDescription
 weasisStudyDate:(NSString*)weasisStudyDate

@@ -47,6 +47,7 @@
    );
    if (!sqlEPErrorReturned && EPDict.count)
    {
+      //sql instance inits
       NSString *instanceANDSOPClass=nil;
       if (d[@"SOPClassRegexString"]) instanceANDSOPClass=
       [NSString stringWithFormat:
@@ -64,7 +65,7 @@
       else instanceANDSOPClassOff=@"";
 
       
-   //get
+      //get
       NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
 
 
@@ -105,27 +106,10 @@
       
       for (NSString *P in [NSSet setWithArray:[EPDict allValues]])
       {
-         NSMutableData *patientData=[NSMutableData data];
-         if (execUTF8Bash(sqlcredentials,
-                           [NSString stringWithFormat:
-                            sqlDictionary[@"P"],
-                            sqlprolog,
-                            P,
-                            @"",
-                            sqlRecordSixUnits
-                            ],
-                           patientData)
-             !=0)
-         {
-            LOG_ERROR(@"studyToken patient db error");
-            continue;
-         }
-         
-         NSArray *patientSqlPropertiesArray=[patientData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
-         
          NSMutableArray *studyArray=nil;
+         
          NSMutableDictionary *patient=[patientArray firstMutableDictionaryWithKey:@"key" isEqualToNumber:[NSNumber numberWithLongLong:[P longLongValue]]];
-         if (patient) //found in cache
+         if (patient)
          {
             [studyArray setArray:arc[@"studyList"]];
             if (!studyArray)
@@ -134,23 +118,40 @@
                [patient setObject:studyArray forKey:@"studyList"];
             }
          }
-         else //new
+         else
          {
+            NSMutableData *patientData=[NSMutableData data];
+            if (execUTF8Bash(sqlcredentials,
+                              [NSString stringWithFormat:
+                               sqlDictionary[@"P"],
+                               sqlprolog,
+                               P,
+                               @"",
+                               sqlRecordSixUnits
+                               ],
+                              patientData)
+                !=0)
+            {
+               LOG_ERROR(@"studyToken patient db error");
+               continue;
+            }
+            
+            NSArray *patientSqlPropertiesArray=[patientData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+            
             studyArray=[NSMutableArray array];
-patient=[NSMutableDictionary dictionaryWithObjectsAndKeys:
- [NSNumber numberWithLongLong:[(patientSqlPropertiesArray[0])[0] longLongValue]],@"key",
- (patientSqlPropertiesArray[0])[1], @"PatientID",
- [(patientSqlPropertiesArray[0])[2] removeTrailingCarets],@"PatientName",
- (patientSqlPropertiesArray[0])[3],@"IssuerOfPatientID",
- (patientSqlPropertiesArray[0])[4],@"PatientBirthDate",
- (patientSqlPropertiesArray[0])[5],@"PatientSex",
- studyArray,@"studyList",
- nil
-];
+            patient=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+             [NSNumber numberWithLongLong:[(patientSqlPropertiesArray[0])[0] longLongValue]],@"key",
+             (patientSqlPropertiesArray[0])[1], @"PatientID",
+             [(patientSqlPropertiesArray[0])[2] removeTrailingCarets],@"PatientName",
+             (patientSqlPropertiesArray[0])[3],@"IssuerOfPatientID",
+             (patientSqlPropertiesArray[0])[4],@"PatientBirthDate",
+             (patientSqlPropertiesArray[0])[5],@"PatientSex",
+             studyArray,@"studyList",
+             nil
+            ];
             [patientArray addObject:patient];
          }
-      
-               
+                              
 
 #pragma mark study loop
          for (NSString *E in EPDict)
@@ -200,8 +201,8 @@ study=[NSMutableDictionary dictionaryWithObjectsAndKeys:
  [(studySqlPropertiesArray[0])[7] removeTrailingCarets],@"ReferringPhysicianName",
  [(studySqlPropertiesArray[0])[8] removeTrailingCarets],@"NameOfPhysiciansReadingStudy",
  (studySqlPropertiesArray[0])[9],@"modality",
- (patientSqlPropertiesArray[0])[1],@"patientId",
- [(patientSqlPropertiesArray[0])[2] removeTrailingCarets],@"patientName",
+ patient[@"patientId"],@"patientId",
+ patient[@"patientName"],@"patientName",
  seriesArray,@"seriesList",
 nil];
                   

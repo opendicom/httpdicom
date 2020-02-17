@@ -10,7 +10,7 @@
 
 @implementation WeasisPatient
 
-+(NSXMLElement*)pk:(NSString*)pk
++(NSXMLElement*)key:(NSString*)key
 weasisPatientID:(NSString*)weasisPatientID
 weasisPatientName:(NSString*)weasisPatientName
 weasisIssuerOfPatientID:(NSString*)weasisIssuerOfPatientID
@@ -18,7 +18,7 @@ weasisPatientBirthDate:(NSString*)weasisPatientBirthDate
 weasisPatientBirthTime:(NSString*)weasisPatientBirthTime
 weasisPatientSex:(NSString*)weasisPatientSex
 {
-   if (!pk || !weasisPatientID || !weasisPatientName) return nil;
+   if (!key || !weasisPatientID || !weasisPatientName) return nil;
 
    NSXMLElement *Patient=[NSXMLElement elementWithName:@"Patient"];
       
@@ -32,7 +32,7 @@ weasisPatientSex:(NSString*)weasisPatientSex
    if (weasisPatientBirthTime) [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientBirthTime" stringValue:weasisPatientBirthTime]];
    if (weasisPatientSex) [Patient addAttribute:[NSXMLNode attributeWithName:@"PatientSex" stringValue:weasisPatientSex]];
    
-   [Patient addAttribute:[NSXMLNode attributeWithName:@"pk" stringValue:pk]];
+   [Patient addAttribute:[NSXMLNode attributeWithName:@"key" stringValue:key]];
 
    return Patient;
 }
