@@ -5,11 +5,7 @@
 
 +(void)cornerstoneSql4dictionary:(NSDictionary*)d
 {
-   NSString *devOID=d[@"devOID"];
-   NSDictionary *devDict=DRS.pacs[devOID];
-   NSString *path=[d[@"path"] stringByAppendingPathComponent:devOID];
-   NSString *proxyURIString=d[@"proxyURIString"];
-   NSString *sessionString=d[@"sessionString"];
+   NSDictionary *devDict=DRS.pacs[d[@"devOID"]];
    
 //sql
    NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
@@ -72,11 +68,11 @@
    );
    if (!sqlEPErrorReturned && EPDict.count)
    {
-      NSMutableDictionary *arc=[NSMutableDictionary dictionaryWithContentsOfFile:path];
+      NSMutableDictionary *arc=[NSMutableDictionary dictionaryWithContentsOfFile:d[@"path"]];
       if (!arc)
       {
          arc=[NSMutableDictionary dictionaryWithObjectsAndKeys:
-         devOID, @"arcId",
+         d[@"devOID"], @"arcId",
          d[@"proxyURIString"],@"baseUrl",
          nil];
       }
@@ -380,13 +376,13 @@ As seen some casuistics can be resolved before any query to the instance table, 
                               [NSString
                                stringWithFormat:
                                @"wadouri:%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&arcId=%@%@",
-                               proxyURIString,
+                               d[@"proxyURIString"],
                                (studySqlPropertiesArray[0])[1],
                                seriesSqlProperties[1],
                                instanceSqlProperties[2],
-                               sessionString,
+                               d[@"sessionString"],
                                devDict[@"custodianoid"],
-                               devOID,
+                               d[@"devOID"],
                                devDict[@"wadocornerstoneparameters"]
                               ];
                               [instanceArray addObject:
@@ -409,7 +405,7 @@ As seen some casuistics can be resolved before any query to the instance table, 
       }//end for each P
        
       NSData *docData=[NSJSONSerialization dataWithJSONObject:arc options:0 error:nil];
-      [docData writeToFile:[[d[@"path"] stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"json"] atomically:YES];
+      [docData writeToFile:d[@"path"] atomically:YES];
 
    }//end EP
 }

@@ -11,25 +11,23 @@
 
 +(void)weasisSql4dictionary:(NSDictionary*)d
 {
-   NSString *devOID=d[@"devOID"];
-   NSString *path=[d[@"path"] stringByAppendingPathComponent:devOID];
    NSError  *error=nil;
    NSXMLElement *arcQueryElement=nil;
    
-   NSString *XMLString=[NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+   NSString *XMLString=[NSString stringWithContentsOfFile:d[@"path"] encoding:NSUTF8StringEncoding error:&error];
    if (XMLString) arcQueryElement=[[NSXMLElement alloc]initWithXMLString:XMLString error:&error];
-   else if (error) LOG_WARNING(@"reading %@. %@",path,[error description]);
+   else if (error) LOG_WARNING(@"reading %@. %@",d[@"path"],[error description]);
    if (!arcQueryElement)
    {
       if (error)
       {
-         LOG_WARNING(@"parsing %@. %@",path,[error description]);
-         [[NSFileManager defaultManager] moveItemAtPath:path toPath:[path stringByAppendingPathExtension:@"badxml"] error:nil];
+         LOG_WARNING(@"parsing %@. %@",d[@"path"],[error description]);
+         [[NSFileManager defaultManager] moveItemAtPath:d[@"path"] toPath:[d[@"path"] stringByAppendingPathExtension:@"badxml"] error:nil];
       }
       arcQueryElement=
       [WeasisArcQuery
        arcQueryId:d[@"sessionString"]
-       weasisarcId:devOID
+       weasisarcId:d[@"devOID"]
        weasisbaseUrl:d[@"proxyURIString"]
        weasiswebLogin:nil
        weasisrequireOnlySOPInstanceUID:nil
@@ -45,7 +43,7 @@
    }
 
    
-   NSDictionary *devDict=DRS.pacs[devOID];
+   NSDictionary *devDict=DRS.pacs[d[@"devOID"]];
    NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
    NSString *sqlprolog=devDict[@"sqlprolog"];
    NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];

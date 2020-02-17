@@ -2433,7 +2433,7 @@ RSResponse* osirixdcmURLs(
          for (NSString *devOID in lanArray)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
-            [requestDict setObject:path forKey:@"path"];
+            [requestDict setObject:[[path stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"xml"] forKey:@"path"];
             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
                case selectTypeSql:
@@ -2472,7 +2472,7 @@ RSResponse* osirixdcmURLs(
          for (NSString *devOID in lanArray)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
-            [requestDict setObject:path forKey:@"path"];
+            [requestDict setObject:[[path stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"json"]forKey:@"path"];
 
              switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
