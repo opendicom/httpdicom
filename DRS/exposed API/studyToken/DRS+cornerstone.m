@@ -12,27 +12,6 @@
    NSString *sqlprolog=devDict[@"sqlprolog"];
    NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
    
-   NSString *instanceANDSOPClass=nil;
-   if (d[@"SOPClassRegexString"]) instanceANDSOPClass=
-   [NSString stringWithFormat:
-    sqlDictionary[@"ANDinstanceSOPClass"],
-    d[@"SOPClassRegexString"]
-   ];
-   else instanceANDSOPClass=@"";
-
-   NSString *instanceANDSOPClassOff=nil;
-   if (d[@"SOPClassOffRegexString"]) instanceANDSOPClassOff=
-   [NSString stringWithFormat:
-    sqlDictionary[@"ANDinstanceSOPClassOff"],
-    d[@"SOPClassOffRegexString"]
-   ];
-   else instanceANDSOPClassOff=@"";
-
-   
-//get
-   NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
-
-   
 //apply EP (Study Patient) filters
    NSMutableDictionary *EPDict=[NSMutableDictionary dictionary];
    RSResponse *sqlEPErrorReturned=sqlEP(
@@ -68,6 +47,27 @@
    );
    if (!sqlEPErrorReturned && EPDict.count)
    {
+      NSString *instanceANDSOPClass=nil;
+      if (d[@"SOPClassRegexString"]) instanceANDSOPClass=
+      [NSString stringWithFormat:
+       sqlDictionary[@"ANDinstanceSOPClass"],
+       d[@"SOPClassRegexString"]
+      ];
+      else instanceANDSOPClass=@"";
+
+      NSString *instanceANDSOPClassOff=nil;
+      if (d[@"SOPClassOffRegexString"]) instanceANDSOPClassOff=
+      [NSString stringWithFormat:
+       sqlDictionary[@"ANDinstanceSOPClassOff"],
+       d[@"SOPClassOffRegexString"]
+      ];
+      else instanceANDSOPClassOff=@"";
+
+      
+   //get
+      NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
+
+
       NSMutableDictionary *arc=[NSMutableDictionary dictionaryWithContentsOfFile:d[@"path"]];
       if (!arc)
       {

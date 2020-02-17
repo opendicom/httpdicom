@@ -11,46 +11,15 @@
 
 +(void)weasisSql4dictionary:(NSDictionary*)d
 {
-   NSError  *error=nil;
-   NSXMLElement *arcQueryElement=nil;
-   
-   NSString *XMLString=[NSString stringWithContentsOfFile:d[@"path"] encoding:NSUTF8StringEncoding error:&error];
-   if (XMLString) arcQueryElement=[[NSXMLElement alloc]initWithXMLString:XMLString error:&error];
-   else if (error) LOG_WARNING(@"reading %@. %@",d[@"path"],[error description]);
-   if (!arcQueryElement)
-   {
-      if (error)
-      {
-         LOG_WARNING(@"parsing %@. %@",d[@"path"],[error description]);
-         [[NSFileManager defaultManager] moveItemAtPath:d[@"path"] toPath:[d[@"path"] stringByAppendingPathExtension:@"badxml"] error:nil];
-      }
-      arcQueryElement=
-      [WeasisArcQuery
-       arcQueryId:d[@"sessionString"]
-       weasisarcId:d[@"devOID"]
-       weasisbaseUrl:d[@"proxyURIString"]
-       weasiswebLogin:nil
-       weasisrequireOnlySOPInstanceUID:nil
-       weasisadditionnalParameters:nil
-       weasisoverrideDicomTagsList:nil
-       seriesFilterInstanceUID:d[@"SeriesInstanceUIDRegexString"]
-       seriesFilterNumber:d[@"SeriesNumberRegexString"]
-       seriesFilterDescription:d[@"SeriesDescriptionRegexString"]
-       seriesFilterModality:d[@"ModalityRegexString"]
-       seriesFilterSOPClass:d[@"SOPClassRegexString"]
-       seriesFilterSOPClassOff:d[@"SOPClassOffRegexString"]
-      ];
-   }
-
-   
    NSDictionary *devDict=DRS.pacs[d[@"devOID"]];
+   
+//sql
    NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
    NSString *sqlprolog=devDict[@"sqlprolog"];
    NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
-   NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
-
+ 
    
-#pragma mark · apply EP (Study Patient) filters
+//apply EP (Study Patient) filters
    NSMutableDictionary *EPDict=[NSMutableDictionary dictionary];
    RSResponse *sqlEPErrorReturned=sqlEP(
     EPDict,
@@ -83,9 +52,63 @@
     d[@"ModalityInStudyRegexpString"],
     d[@"StudyDescriptionRegexpString"]
    );
-   if (!sqlEPErrorReturned)
+   if (!sqlEPErrorReturned && EPDict.count)
    {
-      /*
+      NSString *instanceANDSOPClass=nil;
+      if (d[@"SOPClassRegexString"]) instanceANDSOPClass=
+      [NSString stringWithFormat:
+       sqlDictionary[@"ANDinstanceSOPClass"],
+       d[@"SOPClassRegexString"]
+      ];
+      else instanceANDSOPClass=@"";
+
+      NSString *instanceANDSOPClassOff=nil;
+      if (d[@"SOPClassOffRegexString"]) instanceANDSOPClassOff=
+      [NSString stringWithFormat:
+       sqlDictionary[@"ANDinstanceSOPClassOff"],
+       d[@"SOPClassOffRegexString"]
+      ];
+      else instanceANDSOPClassOff=@"";
+
+      
+   //get
+      NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
+
+
+
+      NSError  *error=nil;
+      NSXMLElement *arcQueryElement=nil;
+      
+      NSString *XMLString=[NSString stringWithContentsOfFile:d[@"path"] encoding:NSUTF8StringEncoding error:&error];
+      if (XMLString) arcQueryElement=[[NSXMLElement alloc]initWithXMLString:XMLString error:&error];
+      else if (error) LOG_WARNING(@"reading %@. %@",d[@"path"],[error description]);
+      if (!arcQueryElement)
+      {
+         if (error)
+         {
+            LOG_WARNING(@"parsing %@. %@",d[@"path"],[error description]);
+            [[NSFileManager defaultManager] moveItemAtPath:d[@"path"] toPath:[d[@"path"] stringByAppendingPathExtension:@"badxml"] error:nil];
+         }
+         arcQueryElement=
+         [WeasisArcQuery
+          arcQueryId:d[@"sessionString"]
+          weasisarcId:d[@"devOID"]
+          weasisbaseUrl:d[@"proxyURIString"]
+          weasiswebLogin:nil
+          weasisrequireOnlySOPInstanceUID:nil
+          weasisadditionnalParameters:nil
+          weasisoverrideDicomTagsList:nil
+          seriesFilterInstanceUID:d[@"SeriesInstanceUIDRegexString"]
+          seriesFilterNumber:d[@"SeriesNumberRegexString"]
+          seriesFilterDescription:d[@"SeriesDescriptionRegexString"]
+          seriesFilterModality:d[@"ModalityRegexString"]
+          seriesFilterSOPClass:d[@"SOPClassRegexString"]
+          seriesFilterSOPClassOff:d[@"SOPClassOffRegexString"]
+         ];
+      }
+
+/*
+
       NSMutableArray *patientArray=nil;
                         patientArray=arc[@"patientList"];
       if (!patientArray)
@@ -265,8 +288,7 @@ NSXMLElement *StudyElement=nil;//Study=Exam
    NSData *docData=[doc XMLData];
    [docData writeToFile:[[d[@"path"] stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"xml"] atomically:YES];
        
-       */
-
+*/
    }
 }
 @end
