@@ -82,13 +82,21 @@
       }
       
       //prepare regex level series
-      NSRegularExpression *SeriesInstanceUIDRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
-      NSRegularExpression *SeriesNumberRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SeriesNumberRegexString"] options:0 error:NULL];
-      NSRegularExpression *SeriesDescriptionRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SeriesDescriptionRegexString"] options:0 error:NULL];
-      NSRegularExpression *ModalityRegex = [NSRegularExpression regularExpressionWithPattern:d[@"ModalityRegexString"] options:0 error:NULL];
-      NSRegularExpression *SOPClassRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SOPClassRegexString"] options:0 error:NULL];
-      NSRegularExpression *SOPClassOffRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SOPClassOffRegexString"] options:0 error:NULL];
-      
+       NSRegularExpression *SeriesInstanceUIDRegex = nil;
+       NSRegularExpression *SeriesNumberRegex = nil;
+       NSRegularExpression *SeriesDescriptionRegex = nil;
+       NSRegularExpression *ModalityRegex = nil;
+       NSRegularExpression *SOPClassRegex = nil;
+       NSRegularExpression *SOPClassOffRegex = nil;
+       if (d[@"hasRestriction"])
+       {
+           if (d[@"SeriesInstanceUIDRegexString"]) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
+           if (d[@"SeriesNumberRegexString"]) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesNumberRegexString"] options:0 error:NULL];
+           if (d[@"SeriesDescriptionRegexString"]) SeriesDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesDescriptionRegexString"] options:0  error:NULL];
+           if (d[@"ModalityRegexString"]) ModalityRegex=[NSRegularExpression regularExpressionWithPattern:d[@"ModalityRegexString"] options:0 error:NULL];
+           if (d[@"SOPClassRegexString"]) SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SOPClassRegexString"] options:0 error:NULL];
+           if (d[@"SOPClassOffRegexString"]) SOPClassOffRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SOPClassOffRegexString"] options:0 error:NULL];
+       }
       
       NSMutableArray *patientArray=arc[@"patientList"];
       if (!patientArray) {
@@ -399,6 +407,10 @@ As seen some casuistics can be resolved before any query to the instance table, 
             }//end of ([EPDict[E] isEqualToString:P])
          }//end for each E
       }//end for each P
+       
+      NSData *docData=[NSJSONSerialization dataWithJSONObject:arc options:0 error:nil];
+      [docData writeToFile:[[d[@"path"] stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"json"] atomically:YES];
+
    }//end EP
 }
 @end

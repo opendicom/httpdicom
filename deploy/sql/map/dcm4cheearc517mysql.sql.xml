@@ -199,12 +199,13 @@ series.institution, \
 series.department, \
 series.station_name, \
 CONCAT(IFNULL(person_name.family_name,''), '^', IFNULL(person_name.given_name,''), '^', IFNULL(person_name.middle_name,''), '^', IFNULL(person_name.name_prefix,''), '^', IFNULL(person_name.name_suffix,'')), \
-series.laterality \
-series_query_attrs.num_instances
+series.laterality, \
+series_query_attrs.num_instances \
 FROM series \
 LEFT JOIN person_name ON series.perf_phys_name_fk=person_name.pk \
 LEFT JOIN series_query_attrs ON series.pk=series_query_attrs.series_fk \
 WHERE series.study_fk=%@ \
+AND series_query_attrs.view_id='regularUse' \
 %@ \
 " %@ </string>
 

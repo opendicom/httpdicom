@@ -265,7 +265,7 @@ NSXMLElement *StudyElement=nil;//Study=Exam
    //doc.characterEncoding=@"UTF-8";
    doc.standalone=true;
    NSData *docData=[doc XMLData];
-   [docData writeToFile:path atomically:YES];
+   [docData writeToFile:[[d[@"path"] stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"xml"] atomically:YES];
        
        */
 

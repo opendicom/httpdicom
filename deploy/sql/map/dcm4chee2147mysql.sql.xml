@@ -189,7 +189,7 @@ institution, \
 department, \
 station_name, \
 perf_physician, \
-laterality \
+laterality, \
 num_instances \
 FROM series \
 WHERE study_fk=%@ \

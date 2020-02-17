@@ -2354,6 +2354,8 @@ RSResponse* osirixdcmURLs(
    || requestDict[@"ModalityRegexString"]
    || requestDict[@"SOPClassRegexString"]
    || requestDict[@"SOPClassOffRegexString"];
+   [requestDict setObject:[NSNumber numberWithBool:hasRestriction] forKey:@"hasRestriction"];
+
 
 #pragma mark sha512
    [canonicalQuery replaceCharactersInRange:NSMakeRange(canonicalQuery.length-1, 1) withString:@"}"];
@@ -2379,7 +2381,7 @@ RSResponse* osirixdcmURLs(
    if (![defaultManager fileExistsAtPath:path])
       [defaultManager createDirectoryAtPath:path withIntermediateDirectories:NO attributes:nil error:nil];
 
-
+   
 
 #pragma mark accessType
 
@@ -2430,6 +2432,8 @@ RSResponse* osirixdcmURLs(
       {
          for (NSString *devOID in lanArray)
          {
+            [requestDict setObject:devOID forKey:@"devOID"];
+            [requestDict setObject:path forKey:@"path"];
             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
                case selectTypeSql:
@@ -2467,7 +2471,10 @@ RSResponse* osirixdcmURLs(
       {
          for (NSString *devOID in lanArray)
          {
-            switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
+            [requestDict setObject:devOID forKey:@"devOID"];
+            [requestDict setObject:path forKey:@"path"];
+
+             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
                 case selectTypeSql:
                   [DRS cornerstoneSql4dictionary:requestDict];
