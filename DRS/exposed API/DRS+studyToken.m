@@ -1247,24 +1247,32 @@ RSResponse* dicomzip(
    NSMutableArray *values=[NSMutableArray array];
    NSString *errorString=parseRequestParams(request, names, values);
    if (errorString) return [RSErrorResponse responseWithClientError:404 message:@"%@",errorString];
-   
    NSFileManager *defaultManager=[NSFileManager defaultManager];
    NSMutableDictionary *requestDict=[NSMutableDictionary dictionary];
-#pragma mark query context
-   
-   NSInteger proxyURIIndex=[names indexOfObject:@"proxyURI"];
-    if (proxyURIIndex!=NSNotFound) [requestDict setObject:values[proxyURIIndex] forKey:@"proxyURIString"];
-   
-   NSInteger sessionIndex=[names indexOfObject:@"session"];
-   if (sessionIndex!=NSNotFound) [requestDict setObject:values[sessionIndex] forKey:@"sessionString"];
-
    NSInteger tokenIndex=[names indexOfObject:@"token"];
    if (tokenIndex!=NSNotFound) [requestDict setObject:values[tokenIndex] forKey:@"tokenString"];
 
+   
+   NSMutableString *canonicalQuery=[NSMutableString stringWithString:@"{"];
+#pragma mark query context
+   
+   NSInteger proxyURIIndex=[names indexOfObject:@"proxyURI"];
+    if (proxyURIIndex!=NSNotFound)
+    {
+       [canonicalQuery appendFormat:@"\"proxyURI\":\"%@\",",values[proxyURIIndex]];
+       [requestDict setObject:values[proxyURIIndex] forKey:@"proxyURIString"];
+    }
+   
+   NSInteger sessionIndex=[names indexOfObject:@"session"];
+   if (sessionIndex!=NSNotFound)
+   {
+      [canonicalQuery appendFormat:@"\"session\":\"%@\",",values[sessionIndex]];
+
+      [requestDict setObject:values[sessionIndex] forKey:@"sessionString"];
+   }
+
 
 #pragma mark institution
-
-   NSMutableString *canonicalQuery=[NSMutableString stringWithString:@"{"];
    
    NSMutableArray *lanArray=[NSMutableArray array];
    NSMutableArray *wanArray=[NSMutableArray array];
@@ -1956,9 +1964,9 @@ RSResponse* dicomzip(
          
          return
          [RSDataResponse
-          responseWithData:resultData
-          contentType:@"application/json"
-          ];
+          responseWithData:[resultData gzip]
+          contentType:@"application/x-gzip"];
+          //resultData contentType:@"application/json"];
 
 
       } break;
