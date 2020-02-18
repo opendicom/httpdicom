@@ -95,14 +95,12 @@
            if (d[@"SOPClassOffRegexString"]) SOPClassOffRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SOPClassOffRegexString"] options:0 error:NULL];
        }
       
+#pragma mark patient loop
       NSMutableArray *patientArray=arc[@"patientList"];
       if (!patientArray) {
          patientArray=[NSMutableArray array];
          [arc setObject:patientArray forKey:@"patientList"];
       }
-
-
-#pragma mark patient loop
       
       for (NSString *P in [NSSet setWithArray:[EPDict allValues]])
       {
@@ -158,25 +156,10 @@
          {
             if ([EPDict[E] isEqualToString:P])
             {
-               NSMutableData *studyData=[NSMutableData data];
-               if (execUTF8Bash(sqlcredentials,
-                                 [NSString stringWithFormat:
-                                  sqlDictionary[@"E"],
-                                  sqlprolog,
-                                  E,
-                                  @"",
-                                  sqlRecordElevenUnits
-                                  ],
-                                 studyData)
-                   !=0)
-               {
-                  LOG_ERROR(@"studyToken study db error");
-                  continue;
-               }
-               NSArray *studySqlPropertiesArray=[studyData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
-
                NSMutableArray *seriesArray=nil;
+
                NSMutableDictionary *study=[studyArray firstMutableDictionaryWithKey:@"key" isEqualToNumber:[NSNumber numberWithLongLong:[E longLongValue]]];
+
                if (study) //found in cache
                {
                   [seriesArray setArray:study[@"seriesList"]];
@@ -188,7 +171,23 @@
                }
                else //new study
                {
-#pragma mark TODO accessionNumber issuer
+                  NSMutableData *studyData=[NSMutableData data];
+                  if (execUTF8Bash(sqlcredentials,
+                                    [NSString stringWithFormat:
+                                     sqlDictionary[@"E"],
+                                     sqlprolog,
+                                     E,
+                                     @"",
+                                     sqlRecordElevenUnits
+                                     ],
+                                    studyData)
+                      !=0)
+                  {
+                     LOG_ERROR(@"studyToken study db error");
+                     continue;
+                  }
+                  NSArray *studySqlPropertiesArray=[studyData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
+               
                   seriesArray=[NSMutableArray array];
 study=[NSMutableDictionary dictionaryWithObjectsAndKeys:
  [NSNumber numberWithLongLong:[(studySqlPropertiesArray[0])[0] longLongValue]],@"key",
@@ -201,17 +200,15 @@ study=[NSMutableDictionary dictionaryWithObjectsAndKeys:
  [(studySqlPropertiesArray[0])[7] removeTrailingCarets],@"ReferringPhysicianName",
  [(studySqlPropertiesArray[0])[8] removeTrailingCarets],@"NameOfPhysiciansReadingStudy",
  (studySqlPropertiesArray[0])[9],@"modality",
- patient[@"patientId"],@"patientId",
- patient[@"patientName"],@"patientName",
+ patient[@"PatientID"],@"patientId",
+ patient[@"PatientName"],@"patientName",
  seriesArray,@"seriesList",
 nil];
-                  
                   [studyArray addObject:study];
                }
          
                
 #pragma mark series loop
-
                NSMutableData *seriesData=[NSMutableData data];
                if (execUTF8Bash(sqlcredentials,
                                  [NSString stringWithFormat:
@@ -230,7 +227,7 @@ nil];
                NSArray *seriesSqlPropertiesArray=[seriesData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
                for (NSArray *seriesSqlProperties in seriesSqlPropertiesArray)
                {
-                   NSMutableDictionary *series=[seriesArray firstMutableDictionaryWithKey:@"key" isEqualToNumber:[NSNumber numberWithLongLong:[seriesSqlProperties[0] longLongValue]]];
+                  NSMutableDictionary *series=[seriesArray firstMutableDictionaryWithKey:@"key" isEqualToNumber:[NSNumber numberWithLongLong:[seriesSqlProperties[0] longLongValue]]];
                   NSString *SOPClass=nil;
                   if (series) //found in cache
                   {
@@ -238,24 +235,26 @@ nil];
                   }
                   else //new series
                   {
-                      //add it?
+                      //add it? (SOPClass = yes)
                      SOPClass=SOPCLassOfReturnableSeries(
-                                              sqlcredentials,
-                                              sqlDictionary[@"Ici4S"],
-                                              sqlprolog,
-                                              seriesSqlProperties,
-                                              SeriesInstanceUIDRegex,
-                                              SeriesNumberRegex,
-                                              SeriesDescriptionRegex,
-                                              ModalityRegex,
-                                              SOPClassRegex,
-                                              SOPClassOffRegex
-                                             );
+                      sqlcredentials,
+                      sqlDictionary[@"Ici4S"],
+                      sqlprolog,
+                      seriesSqlProperties,
+                      SeriesInstanceUIDRegex,
+                      SeriesNumberRegex,
+                      SeriesDescriptionRegex,
+                      ModalityRegex,
+                      SOPClassRegex,
+                      SOPClassOffRegex
+                     );
                   }
                   
                   if (SOPClass)
                   {
-                     //yes, add it
+                     //add series and instances
+                     
+                     //instances
 NSMutableArray *instanceArray=[NSMutableArray array];
 series=[NSMutableDictionary dictionaryWithObjectsAndKeys:
 [NSNumber numberWithLongLong:[seriesSqlProperties[0] longLongValue]],@"key",
@@ -265,6 +264,7 @@ seriesSqlProperties[1], @"SeriesInstanceUID",
 SOPClass, @"SOPClassUID",
 seriesSqlProperties[4], @"Modality",
 @"*",@"WadoTransferSyntaxUID",
+seriesSqlProperties[5], @"Institution",
 seriesSqlProperties[6], @"Department",
 seriesSqlProperties[7], @"StationName",
 seriesSqlProperties[8], @"PerformingPhysician",
@@ -299,7 +299,6 @@ As seen some casuistics can be resolved before any query to the instance table, 
 */
 
                      NSMutableData *instanceData=[NSMutableData data];
-                     NSArray *instanceSqlPropertiesArray;
                      if ([DRS.InstanceUniqueFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)//I1
                      {
                         if (execUTF8Bash(sqlcredentials,
@@ -360,15 +359,13 @@ As seen some casuistics can be resolved before any query to the instance table, 
                            continue;
                         }
                      }
-                     instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:sqlDictionary[@"IpostprocessingTitleMain"] orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+                     NSArray *instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:sqlDictionary[@"IpostprocessingTitleMain"] orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
 
                                  
                               
    #pragma mark instance loop
                      for (NSArray *instanceSqlProperties in instanceSqlPropertiesArray)
                      {
-                        //imageId = (weasis) DirectDownloadFile
-
                         switch (getTypeIndex)
                         {
                            case getTypeWado:
@@ -378,7 +375,7 @@ As seen some casuistics can be resolved before any query to the instance table, 
                                stringWithFormat:
                                @"wadouri:%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&arcId=%@%@",
                                d[@"proxyURIString"],
-                               (studySqlPropertiesArray[0])[1],
+                               study[@"StudyInstanceUID"],
                                seriesSqlProperties[1],
                                instanceSqlProperties[2],
                                d[@"sessionString"],

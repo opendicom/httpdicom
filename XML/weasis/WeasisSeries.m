@@ -1,11 +1,3 @@
-//
-//  WeasisSeries.m
-//  httpdicom
-//
-//  Created by jacquesfauquex on 2019-08-23.
-//  Copyright © 2019 opendicom.com. All rights reserved.
-//
-
 #import "WeasisSeries.h"
 
 @implementation WeasisSeries
@@ -19,8 +11,12 @@ weasisWadoTransferSyntaxUID:(NSString*)weasisWadoTransferSyntaxUID
 weasisWadoCompressionRate:(NSString*)weasisWadoCompressionRate
 weasisDirectDownloadThumbnail:(NSString*)weasisDirectDownloadThumbnail
 sop:(NSString*)sop
+institution:(NSString*)institution
+department:(NSString*)department
+stationName:(NSString*)stationName
+performingPhysician:(NSString*)performingPhysician
+laterality:(NSString*)laterality
 images:(NSString*)images
-
 {
    if (!key || !weasisSeriesInstanceUID) return nil;
    
@@ -38,6 +34,11 @@ images:(NSString*)images
    if (weasisDirectDownloadThumbnail) [Series addAttribute:[NSXMLNode attributeWithName:@"DirectDownloadThumbnail" stringValue:weasisDirectDownloadThumbnail]];
    
    if (sop) [Series addAttribute:[NSXMLNode attributeWithName:@"SOPClass" stringValue:sop]];
+   if (institution) [Series addAttribute:[NSXMLNode attributeWithName:@"Institution" stringValue:institution]];
+   if (department) [Series addAttribute:[NSXMLNode attributeWithName:@"Department" stringValue:department]];
+   if (stationName) [Series addAttribute:[NSXMLNode attributeWithName:@"StationName" stringValue:stationName]];
+   if (performingPhysician) [Series addAttribute:[NSXMLNode attributeWithName:@"PerformingPhysicianName" stringValue:performingPhysician]];
+   if (laterality) [Series addAttribute:[NSXMLNode attributeWithName:@"Laterality" stringValue:laterality]];
    if (images) [Series addAttribute:[NSXMLNode attributeWithName:@"Images​In​Study" stringValue:images]];
 
    [Series addAttribute:[NSXMLNode attributeWithName:@"key" stringValue:key]];

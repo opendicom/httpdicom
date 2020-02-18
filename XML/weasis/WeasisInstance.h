@@ -1,11 +1,3 @@
-//
-//  WeasisInstance.h
-//  httpdicom
-//
-//  Created by jacquesfauquex on 2019-08-23.
-//  Copyright © 2019 opendicom.com. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 
 //NS_ASSUME_NONNULL_BEGIN
@@ -20,10 +12,12 @@
 @interface WeasisInstance : NSXMLElement
 
 +(NSXMLElement*)key:(NSString*)key
-weasisSOPInstanceUID:(NSString*)weasisSOPInstanceUID
 weasisInstanceNumber:(NSString*)weasisInstanceNumber
+NumberOfFrames:(NSString*)NumberOfFrames
+weasisSOPClassUID:(NSString*)weasisSOPClassUID
+weasisSOPInstanceUID:(NSString*)weasisSOPInstanceUID
 weasisDirectDownloadFile:(NSString*)weasisDirectDownloadFile
-NumberOfFrames:(NSString*)NumberOfFrames;
+;
 
 @end
 

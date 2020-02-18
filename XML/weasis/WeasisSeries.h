@@ -36,8 +36,14 @@ weasisWadoTransferSyntaxUID:(NSString*)weasisWadoTransferSyntaxUID
 weasisWadoCompressionRate:(NSString*)weasisWadoCompressionRate
 weasisDirectDownloadThumbnail:(NSString*)weasisDirectDownloadThumbnail
 sop:(NSString*)sop
+institution:(NSString*)institution
+department:(NSString*)department
+stationName:(NSString*)stationName
+performingPhysician:(NSString*)performingPhysician
+laterality:(NSString*)laterality
 images:(NSString*)images
 ;
+
 //wts wado transfer syntax uid
 //wcr wado compression rate
 //ddt dicrect download thumbnail
