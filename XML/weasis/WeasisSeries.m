@@ -39,7 +39,7 @@ images:(NSString*)images
    if (stationName) [Series addAttribute:[NSXMLNode attributeWithName:@"StationName" stringValue:stationName]];
    if (performingPhysician) [Series addAttribute:[NSXMLNode attributeWithName:@"PerformingPhysicianName" stringValue:performingPhysician]];
    if (laterality) [Series addAttribute:[NSXMLNode attributeWithName:@"Laterality" stringValue:laterality]];
-   if (images) [Series addAttribute:[NSXMLNode attributeWithName:@"Images​In​Study" stringValue:images]];
+   if (images) [Series addAttribute:[NSXMLNode attributeWithName:@"numImages" stringValue:images]];
 
    [Series addAttribute:[NSXMLNode attributeWithName:@"key" stringValue:key]];
    

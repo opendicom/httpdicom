@@ -35,6 +35,7 @@ weasisStudyTime:(NSString*)weasisStudyTime
 weasisAccessionNumber:(NSString*)weasisAccessionNumber
 weasisStudyId:(NSString*)weasisStudyId
 weasisReferringPhysicianName:(NSString*)weasisReferringPhysicianName
+readingPhysicianName:(NSString*)readingPhysicianName
 issuer:(NSString*)issuer
 issuerType:(NSString*)issuerType
 series:(NSString*)series

@@ -78,16 +78,11 @@
 
       NSError  *error=nil;
       NSXMLElement *arcQueryElement=nil;
-      NSString *XMLString=[NSString stringWithContentsOfFile:d[@"path"] encoding:NSUTF8StringEncoding error:&error];
+      NSString *XMLString=[NSString stringWithContentsOfFile:d[@"path"] encoding:NSUTF8StringEncoding error:nil];
       if (XMLString) arcQueryElement=[[NSXMLElement alloc]initWithXMLString:XMLString error:&error];
-      else if (error) LOG_WARNING(@"reading %@. %@",d[@"path"],[error description]);
       if (!arcQueryElement)
       {
-         if (error)
-         {
-            LOG_WARNING(@"parsing %@. %@",d[@"path"],[error description]);
-            [[NSFileManager defaultManager] moveItemAtPath:d[@"path"] toPath:[d[@"path"] stringByAppendingPathExtension:@"badxml"] error:nil];
-         }
+         if (error) [[NSFileManager defaultManager] moveItemAtPath:d[@"path"] toPath:[d[@"path"] stringByAppendingPathExtension:@"badxml"] error:nil];
          arcQueryElement=
          [WeasisArcQuery
           arcQueryId:d[@"sessionString"]
@@ -186,7 +181,7 @@
                                      sqlprolog,
                                      E,
                                      @"",
-                                     sqlRecordTenUnits
+                                     sqlRecordElevenUnits
                                      ],
                                     studyData)
                       !=0)
@@ -196,6 +191,8 @@
                   }
                   NSArray *studySqlPropertiesArray=[studyData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
 
+                   // no issuer
+                   
                   StudyElement=
                   [WeasisStudy
                    key:(studySqlPropertiesArray[0])[0]
@@ -206,10 +203,11 @@
                    weasisAccessionNumber:(studySqlPropertiesArray[0])[5]
                    weasisStudyId:(studySqlPropertiesArray[0])[6]
                    weasisReferringPhysicianName:(studySqlPropertiesArray[0])[7]
+                   readingPhysicianName:(studySqlPropertiesArray[0])[8]
                    issuer:nil
                    issuerType:nil
-                   series:(studySqlPropertiesArray[0])[8]
-                   modalities:(studySqlPropertiesArray[0])[9]
+                   series:(studySqlPropertiesArray[0])[9]
+                   modalities:(studySqlPropertiesArray[0])[10]
                    ];
                   [PatientElement addChild:StudyElement];
                }
@@ -403,9 +401,11 @@ NSXMLElement *InstanceElement=
       }//end for each P
 
    NSXMLDocument *doc=[NSXMLDocument documentWithRootElement:arcQueryElement];
-   doc.documentContentKind=NSXMLDocumentXMLKind;
+
+//adds headers to the documents...DO NOT USE THEM to facilitate composition
+   //doc.documentContentKind=NSXMLDocumentXMLKind;
    //doc.characterEncoding=@"UTF-8";
-   doc.standalone=true;
+   //doc.standalone=true;
    NSData *docData=[doc XMLData];
    [docData writeToFile:d[@"path"] atomically:YES];
    }
