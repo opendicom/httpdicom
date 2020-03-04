@@ -61,7 +61,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "2.16.858.0.1.4.0.72769.217215590012.2"
+            argument = "2.16.858.0.2.16.86.1.0.0.212701040013"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -93,7 +93,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/TMP"
+            argument = "~/tmp"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

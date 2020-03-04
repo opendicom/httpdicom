@@ -28,6 +28,9 @@
    return array;
    
 }
+
+#pragma mark - array of dicts
+
 - (NSMutableDictionary *)firstMutableDictionaryWithKey:(NSString*)key isEqualToNumber:(NSNumber*)number;
 {
     for (NSMutableDictionary *dict in self)
@@ -45,5 +48,27 @@
     }
     return nil;
 }
+
+#pragma mark - array of arrays
+
+- (NSMutableArray *)firstMutableArrayWithObjectAtIndex:(NSUInteger)index isEqualToNumber:(NSNumber*)number
+{
+    for (NSMutableArray *array in self)
+    {
+       if ([array[index] isEqualToNumber:number]) return array;
+    }
+    return nil;
+}
+
+
+- (NSMutableArray *)firstMutableArrayWithObjectAtIndex:(NSUInteger)index isEqualToString:(NSString*)string
+{
+    for (NSMutableArray *array in self)
+    {
+       if ([array[index] isEqualToString:string]) return array;
+    }
+    return nil;
+}
+
 
 @end

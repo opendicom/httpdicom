@@ -178,7 +178,7 @@
                                      sqlprolog,
                                      E,
                                      @"",
-                                     sqlRecordElevenUnits
+                                     sqlRecordSixteenUnits
                                      ],
                                     studyData)
                       !=0)

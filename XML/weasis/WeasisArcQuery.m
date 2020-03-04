@@ -34,18 +34,19 @@ seriesFilterModality:(NSString*)modalityRegexString
 seriesFilterSOPClass:(NSString*)SOPClassRegexString
 seriesFilterSOPClassOff:(NSString*)SOPClassOffRegexString
 {
-   if (!arcQueryId || !weasisarcId || !weasisbaseUrl) return nil;
+   if (!arcQueryId || !weasisarcId || !weasisbaseUrl || !weasisadditionnalParameters) return nil;
    
    NSXMLElement *arcQuery=[NSXMLElement elementWithName:@"arcQuery"];
    
    // required attributes
+   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"arcQueryId" stringValue:arcQueryId]];
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"arcId" stringValue:weasisarcId]];
+   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"additionnalParameters" stringValue:[NSString stringWithFormat:@"&session=%@&arcId=%@",arcQueryId,weasisarcId]]];
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"baseUrl" stringValue:weasisbaseUrl]];
-   
+
    // optional attributes
    if (weasiswebLogin) [arcQuery addAttribute:[NSXMLNode attributeWithName:@"webLogin" stringValue:weasiswebLogin]];
    if (weasisrequireOnlySOPInstanceUID) [arcQuery addAttribute:[NSXMLNode attributeWithName:@"requireOnlySOPInstanceUID" stringValue:weasisrequireOnlySOPInstanceUID]];
-   if (weasisadditionnalParameters) [arcQuery addAttribute:[NSXMLNode attributeWithName:@"additionnalParameters" stringValue:weasisadditionnalParameters]];
    if (weasisoverrideDicomTagsList) [arcQuery addAttribute:[NSXMLNode attributeWithName:@"overrideDicomTagsList" stringValue:weasisoverrideDicomTagsList]];
    
 

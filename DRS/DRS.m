@@ -13,6 +13,7 @@
 #import "DRS+studyToken.h"
 #import "DRS+store.h"
 
+#import "DRS+datatables.h"
 
 //RSRequest properties:      NSMutableURLRequest
 //- NSString* method          -> HTTPMethod
@@ -655,7 +656,13 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 #pragma mark /studyToken
         [self addPostAndGetStudyTokenHandler];
         LOG_DEBUG(@"added handler POST+GET /studyToken");
+
+#pragma mark /datatables
+        [self addDatatablesStudiesHandler];
+        LOG_DEBUG(@"added handler GET /datatables/studies");
     }
+      
+
     return self;
 }
 

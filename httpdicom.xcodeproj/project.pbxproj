@@ -85,9 +85,13 @@
 		4A3F897223F486AA005DE843 /* DRS+weasis.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A3F897023F486AA005DE843 /* DRS+weasis.h */; };
 		4A3F897323F486AA005DE843 /* DRS+weasis.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A3F897123F486AA005DE843 /* DRS+weasis.m */; };
 		4A3F897823F5C794005DE843 /* DRS+cornerstone.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A3F897423F5C794005DE843 /* DRS+cornerstone.m */; };
-		4A3F897923F5C794005DE843 /* DRS+dicomzip.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A3F897523F5C794005DE843 /* DRS+dicomzip.h */; };
 		4A3F897A23F5C794005DE843 /* DRS+cornerstone.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A3F897623F5C794005DE843 /* DRS+cornerstone.h */; };
-		4A3F897B23F5C794005DE843 /* DRS+dicomzip.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A3F897723F5C794005DE843 /* DRS+dicomzip.m */; };
+		4A3F898623FDA2E0005DE843 /* DRS+datatablesPatient.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A3F898023FDA2DF005DE843 /* DRS+datatablesPatient.h */; };
+		4A3F898723FDA2E0005DE843 /* DRS+datatablesStudy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A3F898123FDA2E0005DE843 /* DRS+datatablesStudy.m */; };
+		4A3F898823FDA2E0005DE843 /* DRS+datatablesSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A3F898223FDA2E0005DE843 /* DRS+datatablesSeries.h */; };
+		4A3F898923FDA2E0005DE843 /* DRS+datatablesPatient.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A3F898323FDA2E0005DE843 /* DRS+datatablesPatient.m */; };
+		4A3F898A23FDA2E0005DE843 /* DRS+datatablesStudy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A3F898423FDA2E0005DE843 /* DRS+datatablesStudy.h */; };
+		4A3F898B23FDA2E0005DE843 /* DRS+datatablesSeries.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A3F898523FDA2E0005DE843 /* DRS+datatablesSeries.m */; };
 		4A494CF023745B62006F69DF /* DRS+store.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A494CEE23745B62006F69DF /* DRS+store.h */; };
 		4A494CF123745B62006F69DF /* DRS+store.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A494CEF23745B62006F69DF /* DRS+store.m */; };
 		4A57EE422295442400EB3962 /* ResponseQido.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A57EE402295442400EB3962 /* ResponseQido.m */; };
@@ -302,6 +306,12 @@
 		4A3F897523F5C794005DE843 /* DRS+dicomzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+dicomzip.h"; sourceTree = "<group>"; };
 		4A3F897623F5C794005DE843 /* DRS+cornerstone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+cornerstone.h"; sourceTree = "<group>"; };
 		4A3F897723F5C794005DE843 /* DRS+dicomzip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+dicomzip.m"; sourceTree = "<group>"; };
+		4A3F898023FDA2DF005DE843 /* DRS+datatablesPatient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+datatablesPatient.h"; sourceTree = "<group>"; };
+		4A3F898123FDA2E0005DE843 /* DRS+datatablesStudy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+datatablesStudy.m"; sourceTree = "<group>"; };
+		4A3F898223FDA2E0005DE843 /* DRS+datatablesSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+datatablesSeries.h"; sourceTree = "<group>"; };
+		4A3F898323FDA2E0005DE843 /* DRS+datatablesPatient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+datatablesPatient.m"; sourceTree = "<group>"; };
+		4A3F898423FDA2E0005DE843 /* DRS+datatablesStudy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+datatablesStudy.h"; sourceTree = "<group>"; };
+		4A3F898523FDA2E0005DE843 /* DRS+datatablesSeries.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+datatablesSeries.m"; sourceTree = "<group>"; };
 		4A494CED2371F879006F69DF /* studyToken.pages */ = {isa = PBXFileReference; lastKnownFileType = file; path = studyToken.pages; sourceTree = "<group>"; };
 		4A494CEE23745B62006F69DF /* DRS+store.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DRS+store.h"; sourceTree = "<group>"; };
 		4A494CEF23745B62006F69DF /* DRS+store.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DRS+store.m"; sourceTree = "<group>"; };
@@ -578,6 +588,12 @@
 		4A3F896F23F485D1005DE843 /* studyToken */ = {
 			isa = PBXGroup;
 			children = (
+				4A3F898023FDA2DF005DE843 /* DRS+datatablesPatient.h */,
+				4A3F898323FDA2E0005DE843 /* DRS+datatablesPatient.m */,
+				4A3F898223FDA2E0005DE843 /* DRS+datatablesSeries.h */,
+				4A3F898523FDA2E0005DE843 /* DRS+datatablesSeries.m */,
+				4A3F898423FDA2E0005DE843 /* DRS+datatablesStudy.h */,
+				4A3F898123FDA2E0005DE843 /* DRS+datatablesStudy.m */,
 				4A3F897623F5C794005DE843 /* DRS+cornerstone.h */,
 				4A3F897423F5C794005DE843 /* DRS+cornerstone.m */,
 				4A3F897523F5C794005DE843 /* DRS+dicomzip.h */,
@@ -883,6 +899,7 @@
 				4AF40D64221C52D700103F99 /* ResponsePatients.h in Headers */,
 				4AF40D3821F8FD2100103F99 /* NSMutableData+SQL.h in Headers */,
 				4ABF11F01FE5C13B000B8DE6 /* NSMutableData+DICM.h in Headers */,
+				4A3F898623FDA2E0005DE843 /* DRS+datatablesPatient.h in Headers */,
 				4A0FDF451E91078C001E3426 /* RSGZipEncoder.h in Headers */,
 				4A2D906C2181E37D00371484 /* DRS+wadouri.h in Headers */,
 				4AF9AE122348CAF300BB8188 /* NSData+ZLIB.h in Headers */,
@@ -908,7 +925,6 @@
 				4AF40DD5222431B000103F99 /* NSString+PID.h in Headers */,
 				4A0FDF4F1E91078C001E3426 /* RSStreamedResponse.h in Headers */,
 				4ABF11F61FE5C13B000B8DE6 /* DICMTypes.h in Headers */,
-				4A3F897923F5C794005DE843 /* DRS+dicomzip.h in Headers */,
 				4A0FDF421E91078C001E3426 /* RSBodyEncoder.h in Headers */,
 				4AF40D5122183E7400103F99 /* RequestJSONMetadata.h in Headers */,
 				4AF40D3B21FF7B8400103F99 /* NSMutableURLRequest+DRS.h in Headers */,
@@ -933,12 +949,14 @@
 				4AA20C4D23101B98005BD76D /* WeasisManifest.h in Headers */,
 				4A2D90792183455100371484 /* zconf.h in Headers */,
 				4A0FDF5B1E9109EB001E3426 /* RSBodyWriterProtocol.h in Headers */,
+				4A3F898823FDA2E0005DE843 /* DRS+datatablesSeries.h in Headers */,
 				4A3F897A23F5C794005DE843 /* DRS+cornerstone.h in Headers */,
 				4ABF11F31FE5C13B000B8DE6 /* NSDictionary+DICM.h in Headers */,
 				4AF40D49220ED1F400103F99 /* RequestXMLMetadata.h in Headers */,
 				4AF40D3221F8FA8B00103F99 /* DRS+qido.h in Headers */,
 				4AA20C5923101C72005BD76D /* WeasisStudy.h in Headers */,
 				4A0FDF4B1E91078C001E3426 /* RSErrorResponse.h in Headers */,
+				4A3F898A23FDA2E0005DE843 /* DRS+datatablesStudy.h in Headers */,
 				4AF40DCD2224317400103F99 /* NSString+MSH.h in Headers */,
 				4ABF12041FE89413000B8DE6 /* iconv.h in Headers */,
 				4AF40D5A2219EE6C00103F99 /* RequestStow.h in Headers */,
@@ -1089,7 +1107,7 @@
 				4ABF11DC1FE5C11C000B8DE6 /* NSString+PCS.m in Sources */,
 				4AE49DF3200D153000B8F321 /* DRS+pacs.m in Sources */,
 				4A2D90622181E37D00371484 /* DRS+wadouri.m in Sources */,
-				4A3F897B23F5C794005DE843 /* DRS+dicomzip.m in Sources */,
+				4A3F898923FDA2E0005DE843 /* DRS+datatablesPatient.m in Sources */,
 				4AF40D3321F8FA8B00103F99 /* DRS+qido.m in Sources */,
 				4AA20C5E23101C91005BD76D /* WeasisSeries.m in Sources */,
 				4A0FDF4C1E91078C001E3426 /* RSErrorResponse.m in Sources */,
@@ -1100,10 +1118,12 @@
 				4AF40D65221C52D700103F99 /* ResponsePatients.m in Sources */,
 				4A0FDF651E910C1D001E3426 /* RSGZipDecoder.m in Sources */,
 				4AF40D3C21FF7B8400103F99 /* NSMutableURLRequest+DRS.m in Sources */,
+				4A3F898B23FDA2E0005DE843 /* DRS+datatablesSeries.m in Sources */,
 				4A57EE4722957BB100EB3962 /* NSArray+PCS.m in Sources */,
 				4AF40DD6222431B000103F99 /* NSString+PID.m in Sources */,
 				4ABF12031FE89413000B8DE6 /* Const.m in Sources */,
 				4AF40D4E22169D2A00103F99 /* RequestWadouri.m in Sources */,
+				4A3F898723FDA2E0005DE843 /* DRS+datatablesStudy.m in Sources */,
 				4AF40DCE2224317400103F99 /* NSString+MSH.m in Sources */,
 				4A0FDF521E91078C001E3426 /* RS.m in Sources */,
 				4A494CF123745B62006F69DF /* DRS+store.m in Sources */,

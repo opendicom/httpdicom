@@ -171,7 +171,12 @@ study_id, \
 ref_physician, \
 study_custom3, \
 num_series, \
-mods_in_study \
+mods_in_study, \
+study_custom1, \
+study_custom2, \
+'', \
+'', \
+'' \
 FROM study \
 WHERE pk=%@ \
 %@ \

@@ -159,18 +159,24 @@ WHERE pk=%@ \
 <key>E</key><!-- examen -->
 <string>%@ "\
 SELECT \
-pk, \
-study_iuid, \
-study_desc, \
-DATE(study_datetime), \
-TIME(study_datetime), \
-accession_no, \
-study_id, \
-ref_physician, \
-study_custom3, \
-num_series, \
-mods_in_study \
+study.pk, \
+study.study_iuid, \
+study.study_desc, \
+DATE(study.study_datetime), \
+TIME(study.study_datetime), \
+study.accession_no, \
+study.study_id, \
+study.ref_physician, \
+study.study_custom3, \
+study.num_series, \
+study.mods_in_study, \
+study.study_custom1, \
+study.study_custom2, \
+issuer.entity_id, \
+issuer.entity_uid, \
+issuer.entity_uid_type \
 FROM study \
+LEFT JOIN issuer ON study.accno_issuer_fk=issuer.pk \
 WHERE pk=%@ \
 %@ \
 " %@</string>

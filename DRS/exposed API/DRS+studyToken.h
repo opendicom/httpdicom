@@ -1,7 +1,10 @@
 #import "DRS.h"
 #import "DRS+weasis.h"
 #import "DRS+cornerstone.h"
-#import "DRS+dicomzip.h"
+//#import "DRS+dicomzip.h"
+#import "DRS+datatablesStudy.h"
+#import "DRS+datatablesSeries.h"
+#import "DRS+datatablesPatient.h"
 
 #import "DICMTypes.h"
 #import "NSString+PCS.h"
@@ -16,6 +19,7 @@ enum accessType{
    accessTypeCornerstone,
    accessTypeDicomzip,
    accessTypeOsirix,
+   accessTypeDatatablesStudy,
    accessTypeDatatablesSeries,
    accessTypeDatatablesPatient,
    accessTypeIsoDicomZip,
@@ -158,6 +162,8 @@ static NSString *sqlRecordTenUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";OFS
 
 static NSString *sqlRecordElevenUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11}'";
 
+static NSString *sqlRecordSixteenUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16}'";
+
 #pragma mark -
 
 @interface DRS (studyToken)
@@ -165,6 +171,14 @@ static NSString *sqlRecordElevenUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";
 -(void)addPostAndGetStudyTokenHandler;
 
 +(RSResponse*)studyToken:(RSRequest*)request;
+
++(RSResponse*)studyTokenSocket:(unsigned short)socket
+                    requestURL:(NSURL*)requestURL
+                   requestPath:(NSString*)requestPath
+                         names:(NSArray*)names
+                        values:(NSArray*)values
+                   acceptsGzip:(BOOL)acceptsGzip
+;//if length=0, no paging
 
 @end
 
@@ -207,71 +221,16 @@ static NSString *sqlRecordElevenUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";
  studyTokenTask performs the work it returns the first response and then writes the following ones on a buffer where they can be discovered by calls for more.
  
  The calls can be a wado where study=transaction series=custodian instance=paquetID
- 
- tasks:
- 
- find the separation between studyToken and studyTokenTask
 */
-
 
 /*
- JSON returned
- [
- {
- "arcId":"devOID",
- "baseUrl":"proxyURIString",
- "patientList":
- [
-  {
-   "key"=123,
-   "PatientID":"",
-   "PatientName":"",
-   "IssuerOfPatientID":"",
-   "PatientBirthDate":"",
-   "PatientSex":"",
-   "studyList":
-   [
-    {
-     "key"=123,
-     "StudyInstanceUID":"",
-     "studyDescription":"",
-     "studyDate":"",
-     "StudyTime":"",
-     "AccessionNumber":"",
-     "StudyID":"",
-     "ReferringPhysicianName":"",
-     "numImages":"",
-     "modality":"",
-     "patientId":"",
-     "patientName":"",
-     "seriesList":
-     [
-      {
-       "key"=123,
-       "seriesDescription":"",
-       "seriesNumber":"",
-       "SeriesInstanceUID":"",
-       "SOPClassUID":"",
-       "Modality":"",
-       "WadoTransferSyntaxUID":"",
-       "instanceList":
-       [
-        {
-         "key"=123,
-         "imageId":"wadouriInstance",
-         "SOPClassUID":"",
-         "SOPInstanceUID":"",
-         "InstanceNumber":"",
-         "numFrames":1
-        }
-       ]
-      }
-     ]
-    }
-   ]
-  }
- ]
-}
-
-(-1=info not available, 0=not an image, 1=monoframe, x=multiframe)
-*/
+ cache
+ =====
+ 
+ /sha512canonical.json (query)
+ /sha512canonical/accessType/devOID/EP.sql audit.txt proxy.url data.xml data.json data.jsonp
+ EP.sql = query performed for study patient (includes number of series and number of instances)
+ audit.txt = cr separated isoDatetime=proxy
+ proxy.url = current proxy.url
+ data result of the query
+ */

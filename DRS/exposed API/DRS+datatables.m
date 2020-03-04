@@ -1,303 +1,358 @@
 #import "DRS+datatables.h"
-#import "NSData+PCS.h"
-#import "NSString+PCS.h"
-
-//datatables caché [session]
-static NSMutableDictionary *Date;
-static NSMutableDictionary *Req;
-static NSMutableDictionary *Total;
-static NSMutableDictionary *Filtered;
-static NSMutableDictionary *sPatientID;
-static NSMutableDictionary *sPatientName;
-static NSMutableDictionary *sDate_start;
-static NSMutableDictionary *sDate_end;
-static NSMutableDictionary *sModality;
-static NSMutableDictionary *sStudyDescription;
+#import "DRS+studyToken.h"
 
 @implementation DRS (datatables)
 
-//query ajax with params:
-//agregate 00080090 in other accesible PCS...
+/*
+http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=31847350
+ */
 
-//q=current query
-//r=Req=request sql
-//s=subselection from caché
+
 
 -(void)addDatatablesStudiesHandler
 {
-   /*
-    query ajax with params:
-    agregate 00080090 in other accesible PCS...
-    
-    q=current query
-    r=Req=request sql
-    s=subselection from caché
-    */
+#pragma mark init
+   NSArray *studyBeforeColumnsNames=@[
+   @"callback",
+   @"draw"
+   ];
+   
+   NSArray *studyColumnNames=@[
+   @"_0",
+   @"_1",
+   @"_2",
+   @"PatientID",//Documento
+   @"PatientName",//Nombre
+   @"Fecha",
+   @"Modalidades",
+   @"StudyDescription",//Descripción
+   @"ReferringPhysicianName",
+   @"PatientInsurancePlanCodeSequence",
+   @"IssuerOfPatientID",
+   @"PatientBirthDate",
+   @"PatientSex",
+   @"AccessionNumber",
+   @"IssuerOfAccessionNumber",
+   @"StudyID",
+   @"StudyInstanceUID",
+   @"StudyTime",
+   @"InstitutionName"
+   ];
+
+   NSArray *studyAfterColumnsNames=@[
+   @"start",
+   @"length",
+   @"searchValue",
+   @"searchRegex",
+   @"date_start",
+   @"date_end",
+   @"username",
+   @"useroid",
+   @"session",
+   @"custodiantitle",
+   @"aet",
+   @"role",
+   @"max",
+   @"new",
+   @"_"
+   ];
+   enum namedColumnEnum{
+      startColumn,
+      lengthColumn,
+      searchValueColumn,
+      searchRegexColumn,
+      date_startColumn,
+      date_endColumn,
+      usernameColumn,
+      useroidColumn,
+      sessionColumn,
+      custodiantitleColumn,
+      aetColumn,
+      roleColumn,
+      maxColumn,
+      newColumn,
+      _Column
+   };
+
+   NSArray *roles=@[
+   @"Paciente",
+   @"Radiologo",
+   @"Solicitante"
+   ];
+   enum rolesEnum{
+      rolPatient,
+      rolReading,
+      rolRefering
+   };
+   
    NSRegularExpression *dtstudiesRegex = [NSRegularExpression regularExpressionWithPattern:@"/datatables/studies" options:0 error:NULL];
 
 [self addHandler:@"GET" regex:dtstudiesRegex processBlock:
  ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
-     {
-         LOG_VERBOSE(@"%@",[request.URL description]);
-         LOG_DEBUG(@"client: %@",request.remoteAddressString);
-         NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
-         //NSArray *pComponents=[urlComponents.path componentsSeparatedByString:@"/"];
-         
-         
-         NSDictionary *q=request.query;
-         
-         NSString *session=q[@"session"];
-         if (!session || [session isEqualToString:@""]) return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
-         
-         NSDictionary *r=Req[session];
-         int recordsTotal;
-         
-         NSString *qPatientID=q[@"columns[3][search][value]"];
-         NSString *qPatientName=q[@"columns[4][search][value]"];
-         //NSString *qStudyDate=q[@"columns[5][search][value]"];
-         NSString *qDate_start=q[@"date_start"];
-         NSString *qDate_end=q[@"date_end"];
-         NSString *qModality;
-         if ([q[@"columns[6][search][value]"]isEqualToString:@"ALL"]) qModality=@"%%";
-         else qModality=q[@"columns[6][search][value]"];
-         if (!qModality) return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'columns[6][search][value]' (modality) parameter"] contentType:@"application/dicom+json"];
-         
-         NSString *qStudyDescription=q[@"columns[7][search][value]"];
-         
-         NSString *rPatientID=r[@"columns[3][search][value]"];
-         NSString *rPatientName=r[@"columns[4][search][value]"];
-         //NSString *rStudyDate=r[@"columns[5][search][value]"];
-         NSString *rDate_start=r[@"date_start"];
-         NSString *rDate_end=r[@"date_end"];
-         NSString *rModality=r[@"columns[6][search][value]"];
-         NSString *rStduyDescription=r[@"columns[7][search][value]"];
-         
-         
-         //same or different context?
-         if (
-             !r
-             || [q[@"new"]isEqualToString:@"true"]
-             || (q[@"username"]    && ![q[@"username"]isEqualToString:r[@"username"]])
-             || (q[@"useroid"]     && ![q[@"useroid"]isEqualToString:r[@"useroid"]])
-             || (session           && ![session isEqualToString:r[@"session"]])
-             || (q[@"custodiantitle"]         && ![q[@"custodiantitle"]isEqualToString:r[@"custodiantitle"]])
-             || (q[@"aet"] && ![q[@"aet"]isEqualToString:r[@"aet"]])
-             || (q[@"role"]        && ![q[@"role"]isEqualToString:r[@"role"]])
-             
-             || (q[@"search[value]"] && ![q[@"search[value]"]isEqualToString:r[@"search[value]"]])
-             
-             ||(    qPatientID
-                &&![qPatientID isEqualToString:rPatientID]
-                &&![rPatientID isEqualToString:@""]
-                )
-             ||(    qPatientName
-                &&![qPatientName isEqualToString:rPatientName]
-                &&![rPatientName isEqualToString:@""]
-                )
-             ||(    qDate_start
-                &&![qDate_start isEqualToString:rDate_start]
-                &&![rDate_start isEqualToString:@""]
-                )
-             ||(    qDate_end
-                &&![qDate_end isEqualToString:rDate_end]
-                &&![rDate_end isEqualToString:@""]
-                )
-             ||(  ![qModality isEqualToString:rModality]
-                &&![rModality isEqualToString:@"%%"]
-                )
-             ||(    qStudyDescription
-                &&![qStudyDescription isEqualToString:rStduyDescription]
-                &&![rStduyDescription isEqualToString:@""]
-                )
-             )
-         {
-             //LOG_INFO(@"%@",[[request URL]description]);
-#pragma mark --different context
-#pragma mark reemplazar org por custodianTitle e institucion por aet
-             //find dest
-             NSString *destOID=DRS.pacs[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
-             NSDictionary *entityDict=DRS.pacs[destOID];
-             
-             NSDictionary *destSql=DRS.sqls[entityDict[@"sqlmap"]];
-             if (!destSql) return [RSErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",urlComponents.path];
-             
-             //local ... simulation qido through database access
-             
-             //LOG_INFO(@"different context with db: %@",entityDict[@"sqlmap"]);
-             
-             if (r){
-                 //replace previous request of the session.
-                 [Req removeObjectForKey:session];
-                 [Total removeObjectForKey:session];
-                 [Filtered removeObjectForKey:session];
-                 [Date removeObjectForKey:session];
-                 if(sPatientID[@"session"])[sPatientID removeObjectForKey:session];
-                 if(sPatientName[@"session"])[sPatientName removeObjectForKey:session];
-                 //if(sStudyDate[@"session"])[sStudyDate removeObjectForKey:session];
-                 if(sDate_start[@"session"])[sDate_start removeObjectForKey:session];
-                 if(sDate_end[@"session"])[sDate_end removeObjectForKey:session];
-                 if(sModality[@"session"])[sModality removeObjectForKey:session];
-                 if(sStudyDescription[@"session"])[sStudyDescription removeObjectForKey:session];
-                 
-             }
-             //copy of the sql request of the new context
-             [Req setObject:q forKey:session];
-             
-             //TODO: remove old sessions
-             [Date setObject:[NSDate date] forKey:session];
-             
-             if(qPatientID)[sPatientID setObject:qPatientID forKey:session];
-             if(qPatientName)[sPatientName setObject:qPatientName forKey:session];
-             //if(qStudyDate)[sStudyDate setObject:qStudyDate forKey:session];
-             if(qDate_start)[sDate_start setObject:qDate_start forKey:session];
-             if(qDate_end)[sDate_end setObject:qDate_end forKey:session];
-             [sModality setObject:qModality forKey:session];
-             if(qStudyDescription)[sStudyDescription setObject:qStudyDescription forKey:session];
-             
-             //1 create where clause
-             
-             //WHERE study.rejection_state!=2    (or  1=1)
-             //following filters use formats like " AND a like 'b'"
-             NSMutableString *studiesWhere=[NSMutableString stringWithString:destSql[@"studiesWhere"]];
-             
-             //PEP por aet or custodian
-            if (![q[@"aet"] isEqualToString:q[@"custodiantitle"]])
-            {
-               [studiesWhere appendFormat:
-                @" AND %@ in ('%@','%@')",
-                destSql[@"accessControlId"],
-                q[@"aet"],
-                q[@"custodiantitle"]
-                ];
-            }
+   {
+#pragma mark - parsing URL
+    NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/studies?"][1];
 
-            
-             if (q[@"search[value]"] && ![q[@"search[value]"] isEqualToString:@""])
+//init URLString
+    NSMutableString *studyTokenURLString=
+    [NSMutableString stringWithFormat:
+     @"http://localhost/datatablesstudies?%@start=%@",
+     [datatablesQueryPart componentsSeparatedByString:@"columns"][0],
+     [datatablesQueryPart componentsSeparatedByString:@"&start="][1]];
+
+//init queryItems
+    NSArray *datatablesRequestItems=[datatablesQueryPart componentsSeparatedByString:@"&"];
+
+//init names y values with callback and draw
+    NSMutableArray *names=[NSMutableArray arrayWithArray:studyBeforeColumnsNames];
+    NSMutableArray *values=[NSMutableArray array];
+    [values addObject:[datatablesRequestItems[0] componentsSeparatedByString:@"="][1]];
+    [values addObject:[datatablesRequestItems[1] componentsSeparatedByString:@"="][1]];
+
+//add columns
+    NSUInteger datatablesRequestItemsCount=datatablesRequestItems.count;
+    NSUInteger afterColumn=datatablesRequestItemsCount -15;
+    NSUInteger columnIndex=0;
+    for (NSUInteger item=6; item < afterColumn; item+=6)
+    {
+      NSString *value=[datatablesRequestItems[item] componentsSeparatedByString:@"="][1];
+      if (value.length > 0)
+      {
+         [studyTokenURLString appendFormat:@"&%@=%@",studyColumnNames[columnIndex],value];
+         [names addObject:studyColumnNames[columnIndex]];
+         [values addObject:value];
+      }
+      columnIndex+=1;
+    }
+    columnIndex=values.count;
+    
+//init names y values with queryItems after columns
+    [names addObjectsFromArray:studyAfterColumnsNames];
+    for (NSUInteger i=afterColumn; i<datatablesRequestItemsCount;i++)
+    {
+       [values addObject:[datatablesRequestItems[i] componentsSeparatedByString:@"="][1]];
+    }
+    
+    
+#pragma mark - filters
+    
+#pragma mark · AccessionNumber
+    NSString *accessionNumberFilter=[datatablesRequestItems[afterColumn+searchValueColumn] componentsSeparatedByString:@"="][1];
+    if (accessionNumberFilter.length > 0)
+    {
+        [names addObject:@"AccessionNumber"];
+        [values addObject:accessionNumberFilter];
+    }
+    else
+    {
+#pragma mark · StudyDate
+       NSString *dateStartFilter=values[columnIndex+date_startColumn];
+       NSString *dateEndFilter=values[columnIndex+date_endColumn];
+       if ( (dateStartFilter.length == 8) || (dateEndFilter.length == 8))
+       {
+          [names addObject:@"StudyDate"];
+          
+          if (dateStartFilter.length > 0)
+          {
+             if (dateEndFilter.length == 8)
              {
-                 //AccessionNumber q[@"search[value]"]
-                 [studiesWhere appendString:
-                  [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
-                                   fieldString:destSql[@"AccessionNumber"]
-                                   valueString:q[@"search[value]"]
-                   ]
-                  ];
+                if ([dateStartFilter isEqualToString:dateEndFilter])
+                {
+                   //this day
+                   [values
+                    addObject:
+                    [NSString stringWithFormat:@"%@-%@-%@",
+                     [dateStartFilter substringToIndex:4],
+                     [dateStartFilter substringWithRange:NSMakeRange(4,2)],
+                     [dateStartFilter substringFromIndex:6]
+                     ]
+                    ];
+
+                }
+                else
+                {
+                   //between
+                   [values
+                    addObject:
+                    [NSString stringWithFormat:@"%@-%@-%@|%@-%@-%@",
+                     [dateStartFilter substringToIndex:4],
+                     [dateStartFilter substringWithRange:NSMakeRange(4,2)],
+                     [dateStartFilter substringFromIndex:6],
+                     [dateEndFilter substringToIndex:4],
+                     [dateEndFilter substringWithRange:NSMakeRange(4,2)],
+                     [dateEndFilter substringFromIndex:6]
+                     ]
+                    ];
+                }
              }
              else
              {
-                 if(qPatientID && [qPatientID length])
-                 {
-                     [studiesWhere appendString:
-                      [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                       fieldString:destSql[@"PatientID"]
-                                       valueString:qPatientID
-                       ]
-                      ];
-                 }
-                 
-                 if(qPatientName && [qPatientName length])
-                 {
-                     //PatientName _00100010 Nombre
-                     NSArray *patientNameComponents=[qPatientName componentsSeparatedByString:@"^"];
-                     NSUInteger patientNameCount=[patientNameComponents count];
-                     
-                     [studiesWhere appendString:
-                      [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                       fieldString:(destSql[@"PatientName"])[0]
-                                       valueString:patientNameComponents[0]
-                       ]
-                      ];
-                     
-                     if (patientNameCount > 1)
-                     {
-                         [studiesWhere appendString:
-                          [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                           fieldString:(destSql[@"PatientName"])[1]
-                                           valueString:patientNameComponents[1]
-                           ]
-                          ];
-                         
-                         if (patientNameCount > 2)
-                         {
-                             [studiesWhere appendString:
-                              [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                               fieldString:(destSql[@"PatientName"])[2]
-                                               valueString:patientNameComponents[2]
-                               ]
-                              ];
-                             
-                             if (patientNameCount > 3)
-                             {
-                                 [studiesWhere appendString:
-                                  [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                                   fieldString:(destSql[@"PatientName"])[3]
-                                                   valueString:patientNameComponents[3]
-                                   ]
-                                  ];
-                                 
-                                 if (patientNameCount > 4)
-                                 {
-                                     [studiesWhere appendString:
-                                      [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                                       fieldString:(destSql[@"PatientName"])[4]
-                                                       valueString:patientNameComponents[4]
-                                       ]
-                                      ];
-                                 }
-                             }
-                         }
-                     }
-                 }
-                 
-                 if(
-                    (qDate_start && [qDate_start length])
-                    ||(qDate_end && [qDate_end length])
-                    )
-                 {
-                     NSString *s=nil;
-                     if (qDate_start && [qDate_start length]) s=qDate_start;
-                     else s=@"";
-                     NSString *e=nil;
-                     if (qDate_end && [qDate_end length]) e=qDate_end;
-                     else e=@"";
-                     [studiesWhere appendString:[destSql[@"StudyDate"] sqlFilterWithStart:s end:e]];
-                 }
-                 
-                 //qModality contains ONE modality or joker %%
-                 [studiesWhere appendFormat:@" AND %@ like '%%%@%%'", destSql[@"ModalitiesInStudy"], qModality];
-                 
-                 if(qStudyDescription && [qStudyDescription length])
-                 {
-                     //StudyDescription _00081030 Descripción
-                     [studiesWhere appendString:
-                      [NSString mysqlEscapedFormat:@" AND %@ like '%@%%'"
-                                       fieldString:destSql[@"StudyDescription"]
-                                       valueString:qStudyDescription
-                       ]
-                      ];
-                 }
+                //since
+                [values
+                 addObject:
+                 [NSString stringWithFormat:@"%@-%@-%@|",
+                  [dateStartFilter substringToIndex:4],
+                  [dateStartFilter substringWithRange:NSMakeRange(4,2)],
+                  [dateStartFilter substringFromIndex:6]
+                  ]
+                 ];
              }
-             LOG_INFO(@"%@",[studiesWhere substringFromIndex:65]);
-             
-             
-             //2 count
-             NSString *sqlCountQuery=[NSString stringWithFormat:@"%@%@%@%@",
-                                      entityDict[@"sqlprolog"],
-                                      destSql[@"studiesCountProlog"],
-                                      studiesWhere,
-                                      destSql[@"studiesCountEpilog"]
-                                      ];
-             LOG_DEBUG(@"%@",sqlCountQuery);
-             NSMutableData *countData=[NSMutableData data];
-             if (task(@"/bin/bash",@[@"-s"],[sqlCountQuery dataUsingEncoding:NSUTF8StringEncoding],countData))
-                 [RSErrorResponse responseWithClientError:404 message:@"%@",@"can not access the db"];//NotFound
-             NSString *countString=[[NSString alloc]initWithData:countData encoding:NSUTF8StringEncoding];
-             // max (max records filtered para evitar que filtros insuficientes devuelvan casi todos los registros... lo que devolvería un resultado inútil.
-             recordsTotal=[countString intValue];
-             int maxCount=[q[@"max"]intValue];
+          }
+          else
+          {
+             //until
+             [values
+              addObject:
+              [NSString stringWithFormat:@"|%@-%@-%@",
+               [dateEndFilter substringToIndex:4],
+               [dateEndFilter substringWithRange:NSMakeRange(4,2)],
+               [dateEndFilter substringFromIndex:6]
+               ]
+              ];
+          }
+       }
+    }
+
+
+
+#pragma mark adding name/value : institution, modality, rol
+    [names addObject:@"institution"];
+    NSString *custodiantitle=values[columnIndex+custodiantitleColumn];
+    NSString *aet=values[columnIndex+aetColumn];
+    NSString *institutionOID=(DRS.pacs[[custodiantitle stringByAppendingPathExtension:aet]])[@"pacsoid"];
+    [values addObject:institutionOID];
+
+    //@"ModalityInStudy",//Modalidades (may not have been copied to values. This is why we look for it in datatablesRequestItems)
+    NSString *modality=nil;
+    NSUInteger modalidadesIndex=[names indexOfObject:@"modalidades"];
+    if ((modalidadesIndex != NSNotFound) && ![names[modalidadesIndex] isEqualToString:@"ALL"])
+    {
+       modality=names[modalidadesIndex];
+       [names addObject:@"ModalityInStudy"];
+       [values addObject:modality];
+    }
+
+    // rol
+    // also applies to StudyInstanceUID and AccessionNumber
+    switch ([roles indexOfObject:values[columnIndex+roleColumn]])
+    {
+          
+          
+       case rolPatient:
+       {
+          NSUInteger patientIDIndex=[names indexOfObject:@"PatientID"];
+          NSUInteger usernameIndex=[names indexOfObject:@"username"];
+          if (patientIDIndex)
+             [
+              values
+              replaceObjectAtIndex:patientIDIndex
+              withObject:values[usernameIndex]
+              ];
+          else
+          {
+             [names addObject:@"PatientID"];
+             [values addObject:values[usernameIndex]];
+          }
+
+          NSUInteger useroidIndex=[names indexOfObject:@"useroid"];
+          if ([values[useroidIndex] length])
+          {
+             NSUInteger patientIDIssuerIndex=[names indexOfObject:@"PatientIDIssuer"];
+
+             if (patientIDIssuerIndex)
+                [
+                 values
+                 replaceObjectAtIndex:patientIDIssuerIndex
+                 withObject:values[useroidIndex]
+                 ];
+             else
+             {
+                [names addObject:@"PatientIDIssuer"];
+                [values addObject:values[useroidIndex]];
+             }
+          }
+       }
+
+          
+       case rolReading:
+       {
+          if (institutionOID.length)
+          {
+             [names addObject:@"readInstitution"];
+             [values addObject:institutionOID];
+          }
+          if (modality.length)
+          {
+             [names addObject:@"readService"];
+             [values addObject:modality];
+          }
+          [names addObject:@"readUser"];
+          [values addObject:values[columnIndex+usernameColumn]];
+          if ([values[columnIndex+useroidColumn] length]>0)
+          {
+             [names addObject:@"readID"];
+             [values addObject:values[columnIndex+useroidColumn]];
+          }
+          //[names addObject:@"readIDType"];
+          //[values addObject:];
+       } break;
+              
+              
+       case rolRefering:
+       {
+          if (institutionOID.length)
+          {
+             [names addObject:@"refInstitution"];
+             [values addObject:institutionOID];
+          }
+          if (modality.length)
+          {
+             [names addObject:@"refService"];
+             [values addObject:modality];
+          }
+          [names addObject:@"refUser"];
+          [values addObject:values[columnIndex+usernameColumn]];
+          if ([values[columnIndex+useroidColumn] length]>0)
+          {
+             [names addObject:@"refID"];
+             [values addObject:values[columnIndex+useroidColumn]];
+          }
+          //[names addObject:@"refIDType"];
+          //[values addObject:];
+       } break;
+    }
+    
+    
+    return [DRS
+            studyTokenSocket:request.socketNumber
+            requestURL:request.URL
+            requestPath:request.path
+            names:names
+            values:values
+            acceptsGzip:request.acceptsGzipContentEncoding
+            ];
+         }
+    (request));}];
+    }
+
+#pragma mark - for errors
+/*for errors
+return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
+*/
+
+/*
+ recordsTotal=[countString intValue];
+ int maxCount=[q[@"max"]intValue];
              LOG_INFO(@"total:%d, max:%d",recordsTotal,maxCount);
              if (recordsTotal > maxCount) return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %d matches. %d matches were found",maxCount, recordsTotal]] contentType:@"application/dicom+json"];
-             
-             if (!recordsTotal) return [RSDataResponse
+*/
+#pragma mark empty response
+/*
+ 
+ 
+ 
+ 
+    return [RSDataResponse
                                         responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:@{
                                                                                                               @"draw":q[@"draw"],
                                                                                                               @"recordsTotal":@0,
@@ -306,99 +361,11 @@ static NSMutableDictionary *sStudyDescription;
                                                                                                               }]
                                         contentType:@"application/dicom+json"
                                         ];
-             else
-             {
-                 //order is performed later, from mutableDictionary
-                 //3 select
-                 NSString *sqlDataQuery=[NSString stringWithFormat:@"%@%@%@%@",
-                                         entityDict[@"sqlprolog"],
-                                         destSql[@"datatablesStudiesProlog"],
-                                         studiesWhere,
-                                         [NSString stringWithFormat: destSql[@"datatablesStudiesEpilog"],session,
-                                          session
-                                          ]
-                                         ];
-                 
-                 NSMutableArray *studiesArray=jsonMutableArray(sqlDataQuery,(NSStringEncoding) [entityDict[@"sqlstringencoding"]integerValue]);
-                 
-                 [Total setObject:studiesArray forKey:session];
-                 [Filtered setObject:[studiesArray mutableCopy] forKey:session];
-             }
+ 
+ */
+#pragma mark block predicate
+ /*            //https://developer.apple.com/reference/foundation/nsmutablearray/1412085-filterusingpredicate?language=objc
              
-         }//end diferent context
-         else
-         {
-             
-#pragma mark --same context
-             
-             recordsTotal=(int)[Total[session] count];
-             //LOG_INFO(@"same context recordsTotal: %d ",recordsTotal);
-             
-             //subfilter?
-             // in case there is subfilter, derive BFiltered from BTotal
-             //https://developer.apple.com/reference/foundation/nsmutablearray/1412085-filterusingpredicate?language=objc
-             
-             if (recordsTotal > 0)
-             {
-                 BOOL toBeFiltered=false;
-                 
-                 NSRegularExpression *PatientIDRegex=nil;
-                 if(qPatientID && ![qPatientID isEqualToString:sPatientID[session]])
-                 {
-                     toBeFiltered=true;
-                     PatientIDRegex=[NSRegularExpression regularExpressionWithPattern:[NSString regexDicomString:qPatientID withFormat:@"datatables\\/patient\\?PatientID=%@.*"] options:0 error:NULL];
-                 }
-                 
-                 NSRegularExpression *PatientNameRegex=nil;
-                 if(qPatientName && ![qPatientName isEqualToString:sPatientName[session]])
-                 {
-                     toBeFiltered=true;
-                     PatientNameRegex=[NSRegularExpression regularExpressionWithPattern:[NSString regexDicomString:qPatientName withFormat:@"%@.*"] options:NSRegularExpressionCaseInsensitive error:NULL];
-                 }
-                 
-                 NSString *until;
-                 if(   qDate_end
-                    && (  !sDate_end[session]
-                        || ([qDate_end compare:sDate_end[session]]==NSOrderedAscending)
-                        )
-                    )
-                 {
-                     toBeFiltered=true;
-                     until=qDate_end;
-                 }
-                 
-                 NSString *since;
-                 if(   qDate_start
-                    && (  !sDate_start[session]
-                        || ([qDate_start compare:sDate_start[session]]==NSOrderedDescending)
-                        )
-                    )
-                 {
-                     toBeFiltered=true;
-                     since=qDate_start;
-                 }
-                 
-                 NSString *modalitySelected=nil;
-                 //sModality contains the last selected modality within the same context
-                 if(![qModality isEqualToString:sModality[session]])
-                 {
-                     toBeFiltered=true;
-                     modalitySelected=qModality;
-                 }
-                 else modalitySelected=sModality[session];
-                 
-                 NSRegularExpression *StudyDescriptionRegex=nil;
-                 if(qStudyDescription  && ![qStudyDescription isEqualToString:sStudyDescription[session]])
-                 {
-                     toBeFiltered=true;
-                     StudyDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:[NSString regexDicomString:qStudyDescription withFormat:@"%@.*"] options:NSRegularExpressionCaseInsensitive error:NULL];
-                 }
-                 
-                 if(toBeFiltered)
-                 {
-                     //filter from BTotal copy
-                     [Filtered removeObjectForKey:session];
-                     [Filtered setObject:[Total[session] mutableCopy] forKey:session];
                      
                      //create compound predicate
                      NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings) {
@@ -437,7 +404,10 @@ static NSMutableDictionary *sStudyDescription;
                  }
              }
          }
+  
+  */
 #pragma mark --order
+    /*
          if (q[@"order[0][column]"] && q[@"order[0][dir]"])
          {
              LOG_INFO(@"ordering with %@, %@",q[@"order[0][column]"],q[@"order[0][dir]"]);
@@ -456,9 +426,9 @@ static NSMutableDictionary *sStudyDescription;
                  }];
              }
          }
-         
+  */
 #pragma mark --response
-         
+ /*
          NSMutableDictionary *resp = [NSMutableDictionary dictionary];
          NSUInteger recordsFiltered=[Filtered[session]count];
          [resp setObject:q[@"draw"] forKey:@"draw"];
@@ -483,7 +453,9 @@ static NSMutableDictionary *sStudyDescription;
              if (!page)page=@[];
              [resp setObject:page forKey:@"data"];
          }
-         
+ */
+#pragma mark response jsonp
+/*
          return [RSDataResponse
                  responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:resp]
                  contentType:@"application/dicom+json"
@@ -491,7 +463,10 @@ static NSMutableDictionary *sStudyDescription;
      }
 (request));}];
 }
+*/
 
+#pragma mark - Patient
+/*
 -(void)addDatatablesPatientHandler
 {
 
@@ -573,7 +548,11 @@ NSRegularExpression *dtpatientRegex = [NSRegularExpression regularExpressionWith
      }
                                                                           (request));}];
 }
+*/
 
+
+
+/*
 -(void)addDatatablesSeriesHandler
 {
     //"datatables/series?AccessionNumber=22&IssuerOfAccessionNumber.UniversalEntityID=NULL&StudyIUID=2.16.858.2.10000675.72769.20160411084701.1.100&session=1"
@@ -644,4 +623,28 @@ NSRegularExpression *dtseriesRegex = [NSRegularExpression regularExpressionWithP
      }
 (request));}];
 }
+ */
+
+-(void)addDatatablesSeriesHandler
+{
+   NSArray *seriesColumnNames=@[
+   @"_0",
+   @"_1",
+   @"",//Serie #
+   @"",//Modalidad
+   @"",//Fecha
+   @"",//Hora
+   @""//Descripción
+   ];
+   
+   NSRegularExpression *dtseriesRegex = [NSRegularExpression regularExpressionWithPattern:@"/datatables/series" options:0 error:NULL];
+
+   [self addHandler:@"GET" regex:dtseriesRegex processBlock:
+   ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+   {
+      return nil;
+   }
+(request));}];
+}
+
 @end

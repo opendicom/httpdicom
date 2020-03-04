@@ -178,10 +178,17 @@ study.study_id, \
 CONCAT(IFNULL(person_name.family_name,''), '^', IFNULL(person_name.given_name,''), '^', IFNULL(person_name.middle_name,''), '^', IFNULL(person_name.name_prefix,''), '^', IFNULL(person_name.name_suffix,'')), \
 study.study_custom3, \
 study_query_attrs.num_series, \
-study_query_attrs.mods_in_study \
+study_query_attrs.mods_in_study, \
+study.study_custom1, \
+study.study_custom2, \
+study.study_custom3, \
+issuer.entity_id, \
+issuer.entity_uid, \
+issuer.entity_uid_type \
 FROM study \
 LEFT JOIN study_query_attrs ON study_query_attrs.study_fk=study.pk \
 LEFT JOIN person_name ON study.ref_phys_name_fk=person_name.pk \
+LEFT JOIN issuer ON study.accno_issuer_fk=issuer.pk \
 WHERE study.pk=%@ \
 AND study_query_attrs.view_id='regularUse' \
 %@ \
