@@ -45,7 +45,8 @@ enum DE {
    DEDateTime2,
    DEInstitution,
    DEPKey,
-   DEEKey
+   DEEKey,
+   DEPacs
 };
 
 

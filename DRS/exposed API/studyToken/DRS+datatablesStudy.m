@@ -17,15 +17,14 @@
    if (
           (maxCount!=0)
        && studyArray
-       && (studyArray.count==1)
-       && [studyArray[0] isKindOfClass:[NSNumber class]]
-       && ([studyArray[0] longLongValue] < maxCount)
        )
    {
-      if ([studyArray[0] longLongValue] < maxCount)
-         [studyArray removeObjectAtIndex:0];
-      else
-         maxCountOK=false;
+       if (   (studyArray.count==1)
+           && [studyArray[0] isKindOfClass:[NSNumber class]]
+           && ([studyArray[0] longLongValue] < maxCount)
+          )
+       [studyArray removeObjectAtIndex:0];
+       else maxCountOK=(studyArray.count <= maxCount);
    }
    
    if (maxCountOK)
@@ -171,14 +170,12 @@
                      LOG_ERROR(@"studyToken study db error");
                      continue;
                   }
-                  NSArray *sqlE=[studyData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:EDate decreasing:YES][DEEKey];//NSUTF8StringEncoding
+                  NSArray *sqlE=[studyData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:EDate decreasing:YES][0];//there is only one response
+                   //NSUTF8StringEncoding
                   
                   
                   NSString *EDateTimeString=
-                  [NSString stringWithFormat:@"%@ %@",
-                  [DICMTypes DAStringFromDAISOString:sqlE[EDate]],
-                  [DICMTypes TMStringFromTMISOString:sqlE[ETime]]
-                   ];
+                  [sqlE[EDate]stringByAppendingString:[sqlE[ETime] substringToIndex:6]];
                   
                   [studyArray addObject:
                    @[
@@ -231,14 +228,15 @@
                       
                        PKeyNumber,
                       
-                       EKeyNumber
+                       EKeyNumber,
+                      
+                       d[@"devOID"]
                      ]
                    ];
                }
             }
          }//loop P
-            NSData *docData=[NSJSONSerialization dataWithJSONObject:studyArray options:0 error:nil];
-            [docData writeToFile:d[@"path"] atomically:YES];
+            [studyArray writeToFile:d[@"path"] atomically:YES];
          }//maxCountOK2
       }//EPDict.count
    }//maxCountOK1

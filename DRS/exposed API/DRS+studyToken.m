@@ -1475,11 +1475,20 @@ NSString * SOPCLassOfReturnableSeries(
       case accessTypeDatatablesStudy:
       {
          NSLog(@"%@",[values description]);
+          
+          NSUInteger newIndex=[names indexOfObject:@"new"];
+          if (newIndex && [values[newIndex] isEqualToString:@"true"])
+          {
+              [defaultManager removeItemAtPath:path error:nil];
+              [defaultManager createDirectoryAtPath:path  withIntermediateDirectories:NO attributes:nil error:nil];
+              
+          }
+
 //loop each LAN pacs producing part
          for (NSString *devOID in lanArray)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
-            [requestDict setObject:[[path stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"jsonp"]forKey:@"path"];
+            [requestDict setObject:[[path stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"array"] forKey:@"path"];
             NSUInteger maxCountIndex=[names indexOfObject:@"max"];
             if (maxCountIndex!=NSNotFound)[requestDict setObject:values[maxCountIndex] forKey:@"max"];
 
@@ -1490,18 +1499,148 @@ NSString * SOPCLassOfReturnableSeries(
                   break;
             }
          }
+
 //reply with result found in path
 //TODO paging the answer
-         NSArray *results=[defaultManager contentsOfDirectoryAtPath:path error:nil];
-         NSMutableData *resultData=[NSMutableData dataWithBytes:&startSquareBracket length:1];
-         for (NSString *result in results)
+         NSMutableArray *resultsArray=[NSMutableArray array];
+         NSArray *resultsDirectory=[defaultManager contentsOfDirectoryAtPath:path error:nil];
+         for (NSString *resultFile in resultsDirectory)
          {
-            [resultData appendData:[NSData dataWithContentsOfFile:[path stringByAppendingPathComponent:result]]];
-            [resultData appendBytes:&semicolon length:1];
+             NSArray *partialArray=[NSArray arrayWithContentsOfFile:[path stringByAppendingPathComponent:resultFile]];
+             if ((partialArray.count==1)
+             && [partialArray[0] isKindOfClass:[NSNumber class]])
+             {
+                 LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"path"]);
+                 return [RSDataResponse responseWithData:
+                         [NSData
+                          jsonpCallback:values[[names indexOfObject:@"callback"]]
+                          forDraw:values[[names indexOfObject:@"draw"]]
+                          withErrorString:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only",requestDict[@"max"]]
+                          ]
+                          contentType:@"application/dicom+json"
+                         ];
+             }
+             [resultsArray addObjectsFromArray:partialArray];
          }
-         [resultData replaceBytesInRange:NSMakeRange(resultData.length-1, 1)
-         withBytes:&endSquareBracket];
-//encapsulat the answer in jsonp
+         
+         //no response?
+          if (!resultsArray.count)
+              return [RSDataResponse
+              responseWithData:[NSData jsonpCallback:values[[names indexOfObject:@"callback"]]
+                                      withDictionary:@{
+                                                        @"draw":values[[names indexOfObject:@"draw"]],
+                                                        @"recordsTotal":@0,
+                                                        @"recordsFiltered":@0,
+                                                        @"data":@[]
+                                                       }
+                                ]
+              contentType:@"application/dicom+json"
+              ];
+          
+         //check max of total answers
+         if ([requestDict[@"max"] longLongValue] < resultsArray.count)
+         {
+            LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"path"]);
+            return [RSDataResponse responseWithData:
+                     [NSData
+                      jsonpCallback:values[[names indexOfObject:@"callback"]]
+                      forDraw:values[[names indexOfObject:@"draw"]]
+                      withErrorString:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only. There were %lu",requestDict[@"max"],(unsigned long)resultsArray.count]
+                      ]
+                      contentType:@"application/dicom+json"
+                     ];
+         }
+          
+         //NOT USED: subsampling with block predicate
+          /*            //https://developer.apple.com/reference/foundation/nsmutablearray/1412085-filterusingpredicate?language=objc
+                      
+                              
+                              //create compound predicate
+                              NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings) {
+                                  if (PatientIDRegex)
+                                  {
+                                      //LOG_INFO(@"patientID filter");
+                                      if (![PatientIDRegex numberOfMatchesInString:row[3] options:0 range:NSMakeRange(0,[row[3] length])]) return false;
+                                  }
+                                  if (PatientNameRegex)
+                                  {
+                                      //LOG_INFO(@"patientName filter");
+                                      if (![PatientNameRegex numberOfMatchesInString:row[4] options:0 range:NSMakeRange(0,[row[4] length])]) return false;
+                                  }
+                                  if (until)
+                                  {
+                                      //LOG_INFO(@"until filter");
+                                      if ([until compare:row[5]]==NSOrderedDescending) return false;
+                                  }
+                                  if (since)
+                                  {
+                                      //LOG_INFO(@"since filter");
+                                      if ([since compare:row[5]]==NSOrderedAscending) return false;
+                                  }
+                                  //row[6] contains modalitiesInStudies. Ej: CT\OT
+                                  if (![row[6] containsString:modalitySelected]) return false;
+                                  
+                                  if (StudyDescriptionRegex)
+                                  {
+                                      //LOG_INFO(@"description filter");
+                                      if (![StudyDescriptionRegex numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
+                                  }
+                                  return true;
+                              }];
+                              
+                              [Filtered[session] filterUsingPredicate:compoundPredicate];
+                          }
+                      }
+                  }
+           
+           */
+
+          //order
+          NSUInteger orderIndex=[names indexOfObject:@"order[0][column]"];
+          NSUInteger dirIndex=[names indexOfObject:@"order[0][dir]"];
+          if ((orderIndex!=NSNotFound) && (dirIndex!=NSNotFound))
+          {
+            int column=[values[orderIndex] intValue];
+            if ([values[dirIndex] isEqualToString:@"desc"])
+            {
+               [resultsArray sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
+                   return [obj2[column] caseInsensitiveCompare:obj1[column]];
+               }];
+            }
+            else
+            {
+               [resultsArray sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
+                   return [obj1[column] caseInsensitiveCompare:obj2[column]];
+               }];
+            }
+        }
+          
+        //paging jsonp answer
+                   
+        long ps=[values[[names indexOfObject:@"start"]] intValue];
+        long pl=[values[[names indexOfObject:@"length"]]intValue];
+        //LOG_INFO(@"paging desired (start=[%ld],filas=[%ld],last=[%lu])",ps,pl,recordsFiltered-1);
+        if (ps < 0) ps=0;
+        if (ps > resultsArray.count - 1) ps=0;
+        if (ps+pl+1 > resultsArray.count) pl=resultsArray.count-ps;
+        //LOG_INFO(@"paging applied (start=[%ld],filas=[%ld],last=[%lu])",ps,pl,recordsFiltered-1);
+        NSArray *page=[resultsArray subarrayWithRange:NSMakeRange(ps,pl)];
+        if (!page)page=@[];
+ 
+        return [RSDataResponse
+                responseWithData:
+                                [NSData
+                                 jsonpCallback:values[[names indexOfObject:@"callback"]]
+                                 withDictionary:@{
+                                  @"draw":values[[names indexOfObject:@"draw"]],
+                                  @"recordsTotal":[NSNumber numberWithLongLong:resultsArray.count],
+                                  @"recordsFiltered":[NSNumber numberWithLongLong:resultsArray.count],
+                                  @"data":page
+                                 }
+                                 ]
+                contentType:@"application/dicom+json"
+          ];
+
       } break;
 
 

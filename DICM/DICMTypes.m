@@ -104,7 +104,7 @@ static NSRegularExpression *_noSingleQuoteRegex=nil;
    return [NSString stringWithFormat:@"%@%@%@",
            [string substringWithRange:NSMakeRange(0,2)],
            [string substringWithRange:NSMakeRange(3,2)],
-           [string substringWithRange:NSMakeRange(5,2)]
+           [string substringWithRange:NSMakeRange(6,2)]
            ];
 }
 
