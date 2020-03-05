@@ -175,7 +175,14 @@
                   
                   
                   NSString *EDateTimeString=
-                  [sqlE[EDate]stringByAppendingString:[sqlE[ETime] substringToIndex:6]];
+                   [NSString stringWithFormat:@"%@-%@-%@ %@:%@",
+                    [sqlE[EDate] substringToIndex:4],
+                    [sqlE[EDate] substringWithRange:NSMakeRange(4,2)],
+                    [sqlE[EDate] substringFromIndex:6],
+                    [sqlE[ETime] substringToIndex:2],
+                    [sqlE[ETime] substringWithRange:NSMakeRange(2,2)]
+                    ];
+                  //[sqlE[EDate]stringByAppendingString:[sqlE[ETime] substringToIndex:6]];
                   
                   [studyArray addObject:
                    @[

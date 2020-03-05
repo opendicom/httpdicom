@@ -1500,8 +1500,7 @@ NSString * SOPCLassOfReturnableSeries(
             }
          }
 
-//reply with result found in path
-//TODO paging the answer
+//reply with result found in path//TODO paging the answer
          NSMutableArray *resultsArray=[NSMutableArray array];
          NSArray *resultsDirectory=[defaultManager contentsOfDirectoryAtPath:path error:nil];
          for (NSString *resultFile in resultsDirectory)
@@ -1596,8 +1595,8 @@ NSString * SOPCLassOfReturnableSeries(
            */
 
           //order
-          NSUInteger orderIndex=[names indexOfObject:@"order[0][column]"];
-          NSUInteger dirIndex=[names indexOfObject:@"order[0][dir]"];
+          NSUInteger orderIndex=[names indexOfObject:@"orderColumnIndex"];
+          NSUInteger dirIndex=[names indexOfObject:@"orderDirection"];
           if ((orderIndex!=NSNotFound) && (dirIndex!=NSNotFound))
           {
             int column=[values[orderIndex] intValue];

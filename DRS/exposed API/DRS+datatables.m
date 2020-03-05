@@ -71,18 +71,24 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
       roleColumn,
       maxColumn,
       newColumn,
-      _Column
+      _Column,
+      orderIndexColumn,
+      orderDirColumn
    };
 
    NSArray *roles=@[
    @"Paciente",
    @"Radiologo",
-   @"Solicitante"
+   @"Solicitante",
+   @"Medico",
+   @"Autrenticador"
    ];
    enum rolesEnum{
       rolPatient,
       rolReading,
-      rolRefering
+      rolReferring,
+      rolLocalPhysician,
+      rolAuthenticator
    };
    
    NSRegularExpression *dtstudiesRegex = [NSRegularExpression regularExpressionWithPattern:@"/datatables/studies" options:0 error:NULL];
@@ -94,11 +100,23 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
     NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/studies?"][1];
 
 //init URLString
-    NSMutableString *studyTokenURLString=
-    [NSMutableString stringWithFormat:
-     @"http://localhost/datatablesstudies?%@start=%@",
-     [datatablesQueryPart componentsSeparatedByString:@"columns"][0],
-     [datatablesQueryPart componentsSeparatedByString:@"&start="][1]];
+     BOOL ordering=false;
+     NSMutableString *studyTokenURLString=nil;
+     if ([[datatablesQueryPart componentsSeparatedByString:@"&order"] count] > 1)
+     {
+         studyTokenURLString=[NSMutableString stringWithFormat:
+         @"http://localhost/datatablesstudies?%@order%@",
+         [datatablesQueryPart componentsSeparatedByString:@"columns"][0],
+         [datatablesQueryPart componentsSeparatedByString:@"&order"][1]];
+         ordering=true;
+     }
+     else
+     {
+         studyTokenURLString=[NSMutableString stringWithFormat:
+         @"http://localhost/datatablesstudies?%@start=%@",
+         [datatablesQueryPart componentsSeparatedByString:@"columns"][0],
+         [datatablesQueryPart componentsSeparatedByString:@"&start="][1]];
+     }
 
 //init queryItems
     NSArray *datatablesRequestItems=[datatablesQueryPart componentsSeparatedByString:@"&"];
@@ -111,13 +129,14 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
 
 //add columns
     NSUInteger datatablesRequestItemsCount=datatablesRequestItems.count;
-    NSUInteger afterColumn=datatablesRequestItemsCount -15;
+    NSUInteger afterColumn=datatablesRequestItemsCount - 15;
     NSUInteger columnIndex=0;
     for (NSUInteger item=6; item < afterColumn; item+=6)
     {
       NSString *value=[datatablesRequestItems[item] componentsSeparatedByString:@"="][1];
       if (value.length > 0)
       {
+          //we don´t add order so that to keep using cache when order is altered
          [studyTokenURLString appendFormat:@"&%@=%@",studyColumnNames[columnIndex],value];
          [names addObject:studyColumnNames[columnIndex]];
          [values addObject:value];
@@ -126,13 +145,25 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
     }
     columnIndex=values.count;
     
-//init names y values with queryItems after columns
+     
+    //names y values with queryItems after columns
     [names addObjectsFromArray:studyAfterColumnsNames];
     for (NSUInteger i=afterColumn; i<datatablesRequestItemsCount;i++)
     {
        [values addObject:[datatablesRequestItems[i] componentsSeparatedByString:@"="][1]];
     }
-    
+
+     
+     //order
+     if (ordering)
+     {
+         [names addObject:@"orderColumnIndex"];
+         [values addObject:[datatablesRequestItems[afterColumn - 2] componentsSeparatedByString:@"="][1]];
+
+         [names addObject:@"orderDirection"];
+         [values addObject:[datatablesRequestItems[afterColumn - 1] componentsSeparatedByString:@"="][1]];
+     }
+
     
 #pragma mark - filters
     
@@ -298,7 +329,7 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
        } break;
               
               
-       case rolRefering:
+       case rolReferring:
        {
           if (institutionOID.length)
           {
@@ -320,6 +351,16 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
           //[names addObject:@"refIDType"];
           //[values addObject:];
        } break;
+            
+        case rolLocalPhysician:
+        {
+        } break;
+
+                
+        case rolAuthenticator:
+        {
+        } break;
+
     }
     
     
