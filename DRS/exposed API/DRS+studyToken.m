@@ -655,11 +655,11 @@ NSString * SOPCLassOfReturnableSeries(
        [requestDict setObject:values[proxyURIIndex] forKey:@"proxyURIString"];
     }
    
+
    NSInteger sessionIndex=[names indexOfObject:@"session"];
    if (sessionIndex!=NSNotFound)
    {
-      [canonicalQuery appendFormat:@"\"session\":\"%@\",",values[sessionIndex]];
-
+      //[canonicalQuery appendFormat:@"\"session\":\"%@\",",values[sessionIndex]];
       [requestDict setObject:values[sessionIndex] forKey:@"sessionString"];
    }
 
@@ -712,9 +712,9 @@ NSString * SOPCLassOfReturnableSeries(
    }
    if (![lanArray count] && ![wanArray count]) return [RSErrorResponse responseWithClientError:404 message:@"no valid pacs in the request"];
 
-   if ([lanArray count]) [canonicalQuery appendFormat:@"\"lanArray\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
+//   if ([lanArray count]) [canonicalQuery appendFormat:@"\"lanArray\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
 
-   if ([wanArray count]) [canonicalQuery appendFormat:@"\"wanArray\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
+//   if ([wanArray count]) [canonicalQuery appendFormat:@"\"wanArray\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
 
 
 #pragma mark StudyInstanceUID
@@ -1034,7 +1034,7 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readServiceLikeString=[values[readServiceIndex] regexQuoteEscapedString];
        [requestDict setObject:readServiceLikeString forKey:@"readServiceLikeString"];
-[canonicalQuery appendFormat:@"\"readService\":\"%@\",",readServiceLikeString];
+       [canonicalQuery appendFormat:@"\"readService\":\"%@\",",readServiceLikeString];
     }
 
     NSString *readUserLikeString=nil;
@@ -1511,12 +1511,18 @@ NSString * SOPCLassOfReturnableSeries(
              {
                  LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"path"]);
                  return [RSDataResponse responseWithData:
-                         [NSData
-                          jsonpCallback:values[[names indexOfObject:@"callback"]]
-                          forDraw:values[[names indexOfObject:@"draw"]]
-                          withErrorString:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only",requestDict[@"max"]]
-                          ]
-                          contentType:@"application/dicom+json"
+                         [NSJSONSerialization
+                          dataWithJSONObject:
+                          @{
+                           @"draw":values[[names indexOfObject:@"draw"]],
+                           @"recordsTotal":[NSNumber numberWithLongLong:resultsArray.count],
+                           @"data":@[],
+                           @"error":[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only",requestDict[@"max"]]
+                          }
+                          options:0
+                          error:nil
+                         ]
+                         contentType:@"application/dicom+json"
                          ];
              }
              [resultsArray addObjectsFromArray:partialArray];
@@ -1525,14 +1531,17 @@ NSString * SOPCLassOfReturnableSeries(
          //no response?
           if (!resultsArray.count)
               return [RSDataResponse
-              responseWithData:[NSData jsonpCallback:values[[names indexOfObject:@"callback"]]
-                                      withDictionary:@{
-                                                        @"draw":values[[names indexOfObject:@"draw"]],
-                                                        @"recordsTotal":@0,
-                                                        @"recordsFiltered":@0,
-                                                        @"data":@[]
-                                                       }
-                                ]
+              responseWithData:
+                      [NSJSONSerialization
+                       dataWithJSONObject:
+                       @{
+                        @"draw":values[[names indexOfObject:@"draw"]],
+                        @"recordsTotal":@0,
+                        @"data":@[],
+                       }
+                       options:0
+                       error:nil
+                      ]
               contentType:@"application/dicom+json"
               ];
           
@@ -1540,14 +1549,21 @@ NSString * SOPCLassOfReturnableSeries(
          if ([requestDict[@"max"] longLongValue] < resultsArray.count)
          {
             LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"path"]);
-            return [RSDataResponse responseWithData:
-                     [NSData
-                      jsonpCallback:values[[names indexOfObject:@"callback"]]
-                      forDraw:values[[names indexOfObject:@"draw"]]
-                      withErrorString:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only. There were %lu",requestDict[@"max"],(unsigned long)resultsArray.count]
-                      ]
-                      contentType:@"application/dicom+json"
-                     ];
+            return [RSDataResponse
+                    responseWithData:
+                    [NSJSONSerialization
+                     dataWithJSONObject:
+                     @{
+                      @"draw":values[[names indexOfObject:@"draw"]],
+                      @"recordsTotal":[NSNumber numberWithLongLong:resultsArray.count],
+                      @"data":@[],
+                      @"error":[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only. There were %lu",requestDict[@"max"],(unsigned long)resultsArray.count]
+                     }
+                     options:0
+                     error:nil
+                    ]
+                    contentType:@"application/dicom+json"
+                    ];
          }
           
          //NOT USED: subsampling with block predicate
@@ -1595,8 +1611,8 @@ NSString * SOPCLassOfReturnableSeries(
            */
 
           //order
-          NSUInteger orderIndex=[names indexOfObject:@"orderColumnIndex"];
-          NSUInteger dirIndex=[names indexOfObject:@"orderDirection"];
+          NSUInteger orderIndex=[names indexOfObject:@"order"];
+          NSUInteger dirIndex=[names indexOfObject:@"dir"];
           if ((orderIndex!=NSNotFound) && (dirIndex!=NSNotFound))
           {
             int column=[values[orderIndex] intValue];
@@ -1626,18 +1642,21 @@ NSString * SOPCLassOfReturnableSeries(
         NSArray *page=[resultsArray subarrayWithRange:NSMakeRange(ps,pl)];
         if (!page)page=@[];
  
+
         return [RSDataResponse
                 responseWithData:
-                                [NSData
-                                 jsonpCallback:values[[names indexOfObject:@"callback"]]
-                                 withDictionary:@{
+                                [NSJSONSerialization
+                                 dataWithJSONObject:
+                                 @{
                                   @"draw":values[[names indexOfObject:@"draw"]],
                                   @"recordsTotal":[NSNumber numberWithLongLong:resultsArray.count],
                                   @"recordsFiltered":[NSNumber numberWithLongLong:resultsArray.count],
                                   @"data":page
                                  }
+                                 options:0
+                                 error:nil
                                  ]
-                contentType:@"application/dicom+json"
+                 contentType:@"application/dicom+json"
           ];
 
       } break;

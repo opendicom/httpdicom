@@ -12,71 +12,7 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
 -(void)addDatatablesStudiesHandler
 {
 #pragma mark init
-   NSArray *studyBeforeColumnsNames=@[
-   @"callback",
-   @"draw"
-   ];
-   
-   NSArray *studyColumnNames=@[
-   @"_0",
-   @"_1",
-   @"_2",
-   @"PatientID",//Documento
-   @"PatientName",//Nombre
-   @"Fecha",
-   @"Modalidades",
-   @"StudyDescription",//Descripción
-   @"ReferringPhysicianName",
-   @"PatientInsurancePlanCodeSequence",
-   @"IssuerOfPatientID",
-   @"PatientBirthDate",
-   @"PatientSex",
-   @"AccessionNumber",
-   @"IssuerOfAccessionNumber",
-   @"StudyID",
-   @"StudyInstanceUID",
-   @"StudyTime",
-   @"InstitutionName"
-   ];
-
-   NSArray *studyAfterColumnsNames=@[
-   @"start",
-   @"length",
-   @"searchValue",
-   @"searchRegex",
-   @"date_start",
-   @"date_end",
-   @"username",
-   @"useroid",
-   @"session",
-   @"custodiantitle",
-   @"aet",
-   @"role",
-   @"max",
-   @"new",
-   @"_"
-   ];
-   enum namedColumnEnum{
-      startColumn,
-      lengthColumn,
-      searchValueColumn,
-      searchRegexColumn,
-      date_startColumn,
-      date_endColumn,
-      usernameColumn,
-      useroidColumn,
-      sessionColumn,
-      custodiantitleColumn,
-      aetColumn,
-      roleColumn,
-      maxColumn,
-      newColumn,
-      _Column,
-      orderIndexColumn,
-      orderDirColumn
-   };
-
-   NSArray *roles=@[
+    NSArray *roles=@[
    @"Paciente",
    @"Radiologo",
    @"Solicitante",
@@ -97,105 +33,44 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
  ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
    {
 #pragma mark - parsing URL
-    NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/studies?"][1];
+     NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/studies?"][1];
 
-//init URLString
-     BOOL ordering=false;
-     NSMutableString *studyTokenURLString=nil;
-     if ([[datatablesQueryPart componentsSeparatedByString:@"&order"] count] > 1)
+     NSMutableArray *names=[NSMutableArray array];
+     NSMutableArray *values=[NSMutableArray array];
+     NSArray *datatablesRequestItems=[datatablesQueryPart componentsSeparatedByString:@"&"];
+    
+     for (NSString *param in datatablesRequestItems)
      {
-         studyTokenURLString=[NSMutableString stringWithFormat:
-         @"http://localhost/datatablesstudies?%@order%@",
-         [datatablesQueryPart componentsSeparatedByString:@"columns"][0],
-         [datatablesQueryPart componentsSeparatedByString:@"&order"][1]];
-         ordering=true;
-     }
-     else
-     {
-         studyTokenURLString=[NSMutableString stringWithFormat:
-         @"http://localhost/datatablesstudies?%@start=%@",
-         [datatablesQueryPart componentsSeparatedByString:@"columns"][0],
-         [datatablesQueryPart componentsSeparatedByString:@"&start="][1]];
+         NSArray *nameValue=[param componentsSeparatedByString:@"="];
+         if ([nameValue[1] length])
+         {
+             [names addObject:nameValue[0]];
+             [values addObject:nameValue[1]];
+         }
      }
 
-//init queryItems
-    NSArray *datatablesRequestItems=[datatablesQueryPart componentsSeparatedByString:@"&"];
+     NSUInteger date_startIndex=[names indexOfObject:@"date_start"];
+     NSUInteger date_endIndex=  [names indexOfObject:@"date_end"];
+     BOOL hasDate_start=(date_startIndex != NSNotFound);
+     BOOL hasDate_end=(date_endIndex != NSNotFound);
 
-//init names y values with callback and draw
-    NSMutableArray *names=[NSMutableArray arrayWithArray:studyBeforeColumnsNames];
-    NSMutableArray *values=[NSMutableArray array];
-    [values addObject:[datatablesRequestItems[0] componentsSeparatedByString:@"="][1]];
-    [values addObject:[datatablesRequestItems[1] componentsSeparatedByString:@"="][1]];
-
-//add columns
-    NSUInteger datatablesRequestItemsCount=datatablesRequestItems.count;
-    NSUInteger afterColumn=datatablesRequestItemsCount - 15;
-    NSUInteger columnIndex=0;
-    for (NSUInteger item=6; item < afterColumn; item+=6)
-    {
-      NSString *value=[datatablesRequestItems[item] componentsSeparatedByString:@"="][1];
-      if (value.length > 0)
-      {
-          //we don´t add order so that to keep using cache when order is altered
-         [studyTokenURLString appendFormat:@"&%@=%@",studyColumnNames[columnIndex],value];
-         [names addObject:studyColumnNames[columnIndex]];
-         [values addObject:value];
-      }
-      columnIndex+=1;
-    }
-    columnIndex=values.count;
-    
-     
-    //names y values with queryItems after columns
-    [names addObjectsFromArray:studyAfterColumnsNames];
-    for (NSUInteger i=afterColumn; i<datatablesRequestItemsCount;i++)
-    {
-       [values addObject:[datatablesRequestItems[i] componentsSeparatedByString:@"="][1]];
-    }
-
-     
-     //order
-     if (ordering)
+     if ( hasDate_start || hasDate_end)
      {
-         [names addObject:@"orderColumnIndex"];
-         [values addObject:[datatablesRequestItems[afterColumn - 2] componentsSeparatedByString:@"="][1]];
-
-         [names addObject:@"orderDirection"];
-         [values addObject:[datatablesRequestItems[afterColumn - 1] componentsSeparatedByString:@"="][1]];
-     }
-
-    
-#pragma mark - filters
-    
-#pragma mark · AccessionNumber
-    NSString *accessionNumberFilter=[datatablesRequestItems[afterColumn+searchValueColumn] componentsSeparatedByString:@"="][1];
-    if (accessionNumberFilter.length > 0)
-    {
-        [names addObject:@"AccessionNumber"];
-        [values addObject:accessionNumberFilter];
-    }
-    else
-    {
-#pragma mark · StudyDate
-       NSString *dateStartFilter=values[columnIndex+date_startColumn];
-       NSString *dateEndFilter=values[columnIndex+date_endColumn];
-       if ( (dateStartFilter.length == 8) || (dateEndFilter.length == 8))
-       {
           [names addObject:@"StudyDate"];
           
-          if (dateStartFilter.length > 0)
+          if (hasDate_start)
           {
-             if (dateEndFilter.length == 8)
+             if (hasDate_end)
              {
-                if ([dateStartFilter isEqualToString:dateEndFilter])
+                if ([values[date_startIndex] isEqualToString:values[date_endIndex]])
                 {
                    //this day
                    [values
                     addObject:
                     [NSString stringWithFormat:@"%@-%@-%@",
-                     [dateStartFilter substringToIndex:4],
-                     [dateStartFilter substringWithRange:NSMakeRange(4,2)],
-                     [dateStartFilter substringFromIndex:6]
+                     [values[date_startIndex] substringToIndex:4],
+                     [values[date_startIndex] substringWithRange:NSMakeRange(4,2)],
+                     [values[date_startIndex] substringFromIndex:6]
                      ]
                     ];
 
@@ -206,12 +81,12 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
                    [values
                     addObject:
                     [NSString stringWithFormat:@"%@-%@-%@|%@-%@-%@",
-                     [dateStartFilter substringToIndex:4],
-                     [dateStartFilter substringWithRange:NSMakeRange(4,2)],
-                     [dateStartFilter substringFromIndex:6],
-                     [dateEndFilter substringToIndex:4],
-                     [dateEndFilter substringWithRange:NSMakeRange(4,2)],
-                     [dateEndFilter substringFromIndex:6]
+                     [values[date_startIndex] substringToIndex:4],
+                     [values[date_startIndex] substringWithRange:NSMakeRange(4,2)],
+                     [values[date_startIndex] substringFromIndex:6],
+                     [values[date_endIndex] substringToIndex:4],
+                     [values[date_endIndex] substringWithRange:NSMakeRange(4,2)],
+                     [values[date_endIndex] substringFromIndex:6]
                      ]
                     ];
                 }
@@ -222,9 +97,9 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
                 [values
                  addObject:
                  [NSString stringWithFormat:@"%@-%@-%@|",
-                  [dateStartFilter substringToIndex:4],
-                  [dateStartFilter substringWithRange:NSMakeRange(4,2)],
-                  [dateStartFilter substringFromIndex:6]
+                  [values[date_startIndex] substringToIndex:4],
+                  [values[date_startIndex] substringWithRange:NSMakeRange(4,2)],
+                  [values[date_startIndex] substringFromIndex:6]
                   ]
                  ];
              }
@@ -235,37 +110,35 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
              [values
               addObject:
               [NSString stringWithFormat:@"|%@-%@-%@",
-               [dateEndFilter substringToIndex:4],
-               [dateEndFilter substringWithRange:NSMakeRange(4,2)],
-               [dateEndFilter substringFromIndex:6]
+               [values[date_endIndex] substringToIndex:4],
+               [values[date_endIndex] substringWithRange:NSMakeRange(4,2)],
+               [values[date_endIndex] substringFromIndex:6]
                ]
               ];
           }
        }
-    }
-
 
 
 #pragma mark adding name/value : institution, modality, rol
     [names addObject:@"institution"];
-    NSString *custodiantitle=values[columnIndex+custodiantitleColumn];
-    NSString *aet=values[columnIndex+aetColumn];
+    NSString *custodiantitle=values[[names indexOfObject:@"custodiantitle"]];
+    NSString *aet=values[[names indexOfObject:@"aet"]];
     NSString *institutionOID=(DRS.pacs[[custodiantitle stringByAppendingPathExtension:aet]])[@"pacsoid"];
     [values addObject:institutionOID];
 
-    //@"ModalityInStudy",//Modalidades (may not have been copied to values. This is why we look for it in datatablesRequestItems)
+     
     NSString *modality=nil;
-    NSUInteger modalidadesIndex=[names indexOfObject:@"modalidades"];
-    if ((modalidadesIndex != NSNotFound) && ![names[modalidadesIndex] isEqualToString:@"ALL"])
+    NSUInteger modalitiesIndex=[names indexOfObject:@"Modalities"];
+    if ((modalitiesIndex != NSNotFound) && ![names[modalitiesIndex] isEqualToString:@"ALL"])
     {
-       modality=names[modalidadesIndex];
+       modality=names[modalitiesIndex];
        [names addObject:@"ModalityInStudy"];
        [values addObject:modality];
     }
 
     // rol
     // also applies to StudyInstanceUID and AccessionNumber
-    switch ([roles indexOfObject:values[columnIndex+roleColumn]])
+    switch ([roles indexOfObject:values[[names indexOfObject:@"role"]]])
     {
           
           
@@ -273,36 +146,13 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
        {
           NSUInteger patientIDIndex=[names indexOfObject:@"PatientID"];
           NSUInteger usernameIndex=[names indexOfObject:@"username"];
-          if (patientIDIndex)
-             [
-              values
-              replaceObjectAtIndex:patientIDIndex
-              withObject:values[usernameIndex]
-              ];
-          else
+          if (patientIDIndex==NSNotFound)
           {
              [names addObject:@"PatientID"];
              [values addObject:values[usernameIndex]];
           }
+       } break;
 
-          NSUInteger useroidIndex=[names indexOfObject:@"useroid"];
-          if ([values[useroidIndex] length])
-          {
-             NSUInteger patientIDIssuerIndex=[names indexOfObject:@"PatientIDIssuer"];
-
-             if (patientIDIssuerIndex)
-                [
-                 values
-                 replaceObjectAtIndex:patientIDIssuerIndex
-                 withObject:values[useroidIndex]
-                 ];
-             else
-             {
-                [names addObject:@"PatientIDIssuer"];
-                [values addObject:values[useroidIndex]];
-             }
-          }
-       }
 
           
        case rolReading:
@@ -312,20 +162,26 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
              [names addObject:@"readInstitution"];
              [values addObject:institutionOID];
           }
+           
           if (modality.length)
           {
              [names addObject:@"readService"];
              [values addObject:modality];
           }
+           
           [names addObject:@"readUser"];
-          [values addObject:values[columnIndex+usernameColumn]];
-          if ([values[columnIndex+useroidColumn] length]>0)
+          [values addObject:values[[names indexOfObject:@"username"]]];
+           
+           NSUInteger useroidIndex=[names indexOfObject:@"useroid"];
+          if (useroidIndex != NSNotFound)
           {
              [names addObject:@"readID"];
-             [values addObject:values[columnIndex+useroidColumn]];
+             [values addObject:values[useroidIndex]];
           }
+           
           //[names addObject:@"readIDType"];
           //[values addObject:];
+           
        } break;
               
               
@@ -336,19 +192,24 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
              [names addObject:@"refInstitution"];
              [values addObject:institutionOID];
           }
+           
           if (modality.length)
           {
              [names addObject:@"refService"];
              [values addObject:modality];
           }
+           
           [names addObject:@"refUser"];
-          [values addObject:values[columnIndex+usernameColumn]];
-          if ([values[columnIndex+useroidColumn] length]>0)
+          [values addObject:values[[names indexOfObject:@"username"]]];
+           
+           NSUInteger useroidIndex=[names indexOfObject:@"useroid"];
+          if (useroidIndex != NSNotFound)
           {
              [names addObject:@"refID"];
-             [values addObject:values[columnIndex+useroidColumn]];
+             [values addObject:values[useroidIndex]];
           }
-          //[names addObject:@"refIDType"];
+           
+          //[names addObject:@"readIDType"];
           //[values addObject:];
        } break;
             
@@ -537,6 +398,7 @@ NSRegularExpression *dtseriesRegex = [NSRegularExpression regularExpressionWithP
 }
  */
 
+//"datatables/series?AccessionNumber=22&IssuerOfAccessionNumber.UniversalEntityID=NULL&StudyIUID=2.16.858.2.10000675.72769.20160411084701.1.100&cache=x@pacs=1.2"
 -(void)addDatatablesSeriesHandler
 {
    NSArray *seriesColumnNames=@[
@@ -554,7 +416,58 @@ NSRegularExpression *dtseriesRegex = [NSRegularExpression regularExpressionWithP
    [self addHandler:@"GET" regex:dtseriesRegex processBlock:
    ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
    {
-      return nil;
+       NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/series?"][1];
+
+       NSMutableArray *names=[NSMutableArray array];
+       NSMutableArray *values=[NSMutableArray array];
+       NSArray *datatablesRequestItems=[datatablesQueryPart componentsSeparatedByString:@"&"];
+      
+       for (NSString *param in datatablesRequestItems)
+       {
+           NSArray *nameValue=[param componentsSeparatedByString:@"="];
+           if ([nameValue[1] length])
+           {
+               [names addObject:nameValue[0]];
+               [values addObject:nameValue[1]];
+           }
+       }
+       NSUInteger cacheIndex=[names indexOfObject:@"cache"];
+       NSUInteger pacsIndex=[names indexOfObject:@"pacs"];
+       
+       if ((cacheIndex!=NSNotFound) && (pacsIndex!=NSNotFound))
+       {
+           NSArray *cache=[NSData dataWithContentsOfFile:
+                           [[[DRS.tokentmpDir
+                              stringByAppendingPathComponent:values[cacheIndex]]
+                             stringByAppendingPathComponent:values[pacsIndex]]
+                            stringByAppendingPathExtension:@"array"]
+                           ];
+
+           if (cache.count)
+           {
+               switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[names[pacsIndex]])[@"select"]])
+               {
+                   case selectTypeSql:
+                   {
+                       //find E (study key) from record pointed at by URL
+                   } break;
+               }
+          }
+       }
+       return [RSDataResponse responseWithData:
+               [NSJSONSerialization
+                dataWithJSONObject:
+                @{
+                 @"draw":values[[names indexOfObject:@"draw"]],
+                 @"recordsTotal":@0,
+                 @"data":@[],
+                 @"error":@"bad URL"
+                }
+                options:0
+                error:nil
+               ]
+               contentType:@"application/dicom+json"
+               ];
    }
 (request));}];
 }

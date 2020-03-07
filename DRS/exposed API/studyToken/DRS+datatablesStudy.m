@@ -183,24 +183,28 @@
                     [sqlE[ETime] substringWithRange:NSMakeRange(2,2)]
                     ];
                   //[sqlE[EDate]stringByAppendingString:[sqlE[ETime] substringToIndex:6]];
-                  
+                   NSString *file=[[d[@"path"] lastPathComponent]stringByDeletingPathExtension];
+                   NSString *folder=[[d[@"path"] stringByDeletingLastPathComponent] lastPathComponent];
+                   
                   [studyArray addObject:
                    @[
                       @"",
                       
-                      [NSString stringWithFormat:@"datatables/series?AccessionNumber=%@&IssuerOfAccessionNumber.UniversalEntityID=%@&StudyInstanceUID= %@&session=%@",
+                      [NSString stringWithFormat:@"datatables/series?AccessionNumber=%@&IssuerOfAccessionNumber.UniversalEntityID=%@&StudyInstanceUID= %@&cache=%@&pacs=%@",
                        sqlE[EAN],
                        sqlE[EANIssuerUID],
                        sqlE[EUID],
-                       d[@"session"]
+                       folder,
+                       file
                       ],
                       
                       sqlE[ERead],
                       
-                      [NSString stringWithFormat:@"datatables/patient?PatientID=%@&IssuerOfPatientID.UniversalEntityID=%@&session=%@",
+                      [NSString stringWithFormat:@"datatables/patient?PatientID=%@&IssuerOfPatientID.UniversalEntityID=%@&cache=%@&pacs=%@",
                         PIDString,
                         PIssuerString,
-                        d[@"session"]
+                        folder,
+                        file
                        ],
                       
                        PNameString,
