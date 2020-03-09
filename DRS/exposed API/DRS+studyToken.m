@@ -1566,50 +1566,6 @@ NSString * SOPCLassOfReturnableSeries(
                     ];
          }
           
-         //NOT USED: subsampling with block predicate
-          /*            //https://developer.apple.com/reference/foundation/nsmutablearray/1412085-filterusingpredicate?language=objc
-                      
-                              
-                              //create compound predicate
-                              NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings) {
-                                  if (PatientIDRegex)
-                                  {
-                                      //LOG_INFO(@"patientID filter");
-                                      if (![PatientIDRegex numberOfMatchesInString:row[3] options:0 range:NSMakeRange(0,[row[3] length])]) return false;
-                                  }
-                                  if (PatientNameRegex)
-                                  {
-                                      //LOG_INFO(@"patientName filter");
-                                      if (![PatientNameRegex numberOfMatchesInString:row[4] options:0 range:NSMakeRange(0,[row[4] length])]) return false;
-                                  }
-                                  if (until)
-                                  {
-                                      //LOG_INFO(@"until filter");
-                                      if ([until compare:row[5]]==NSOrderedDescending) return false;
-                                  }
-                                  if (since)
-                                  {
-                                      //LOG_INFO(@"since filter");
-                                      if ([since compare:row[5]]==NSOrderedAscending) return false;
-                                  }
-                                  //row[6] contains modalitiesInStudies. Ej: CT\OT
-                                  if (![row[6] containsString:modalitySelected]) return false;
-                                  
-                                  if (StudyDescriptionRegex)
-                                  {
-                                      //LOG_INFO(@"description filter");
-                                      if (![StudyDescriptionRegex numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
-                                  }
-                                  return true;
-                              }];
-                              
-                              [Filtered[session] filterUsingPredicate:compoundPredicate];
-                          }
-                      }
-                  }
-           
-           */
-
           //order
           NSUInteger orderIndex=[names indexOfObject:@"order"];
           NSUInteger dirIndex=[names indexOfObject:@"dir"];

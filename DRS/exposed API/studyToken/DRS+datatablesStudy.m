@@ -190,21 +190,20 @@
                    @[
                       @"",
                       
-                      [NSString stringWithFormat:@"datatables/series?AccessionNumber=%@&IssuerOfAccessionNumber.UniversalEntityID=%@&StudyInstanceUID= %@&cache=%@&pacs=%@",
-                       sqlE[EAN],
-                       sqlE[EANIssuerUID],
-                       sqlE[EUID],
+                      [NSString stringWithFormat:@"datatables/series?EKey= %@&cache=%@&pacs=%@",
+                       sqlE[EKey],
                        folder,
                        file
                       ],
                       
                       sqlE[ERead],
                       
-                      [NSString stringWithFormat:@"datatables/patient?PatientID=%@&IssuerOfPatientID.UniversalEntityID=%@&cache=%@&pacs=%@",
+                      [NSString stringWithFormat:@"datatables/patient?PatientID=%@&IssuerOfPatientID.UniversalEntityID=%@&cache=%@&pacs=%@&PKey=%@",
                         PIDString,
                         PIssuerString,
                         folder,
-                        file
+                        file,
+                        sqlE[PKey]
                        ],
                       
                        PNameString,

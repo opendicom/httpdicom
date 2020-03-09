@@ -1,5 +1,6 @@
 #import "DRS+datatables.h"
 #import "DRS+studyToken.h"
+#import "DRS+datatablesStudy.h"
 
 @implementation DRS (datatables)
 
@@ -238,11 +239,151 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
     }
 
 
-#pragma mark - Patient
-/*
+
 -(void)addDatatablesPatientHandler
 {
+    NSArray *patientColumnNames=@[
+    @"_0",
+    @"_1",
+    @"",//Serie #
+    @"",//Modalidad
+    @"",//Fecha
+    @"",//Hora
+    @""//Descripción
+    ];
+    
+    NSRegularExpression *dtpatientRegex = [NSRegularExpression regularExpressionWithPattern:@"/datatables/series" options:0 error:NULL];
 
+    [self addHandler:@"GET" regex:dtpatientRegex processBlock:
+    ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
+    {
+
+           NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/patient?"][1];
+
+           NSMutableArray *names=[NSMutableArray array];
+           NSMutableArray *values=[NSMutableArray array];
+           NSArray *datatablesRequestItems=[datatablesQueryPart componentsSeparatedByString:@"&"];
+          
+           for (NSString *param in datatablesRequestItems)
+           {
+               NSArray *nameValue=[param componentsSeparatedByString:@"="];
+               if ([nameValue[1] length])
+               {
+                   [names addObject:nameValue[0]];
+                   [values addObject:nameValue[1]];
+               }
+           }
+           NSUInteger cacheIndex=[names indexOfObject:@"cache"];
+           NSUInteger pacsIndex=[names indexOfObject:@"pacs"];
+           
+           if (
+                  (cacheIndex!=NSNotFound)
+               && (pacsIndex!=NSNotFound)
+               && [[NSFileManager defaultManager]
+                   fileExistsAtPath:
+                   [[[DRS.tokentmpDir
+                      stringByAppendingPathComponent:values[cacheIndex]]
+                     stringByAppendingPathComponent:values[pacsIndex]]
+                    stringByAppendingPathExtension:@"array"]
+                   isDirectory:false
+                   ]
+               )
+           {
+               //find studies for this patient in all the available pacs
+               
+               switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[names[pacsIndex]])[@"select"]])
+               {
+                   case selectTypeSql:
+                   {
+                       //find E (study key) from record pointed at by URL thanks to DEUID or AN+ANIssuerUID
+                       /*
+                        13 DEAN, AccessionNumber
+                        14 DEANIssuerUID, IssuerOfAccessionNumber.UniversalEntityID
+                           DEID,
+                        16 DEUID,StudyInstanceUID
+                           DEDateTime2,
+                           DEInstitution,
+                           DEPKey,
+                        20 DEEKey,
+                        */
+                       
+
+                       
+                       NSUInteger EKeyIndex=[names indexOfObject:@"EKey"];
+                       if (EKeyIndex!=NSNotFound)
+                       {
+                           //sql init
+                           NSDictionary *devDict=DRS.pacs[values[pacsIndex]];
+                           NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
+                           NSString *sqlprolog=devDict[@"sqlprolog"];
+                           NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
+
+                           //find the series belonging to the key
+                           NSMutableData *seriesData=[NSMutableData data];
+                           if (execUTF8Bash(sqlcredentials,
+                                             [NSString stringWithFormat:
+                                              sqlDictionary[@"S"],
+                                              sqlprolog,
+                                              [values[EKeyIndex] stringValue],
+                                              @"",
+                                              sqlRecordElevenUnits
+                                              ],
+                                             seriesData)
+                               !=0) LOG_ERROR(@"datatables/series  db error");
+                           else
+                           {
+                               NSArray *seriesSqlPropertiesArray=[seriesData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
+                               
+                               //init the response
+                               
+                               //loop the series
+                               NSMutableArray *seriesArray=[NSMutableArray array];
+                               for (NSArray *seriesSqlProperties in seriesSqlPropertiesArray)
+                               {
+                                   NSLog(@"");
+                               }
+                               
+                               //finalize the response
+
+                               NSMutableDictionary *resp = [NSMutableDictionary dictionary];
+                               NSUInteger drawIndex=[names indexOfObject:@"draw"];
+                               if (drawIndex)[resp setObject:values[drawIndex] forKey:@"draw"];
+                               NSNumber *count=[NSNumber numberWithUnsignedInteger:seriesArray.count];
+                               [resp setObject:count forKey:@"recordsTotal"];
+                               [resp setObject:seriesArray forKey:@"data"];
+
+                               return [RSDataResponse responseWithData:
+                                       [NSJSONSerialization
+                                        dataWithJSONObject:resp
+                                        options:0
+                                        error:nil
+                                       ]
+                                       contentType:@"application/dicom+json"
+                                       ];
+                            }
+
+                        }
+                   } break;
+               }
+           }
+           return [RSDataResponse responseWithData:
+                   [NSJSONSerialization
+                    dataWithJSONObject:
+                    @{
+                     @"draw":values[[names indexOfObject:@"draw"]],
+                     @"recordsTotal":@0,
+                     @"data":@[],
+                     @"error":@"bad URL"
+                    }
+                    options:0
+                    error:nil
+                   ]
+                   contentType:@"application/dicom+json"
+                   ];
+       }
+    (request));}];
+    }
+/*
 //ventana emergente con todos los estudios del paciente
 //"datatables/patient
 //PatientID=33333333&IssuerOfPatientID.UniversalEntityID=NULL&session=1"
@@ -434,25 +575,93 @@ NSRegularExpression *dtseriesRegex = [NSRegularExpression regularExpressionWithP
        NSUInteger cacheIndex=[names indexOfObject:@"cache"];
        NSUInteger pacsIndex=[names indexOfObject:@"pacs"];
        
-       if ((cacheIndex!=NSNotFound) && (pacsIndex!=NSNotFound))
+       if (
+              (cacheIndex!=NSNotFound)
+           && (pacsIndex!=NSNotFound)
+           && [[NSFileManager defaultManager]
+               fileExistsAtPath:
+               [[[DRS.tokentmpDir
+                  stringByAppendingPathComponent:values[cacheIndex]]
+                 stringByAppendingPathComponent:values[pacsIndex]]
+                stringByAppendingPathExtension:@"array"]
+               isDirectory:false
+               ]
+           )
        {
-           NSArray *cache=[NSData dataWithContentsOfFile:
-                           [[[DRS.tokentmpDir
-                              stringByAppendingPathComponent:values[cacheIndex]]
-                             stringByAppendingPathComponent:values[pacsIndex]]
-                            stringByAppendingPathExtension:@"array"]
-                           ];
-
-           if (cache.count)
+           switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[names[pacsIndex]])[@"select"]])
            {
-               switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[names[pacsIndex]])[@"select"]])
+               case selectTypeSql:
                {
-                   case selectTypeSql:
+                   //find E (study key) from record pointed at by URL thanks to DEUID or AN+ANIssuerUID
+                   /*
+                    13 DEAN, AccessionNumber
+                    14 DEANIssuerUID, IssuerOfAccessionNumber.UniversalEntityID
+                       DEID,
+                    16 DEUID,StudyInstanceUID
+                       DEDateTime2,
+                       DEInstitution,
+                       DEPKey,
+                    20 DEEKey,
+                    */
+                   
+
+                   
+                   NSUInteger EKeyIndex=[names indexOfObject:@"EKey"];
+                   if (EKeyIndex!=NSNotFound)
                    {
-                       //find E (study key) from record pointed at by URL
-                   } break;
-               }
-          }
+                       //sql init
+                       NSDictionary *devDict=DRS.pacs[values[pacsIndex]];
+                       NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
+                       NSString *sqlprolog=devDict[@"sqlprolog"];
+                       NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
+
+                       //find the series belonging to the key
+                       NSMutableData *seriesData=[NSMutableData data];
+                       if (execUTF8Bash(sqlcredentials,
+                                         [NSString stringWithFormat:
+                                          sqlDictionary[@"S"],
+                                          sqlprolog,
+                                          [values[EKeyIndex] stringValue],
+                                          @"",
+                                          sqlRecordElevenUnits
+                                          ],
+                                         seriesData)
+                           !=0) LOG_ERROR(@"datatables/series  db error");
+                       else
+                       {
+                           NSArray *seriesSqlPropertiesArray=[seriesData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
+                           
+                           //init the response
+                           
+                           //loop the series
+                           NSMutableArray *seriesArray=[NSMutableArray array];
+                           for (NSArray *seriesSqlProperties in seriesSqlPropertiesArray)
+                           {
+                               NSLog(@"");
+                           }
+                           
+                           //finalize the response
+
+                           NSMutableDictionary *resp = [NSMutableDictionary dictionary];
+                           NSUInteger drawIndex=[names indexOfObject:@"draw"];
+                           if (drawIndex)[resp setObject:values[drawIndex] forKey:@"draw"];
+                           NSNumber *count=[NSNumber numberWithUnsignedInteger:seriesArray.count];
+                           [resp setObject:count forKey:@"recordsTotal"];
+                           [resp setObject:seriesArray forKey:@"data"];
+
+                           return [RSDataResponse responseWithData:
+                                   [NSJSONSerialization
+                                    dataWithJSONObject:resp
+                                    options:0
+                                    error:nil
+                                   ]
+                                   contentType:@"application/dicom+json"
+                                   ];
+                        }
+
+                    }
+               } break;
+           }
        }
        return [RSDataResponse responseWithData:
                [NSJSONSerialization
@@ -473,3 +682,9 @@ NSRegularExpression *dtseriesRegex = [NSRegularExpression regularExpressionWithP
 }
 
 @end
+
+
+//subsampling with block predicate
+// //https://developer.apple.com/reference/foundation/nsmutablearray/1412085-filterusingpredicate?language=objc
+// https://stackoverflow.com/questions/13767516/nspredicate-on-array-of-arrays/33779086
+// https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/Articles/pBNF.html#//apple_ref/doc/uid/TP40001796-217950
