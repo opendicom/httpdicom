@@ -467,6 +467,29 @@
     return self;
 }
 
+-(NSString*)removeFirstSpaces
+{
+    if ([self hasPrefix:@" "])
+    {
+        return [[self substringFromIndex: 1] removeFirstSpaces];
+    }
+    return self;
+}
+
+-(NSString*)removeLastSpaces
+{
+    if ([self hasSuffix:@" "])
+    {
+        return [[self substringToIndex:self.length - 1] removeLastSpaces];
+    }
+    return self;
+}
+
+-(NSString*)removeFirstAndLastSpaces
+{
+    return [[self removeFirstSpaces] removeLastSpaces];
+}
+
 @end
 
 

@@ -660,6 +660,10 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 #pragma mark /datatables
         [self addDatatablesStudiesHandler];
         LOG_DEBUG(@"added handler GET /datatables/studies");
+
+        [self addDatatablesSeriesHandler];
+        LOG_DEBUG(@"added handler GET /datatables/series");
+
     }
       
 

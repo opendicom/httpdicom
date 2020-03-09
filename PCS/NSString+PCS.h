@@ -32,4 +32,8 @@
 
 -(NSString*)removeTrailingCarets;
 
+-(NSString*)removeFirstSpaces;
+-(NSString*)removeLastSpaces;
+-(NSString*)removeFirstAndLastSpaces;
+
 @end

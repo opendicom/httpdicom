@@ -599,7 +599,7 @@ NSRegularExpression *dtseriesRegex = [NSRegularExpression regularExpressionWithP
                                       [NSString stringWithFormat:
                                        sqlDictionary[@"S"],
                                        sqlprolog,
-                                       [values[EKeyIndex] stringValue],
+                                       values[EKeyIndex],
                                        @"",
                                        sqlRecordThirteenUnits
                                        ],
@@ -649,10 +649,12 @@ NSRegularExpression *dtseriesRegex = [NSRegularExpression regularExpressionWithP
 
                         NSMutableDictionary *resp = [NSMutableDictionary dictionary];
                         NSUInteger drawIndex=[names indexOfObject:@"draw"];
-                        if (drawIndex)[resp setObject:values[drawIndex] forKey:@"draw"];
+                        if (drawIndex!=NSNotFound)[resp setObject:values[drawIndex] forKey:@"draw"];
                         NSNumber *count=[NSNumber numberWithUnsignedInteger:seriesArray.count];
                         [resp setObject:count forKey:@"recordsTotal"];
                         [resp setObject:seriesArray forKey:@"data"];
+
+                        NSLog(@"%@",[resp description]);
 
                         return [RSDataResponse responseWithData:
                                 [NSJSONSerialization
