@@ -200,12 +200,11 @@
                       
                       sqlE[ERead],
                       
-                      [NSString stringWithFormat:@"?PatientID=%@&IssuerOfPatientID.UniversalEntityID=%@&cache=%@&institution=%@&PKey=%@",
+                      [NSString stringWithFormat:@"?PatientID=%@&IssuerOfPatientID.UniversalEntityID=%@&cache=%@&institution=%@",
                         PIDString,
                         PIssuerString,
                         folder,
-                        file,
-                        sqlE[PKey]
+                        file
                        ],
                       
                        PNameString,
