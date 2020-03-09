@@ -195,6 +195,8 @@ station_name, \
 perf_physician, \
 laterality, \
 num_instances \
+DATE(pps_start), \
+TIME(pps_start) \
 FROM series \
 WHERE study_fk=%@ \
 %@ \

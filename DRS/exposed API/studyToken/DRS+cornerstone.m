@@ -216,7 +216,7 @@ nil];
                                   sqlprolog,
                                   E,
                                   @"",
-                                  sqlRecordElevenUnits
+                                  sqlRecordThirteenUnits
                                   ],
                                  seriesData)
                    !=0)

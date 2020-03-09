@@ -186,19 +186,21 @@
                    NSString *file=[[d[@"path"] lastPathComponent]stringByDeletingPathExtension];
                    NSString *folder=[[d[@"path"] stringByDeletingLastPathComponent] lastPathComponent];
                    
+                  //institution has the OID of the pacs
                   [studyArray addObject:
                    @[
                       @"",
                       
-                      [NSString stringWithFormat:@"datatables/series?EKey= %@&cache=%@&pacs=%@",
+                      [NSString stringWithFormat:@"datatables/series?EKey= %@&cache=%@&institution=%@&StudyInstanceUID=%@",
                        sqlE[EKey],
                        folder,
-                       file
+                       file,
+                       sqlE[EUID]
                       ],
                       
                       sqlE[ERead],
                       
-                      [NSString stringWithFormat:@"datatables/patient?PatientID=%@&IssuerOfPatientID.UniversalEntityID=%@&cache=%@&pacs=%@&PKey=%@",
+                      [NSString stringWithFormat:@"datatables/patient?PatientID=%@&IssuerOfPatientID.UniversalEntityID=%@&cache=%@&institution=%@&PKey=%@",
                         PIDString,
                         PIssuerString,
                         folder,

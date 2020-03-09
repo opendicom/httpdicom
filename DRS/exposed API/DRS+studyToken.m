@@ -665,6 +665,11 @@ NSString * SOPCLassOfReturnableSeries(
 
 
 #pragma mark institution
+#pragma mark TODO revise oid vs orgaet.deviceaet
+   /*
+    oid => wado direct from html5dicom to pacs
+    orgaet.deviceaet => wado to httpdicom proxy
+    */
    
    NSMutableArray *lanArray=[NSMutableArray array];
    NSMutableArray *wanArray=[NSMutableArray array];

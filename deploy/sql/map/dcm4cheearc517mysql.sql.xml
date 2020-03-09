@@ -207,7 +207,9 @@ series.department, \
 series.station_name, \
 CONCAT(IFNULL(person_name.family_name,''), '^', IFNULL(person_name.given_name,''), '^', IFNULL(person_name.middle_name,''), '^', IFNULL(person_name.name_prefix,''), '^', IFNULL(person_name.name_suffix,'')), \
 series.laterality, \
-series_query_attrs.num_instances \
+series_query_attrs.num_instances, \
+series.pps_start_date, \
+series.pps_start_time \
 FROM series \
 LEFT JOIN person_name ON series.perf_phys_name_fk=person_name.pk \
 LEFT JOIN series_query_attrs ON series.pk=series_query_attrs.series_fk \
