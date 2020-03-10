@@ -1,9 +1,17 @@
 #import "DRS.h"
-#import "DRS+datatablesPatient.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark enums
+
+enum P {
+   PKey,
+   PID,
+   PName,
+   PIssuer,
+   PBirthDate,
+   PSex
+};
 
 enum E{
    EKey,
@@ -128,7 +136,7 @@ enum DE {
     "
  4  ERead
  5  "
-    datatables/patient?PatientID=%@
+    datatables?PatientID=%@
     &IssuerOfPatientID.UniversalEntityID=%@
     &session=%@
     [PID][PIssuer]

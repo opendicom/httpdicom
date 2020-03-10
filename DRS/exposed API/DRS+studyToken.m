@@ -3,8 +3,6 @@
  socket in messages
  access types other lan and wan nodes
  osirix dcmURLs
- datatablesSeries
- datatablesPatient
  wadors study
  wadors series
  zip real compression
@@ -598,7 +596,7 @@ NSString * SOPCLassOfReturnableSeries(
 {
    [self
     addHandler:@"POST"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|iso.dicom.zip|deflate.dicom.zip|deflate.iso.dicom.zip|max.deflate.iso.dicom.zip|zip64.iso.dicom.zip|wadors.dicom|datatablesseries.json|datatablespatient.json|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|iso.dicom.zip|deflate.dicom.zip|deflate.iso.dicom.zip|max.deflate.iso.dicom.zip|zip64.iso.dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -607,7 +605,7 @@ NSString * SOPCLassOfReturnableSeries(
 
    [self
     addHandler:@"GET"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|iso.dicom.zip|deflate.dicom.zip|deflate.iso.dicom.zip|max.deflate.iso.dicom.zip|zip64.iso.dicom.zip|wadors.dicom|datatablesseries.json|datatablespatient.json|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|iso.dicom.zip|deflate.dicom.zip|deflate.iso.dicom.zip|max.deflate.iso.dicom.zip|zip64.iso.dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -1261,8 +1259,8 @@ NSString * SOPCLassOfReturnableSeries(
                      @"/cornerstone.json",
                      @"/dicom.zip",
                      @"/osirix.dcmURLs",
+                     @"/datatables",
                      @"/datatables/studies",
-                     @"/datatables/series",
                      @"/datatables/patient",
                      @"/iso.dicom.zip",
                      @"/deflate.iso.dicom.zip",
@@ -1281,9 +1279,9 @@ NSString * SOPCLassOfReturnableSeries(
                      @"cornerstone.json",
                      @"dicom.zip",
                      @"osirix.dcmURLs",
-                     @"datatablesstudy.jsonp",
-                     @"datatablesseries.jsonp",
-                     @"datatablespatient.jsonp",
+                     @"datatables",
+                     @"datatables/sudies",
+                     @"datatables/patient",
                      @"iso.dicom.zip",
                      @"deflate.iso.dicom.zip",
                      @"max.deflate.iso.dicom.zip",
@@ -1476,13 +1474,15 @@ NSString * SOPCLassOfReturnableSeries(
       {
       } break;
 
-#pragma mark datatablesStudy
-      case accessTypeDatatablesStudy:
+#pragma mark datatables
+      case accessTypeDatatables:
+      case accessTypeDatatablesstudies:
+      case accessTypeDatatablespatient:
       {
          NSLog(@"%@",[values description]);
           
           NSUInteger newIndex=[names indexOfObject:@"new"];
-          if (newIndex && [values[newIndex] isEqualToString:@"true"])
+          if ((newIndex!=NSNotFound) && [values[newIndex] isEqualToString:@"true"])
           {
               [defaultManager removeItemAtPath:path error:nil];
               [defaultManager createDirectoryAtPath:path  withIntermediateDirectories:NO attributes:nil error:nil];
@@ -1493,7 +1493,7 @@ NSString * SOPCLassOfReturnableSeries(
          for (NSString *devOID in lanArray)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
-            [requestDict setObject:[[path stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"array"] forKey:@"path"];
+            [requestDict setObject:[[path stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"path"];
             NSUInteger maxCountIndex=[names indexOfObject:@"max"];
             if (maxCountIndex!=NSNotFound)[requestDict setObject:values[maxCountIndex] forKey:@"max"];
 
@@ -1532,38 +1532,42 @@ NSString * SOPCLassOfReturnableSeries(
              }
              [resultsArray addObjectsFromArray:partialArray];
          }
-         
+
+          NSMutableDictionary *dict=[NSMutableDictionary dictionary];
+          NSUInteger drawIndex=[names indexOfObject:@"draw"];
+          if (drawIndex!=NSNotFound)
+              [dict setObject:values[drawIndex] forKey:@"draw"];
+
          //no response?
           if (!resultsArray.count)
+          {
+              [dict setObject:@0 forKey:@"recordsTotal"];
+              [dict setObject:@[] forKey:@"data"];
               return [RSDataResponse
               responseWithData:
                       [NSJSONSerialization
-                       dataWithJSONObject:
-                       @{
-                        @"draw":values[[names indexOfObject:@"draw"]],
-                        @"recordsTotal":@0,
-                        @"data":@[],
-                       }
+                       dataWithJSONObject:dict
                        options:0
                        error:nil
                       ]
               contentType:@"application/dicom+json"
               ];
-          
+          }
          //check max of total answers
-         if ([requestDict[@"max"] longLongValue] < resultsArray.count)
+          
+         if (    requestDict[@"max"]
+              && ([requestDict[@"max"] longLongValue] < resultsArray.count)
+             )
          {
             LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"path"]);
+             [dict setObject:[NSNumber numberWithLongLong:resultsArray.count] forKey:@"recordsTotal"];
+             [dict setObject:@[] forKey:@"data"];
+             [dict setObject:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only. There were %lu",requestDict[@"max"],(unsigned long)resultsArray.count] forKey:@"error"];
+
             return [RSDataResponse
                     responseWithData:
                     [NSJSONSerialization
-                     dataWithJSONObject:
-                     @{
-                      @"draw":values[[names indexOfObject:@"draw"]],
-                      @"recordsTotal":[NSNumber numberWithLongLong:resultsArray.count],
-                      @"data":@[],
-                      @"error":[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only. There were %lu",requestDict[@"max"],(unsigned long)resultsArray.count]
-                     }
+                     dataWithJSONObject:dict
                      options:0
                      error:nil
                     ]
@@ -1603,34 +1607,19 @@ NSString * SOPCLassOfReturnableSeries(
         NSArray *page=[resultsArray subarrayWithRange:NSMakeRange(ps,pl)];
         if (!page)page=@[];
  
+          [dict setObject:[NSNumber numberWithLongLong:resultsArray.count] forKey:@"recordsTotal"];
+          [dict setObject:page forKey:@"data"];
 
         return [RSDataResponse
                 responseWithData:
                                 [NSJSONSerialization
-                                 dataWithJSONObject:
-                                 @{
-                                  @"draw":values[[names indexOfObject:@"draw"]],
-                                  @"recordsTotal":[NSNumber numberWithLongLong:resultsArray.count],
-                                  @"recordsFiltered":[NSNumber numberWithLongLong:resultsArray.count],
-                                  @"data":page
-                                 }
+                                 dataWithJSONObject:dict
                                  options:0
                                  error:nil
                                  ]
                  contentType:@"application/dicom+json"
           ];
 
-      } break;
-
-
-#pragma mark datatablesSeries
-      case accessTypeDatatablesSeries:
-      {
-      } break;
-         
-#pragma mark datatablesPatient
-      case accessTypeDatatablesPatient:
-      {
       } break;
    }
    return [RSErrorResponse responseWithClientError:404 message:@"inesperate end of studyToken for %@", path];

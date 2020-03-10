@@ -14,17 +14,15 @@
    BOOL maxCountOK=true;
    
    //case cache contains count
-   if (
-          (maxCount!=0)
-       && studyArray
-       )
+   if (studyArray)
    {
        if (   (studyArray.count==1)
            && [studyArray[0] isKindOfClass:[NSNumber class]]
            && ([studyArray[0] longLongValue] < maxCount)
           )
-       [studyArray removeObjectAtIndex:0];
-       else maxCountOK=(studyArray.count <= maxCount);
+           [studyArray removeObjectAtIndex:0];
+       else
+           maxCountOK=(studyArray.count <= maxCount);
    }
    
    if (maxCountOK)
@@ -187,11 +185,12 @@
                    NSString *folder=[[d[@"path"] stringByDeletingLastPathComponent] lastPathComponent];
                    //NSString *EKeyString=[sqlE[EKey] removeFirstAndLastSpaces];
                   //institution has the OID of the pacs
+#pragma mark add a study record array
                   [studyArray addObject:
                    @[
                       @"",
                       
-                      [NSString stringWithFormat:@"?EKey=%@&cache=%@&institution=%@&StudyInstanceUID=%@",
+                      [NSString stringWithFormat:@"datatables/series?EKey=%@&cache=%@&institution=%@&StudyInstanceUID=%@",
                        sqlE[EKey],
                        folder,
                        file,
@@ -200,11 +199,11 @@
                       
                       sqlE[ERead],
                       
-                      [NSString stringWithFormat:@"?PatientID=%@&IssuerOfPatientID.UniversalEntityID=%@&cache=%@&institution=%@",
+                      [NSString stringWithFormat:@"datatables/patient?PatientID=%@&issuer=%@&cache=%@&institution=%@&max=1000&start=0&length=1000",
                         PIDString,
                         PIssuerString,
                         folder,
-                        file
+                        file                       
                        ],
                       
                        PNameString,

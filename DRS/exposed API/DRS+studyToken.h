@@ -3,8 +3,6 @@
 #import "DRS+cornerstone.h"
 //#import "DRS+dicomzip.h"
 #import "DRS+datatablesStudy.h"
-#import "DRS+datatablesSeries.h"
-#import "DRS+datatablesPatient.h"
 
 #import "DICMTypes.h"
 #import "NSString+PCS.h"
@@ -19,9 +17,9 @@ enum accessType{
    accessTypeCornerstone,
    accessTypeDicomzip,
    accessTypeOsirix,
-   accessTypeDatatablesStudy,
-   accessTypeDatatablesSeries,
-   accessTypeDatatablesPatient,
+   accessTypeDatatables,
+   accessTypeDatatablesstudies,
+   accessTypeDatatablespatient,
    accessTypeIsoDicomZip,
    accessTypeDeflateIsoDicomZip,
    accessTypeMaxDeflateIsoDicomZip,

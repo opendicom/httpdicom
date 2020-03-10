@@ -664,7 +664,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         [self addDatatablesSeriesHandler];
         LOG_DEBUG(@"added handler GET /datatables/series");
 
-       [self addDatatablesSeriesHandler];
+       [self addDatatablesPatientHandler];
        LOG_DEBUG(@"added handler GET /datatables/patient");
 
     }

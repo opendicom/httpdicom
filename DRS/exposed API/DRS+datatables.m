@@ -251,7 +251,6 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
     [self addHandler:@"GET" regex:dtpatientRegex processBlock:
     ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
     {
-       #pragma mark - parsing URL
             NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/patient?"][1];
 
             NSMutableArray *names=[NSMutableArray array];
@@ -279,7 +278,7 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
                [[[DRS.tokentmpDir
                   stringByAppendingPathComponent:values[cacheIndex]]
                  stringByAppendingPathComponent:values[institutionIndex]]
-                stringByAppendingPathExtension:@"array"]
+                stringByAppendingPathExtension:@"plist"]
                isDirectory:false
                ]
            )
@@ -296,7 +295,7 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
           return [DRS
                 studyTokenSocket:request.socketNumber
                 requestURL:request.URL
-                requestPath:request.path
+                requestPath:@"/datatables"
                 names:names
                 values:values
                 acceptsGzip:request.acceptsGzipContentEncoding
@@ -457,7 +456,7 @@ NSRegularExpression *dtpatientRegex = [NSRegularExpression regularExpressionWith
                [[[DRS.tokentmpDir
                   stringByAppendingPathComponent:values[cacheIndex]]
                  stringByAppendingPathComponent:values[institutionIndex]]
-                stringByAppendingPathExtension:@"array"]
+                stringByAppendingPathExtension:@"plist"]
                isDirectory:false
                ]
            )
