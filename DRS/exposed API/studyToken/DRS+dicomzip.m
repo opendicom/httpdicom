@@ -1,316 +1,220 @@
 #import "DRS+dicomzip.h"
 #import "DRS+studyToken.h"
-
+#import "DRS+datatablesStudy.h"
+#import "ResponseWadouri.h"
 
 @implementation DRS (dicomzip)
 
 +(void)dicomzipSql4dictionary:(NSDictionary*)d
 {
-/*
+#pragma mark init
+
    NSDictionary *devDict=DRS.pacs[d[@"devOID"]];
-   
-//sql
+      
+   //sql
    NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
    NSString *sqlprolog=devDict[@"sqlprolog"];
    NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
+
+   //sql instance inits
+   NSString *instanceANDSOPClass=nil;
+   if (d[@"SOPClassRegexString"]) instanceANDSOPClass=
+   [NSString stringWithFormat:
+    sqlDictionary[@"ANDinstanceSOPClass"],
+    d[@"SOPClassRegexString"]
+   ];
+   else instanceANDSOPClass=@"";
+
+   NSString *instanceANDSOPClassOff=nil;
+   if (d[@"SOPClassOffRegexString"]) instanceANDSOPClassOff=
+   [NSString stringWithFormat:
+    sqlDictionary[@"ANDinstanceSOPClassOff"],
+    d[@"SOPClassOffRegexString"]
+   ];
+   else instanceANDSOPClassOff=@"";
+
    
-//apply EP (Study Patient) filters
-   NSMutableDictionary *EPDict=[NSMutableDictionary dictionary];
-   RSResponse *sqlEPErrorReturned=sqlEP(
-    EPDict,
-    sqlcredentials,
-    sqlDictionary,
-    sqlprolog,
-    false,
-    d[@"StudyInstanceUIDRegexpString"],
-    d[@"AccessionNumberEqualString"],
-    d[@"refInstitutionLikeString"],
-    d[@"refServiceLikeString"],
-    d[@"refUserLikeString"],
-    d[@"refIDLikeString"],
-    d[@"refIDTypeLikeString"],
-    d[@"readInstitutionSqlLikeString"],
-    d[@"readServiceSqlLikeString"],
-    d[@"readUserSqlLikeString"],
-    d[@"readIDSqlLikeString"],
-    d[@"readIDTypeSqlLikeString"],
-    d[@"StudyIDLikeString"],
-    d[@"PatientIDLikeString"],
-    d[@"patientFamilyLikeString"],
-    d[@"patientGivenLikeString"],
-    d[@"patientMiddleLikeString"],
-    d[@"patientPrefixLikeString"],
-    d[@"patientSuffixLikeString"],
-    d[@"issuerArray"],
-    d[@"StudyDateArray"],
-    d[@"SOPClassInStudyRegexpString"],
-    d[@"ModalityInStudyRegexpString"],
-    d[@"StudyDescriptionRegexpString"]
-   );
-   if (!sqlEPErrorReturned && EPDict.count)
+   //get
+   NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
+
+   
+   //prepare regex level series
+    NSRegularExpression *SeriesInstanceUIDRegex = nil;
+    NSRegularExpression *SeriesNumberRegex = nil;
+    NSRegularExpression *SeriesDescriptionRegex = nil;
+    NSRegularExpression *ModalityRegex = nil;
+    NSRegularExpression *SOPClassRegex = nil;
+    NSRegularExpression *SOPClassOffRegex = nil;
+    if (d[@"hasRestriction"])
+    {
+        if (d[@"SeriesInstanceUIDRegexString"]) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
+        if (d[@"SeriesNumberRegexString"]) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesNumberRegexString"] options:0 error:NULL];
+        if (d[@"SeriesDescriptionRegexString"]) SeriesDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesDescriptionRegexString"] options:0  error:NULL];
+        if (d[@"ModalityRegexString"]) ModalityRegex=[NSRegularExpression regularExpressionWithPattern:d[@"ModalityRegexString"] options:0 error:NULL];
+        if (d[@"SOPClassRegexString"]) SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SOPClassRegexString"] options:0 error:NULL];
+        if (d[@"SOPClassOffRegexString"]) SOPClassOffRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SOPClassOffRegexString"] options:0 error:NULL];
+    }
+
+   
+#pragma mark E from datatables plist
+   NSArray *studyPlist=[NSArray arrayWithContentsOfFile:[d[@"path"]stringByAppendingPathExtension:@"plist"]];
+   for (NSArray *study in studyPlist)
    {
-      //sql instance inits
-      NSString *instanceANDSOPClass=nil;
-      if (d[@"SOPClassRegexString"]) instanceANDSOPClass=
-      [NSString stringWithFormat:
-       sqlDictionary[@"ANDinstanceSOPClass"],
-       d[@"SOPClassRegexString"]
-      ];
-      else instanceANDSOPClass=@"";
-
-      NSString *instanceANDSOPClassOff=nil;
-      if (d[@"SOPClassOffRegexString"]) instanceANDSOPClassOff=
-      [NSString stringWithFormat:
-       sqlDictionary[@"ANDinstanceSOPClassOff"],
-       d[@"SOPClassOffRegexString"]
-      ];
-      else instanceANDSOPClassOff=@"";
-
-      
-      //get
-      NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
-
+#pragma mark loop E
+      NSString *studyPath=[d[@"path"] stringByAppending:study[DEUID]];
+      if (![defaultManager fileExistsAtPath:studyPath])
+         [defaultManager createDirectoryAtPath:studyPath withIntermediateDirectories:NO attributes:nil error:nil];
       
       
-      
-      
-      
-      
-      
-      //information model for getting and pulling the information, either from source or from cache
-      __block NSMutableArray *filenames=[NSMutableArray array];
-      __block NSMutableArray *wados=    [NSMutableArray array];
-      __block NSMutableArray *crc32s=   [NSMutableArray array];
-      __block NSMutableArray *lengths=  [NSMutableArray array];
-
-      //cache made of a session.json manifest file and a corresponding session/ directory
-      __block NSFileManager *fileManager=[NSFileManager defaultManager];
-      __block NSString *DIR=
-        [DRS.tokentmpDir
-         stringByAppendingPathComponent:tokenString
-         ];
-       if (![fileManager fileExistsAtPath:DIR])
-       {
-          if (![fileManager
-                createDirectoryAtPath:DIR
-                withIntermediateDirectories:YES
-                attributes:nil
-                error:&error]
-              ) return [RSErrorResponse responseWithClientError:404 message:@"studyToken no access to token cache: %@",[error description]];
-       }
-
-       __block BOOL fromCache=false;
- 
- */
-   
-   
+#pragma mark series loop
+      NSMutableData *seriesData=[NSMutableData data];
+      if (execUTF8Bash(sqlcredentials,
+                        [NSString stringWithFormat:
+                         sqlDictionary[@"S"],
+                         sqlprolog,
+                         E,
+                         @"",
+                         sqlRecordThirteenUnits
+                         ],
+                        seriesData)
+          !=0)
+      {
+         LOG_ERROR(@"zip series db error");
+         continue;
+      }
+      NSArray *seriesSqlPropertiesArray=[seriesData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
+      for (NSArray *seriesSqlProperties in seriesSqlPropertiesArray)
+      {
+          //add it? (SOPClass = yes)
+         SOPClass=SOPCLassOfReturnableSeries(
+          sqlcredentials,
+          sqlDictionary[@"Ici4S"],
+          sqlprolog,
+          seriesSqlProperties,
+          SeriesInstanceUIDRegex,
+          SeriesNumberRegex,
+          SeriesDescriptionRegex,
+          ModalityRegex,
+          SOPClassRegex,
+          SOPClassOffRegex
+         );
+         
+         if (SOPClass)
+         {
+                         
+                        
+   #pragma mark instances depending on the SOP Class
    /*
-       __block NSString *JSON=[DIR stringByAppendingPathExtension:@"json"];
-       if ([fileManager fileExistsAtPath:JSON])
-       {
-           matchRoot=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:JSON] options:NSJSONReadingMutableContainers error:&error];
-           if (! matchRoot) LOG_WARNING(@"studyToken dicomzip json unreadable at %@. %@",JSON, [error description]);
-           else
-           {
-               if (matchRoot.count!=4) LOG_WARNING(@"studyToken dicomzip json bad");
-               else
-               {
-                   NSArray *jsonFilenames=matchRoot[0];
-                   if (!jsonFilenames || !jsonFilenames.count) LOG_WARNING(@"studyToken dicomzip json no filenames");
-                   else
-                   {
-                       [filenames addObjectsFromArray:jsonFilenames];
-                       NSArray *jsonWados=matchRoot[1];
-                       if (!jsonWados || (jsonFilenames.count!=jsonWados.count)) LOG_WARNING(@"studyToken dicomzip json no inconsistent wados");
-                       else
-                       {
-                           [wados addObjectsFromArray:jsonWados];
-                           NSArray *jsonCrc32s=matchRoot[2];
-                           if (!jsonCrc32s || (jsonFilenames.count!=jsonCrc32s.count)) LOG_WARNING(@"studyToken dicomzip json no inconsistent crc32s");
-                           else
-                           {
-                               [crc32s addObjectsFromArray:jsonCrc32s];
-                               NSArray *jsonLengths=matchRoot[3];
-                               if (!jsonLengths || (jsonFilenames.count!=jsonLengths.count)) LOG_WARNING(@"studyToken dicomzip json no inconsistent lengths");
-                               else
-                               {
-                                   [lengths addObjectsFromArray:jsonLengths];
-                                   fromCache=true;
-                               }
-                           }
-                       }
-                   }
-               }
-               
-           }
-           
-           if (!fromCache) [fileManager moveItemAtPath:JSON toPath:[JSON stringByAppendingPathExtension:@"bad"] error:nil];
-       }
+   pk, SOPInstanceUID and instance number are common to allo SOP Class
+
+   In relation to Cornerstone, the number of frames is also important
+   NumFrames=[NSNumber numberWithInt:[instanceSqlProperties[3] intValue]];
+
+   This information is not available in non multiframe objects. Those shall have the value 0 if they are not frame based and 1 if they are always single frame.
+
+   In the case of multiframe SOP Classes:
+   Since number of frames may belong to some binary blog of dicom attrs, we allow postprocessing on sql raw data, and then on table-organized results.
+   We reserve the value -1 to state that the info is not available at all in the DB.
+
+   As seen some casuistics can be resolved before any query to the instance table, based on the SOP Class already obtained for series filters, we use specific query depending on the case:
+   - I0 corresponde to a non frame based object where number of frames is forced to 0
+   - I1 corresponds to a monoframe object where number of frames is forced to 1
+   - I corresponds to an enhanced SOP Class potentially containing multiframes.
    */
 
-   /*
-       if (!fromCache)
-       {
-          if (lanArray.count > 1)
-          {
-             //add nodes and start corresponding processes
-          }
+            NSMutableData *instanceData=[NSMutableData data];
+            if ([DRS.InstanceUniqueFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)//I1
+            {
+               if (execUTF8Bash(sqlcredentials,
+                                [NSString stringWithFormat:
+                                 sqlDictionary[@"I1"],
+                                 sqlprolog,
+                                 seriesSqlProperties[0],
+                                 instanceANDSOPClass,
+                                 instanceANDSOPClassOff,
+                                 @"",
+                                 sqlRecordFiveUnits
+                                 ],
+                                instanceData)
+                   !=0)
+               {
+                  LOG_ERROR(@"zip study db error");
+                  continue;
+               }
+            }
+            else if ([DRS.InstanceMultiFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)//I
+            {
+               // watch optional IpostprocessingCommandsSh
+               if (execUTF8Bash(sqlcredentials,
+                                [NSString stringWithFormat:
+                                 sqlDictionary[@"I"],
+                                 sqlprolog,
+                                 seriesSqlProperties[0],
+                                 instanceANDSOPClass,
+                                 instanceANDSOPClassOff,
+                                 @"",
+                              [sqlDictionary[@"IpostprocessingCommandsSh"]length]
+                               ?sqlDictionary[@"IpostprocessingCommandsSh"]
+                               :sqlRecordFiveUnits
+                                 ],
+                                instanceData)
+                   !=0)
+               {
+                  LOG_ERROR(@"zip study db error");
+                  continue;
+               }
+            }
+            else //I0
+            {
+               if (execUTF8Bash(sqlcredentials,
+                                [NSString stringWithFormat:
+                                 sqlDictionary[@"I0"],
+                                 sqlprolog,
+                                 seriesSqlProperties[0],
+                                 instanceANDSOPClass,
+                                 instanceANDSOPClassOff,
+                                 @"",
+                                 sqlRecordFiveUnits
+                                 ],
+                                instanceData)
+                   !=0)
+               {
+                  LOG_ERROR(@"zip study db error");
+                  continue;
+               }
+            }
+            NSArray *instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:sqlDictionary[@"IpostprocessingTitleMain"] orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
 
-          if (wanArray.count > 0)
-          {
-             //add nodes and start corresponding processes
-          }
-
-          if (lanArray.count == 0)
-          {
-             //add nodes and start corresponding processes
-          }
-          else
-          {
-             while (1)
-             {
-                NSString *devOID=lanArray[0];
-                NSDictionary *devDict=DRS.pacs[devOID];
-
-   #pragma mark · GET type index
-                NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
-
-   #pragma mark · SELECT switch
-                switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:devDict[@"select"]]) {
-                   
-                   case NSNotFound:{
-                      LOG_WARNING(@"studyToken pacs %@ lacks \"select\" type property",devOID);
-                   } break;
-                      
-                   case selectTypeSql:{
-   #pragma mark · SQL SELECT (unique option for now)
-                      NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
-                      NSString *sqlprolog=devDict[@"sqlprolog"];
-                      NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
-
-                      
-
-   #pragma mark · apply EuiE (Study Patient) filters
-                      NSMutableDictionary *EuiEDict=[NSMutableDictionary dictionary];
-                      RSResponse *sqlEuiEErrorReturned=sqlEP(
-                       EuiEDict,
-                       sqlcredentials,
-                       sqlDictionary,
-                       sqlprolog,
-                       true,
-                       StudyInstanceUIDRegexpString,
-                       AccessionNumberEqualString,
-                       refInstitutionLikeString,
-                       refServiceLikeString,
-                       refUserLikeString,
-                       refIDLikeString,
-                       refIDTypeLikeString,
-                       readInstitutionSqlLikeString,
-                       readServiceSqlLikeString,
-                       readUserSqlLikeString,
-                       readIDSqlLikeString,
-                       readIDTypeSqlLikeString,
-                       StudyIDLikeString,
-                       PatientIDLikeString,
-                       patientFamilyLikeString,
-                       patientGivenLikeString,
-                       patientMiddleLikeString,
-                       patientPrefixLikeString,
-                       patientSuffixLikeString,
-                       issuerArray,
-                       StudyDateArray,
-                       SOPClassInStudyRegexpString,
-                       ModalityInStudyRegexpString,
-                       StudyDescriptionRegexpString
-                      );
-                      if (sqlEuiEErrorReturned) return sqlEuiEErrorReturned;
-                    
-
-   #pragma mark ·· GET switch
-                      switch (getTypeIndex) {
-                            
-                         case NSNotFound:{
-                            LOG_WARNING(@"studyToken pacs %@ lacks \"get\" property",devOID);
-                         } break;
-
-                         case getTypeWado:{
-   #pragma mark ·· WADO (unique option for now)
-                            
-                            NSMutableData *mutableData=[NSMutableData data];
-                            for (NSString *Eui in EuiEDict)
-                            {
-   //#pragma mark study loop
-                               [mutableData setData:[NSData data]];
-                               if (execUTF8Bash(sqlcredentials,
-                                              [NSString stringWithFormat:
-                                               sqlDictionary[@"S"],
-                                               sqlprolog,
-                                               EuiEDict[Eui],
-                                               @"",
-                                               sqlRecordFiveUnits
-                                               ],
-                                              mutableData)
-                                   !=0)
-                               {
-                                  LOG_ERROR(@"studyToken study db error");
-                                  continue;
-                               }
-                               NSArray *SPropertiesArray=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
-                               for (NSArray *SProperties in SPropertiesArray)
-                               {
-   //#pragma mark series loop
-                                  NSString *SOPClass=SOPCLassOfReturnableSeries(
-                                   sqlcredentials,
-                                   sqlDictionary[@"Ici4S"],
-                                   sqlprolog,
-                                   SProperties,
-                                   SeriesInstanceUIDRegex,
-                                   SeriesNumberRegex,
-                                   SeriesDescriptionRegex,
-                                   ModalityRegex,
-                                   SOPClassRegex,
-                                   SOPClassOffRegex
-                                  );
-                                  if (SOPClass)
-                                  {
-                                     //instances
-                                     [mutableData setData:[NSData data]];
-                                     if (execUTF8Bash(sqlcredentials,
-                                                    [NSString stringWithFormat:
-                                                     sqlDictionary[@"Iui4S"],
-                                                     sqlprolog,
-                                                     SProperties[0],
-                                                     @"",
-                                                     sqlsingleslash
-                                                     ],
-                                                    mutableData)
-                                      !=0)
-                                     {
-                                        LOG_ERROR(@"studyToken study db error");
-                                        continue;
-                                     }
-                                     NSString *sopuids=[[NSString alloc]initWithData:mutableData encoding:NSUTF8StringEncoding];
-                                     for (NSString *sopuid in sopuids.pathComponents)
-                                     {
-                                        //remove the / empty component at the end
-                                        if (sopuid.length > 1)
-                                        {
-                                           [wados addObject:[NSString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application/dicom%@",devDict[@"wadouri"],Eui,SProperties[1],sopuid,devDict[@"wadodicomdicparameters"]]];
-                                        }
-                                     }// end for each I
-                                  }//end if SOPClass
-                               }//end for each S
-                            } break;//end of E and WADO
-                         }// end of GET switch
-                      } break;//end of sql
-                   } //end of SELECT switch
-                }
-                break;
-             }//end while 1
-
-          }//end at least one dev
-       }
-
+                        
+                     
+#pragma mark instance loop
+            for (NSArray *instanceSqlProperties in instanceSqlPropertiesArray)
+            {
+               NSString *instancePath=[studyPath stringByAppendingPathComponent:instanceSqlProperties[2]];
+               if (![defaultManager fileExistAtPath:instancePath])
+               {
+                  switch (getTypeIndex)
+                  {
+                     case getTypeWado:
+                     {
+                        NSData *DICMData=
+                        [ResponseWadouri
+                         DICMFromPacs:devDict
+                         EUID:study[DEUID]
+                         SUID:seriesSqlProperties[1]
+                         IUID:instanceSqlProperties[2]
+                         ];
+                        if (DICMData)
+                           [DICMData writeToFile:instancePath];
+                     } break;//end of WADO
+                  }//end of GET switch
+               }
+            }//end for each I
+         }//end if SOPClass
+      }// end for each S
+   }
+}
+/*
    #pragma mark stream zipped response
        
       __block NSMutableData *CENTRAL=[NSMutableData data];

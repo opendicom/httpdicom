@@ -54,7 +54,8 @@ enum DE {
    DEInstitution,
    DEPKey,
    DEEKey,
-   DEPacs
+   DEPacs,
+   DEPID
 };
 
 

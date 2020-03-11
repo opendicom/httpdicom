@@ -1,7 +1,7 @@
 #import "DRS.h"
 #import "DRS+weasis.h"
 #import "DRS+cornerstone.h"
-//#import "DRS+dicomzip.h"
+#import "DRS+dicomzip.h"
 #import "DRS+datatablesStudy.h"
 
 #import "DICMTypes.h"

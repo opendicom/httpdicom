@@ -185,64 +185,41 @@
                    NSString *folder=[[d[@"path"] stringByDeletingLastPathComponent] lastPathComponent];
                    //NSString *EKeyString=[sqlE[EKey] removeFirstAndLastSpaces];
                   //institution has the OID of the pacs
+                   
+                   NSString *SURLString=[NSString stringWithFormat:@"?EKey=%@&cache=%@&institution=%@&StudyInstanceUID=%@", sqlE[EKey], folder, file, sqlE[EUID] ];
+                   
+                   NSString *PURLString=nil;
+                   if ([PIssuerString isEqualToString:@"NULL"])
+                       PURLString=[NSString stringWithFormat:@"?PatientID=%@&cache=%@&institution=%@&max=1000&start=0&length=1000", PIDString, folder, file ];
+                   else
+                       PURLString=[NSString stringWithFormat:@"?PatientID=%@&issuer=%@&cache=%@&institution=%@&max=1000&start=0&length=1000", PIDString, PIssuerString, folder, file];
 #pragma mark add a study record array
                   [studyArray addObject:
                    @[
                       @"",
-                      
-                      [NSString stringWithFormat:@"datatables/series?EKey=%@&cache=%@&institution=%@&StudyInstanceUID=%@",
-                       sqlE[EKey],
-                       folder,
-                       file,
-                       sqlE[EUID]
-                      ],
-                      
+                      SURLString,
                       sqlE[ERead],
-                      
-                      [NSString stringWithFormat:@"datatables/patient?PatientID=%@&issuer=%@&cache=%@&institution=%@&max=1000&start=0&length=1000",
-                        PIDString,
-                        PIssuerString,
-                        folder,
-                        file                       
-                       ],
-                      
-                       PNameString,
-                      
-                       EDateTimeString,
-                      
-                       sqlE[EModalities],
-                      
-                       sqlE[EDescription],
-                      
-                       [sqlE[ERef] removeTrailingCarets],
-                      
-                       sqlE[ESocial],
-                      
-                       PIssuerString,
-                      
-                       PBirthDateString,
-                      
-                       PSexString,
-                      
-                       sqlE[EAN],
-                      
-                       sqlE[EANIssuerUID],
-                      
-                       sqlE[EID],
-                      
-                       sqlE[EUID],
-                      
-                       EDateTimeString,
-                      
-                       sqlE[EInstitution],
-                      
-                       PKeyNumber,
-                      
-                       EKeyNumber,
-                      
-                       d[@"devOID"],
-                      
-                       folder
+                      PURLString,
+                      PNameString,
+                      EDateTimeString,
+                      sqlE[EModalities],
+                      sqlE[EDescription],
+                      [sqlE[ERef] removeTrailingCarets],
+                      sqlE[ESocial],
+                      PIssuerString,
+                      PBirthDateString,
+                      PSexString,
+                      sqlE[EAN],
+                      sqlE[EANIssuerUID],
+                      sqlE[EID],
+                      sqlE[EUID],
+                      EDateTimeString,
+                      sqlE[EInstitution],
+                      PKeyNumber,
+                      EKeyNumber,
+                      d[@"devOID"],
+                      folder,
+                      PIDString
                      ]
                    ];
                }

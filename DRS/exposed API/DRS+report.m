@@ -95,7 +95,7 @@
        {
            case selectTypeSql:
            {
-                
+#pragma mark TODO
            } break;
        }
 
@@ -103,6 +103,7 @@
     else if (AccessionNumberIndex!=NSNotFound)
     {
        #pragma mark AccessionNumber
+       #pragma mark TODO
 
     }
     else return [RSErrorResponse responseWithClientError:404 message:@"bad URL, no study identifier"];

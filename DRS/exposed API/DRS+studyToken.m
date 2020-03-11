@@ -1481,12 +1481,15 @@ NSString * SOPCLassOfReturnableSeries(
          for (NSString *devOID in lanArray)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
-            [requestDict setObject:[[path stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"json"]forKey:@"path"];
+            NSString *zipFolderPath=[path stringByAppendingPathComponent:devOID];
+            [requestDict setObject:zipFolderPath forKey:@"path"];
+            if (![defaultManager fileExistsAtPath:zipFolderPath])
+               [defaultManager createDirectoryAtPath:zipFolderPath withIntermediateDirectories:NO attributes:nil error:nil];
 
              switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
                 case selectTypeSql:
-//                  [DRS dicomzipSql4dictionary:requestDict];
+                  [DRS dicomzipSql4dictionary:requestDict];
                   break;
             }
          }
@@ -1597,6 +1600,7 @@ NSString * SOPCLassOfReturnableSeries(
          //no response?
           if (!resultsArray.count)
           {
+              [dict setObject:@0 forKey:@"recordsFiltered"];
               [dict setObject:@0 forKey:@"recordsTotal"];
               [dict setObject:@[] forKey:@"data"];
               return [RSDataResponse
@@ -1616,7 +1620,8 @@ NSString * SOPCLassOfReturnableSeries(
              )
          {
             LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"path"]);
-             [dict setObject:[NSNumber numberWithLongLong:resultsArray.count] forKey:@"recordsTotal"];
+             [dict setObject:[NSNumber numberWithLongLong:resultsArray.count] forKey:@"recordsFiltered"];
+            [dict setObject:[NSNumber numberWithLongLong:resultsArray.count] forKey:@"recordsTotal"];
              [dict setObject:@[] forKey:@"data"];
              [dict setObject:[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only. There were %lu",requestDict[@"max"],(unsigned long)resultsArray.count] forKey:@"error"];
 
@@ -1663,6 +1668,7 @@ NSString * SOPCLassOfReturnableSeries(
         NSArray *page=[resultsArray subarrayWithRange:NSMakeRange(ps,pl)];
         if (!page)page=@[];
  
+          [dict setObject:[NSNumber numberWithLongLong:resultsArray.count] forKey:@"recordsFiltered"];
           [dict setObject:[NSNumber numberWithLongLong:resultsArray.count] forKey:@"recordsTotal"];
           [dict setObject:page forKey:@"data"];
 

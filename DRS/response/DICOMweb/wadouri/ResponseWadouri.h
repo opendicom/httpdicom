@@ -6,6 +6,24 @@
 @interface ResponseWadouri : NSObject
 
 
+//part 18 B.4 DICOM Media Type
+//&contentType=application%2Fdicom
+
++(NSData*)DICMFromPacs:(NSDictionary*)pacs
+                  EUID:(NSString*)euid
+                  SUID:(NSString*)suid
+                  IUID:(NSString*)iuid
+                  anonymize:(BOOL)anonymize
+                  transferSyntax:(NSString*)transferSyntax
+;
++(NSData*)DICMFromPacs:(NSDictionary*)pacs
+                  EUID:(NSString*)euid
+                  SUID:(NSString*)suid
+                  IUID:(NSString*)iuid
+;
+
+
+
 +(NSData*)objectFromPacs:(NSDictionary*)pacs
                     EUID:(NSString*)euid
                     SUID:(NSString*)suid
