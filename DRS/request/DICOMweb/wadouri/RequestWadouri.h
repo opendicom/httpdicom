@@ -34,16 +34,16 @@ NS_ASSUME_NONNULL_BEGIN
 //part 18 B.4 DICOM Media Type
 //&contentType=application%2Fdicom
 +(NSMutableURLRequest*)requestDICMFromPacs:(NSDictionary*)pacs
-                          StudyInstanceUID:(NSString*)euid
-                         SeriesInstanceUID:(NSString*)suid
-                            SOPInstanceUID:(NSString*)iuid
+                                      EUID:(NSString*)euid
+                                      SUID:(NSString*)suid
+                                      IUID:(NSString*)iuid
 ;//&&anonymize=no&amp;transferSyntax=* (pacs storage default syntax)
 
 
 +(NSMutableURLRequest*)requestDICMFromPacs:(NSDictionary*)pacs
-                          StudyInstanceUID:(NSString*)euid
-                         SeriesInstanceUID:(NSString*)suid
-                            SOPInstanceUID:(NSString*)iuid
+                                      EUID:(NSString*)euid
+                                      SUID:(NSString*)suid
+                                      IUID:(NSString*)iuid
                                  anonymize:(BOOL)anonymize
                             transferSyntax:(NSString*)transferSyntax
 ;
@@ -51,17 +51,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 //part 18 B.1 Simple DICOM image in JPEG
 +(NSMutableURLRequest*)requestDefaultJPEGFromPacs:(NSDictionary*)pacs
-                                 StudyInstanceUID:(NSString*)euid
-                                SeriesInstanceUID:(NSString*)suid
-                                   SOPInstanceUID:(NSString*)iuid
+                                             EUID:(NSString*)euid
+                                             SUID:(NSString*)suid
+                                             IUID:(NSString*)iuid
 ;
 
 
 +(NSMutableURLRequest*)requestMIMEFromPacs:(NSDictionary*)pacs
-                         StudyInstanceUID:(NSString*)euid
-                        SeriesInstanceUID:(NSString*)suid
-                           SOPInstanceUID:(NSString*)iuid
-                          acceptMediaType:(NSString*)mediaType
+                                      EUID:(NSString*)euid
+                                      SUID:(NSString*)suid
+                                      IUID:(NSString*)iuid
+                           acceptMediaType:(NSString*)mediaType
 ;
 
 /*

@@ -373,12 +373,11 @@ As seen some casuistics can be resolved before any query to the instance table, 
                               NSString *wadouriInstance=
                               [NSString
                                stringWithFormat:
-                               @"wadouri:%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&arcId=%@%@",
+                               @"wadouri:%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%%@&custodianOID=%@&arcId=%@%@",
                                d[@"proxyURIString"],
                                study[@"StudyInstanceUID"],
                                seriesSqlProperties[1],
                                instanceSqlProperties[2],
-                               d[@"sessionString"],
                                devDict[@"custodianoid"],
                                d[@"devOID"],
                                devDict[@"wadocornerstoneparameters"]

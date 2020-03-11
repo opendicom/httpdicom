@@ -274,6 +274,61 @@ WHERE series_fk='%@' \
 
 <key>IpostprocessingTitleMain</key>
 <string></string>
+
+<key>RE</key><!-- Report EKey -->
+<string>%@ "\
+SELECT \
+study.study_iuid, \
+series.series_iuid, \
+instance.sopiuid, \
+FROM instance \
+LEFT JOIN series ON series.pk=instance.series_fk
+LEFT JOIN study ON study.pk=series.study_fk
+WHERE study.pk='%@' \
+AND series.modality='%@' \
+AND study.rejection_state!=2 \
+AND series.rejection_state!=2 \
+AND instance.sop_cuid='1.2.840.10008.5.1.4.1.1.104.2' \
+ORDER BY instance.created_time DESC \
+LIMIT 1; \
+" %@ </string>
+
+<key>RU</key><!-- Report StudyInstanceUID -->
+<string>%@ "\
+SELECT \
+study.study_iuid, \
+series.series_iuid, \
+instance.sopiuid, \
+FROM instance \
+LEFT JOIN series ON series.pk=instance.series_fk
+LEFT JOIN study ON study.pk=series.study_fk
+WHERE study.study_iuid='%@' \
+AND series.modality='%@' \
+AND study.rejection_state!=2 \
+AND series.rejection_state!=2 \
+AND instance.sop_cuid='1.2.840.10008.5.1.4.1.1.104.2' \
+ORDER BY instance.created_time DESC \
+LIMIT 1; \
+" %@ </string>
+
+<key>RA</key><!-- Report AccessionNumber -->
+<string>%@ "\
+SELECT \
+study.study_iuid, \
+series.series_iuid, \
+instance.sopiuid, \
+FROM instance \
+LEFT JOIN series ON series.pk=instance.series_fk
+LEFT JOIN study ON study.pk=series.study_fk
+WHERE study.accession_no='%@' \
+AND series.modality='%@' \
+AND study.rejection_state!=2 \
+AND series.rejection_state!=2 \
+AND instance.sop_cuid='1.2.840.10008.5.1.4.1.1.104.2' \
+ORDER BY instance.created_time DESC \
+LIMIT 1; \
+" %@ </string>
+
  
 </dict>
 

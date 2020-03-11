@@ -39,8 +39,7 @@
 
 @interface WeasisArcQuery : NSXMLElement
 
-+(NSXMLElement*)arcQueryId:(NSString*)arcQueryId
-weasisarcId:(NSString*)weasisarcId
++(NSXMLElement*)weasisarcId:(NSString*)weasisarcId
 weasisbaseUrl:(NSString*)weasisbaseUrl
 weasiswebLogin:(NSString*)weasiswebLogin
 weasisrequireOnlySOPInstanceUID:(NSString*)weasisrequireOnlySOPInstanceUID

@@ -5,16 +5,16 @@
 #import "DRS+wadouri.h"
 #import "DRS+pacs.h"
 //#import "DRS+qido.h"
-#import "DRS+wadors.h"
+//#import "DRS+wadors.h"
 
 #import "DRS+mwlitem.h"
 //#import "DRS+pdf.h"
 //#import "DRS+encapsulated.h"
 #import "DRS+studyToken.h"
-#import "DRS+store.h"
+//#import "DRS+store.h"
 
 #import "DRS+datatables.h"
-
+#import "DRS+report.h"
 //RSRequest properties:      NSMutableURLRequest
 //- NSString* method          -> HTTPMethod
 //- NSURL* URL                -> URL
@@ -633,16 +633,16 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
         LOG_DEBUG(@"added handler GET /custodians and /pacs /sqls");
 
 #pragma mark /store
-        [self addPOSTstudiesHandler];
-        LOG_DEBUG(@"added handler POST /stowstore");
+        //[self addPOSTstudiesHandler];
+        //LOG_DEBUG(@"added handler POST /stowstore");
 
 #pragma mark /qido
        //[self addMWLHandler];
        //LOG_DEBUG(@"added handler /mwlitem");
 
 #pragma mark /wado-rs
-       [self addWadorsHandler];//
-       LOG_DEBUG(@"added handler GET wadors");
+       //[self addWadorsHandler];//
+       //LOG_DEBUG(@"added handler GET wadors");
 
 #pragma mark /mwlitem
         [self addMwlitemHandler];
@@ -666,6 +666,9 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 
        [self addDatatablesPatientHandler];
        LOG_DEBUG(@"added handler GET /datatables/patient");
+       
+       [self addXMLReportHandler];
+       LOG_DEBUG(@"added handler GET ^/(OT|DOC)/(DSCD|SCD|CDA|PDF)$");
 
     }
       

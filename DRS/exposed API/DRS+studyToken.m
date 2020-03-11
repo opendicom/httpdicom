@@ -12,11 +12,6 @@
 #import "DRS+studyToken.h"
 
 
-const uint8 startSquareBracket='[';
-const uint8 semicolon=',';
-const uint8 endSquareBracket=']';
-
-
 /*
 study pk and patient pk of studies selected
 */
@@ -653,13 +648,6 @@ NSString * SOPCLassOfReturnableSeries(
        [requestDict setObject:values[proxyURIIndex] forKey:@"proxyURIString"];
     }
    
-
-   NSInteger sessionIndex=[names indexOfObject:@"session"];
-   if (sessionIndex!=NSNotFound)
-   {
-      //[canonicalQuery appendFormat:@"\"session\":\"%@\",",values[sessionIndex]];
-      [requestDict setObject:values[sessionIndex] forKey:@"sessionString"];
-   }
 
 
 #pragma mark institution
@@ -1312,12 +1300,36 @@ NSString * SOPCLassOfReturnableSeries(
          }
 //reply with result found in path
          NSArray *results=[defaultManager contentsOfDirectoryAtPath:path error:nil];
-         NSMutableData *resultData=[NSMutableData dataWithData:[@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><manifest xmlns=\"http://www.weasis.org/xsd/2.5\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" dataUsingEncoding:NSUTF8StringEncoding]];
-         for (NSString *result in results)
+         NSMutableString *resultString=[NSMutableString stringWithString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><manifest xmlns=\"http://www.weasis.org/xsd/2.5\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"];
+         for (NSString *resultFile in results)
          {
-            [resultData appendData:[NSData dataWithContentsOfFile:[path stringByAppendingPathComponent:result]]];
+            if ([[resultFile pathExtension] isEqualToString:@"xml"])
+            {
+               [resultString appendString:
+                [NSString
+                 stringWithContentsOfFile:
+                 [path stringByAppendingPathComponent:resultFile]
+                 encoding:NSUTF8StringEncoding
+                 error:nil
+                 ]
+                ];
+            }
          }
-         [resultData appendData:[@"</manifest>" dataUsingEncoding:NSUTF8StringEncoding]];
+         [resultString appendString:@"</manifest>"];
+         
+//insert session
+
+         NSInteger sessionIndex=[names indexOfObject:@"session"];
+         if (sessionIndex!=NSNotFound)
+         {
+            [resultString
+             replaceOccurrencesOfString:@"%@"
+             withString:values[sessionIndex]
+             options:0
+             range:NSMakeRange(0, resultString.length)
+             ];
+         }
+
          
          //weasis base64 dicom:get -i does not work
          /*
@@ -1332,10 +1344,10 @@ NSString * SOPCLassOfReturnableSeries(
          */
          if (acceptsGzip)
             return [RSDataResponse
-          responseWithData:[resultData gzip]
+          responseWithData:[[resultString dataUsingEncoding:NSUTF8StringEncoding] gzip]
           contentType:@"application/x-gzip"];
          else return [RSDataResponse
-         responseWithData:resultData contentType:@"text/xml"];
+         responseWithData:[resultString dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/xml"];
       } break;
          
 #pragma mark cornerstone
@@ -1422,18 +1434,42 @@ NSString * SOPCLassOfReturnableSeries(
          }
 //reply with result found in path
          NSArray *results=[defaultManager contentsOfDirectoryAtPath:path error:nil];
-         NSMutableData *resultData=[NSMutableData dataWithBytes:&startSquareBracket length:1];
-         for (NSString *result in results)
+         NSMutableString *resultString=[NSMutableString stringWithString:@"["];
+         NSUInteger countdown=results.count;
+         for (NSString *resultFile in results)
          {
-            [resultData appendData:[NSData dataWithContentsOfFile:[path stringByAppendingPathComponent:result]]];
-            [resultData appendBytes:&semicolon length:1];
+            countdown--;
+            if ([[resultFile pathExtension] isEqualToString:@"json"])
+            {
+               [resultString appendString:
+                [NSString
+                 stringWithContentsOfFile:
+                 [path stringByAppendingPathComponent:resultFile]
+                 encoding:NSUTF8StringEncoding
+                 error:nil
+                 ]
+                ];
+               if (countdown)[resultString appendString:@","];
+            }
          }
-         [resultData replaceBytesInRange:NSMakeRange(resultData.length-1, 1)
-         withBytes:&endSquareBracket];
+         [resultString appendString:@"]"];
          
+//insert session
+
+         NSInteger sessionIndex=[names indexOfObject:@"session"];
+         if (sessionIndex!=NSNotFound)
+         {
+            [resultString
+             replaceOccurrencesOfString:@"%@"
+             withString:values[sessionIndex]
+             options:0
+             range:NSMakeRange(0, resultString.length)
+             ];
+         }
+
          return
          [RSDataResponse
-          responseWithData:resultData contentType:@"application/json"];
+          responseWithData:[resultString dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
       } break;
          
 #pragma mark dicomzip
@@ -1456,15 +1492,31 @@ NSString * SOPCLassOfReturnableSeries(
          }
          //reply with result found in path
          NSArray *results=[defaultManager contentsOfDirectoryAtPath:path error:nil];
-         NSMutableData *resultData=[NSMutableData dataWithBytes:&startSquareBracket length:1];
-         for (NSString *result in results)
+         NSMutableString *resultString=[NSMutableString stringWithString:@"["];
+         NSUInteger countdown=results.count;
+         for (NSString *resultFile in results)
          {
-            [resultData appendData:[NSData dataWithContentsOfFile:[path stringByAppendingPathComponent:result]]];
-            [resultData appendBytes:&semicolon length:1];
+            countdown--;
+            if ([[resultFile pathExtension] isEqualToString:@"json"])
+            {
+               [resultString appendString:
+                [NSString
+                 stringWithContentsOfFile:
+                 [path stringByAppendingPathComponent:resultFile]
+                 encoding:NSUTF8StringEncoding
+                 error:nil
+                 ]
+                ];
+               if (countdown)[resultString appendString:@","];
+            }
          }
-         [resultData replaceBytesInRange:NSMakeRange(resultData.length-1, 1)
-         withBytes:&endSquareBracket];
-         
+         [resultString appendString:@"]"];
+
+#pragma mark for testing
+         return
+         [RSDataResponse
+          responseWithData:[resultString dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
+#pragma mark TODO, return zip
 //         return [DRS dicomzipChunks4dictionary:requestDict];
          return nil;
       } break;
@@ -1510,27 +1562,31 @@ NSString * SOPCLassOfReturnableSeries(
          NSArray *resultsDirectory=[defaultManager contentsOfDirectoryAtPath:path error:nil];
          for (NSString *resultFile in resultsDirectory)
          {
-             NSArray *partialArray=[NSArray arrayWithContentsOfFile:[path stringByAppendingPathComponent:resultFile]];
-             if ((partialArray.count==1)
-             && [partialArray[0] isKindOfClass:[NSNumber class]])
-             {
-                 LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"path"]);
-                 return [RSDataResponse responseWithData:
-                         [NSJSONSerialization
-                          dataWithJSONObject:
-                          @{
-                           @"draw":values[[names indexOfObject:@"draw"]],
-                           @"recordsTotal":[NSNumber numberWithLongLong:resultsArray.count],
-                           @"data":@[],
-                           @"error":[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only",requestDict[@"max"]]
-                          }
-                          options:0
-                          error:nil
-                         ]
-                         contentType:@"application/dicom+json"
-                         ];
-             }
-             [resultsArray addObjectsFromArray:partialArray];
+            if ([[resultFile pathExtension] isEqualToString:@"plist"])
+            {
+                NSArray *partialArray=[NSArray arrayWithContentsOfFile:[path stringByAppendingPathComponent:resultFile]];
+                if ((partialArray.count==1)
+                && [partialArray[0] isKindOfClass:[NSNumber class]])
+                {
+                    LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"path"]);
+                    return [RSDataResponse responseWithData:
+                            [NSJSONSerialization
+                             dataWithJSONObject:
+                             @{
+                              @"draw":values[[names indexOfObject:@"draw"]],
+                              @"recordsFiltered":[NSNumber numberWithLongLong:resultsArray.count],
+                              @"recordsTotal":[NSNumber numberWithLongLong:resultsArray.count],
+                              @"data":@[],
+                              @"error":[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only",requestDict[@"max"]]
+                             }
+                             options:0
+                             error:nil
+                            ]
+                            contentType:@"application/dicom+json"
+                            ];
+                }
+                [resultsArray addObjectsFromArray:partialArray];
+            }
          }
 
           NSMutableDictionary *dict=[NSMutableDictionary dictionary];

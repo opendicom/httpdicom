@@ -286,6 +286,7 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
           NSLog(@"%@",[names description]);
           NSLog(@"%@",[values description]);
 
+#pragma mark TODO
           //remove filters
           
           //add filters
@@ -306,6 +307,7 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
                 dataWithJSONObject:
                 @{
                  @"draw":values[[names indexOfObject:@"draw"]],
+                 @"recordsFiltered":@0,
                  @"recordsTotal":@0,
                  @"data":@[],
                  @"error":@"bad URL"
@@ -319,86 +321,6 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
     }
 (request));}];
 }
-/*
-//ventana emergente con todos los estudios del paciente
-//"datatables/patient
-//PatientID=33333333&IssuerOfPatientID.UniversalEntityID=NULL&session=1"
-
-NSRegularExpression *dtpatientRegex = [NSRegularExpression regularExpressionWithPattern:@"/datatables/patient" options:0 error:NULL];
-[self addHandler:@"GET" regex:dtpatientRegex processBlock:
- ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
-     {
-         LOG_DEBUG(@"client: %@",request.remoteAddressString);
-         NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
-         //NSArray *pComponents=[urlComponents.path componentsSeparatedByString:@"/"];
-         
-         
-         NSDictionary *q=request.query;
-         
-         NSString *session=q[@"session"];
-         if (!session || [session isEqualToString:@""]) return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"query without required 'session' parameter"] contentType:@"application/dicom+json"];
-         
-         if (!q[@"PatientID"]) return [RSDataResponse responseWithData:[NSData jsonpCallback:q[@"callback"] forDraw:q[@"draw"] withErrorString:@"studies of patient query without required 'patientID' parameter"] contentType:@"application/dicom+json"];
-         
-         //WHERE study.rejection_state!=2    (or  1=1)
-         //following filters use formats like " AND a like 'b'"
-         
-         //find dest
-         NSString *destOID=DRS.pacs[[q[@"custodiantitle"] stringByAppendingPathExtension:q[@"aet"]]];
-         NSDictionary *entityDict=DRS.pacs[destOID];
-         
-         NSDictionary *destSql=DRS.sqls[entityDict[@"sqlmap"]];
-         if (!destSql) return [RSErrorResponse responseWithClientError:404 message:@"%@ [sql not found]",urlComponents.path];
-         
-         NSMutableString *studiesWhere=[NSMutableString stringWithString:destSql[@"studiesWhere"]];
-         [studiesWhere appendString:
-          [NSString mysqlEscapedFormat:@" AND %@ like '%@'"
-                           fieldString:destSql[@"PatientID"]
-                           valueString:q[@"PatientID"]
-           ]
-          ];
-         //PEP por custodian aets
-         
-         //[studiesWhere appendFormat:
-         //@" AND %@ in ('%@')",
-         //destSql[@"accessControlId"],
-         //[custodianTitlesaets[q[@"custodiantitle"]] componentsJoinedByString:@"','"]
-         //];
-         
-         LOG_INFO(@"WHERE %@",[studiesWhere substringFromIndex:38]);
-         
-         
-         NSString *sqlDataQuery=[NSString stringWithFormat:@"%@%@%@%@",
-                                 entityDict[@"sqlprolog"],
-                                 destSql[@"datatablesStudiesProlog"],
-                                 studiesWhere,
-                                 [NSString stringWithFormat: destSql[@"datatablesStudiesEpilog"],session,
-                                  session
-                                  ]
-                                 ];
-         
-         NSMutableArray *studiesArray=jsonMutableArray(sqlDataQuery, (NSStringEncoding) [entityDict[@"sqlstringencoding"]integerValue]);
-         
-         //sorted study date (5) desc
-         [studiesArray sortWithOptions:0 usingComparator:^NSComparisonResult(id obj1, id obj2) {
-             return [obj2[5] caseInsensitiveCompare:obj1[5]];
-         }];
-         
-         
-         NSMutableDictionary *resp = [NSMutableDictionary dictionary];
-         if (q[@"draw"])[resp setObject:q[@"draw"] forKey:@"draw"];
-         NSNumber *count=[NSNumber numberWithUnsignedInteger:[studiesArray count]];
-         [resp setObject:count forKey:@"recordsTotal"];
-         [resp setObject:count forKey:@"recordsFiltered"];
-         [resp setObject:studiesArray forKey:@"data"];
-         return [RSDataResponse
-                 responseWithData:[NSData jsonpCallback:q[@"callback"]withDictionary:resp]
-                 contentType:@"application/dicom+json"
-                 ];
-     }
-                                                                          (request));}];
-}
-*/
 
 
 -(void)addDatatablesSeriesHandler
@@ -564,6 +486,7 @@ NSRegularExpression *dtpatientRegex = [NSRegularExpression regularExpressionWith
                dataWithJSONObject:
                @{
                 @"draw":values[[names indexOfObject:@"draw"]],
+                @"recordsFiltered":@0,
                 @"recordsTotal":@0,
                 @"data":@[],
                 @"error":@"bad URL"

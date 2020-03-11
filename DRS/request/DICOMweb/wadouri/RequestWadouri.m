@@ -5,25 +5,25 @@
 
 
 +(NSMutableURLRequest*)requestDICMFromPacs:(NSDictionary*)pacs
-                          StudyInstanceUID:(NSString*)euid
-                         SeriesInstanceUID:(NSString*)suid
-                            SOPInstanceUID:(NSString*)iuid
+                                      EUID:(NSString*)euid
+                                      SUID:(NSString*)suid
+                                      IUID:(NSString*)iuid
 {
    return [RequestWadouri requestDICMFromPacs:(NSDictionary*)pacs
-                            StudyInstanceUID:(NSString*)euid
-                           SeriesInstanceUID:(NSString*)suid
-                              SOPInstanceUID:(NSString*)iuid
-                                   anonymize:NO
-                              transferSyntax:@"*"
+                                         EUID:euid
+                                         SUID:suid
+                                         IUID:iuid
+                                    anonymize:NO
+                               transferSyntax:@"*"
            ];
 }
 
 
 
 +(NSMutableURLRequest*)requestDICMFromPacs:(NSDictionary*)pacs
-                          StudyInstanceUID:(NSString*)euid
-                         SeriesInstanceUID:(NSString*)suid
-                            SOPInstanceUID:(NSString*)iuid
+                                      EUID:(NSString*)euid
+                                      SUID:(NSString*)suid
+                                      IUID:(NSString*)iuid
                                  anonymize:(BOOL)anonymize
                             transferSyntax:(NSString*)transferSyntax
 {
@@ -59,9 +59,9 @@
 
 //part 18 B.1 Simple DICOM image in JPEG
 +(NSMutableURLRequest*)requestDefaultJPEGFromPacs:(NSDictionary*)pacs
-                                 StudyInstanceUID:(NSString*)euid
-                                SeriesInstanceUID:(NSString*)suid
-                                   SOPInstanceUID:(NSString*)iuid
+                                             EUID:(NSString*)euid
+                                             SUID:(NSString*)suid
+                                             IUID:(NSString*)iuid
 {
    if (   !pacs
        || !euid || ![euid length]
@@ -120,9 +120,9 @@
  text/x-cda+xml
  */
 +(NSMutableURLRequest*)requestMIMEFromPacs:(NSDictionary*)pacs
-                          StudyInstanceUID:(NSString*)euid
-                         SeriesInstanceUID:(NSString*)suid
-                            SOPInstanceUID:(NSString*)iuid
+                                      EUID:(NSString*)euid
+                                      SUID:(NSString*)suid
+                                      IUID:(NSString*)iuid
                            acceptMediaType:(NSString*)mediaType
 {
    if (   !pacs

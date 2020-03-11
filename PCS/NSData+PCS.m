@@ -21,7 +21,7 @@
         withErrorString:(NSString*)error
 {
     //https://datatables.net/manual/server-side#Returned-data
-    return [NSData jsonpCallback:callback withDictionary:@{@"draw":draw,@"recordsTotal":@0,@"data":@[],@"error":error}];
+    return [NSData jsonpCallback:callback withDictionary:@{@"draw":draw,@"recordsFiltered":@0,@"recordsTotal":@0,@"data":@[],@"error":error}];
 }
 
 

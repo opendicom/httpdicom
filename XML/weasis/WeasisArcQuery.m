@@ -20,8 +20,7 @@
  */
 @implementation WeasisArcQuery
 
-+(NSXMLElement*)arcQueryId:(NSString*)arcQueryId
-weasisarcId:(NSString*)weasisarcId
++(NSXMLElement*)weasisarcId:(NSString*)weasisarcId
 weasisbaseUrl:(NSString*)weasisbaseUrl
 weasiswebLogin:(NSString*)weasiswebLogin
 weasisrequireOnlySOPInstanceUID:(NSString*)weasisrequireOnlySOPInstanceUID
@@ -34,14 +33,18 @@ seriesFilterModality:(NSString*)modalityRegexString
 seriesFilterSOPClass:(NSString*)SOPClassRegexString
 seriesFilterSOPClassOff:(NSString*)SOPClassOffRegexString
 {
-   if (!arcQueryId || !weasisarcId || !weasisbaseUrl || !weasisadditionnalParameters) return nil;
+   if (!weasisarcId || !weasisbaseUrl || !weasisadditionnalParameters) return nil;
    
    NSXMLElement *arcQuery=[NSXMLElement elementWithName:@"arcQuery"];
    
    // required attributes
-   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"arcQueryId" stringValue:arcQueryId]];
+   
+   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"arcQueryId" stringValue:@"%@"]];
+   //arcQueryId injected with session number just before sending the response
+   
+   
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"arcId" stringValue:weasisarcId]];
-   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"additionnalParameters" stringValue:[NSString stringWithFormat:@"&session=%@&arcId=%@",arcQueryId,weasisarcId]]];
+   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"additionnalParameters" stringValue:[NSString stringWithFormat:@"&session=%%@&arcId=%@",weasisarcId]]];//arcQueryId injected with session number just before sending the response
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"baseUrl" stringValue:weasisbaseUrl]];
 
    // optional attributes
@@ -56,8 +59,6 @@ seriesFilterSOPClassOff:(NSString*)SOPClassOffRegexString
    if (modalityRegexString) [arcQuery addAttribute:[NSXMLNode attributeWithName:@"seriesFilterModality" stringValue:modalityRegexString]];
    if (SOPClassRegexString) [arcQuery addAttribute:[NSXMLNode attributeWithName:@"seriesFilterSOPClass" stringValue:SOPClassRegexString]];
    if (SOPClassOffRegexString) [arcQuery addAttribute:[NSXMLNode attributeWithName:@"seriesFilterSOPClassOff" stringValue:SOPClassOffRegexString]];
-
-   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"arcQueryId" stringValue:arcQueryId]];
 
    return arcQuery;
 }

@@ -52,8 +52,12 @@
                             <xs:group ref="ANDinstanceSOPClass"/>
                             <xs:group ref="ANDinstanceSOPClassOff"/>
                             <xs:group ref="IpostprocessingCommandsSh"/>      
-                            <xs:group ref="IpostprocessingTitleMain"/>                            
-                            
+                            <xs:group ref="IpostprocessingTitleMain"/>
+<!--report (E, UID, AN) -->
+                            <xs:group ref="RE"/>
+                            <xs:group ref="RU"/>
+                            <xs:group ref="RA"/>
+
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -215,7 +219,27 @@
         </xs:sequence>
     </xs:group>
     
-    
+    <xs:group name="RE">
+        <xs:sequence>
+            <xs:element name="key" fixed="RE"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:group name="RU">
+        <xs:sequence>
+            <xs:element name="key" fixed="RU"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:group name="RA">
+        <xs:sequence>
+            <xs:element name="key" fixed="RA"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+
     <!-- ================================================================= -->
     
     

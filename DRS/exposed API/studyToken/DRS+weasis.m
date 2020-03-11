@@ -90,7 +90,6 @@
          if (error) [[NSFileManager defaultManager] moveItemAtPath:d[@"path"] toPath:[d[@"path"] stringByAppendingPathExtension:@"badxml"] error:nil];
          arcQueryElement=
          [WeasisArcQuery
-          arcQueryId:d[@"sessionString"]
           weasisarcId:d[@"devOID"]
           weasisbaseUrl:d[@"proxyURIString"]
           weasiswebLogin:nil
