@@ -9,7 +9,7 @@
    long long maxCount=0;
    if (maxCountString.length) maxCount=[maxCountString longLongValue];
 
-   NSMutableArray *studyArray=[NSMutableArray arrayWithContentsOfFile:d[@"path"]];
+   NSMutableArray *studyArray=[NSMutableArray arrayWithContentsOfFile:d[@"devOIDPLISTPath"]];
    
    BOOL maxCountOK=true;
    
@@ -82,7 +82,7 @@
          if (maxCount < EPDict.count)
          {
             //cache count
-            [[[NSString stringWithFormat:@"[%@]",maxCountString] dataUsingEncoding:NSUTF8StringEncoding] writeToFile:d[@"path"] atomically:YES];
+            [[[NSString stringWithFormat:@"[%@]",maxCountString] dataUsingEncoding:NSUTF8StringEncoding] writeToFile:d[@"devOIDPLISTPath"] atomically:YES];
          }
          else if (EPDict.count != studyArray.count)
          {
@@ -181,8 +181,8 @@
                     [sqlE[ETime] substringWithRange:NSMakeRange(2,2)]
                     ];
                   //[sqlE[EDate]stringByAppendingString:[sqlE[ETime] substringToIndex:6]];
-                   NSString *file=[[d[@"path"] lastPathComponent]stringByDeletingPathExtension];
-                   NSString *folder=[[d[@"path"] stringByDeletingLastPathComponent] lastPathComponent];
+                   NSString *file=[[d[@"devOIDPLISTPath"] lastPathComponent]stringByDeletingPathExtension];
+                   NSString *folder=[[d[@"devOIDPLISTPath"] stringByDeletingLastPathComponent] lastPathComponent];
                    //NSString *EKeyString=[sqlE[EKey] removeFirstAndLastSpaces];
                   //institution has the OID of the pacs
                    
@@ -225,7 +225,7 @@
                }
             }
          }//loop P
-            [studyArray writeToFile:d[@"path"] atomically:YES];
+            [studyArray writeToFile:d[@"devOIDPLISTPath"] atomically:YES];
          }//maxCountOK2
       }//EPDict.count
    }//maxCountOK1

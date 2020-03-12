@@ -1,14 +1,15 @@
 #import "DRS+dicomzip.h"
 #import "DRS+studyToken.h"
-#import "DRS+datatablesStudy.h"
+
+//#import "DRS+datatablesStudy.h"
 #import "ResponseWadouri.h"
 
 @implementation DRS (dicomzip)
 
-+(void)dicomzipSql4dictionary:(NSDictionary*)d
++(void)dicomzipSql4d:(NSDictionary*)d
 {
 #pragma mark init
-
+   NSFileManager *defaultManager=[NSFileManager defaultManager];
    NSDictionary *devDict=DRS.pacs[d[@"devOID"]];
       
    //sql
@@ -57,14 +58,12 @@
 
    
 #pragma mark E from datatables plist
-   NSArray *studyPlist=[NSArray arrayWithContentsOfFile:[d[@"path"]stringByAppendingPathExtension:@"plist"]];
+   NSArray *studyPlist=[NSArray arrayWithContentsOfFile:[d[@"devOIDPath"]stringByAppendingPathExtension:@"plist"]];
    for (NSArray *study in studyPlist)
    {
 #pragma mark loop E
-      NSString *studyPath=[d[@"path"] stringByAppending:study[DEUID]];
-      if (![defaultManager fileExistsAtPath:studyPath])
-         [defaultManager createDirectoryAtPath:studyPath withIntermediateDirectories:NO attributes:nil error:nil];
-      
+       
+       NSString *EPath=[d[@"devOIDPath"] stringByAppendingPathComponent:[study[DEEKey] stringValue]];
       
 #pragma mark series loop
       NSMutableData *seriesData=[NSMutableData data];
@@ -72,7 +71,7 @@
                         [NSString stringWithFormat:
                          sqlDictionary[@"S"],
                          sqlprolog,
-                         E,
+                         [study[DEEKey] stringValue],
                          @"",
                          sqlRecordThirteenUnits
                          ],
@@ -86,7 +85,7 @@
       for (NSArray *seriesSqlProperties in seriesSqlPropertiesArray)
       {
           //add it? (SOPClass = yes)
-         SOPClass=SOPCLassOfReturnableSeries(
+         NSString *SOPClass=SOPCLassOfReturnableSeries(
           sqlcredentials,
           sqlDictionary[@"Ici4S"],
           sqlprolog,
@@ -101,7 +100,10 @@
          
          if (SOPClass)
          {
-                         
+              NSString *SPath=[EPath stringByAppendingPathComponent:seriesSqlProperties[0]];
+             if (![defaultManager fileExistsAtPath:EPath])
+                [defaultManager createDirectoryAtPath:EPath withIntermediateDirectories:YES attributes:nil error:nil];
+
                         
    #pragma mark instances depending on the SOP Class
    /*
@@ -190,8 +192,8 @@
 #pragma mark instance loop
             for (NSArray *instanceSqlProperties in instanceSqlPropertiesArray)
             {
-               NSString *instancePath=[studyPath stringByAppendingPathComponent:instanceSqlProperties[2]];
-               if (![defaultManager fileExistAtPath:instancePath])
+               NSString *instancePath=[[SPath stringByAppendingPathComponent:instanceSqlProperties[2]]stringByAppendingPathExtension:@"dcm"];
+               if (![[NSFileManager defaultManager] fileExistsAtPath:instancePath])
                {
                   switch (getTypeIndex)
                   {
@@ -205,7 +207,7 @@
                          IUID:instanceSqlProperties[2]
                          ];
                         if (DICMData)
-                           [DICMData writeToFile:instancePath];
+                           [DICMData writeToFile:instancePath atomically:NO];
                      } break;//end of WADO
                   }//end of GET switch
                }
@@ -483,9 +485,9 @@
       }];
    }
  */
-}
 
 
+/*
 #pragma mark - constants (ZIP)
 
 // ZIP ISO structure
@@ -497,7 +499,7 @@ const uint16 zipVersion=0x000A;//1.0 default value
 const uint16 zipBitFlagsNone=0x0000;
 const uint16 zipBitFlagsMaxCompression=0x0002;
 const uint16 zipBitFlagsDescriptor=0x0008;//post data descriptor
-
+*/
 /*
  Bit 2  Bit 1
    0      0    Normal (-en) compression option was used.
@@ -522,28 +524,32 @@ const uint16 zipBitFlagsDescriptor=0x0008;//post data descriptor
          MUST be encoded using UTF-8. (see APPENDIX D)
          (we don´t need it since all the names are pure ASCII)
  */
+/*
 const uint16 zipCompression0=0x0000;
 const uint16 zipCompression8=0x0008;
+ */
 //uint16 zipTime;
 //uint16 zipDate;
 //uint32 zipCRC32=0x00000000;
 //uint32 zipCompressedSize=0x00000000;
 //uint32 zipUncompressedSize=0x00000000;
+/*
 const uint16 zipNameLength=0x0024;//UUID.dcm
 const uint16 zipExtraLength=0x0000;
+ */
 //zipName
 //noExtra
 //zipData
 
 
-const uint32 zipDESCRIPTOR=0x08074B50;
+//const uint32 zipDESCRIPTOR=0x08074B50;
 //zipCRC32
 //zipCompressedSize
 //zipUncompressedSize
 
 
-const uint32 zipCENTRAL=0x02014B50;
-const uint16 zipMadeBy=0x13;
+//const uint32 zipCENTRAL=0x02014B50;
+//const uint16 zipMadeBy=0x13;
 //zipVersion
 //zipBitFlags
 //zipCompression8
@@ -557,16 +563,16 @@ const uint16 zipMadeBy=0x13;
 //zipExtraLength comment
 //zipExtraLength disk number start
 //zipExtraLength internal file attribute
-const uint32 zipExternalFileAttributes=0x81A40000;
+//const uint32 zipExternalFileAttributes=0x81A40000;
 //uint32 zipRelativeOffsetOfLocal
 //zipName
 //noExtra
 //noComment
 
 
-const uint32 zipEND=0x06054B50;
-const uint16 zipDiskNumber=0x0000;
-const uint16 zipDiskCentralStarts=0x0000;
+//const uint32 zipEND=0x06054B50;
+//const uint16 zipDiskNumber=0x0000;
+//const uint16 zipDiskCentralStarts=0x0000;
 //uint16 zipRecordTotal thisDisk
 //zipRecordTotal
 //uint32 zipCentralSize;
@@ -576,7 +582,7 @@ const uint16 zipDiskCentralStarts=0x0000;
 
 
 
-
+/*
 +(RSResponse*)dicomzipChunks4dictionary:(NSDictionary*)d
 {
       //information model for getting and pulling the information, either from source or from cache
@@ -603,6 +609,7 @@ const uint16 zipDiskCentralStarts=0x0000;
        }
 
        __block BOOL fromCache=false;
+ */
    /*
        __block NSString *JSON=[DIR stringByAppendingPathExtension:@"json"];
        if ([fileManager fileExistsAtPath:JSON])
@@ -646,7 +653,7 @@ const uint16 zipDiskCentralStarts=0x0000;
            if (!fromCache) [fileManager moveItemAtPath:JSON toPath:[JSON stringByAppendingPathExtension:@"bad"] error:nil];
        }
    */
-       
+  /*
        if (!fromCache)
        {
           if (lanArray.count > 1)
@@ -830,6 +837,7 @@ const uint16 zipDiskCentralStarts=0x0000;
    #pragma mark handler
       return [RSStreamedResponse responseWithContentType:@"application/octet-stream" asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
       {
+   */
          /*
           5 steps:
           - prolog
@@ -842,6 +850,7 @@ const uint16 zipDiskCentralStarts=0x0000;
           zip has data, directory, and epilog
           ... pdf...
           */
+/*
    #pragma mark 1. PROLOG
          if (needsProlog)
          {
@@ -1050,7 +1059,7 @@ const uint16 zipDiskCentralStarts=0x0000;
          else
          {
            completionBlock(CENTRAL, nil);//empty last chunck
-           
+     */
    /*        //write JSON
            NSError *error;
            if (![[NSString
@@ -1067,8 +1076,5 @@ const uint16 zipDiskCentralStarts=0x0000;
                ])
               LOG_WARNING(@"studyToken could not save dicomzip json");
     */
-        }
-      }];
-   }
-}
+
 @end

@@ -11,6 +11,16 @@
 
 #import "DRS+studyToken.h"
 
+BOOL buildCompareCanonical(NSDictionary *refDict, NSMutableString *mutableString, NSString* name, NSString* value)
+{
+    if (refDict)
+    {
+        if (!refDict[name]) return true;
+        return [value isEqualToString:refDict[name]];
+    }
+    [mutableString appendFormat:@"\"%@\":\"%@\",",name,value];
+    return true;
+}
 
 /*
 study pk and patient pk of studies selected
@@ -633,21 +643,30 @@ NSString * SOPCLassOfReturnableSeries(
                    acceptsGzip:(BOOL)acceptsGzip
 {
    NSFileManager *defaultManager=[NSFileManager defaultManager];
+    
+    NSString *queryPath=nil;
+    NSUInteger cacheIndex=[names indexOfObject:@"cache"];
+    NSString *cachePath=nil;
+    NSDictionary *cacheDict=nil;
+    NSMutableString *canonicalQuery=nil;
+    if (   (cacheIndex!=NSNotFound)
+        && ([values[cacheIndex] length])
+       )
+    {
+        cachePath=[DRS.tokentmpDir stringByAppendingPathComponent:values[cacheIndex]];
+        NSData *cacheData=[NSData dataWithContentsOfFile:[cachePath stringByAppendingPathExtension:@"json"]];
+        if (cacheData) cacheDict=[NSJSONSerialization JSONObjectWithData:cacheData options:0 error:nil];
+     }
+    
+    if (cacheDict)
+        queryPath=cachePath;
+    else
+        canonicalQuery=[NSMutableString stringWithString:@"{"];
+    
    NSMutableDictionary *requestDict=[NSMutableDictionary dictionary];
    NSInteger tokenIndex=[names indexOfObject:@"token"];
    if (tokenIndex!=NSNotFound) [requestDict setObject:values[tokenIndex] forKey:@"tokenString"];
 
-   
-   NSMutableString *canonicalQuery=[NSMutableString stringWithString:@"{"];
-#pragma mark query context
-   
-   NSInteger proxyURIIndex=[names indexOfObject:@"proxyURI"];
-    if (proxyURIIndex!=NSNotFound)
-    {
-       [canonicalQuery appendFormat:@"\"proxyURI\":\"%@\",",values[proxyURIIndex]];
-       [requestDict setObject:values[proxyURIIndex] forKey:@"proxyURIString"];
-    }
-   
 
 
 #pragma mark institution
@@ -703,11 +722,6 @@ NSString * SOPCLassOfReturnableSeries(
    }
    if (![lanArray count] && ![wanArray count]) return [RSErrorResponse responseWithClientError:404 message:@"no valid pacs in the request"];
 
-//   if ([lanArray count]) [canonicalQuery appendFormat:@"\"lanArray\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
-
-//   if ([wanArray count]) [canonicalQuery appendFormat:@"\"wanArray\":\"%@\",",[[lanArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]componentsJoinedByString:@"|"]];
-
-
 #pragma mark StudyInstanceUID
     NSString *StudyInstanceUIDRegexpString=nil;
     NSInteger StudyInstanceUIDIndex=[names indexOfObject:@"StudyInstanceUID"];
@@ -719,7 +733,13 @@ NSString * SOPCLassOfReturnableSeries(
           {
              StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
              [requestDict setObject:StudyInstanceUIDRegexpString forKey:@"StudyInstanceUIDRegexpString"];
-             [canonicalQuery appendFormat:@"\"StudyInstanceUID\":\"%@\",",StudyInstanceUIDRegexpString];
+             if (!buildCompareCanonical(
+                                        cacheDict,
+                                        canonicalQuery,
+                                        @"StudyInstanceUID",
+                                        StudyInstanceUIDRegexpString
+                                        )
+                 ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
           }
           else return [RSErrorResponse responseWithClientError:404 message:@"studyToken param StudyInstanceUID: %@",values[StudyInstanceUIDIndex]];
        }
@@ -732,7 +752,13 @@ NSString * SOPCLassOfReturnableSeries(
     {
        AccessionNumberEqualString=[values[AccessionNumberIndex] sqlEqualEscapedString];
        [requestDict setObject:AccessionNumberEqualString forKey:@"AccessionNumberEqualString"];
-       [canonicalQuery appendFormat:@"\"AccessionNumber\":\"%@\",",AccessionNumberEqualString];
+        if (!buildCompareCanonical(
+                                   cacheDict,
+                                   canonicalQuery,
+                                   @"AccessionNumber",
+                                   AccessionNumberEqualString
+                                   )
+            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
    
@@ -743,7 +769,13 @@ NSString * SOPCLassOfReturnableSeries(
     {
        PatientIDLikeString=[values[PatientIDIndex] sqlLikeEscapedString];
        [requestDict setObject:PatientIDLikeString forKey:@"PatientIDLikeString"];
-       [canonicalQuery appendFormat:@"\"PatientID\":\"%@\",",PatientIDLikeString];
+        if (!buildCompareCanonical(
+                                   cacheDict,
+                                   canonicalQuery,
+                                   @"PatientID",
+                                   PatientIDLikeString
+                                   )
+            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
 #pragma mark 2. PatientName (Ppn)
@@ -757,7 +789,13 @@ NSString * SOPCLassOfReturnableSeries(
       patientNamePart=true;
       patientFamilyLikeString=[values[patientFamilyIndex] regexQuoteEscapedString];
       [requestDict setObject:patientFamilyLikeString forKey:@"patientFamilyLikeString"];
-      [canonicalQuery appendFormat:@"\"patientFamily\":\"%@\",",patientFamilyLikeString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"patientFamily",
+                                  patientFamilyLikeString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
    NSString *patientGivenLikeString=nil;
@@ -767,7 +805,13 @@ NSString * SOPCLassOfReturnableSeries(
       patientNamePart=true;
       patientGivenLikeString=[values[patientGivenIndex] regexQuoteEscapedString];
       [requestDict setObject:patientGivenLikeString forKey:@"patientGivenLikeString"];
-      [canonicalQuery appendFormat:@"\"patientGiven\":\"%@\",",patientGivenLikeString];
+      if (!buildCompareCanonical(
+                                 cacheDict,
+                                 canonicalQuery,
+                                 @"patientGiven",
+                                 patientGivenLikeString
+                                 )
+          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
    NSString *patientMiddleLikeString=nil;
@@ -777,7 +821,13 @@ NSString * SOPCLassOfReturnableSeries(
       patientNamePart=true;
       patientMiddleLikeString=[values[patientMiddleIndex] regexQuoteEscapedString];
       [requestDict setObject:patientMiddleLikeString forKey:@"patientMiddleLikeString"];
-      [canonicalQuery appendFormat:@"\"patientMiddle\":\"%@\",",patientMiddleLikeString];
+      if (!buildCompareCanonical(
+                                 cacheDict,
+                                 canonicalQuery,
+                                 @"patientMiddle",
+                                 patientMiddleLikeString
+                                 )
+          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
    NSString *patientPrefixLikeString=nil;
@@ -787,7 +837,13 @@ NSString * SOPCLassOfReturnableSeries(
       patientNamePart=true;
       patientPrefixLikeString=[values[patientPrefixIndex] regexQuoteEscapedString];
       [requestDict setObject:patientPrefixLikeString forKey:@"patientPrefixLikeString"];
-      [canonicalQuery appendFormat:@"\"patientPrefix\":\"%@\",",patientPrefixLikeString];
+      if (!buildCompareCanonical(
+                                 cacheDict,
+                                 canonicalQuery,
+                                 @"patientPrefix",
+                                 patientPrefixLikeString
+                                 )
+          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
    NSString *patientSuffixLikeString=nil;
@@ -797,7 +853,13 @@ NSString * SOPCLassOfReturnableSeries(
       patientNamePart=true;
       patientSuffixLikeString=[values[patientSuffixIndex] regexQuoteEscapedString];
       [requestDict setObject:patientSuffixLikeString forKey:@"patientSuffixLikeString"];
-      [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",patientSuffixLikeString];
+      if (!buildCompareCanonical(
+                                 cacheDict,
+                                 canonicalQuery,
+                                 @"patientSuffix",
+                                 patientSuffixLikeString
+                                 )
+          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
    if (!patientNamePart)
@@ -811,31 +873,61 @@ NSString * SOPCLassOfReturnableSeries(
          {
             patientFamilyLikeString=PatientNameParts[0];
             [requestDict setObject:patientFamilyLikeString forKey:@"patientFamilyLikeString"];
-            [canonicalQuery appendFormat:@"\"patientFamily\":\"%@\",",patientFamilyLikeString];
-         }
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"patientFamily",
+                                       patientFamilyLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+        }
          if (PatientNameParts.count>1)
          {
             patientGivenLikeString=PatientNameParts[1];
             [requestDict setObject:patientGivenLikeString forKey:@"patientGivenLikeString"];
-            [canonicalQuery appendFormat:@"\"patientGiven\":\"%@\",",patientGivenLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"patientGiven",
+                                       patientGivenLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (PatientNameParts.count>2)
          {
             patientMiddleLikeString=PatientNameParts[2];
             [requestDict setObject:patientMiddleLikeString forKey:@"patientMiddleLikeString"];
-            [canonicalQuery appendFormat:@"\"patientMiddle\":\"%@\",",patientMiddleLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"patientMiddle",
+                                       patientMiddleLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (PatientNameParts.count>3)
          {
             patientPrefixLikeString=PatientNameParts[3];
             [requestDict setObject:patientPrefixLikeString forKey:@"patientPrefixLikeString"];
-            [canonicalQuery appendFormat:@"\"patientPrefix\":\"%@\",",patientPrefixLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"patientPrefix",
+                                       patientPrefixLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (PatientNameParts.count>4)
          {
             patientSuffixLikeString=PatientNameParts[4];
             [requestDict setObject:patientSuffixLikeString forKey:@"patientSuffixLikeString"];
-            [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",patientSuffixLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"patientSuffix",
+                                       patientSuffixLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
       }
    }
@@ -848,7 +940,13 @@ NSString * SOPCLassOfReturnableSeries(
     {
        StudyIDLikeString=[values[StudyIDIndex] sqlLikeEscapedString];
        [requestDict setObject:StudyIDLikeString forKey:@"StudyIDLikeString"];
-       [canonicalQuery appendFormat:@"\"StudyID\":\"%@\",",StudyIDLikeString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"StudyID",
+                                  StudyIDLikeString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
     
@@ -859,7 +957,14 @@ NSString * SOPCLassOfReturnableSeries(
     if (StudyDateIndex!=NSNotFound)
     {
        NSString *StudyDateString=values[StudyDateIndex];
-       [canonicalQuery appendFormat:@"\"StudyDate\":\"%@\",",StudyDateString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"StudyDate",
+                                  StudyDateString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+        
        if ([StudyDateString length])
        {
           if (![DICMTypes isDA0or1PipeString:StudyDateString]) return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad StudyDate %@",StudyDateString];
@@ -905,7 +1010,13 @@ NSString * SOPCLassOfReturnableSeries(
     {
        StudyDescriptionRegexpString=[values[StudyDescriptionIndex] regexQuoteEscapedString];
        [requestDict setObject:StudyDescriptionRegexpString forKey:@"StudyDescriptionRegexpString"];
-       [canonicalQuery appendFormat:@"\"StudyDescription\":\"%@\",",StudyDescriptionRegexpString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"StudyDescription",
+                                  StudyDescriptionRegexpString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
     
@@ -920,7 +1031,13 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refInstitutionLikeString=[values[refInstitutionIndex] regexQuoteEscapedString];
        [requestDict setObject:refInstitutionLikeString forKey:@"refInstitutionLikeString"];
-       [canonicalQuery appendFormat:@"\"refInstitution\":\"%@\",",refInstitutionLikeString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"refInstitution",
+                                  refInstitutionLikeString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
     NSString *refServiceLikeString=nil;
@@ -930,7 +1047,13 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refServiceLikeString=[values[refServiceIndex] regexQuoteEscapedString];
        [requestDict setObject:refServiceLikeString forKey:@"refServiceLikeString"];
-       [canonicalQuery appendFormat:@"\"refService\":\"%@\",",refServiceLikeString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"refService",
+                                  refServiceLikeString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
     NSString *refUserLikeString=nil;
@@ -940,7 +1063,13 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refUserLikeString=[values[refUserIndex] regexQuoteEscapedString];
        [requestDict setObject:refUserLikeString forKey:@"refUserLikeString"];
-       [canonicalQuery appendFormat:@"\"refUser\":\"%@\",",refUserLikeString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"refUser",
+                                  refUserLikeString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
     NSString *refIDLikeString=nil;
@@ -950,7 +1079,13 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refIDLikeString=[values[refIDIndex] regexQuoteEscapedString];
        [requestDict setObject:refIDLikeString forKey:@"refIDLikeString"];
-       [canonicalQuery appendFormat:@"\"refID\":\"%@\",",refIDLikeString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"refID",
+                                  refIDLikeString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
     NSString *refIDTypeLikeString=nil;
@@ -960,7 +1095,13 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refIDTypeLikeString=[values[refIDTypeIndex] regexQuoteEscapedString];
        [requestDict setObject:refIDTypeLikeString forKey:@"refIDTypeLikeString"];
-       [canonicalQuery appendFormat:@"\"refIDType\":\"%@\",",refIDTypeLikeString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"refIDType",
+                                  refIDTypeLikeString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
    
    if (!refPart)
@@ -974,31 +1115,61 @@ NSString * SOPCLassOfReturnableSeries(
          {
             refInstitutionLikeString=refParts[0];
             [requestDict setObject:refInstitutionLikeString forKey:@"refInstitutionLikeString"];
-            [canonicalQuery appendFormat:@"\"refInstitution\":\"%@\",",refInstitutionLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"refInstitution",
+                                       refInstitutionLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (refParts.count>1)
          {
             refServiceLikeString=refParts[1];
             [requestDict setObject:refServiceLikeString forKey:@"refServiceLikeString"];
-            [canonicalQuery appendFormat:@"\"refService\":\"%@\",",refServiceLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"refService",
+                                       refServiceLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (refParts.count>2)
          {
             refUserLikeString=refParts[2];
             [requestDict setObject:refUserLikeString forKey:@"refUserLikeString"];
-            [canonicalQuery appendFormat:@"\"refUser\":\"%@\",",refUserLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"refUser",
+                                       refUserLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (refParts.count>3)
          {
             refIDLikeString=refParts[3];
             [requestDict setObject:refIDLikeString forKey:@"refIDLikeString"];
-            [canonicalQuery appendFormat:@"\"refID\":\"%@\",",refIDLikeString];
-         }
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"refID",
+                                       refIDLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+          }
          if (refParts.count>4)
          {
             refIDTypeLikeString=refParts[4];
             [requestDict setObject:refIDTypeLikeString forKey:@"refIDTypeLikeString"];
-            [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",refIDTypeLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"refIDType",
+                                       refIDTypeLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
       }
    }
@@ -1015,7 +1186,13 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readInstitutionLikeString=[values[readInstitutionIndex] regexQuoteEscapedString];
        [requestDict setObject:readInstitutionLikeString forKey:@"readInstitutionLikeString"];
-       [canonicalQuery appendFormat:@"\"readInstitution\":\"%@\",",readInstitutionLikeString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"readInstitution",
+                                  readInstitutionLikeString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
     NSString *readServiceLikeString=nil;
@@ -1025,7 +1202,13 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readServiceLikeString=[values[readServiceIndex] regexQuoteEscapedString];
        [requestDict setObject:readServiceLikeString forKey:@"readServiceLikeString"];
-       [canonicalQuery appendFormat:@"\"readService\":\"%@\",",readServiceLikeString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"readService",
+                                  readServiceLikeString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
     NSString *readUserLikeString=nil;
@@ -1035,7 +1218,13 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readUserLikeString=[values[readUserIndex] regexQuoteEscapedString];
        [requestDict setObject:readUserLikeString forKey:@"readUserLikeString"];
-       [canonicalQuery appendFormat:@"\"readUser\":\"%@\",",readUserLikeString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"readUser",
+                                  readUserLikeString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
     NSString *readIDLikeString=nil;
@@ -1045,7 +1234,13 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readIDLikeString=[values[readIDIndex] regexQuoteEscapedString];
        [requestDict setObject:readIDLikeString forKey:@"readIDLikeString"];
-       [canonicalQuery appendFormat:@"\"readID\":\"%@\",",readIDLikeString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"readID",
+                                  readIDLikeString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
     
     NSString *readIDTypeLikeString=nil;
@@ -1055,7 +1250,13 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readIDTypeLikeString=[values[readIDTypeIndex] regexQuoteEscapedString];
        [requestDict setObject:readIDTypeLikeString forKey:@"readIDTypeLikeString"];
-       [canonicalQuery appendFormat:@"\"readIDType\":\"%@\",",readIDTypeLikeString];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"readIDType",
+                                  readIDTypeLikeString
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
    if (!readPart)
@@ -1069,31 +1270,60 @@ NSString * SOPCLassOfReturnableSeries(
          {
             readInstitutionLikeString=readParts[0];
             [requestDict setObject:readInstitutionLikeString forKey:@"readInstitutionLikeString"];
-            [canonicalQuery appendFormat:@"\"readInstitution\":\"%@\",",readInstitutionLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"readInstitution",
+                                       readInstitutionLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (readParts.count>1)
          {
             readServiceLikeString=readParts[1];
             [requestDict setObject:readServiceLikeString forKey:@"readServiceLikeString"];
-            [canonicalQuery appendFormat:@"\"readService\":\"%@\",",readServiceLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"readService",
+                                       readServiceLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (readParts.count>2)
          {
             readUserLikeString=readParts[2];
             [requestDict setObject:readUserLikeString forKey:@"readUserLikeString"];
-            [canonicalQuery appendFormat:@"\"readUser\":\"%@\",",readUserLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"readUser",
+                                       readUserLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (readParts.count>3)
          {
             readIDLikeString=readParts[3];
             [requestDict setObject:readIDLikeString forKey:@"readIDLikeString"];
-            [canonicalQuery appendFormat:@"\"readID\":\"%@\",",readIDLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"readID",
+                                       readIDLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (readParts.count>4)
          {
             readIDTypeLikeString=readParts[4];
-            [requestDict setObject:readIDTypeLikeString forKey:@"readIDTypeLikeString"];
-            [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",readIDTypeLikeString];
+            if (!buildCompareCanonical(
+                                       cacheDict,
+                                       canonicalQuery,
+                                       @"readIDType",
+                                       readIDTypeLikeString
+                                       )
+                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
       }
    }
@@ -1105,7 +1335,13 @@ NSString * SOPCLassOfReturnableSeries(
    if ((SOPClassInStudyIndex!=NSNotFound) && [DICMTypes isSingleUIString:values[SOPClassInStudyIndex]])
    {
            [requestDict setObject:values[SOPClassInStudyIndex] forKey:@"SOPClassInStudyRegexpString"];
-           [canonicalQuery appendFormat:@"\"SOPClassInStudy\":\"%@\",",values[SOPClassInStudyIndex]];
+           if (!buildCompareCanonical(
+                                      cacheDict,
+                                      canonicalQuery,
+                                      @"SOPClassInStudy",
+                                      values[SOPClassInStudyIndex]
+                                      )
+               ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
    
@@ -1114,7 +1350,13 @@ NSString * SOPCLassOfReturnableSeries(
    if ((ModalityInStudyIndex!=NSNotFound) && [DICMTypes isSingleCSString:values[ModalityInStudyIndex]])
    {
       [requestDict setObject:values[ModalityInStudyIndex] forKey:@"ModalityInStudyRegexpString"];
-      [canonicalQuery appendFormat:@"\"ModalityInStudy\":\"%@\",",values[ModalityInStudyIndex]];
+      if (!buildCompareCanonical(
+                                 cacheDict,
+                                 canonicalQuery,
+                                 @"ModalityInStudy",
+                                 values[ModalityInStudyIndex]
+                                 )
+          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
 #pragma mark issuer
@@ -1123,7 +1365,14 @@ NSString * SOPCLassOfReturnableSeries(
    NSInteger issuerIndex=[names indexOfObject:@"issuer"];
    if (issuerIndex!=NSNotFound)
    {
-      [canonicalQuery appendFormat:@"\"issuer\":\"%@\",",[values[issuerIndex] sqlEqualEscapedString]];
+      if (!buildCompareCanonical(
+                                 cacheDict,
+                                 canonicalQuery,
+                                 @"issuer",
+                                 [values[issuerIndex] sqlEqualEscapedString]
+                                 )
+          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+       
       NSArray *array=[[values[issuerIndex] sqlEqualEscapedString] componentsSeparatedByString:@"^"];
       switch (array.count) {
          case 1:
@@ -1157,7 +1406,13 @@ NSString * SOPCLassOfReturnableSeries(
    if (SeriesInstanceUIDIndex!=NSNotFound)
    {
       [requestDict setObject:values[SeriesInstanceUIDIndex] forKey:@"SeriesInstanceUIDRegexString"];
-      [canonicalQuery appendFormat:@"\"SeriesInstanceUID\":\"%@\",",values[SeriesInstanceUIDIndex]];
+      if (!buildCompareCanonical(
+                                 cacheDict,
+                                 canonicalQuery,
+                                 @"SeriesInstanceUID",
+                                 values[SeriesInstanceUIDIndex]
+                                 )
+          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
    
 // SeriesNumber
@@ -1165,7 +1420,13 @@ NSString * SOPCLassOfReturnableSeries(
    if (SeriesNumberIndex!=NSNotFound)
    {
       [requestDict setObject:values[SeriesNumberIndex] forKey:@"SeriesNumberRegexString"];
-      [canonicalQuery appendFormat:@"\"SeriesNumber\":\"%@\",",values[SeriesNumberIndex]];
+      if (!buildCompareCanonical(
+                                 cacheDict,
+                                 canonicalQuery,
+                                 @"SeriesNumber",
+                                 values[SeriesNumberIndex]
+                                 )
+          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
 // SeriesDescription@StationName@Department@Institution
@@ -1173,7 +1434,13 @@ NSString * SOPCLassOfReturnableSeries(
    if (SeriesDescriptionIndex!=NSNotFound)
    {
       [requestDict setObject:values[SeriesDescriptionIndex] forKey:@"SeriesDescriptionRegexString"];
-      [canonicalQuery appendFormat:@"\"SeriesDescription\":\"%@\",",values[SeriesDescriptionIndex]];
+       if (!buildCompareCanonical(
+                                  cacheDict,
+                                  canonicalQuery,
+                                  @"SeriesDescription",
+                                  values[SeriesDescriptionIndex]
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
    
 // Modality
@@ -1181,7 +1448,13 @@ NSString * SOPCLassOfReturnableSeries(
    if (ModalityIndex!=NSNotFound)
    {
       [requestDict setObject:values[ModalityIndex] forKey:@"ModalityRegexString"];
-      [canonicalQuery appendFormat:@"\"Modality\":\"%@\",",values[ModalityIndex]];
+      if (!buildCompareCanonical(
+                                 cacheDict,
+                                 canonicalQuery,
+                                 @"Modality",
+                                 values[ModalityIndex]
+                                 )
+          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
 // SOPClass
@@ -1189,7 +1462,13 @@ NSString * SOPCLassOfReturnableSeries(
    if (SOPClassIndex!=NSNotFound)
    {
       [requestDict setObject:values[SOPClassIndex] forKey:@"SOPClassRegexString"];
-      [canonicalQuery appendFormat:@"\"SOPClass\":\"%@\",",values[SOPClassIndex]];
+      if (!buildCompareCanonical(
+                                 cacheDict,
+                                 canonicalQuery,
+                                 @"SOPClass",
+                                 values[SOPClassIndex]
+                                 )
+          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
    
 // SOPClassOff
@@ -1197,7 +1476,13 @@ NSString * SOPCLassOfReturnableSeries(
    if (SOPClassOffIndex!=NSNotFound)
    {
       [requestDict setObject:values[SOPClassOffIndex] forKey:@"SOPClassOffRegexString"];
-      [canonicalQuery appendFormat:@"\"SOPClassOff\":\"%@\",",values[SOPClassOffIndex]];
+      if (!buildCompareCanonical(
+                                 cacheDict,
+                                 canonicalQuery,
+                                 @"SOPClassOff",
+                                 values[SOPClassOffIndex]
+                                 )
+          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
 //hasRestriction?
@@ -1211,11 +1496,6 @@ NSString * SOPCLassOfReturnableSeries(
    [requestDict setObject:[NSNumber numberWithBool:hasRestriction] forKey:@"hasRestriction"];
 
 
-#pragma mark sha512
-   [canonicalQuery replaceCharactersInRange:NSMakeRange(canonicalQuery.length-1, 1) withString:@"}"];
-   LOG_DEBUG(@"curl --header \"Content-Type: application/json\" --request POST --data '%@' %@ > dcm.zip",canonicalQuery,[requestURL absoluteString]);
-   NSString *canonicalQuerySHA512String=[canonicalQuery SHA512String];
-
    
 #pragma mark wan
    for (NSString *devOID in wanArray)
@@ -1227,14 +1507,14 @@ NSString * SOPCLassOfReturnableSeries(
 #pragma mark caché
    //path is the folder containing a file for each of the pacs consulted
    //path.json is the corresponding canonical query
-   NSString *path=[DRS.tokentmpDir stringByAppendingPathComponent:canonicalQuerySHA512String];
-   if (![defaultManager fileExistsAtPath:[path stringByAppendingPathExtension:@"json"]])
-   {
-      [canonicalQuery writeToFile:[path stringByAppendingPathExtension:@"json"] atomically:NO encoding:NSUTF8StringEncoding error:nil];
-   }
-   if (![defaultManager fileExistsAtPath:path])
-      [defaultManager createDirectoryAtPath:path withIntermediateDirectories:NO attributes:nil error:nil];
-
+    if (canonicalQuery)
+    {
+       [canonicalQuery replaceCharactersInRange:NSMakeRange(canonicalQuery.length-1, 1) withString:@"}"];
+       NSString *canonicalQuerySHA512String=[canonicalQuery MD5String];
+       queryPath=[DRS.tokentmpDir stringByAppendingPathComponent:canonicalQuerySHA512String];
+       [canonicalQuery writeToFile:[queryPath stringByAppendingPathExtension:@"json"] atomically:NO encoding:NSUTF8StringEncoding error:nil];
+        [defaultManager createDirectoryAtPath:queryPath withIntermediateDirectories:NO attributes:nil error:nil];
+    }
    
 
 #pragma mark accessType
@@ -1290,7 +1570,7 @@ NSString * SOPCLassOfReturnableSeries(
          for (NSString *devOID in lanArray)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
-            [requestDict setObject:[[path stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"xml"] forKey:@"path"];
+            [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"xml"] forKey:@"devOIDXMLPath"];
             [requestDict setObject:(DRS.pacs[devOID])[@"wadoweasisparameters"] forKey:@"wadoweasisparameters"];
             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
@@ -1299,7 +1579,7 @@ NSString * SOPCLassOfReturnableSeries(
             }
          }
 //reply with result found in path
-         NSArray *results=[defaultManager contentsOfDirectoryAtPath:path error:nil];
+         NSArray *results=[defaultManager contentsOfDirectoryAtPath:queryPath error:nil];
          NSMutableString *resultString=[NSMutableString stringWithString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><manifest xmlns=\"http://www.weasis.org/xsd/2.5\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"];
          for (NSString *resultFile in results)
          {
@@ -1308,7 +1588,7 @@ NSString * SOPCLassOfReturnableSeries(
                [resultString appendString:
                 [NSString
                  stringWithContentsOfFile:
-                 [path stringByAppendingPathComponent:resultFile]
+                 [queryPath stringByAppendingPathComponent:resultFile]
                  encoding:NSUTF8StringEncoding
                  error:nil
                  ]
@@ -1323,14 +1603,25 @@ NSString * SOPCLassOfReturnableSeries(
          if (sessionIndex!=NSNotFound)
          {
             [resultString
-             replaceOccurrencesOfString:@"%@"
+             replaceOccurrencesOfString:@"_sessionString_"
              withString:values[sessionIndex]
              options:0
              range:NSMakeRange(0, resultString.length)
              ];
          }
 
-         
+//insert proxyURI
+          NSInteger proxyURIIndex=[names indexOfObject:@"proxyURI"];
+           if (proxyURIIndex!=NSNotFound)
+           {
+              [resultString
+               replaceOccurrencesOfString:@"_proxyURIString_"
+               withString:values[proxyURIIndex]
+               options:0
+               range:NSMakeRange(0, resultString.length)
+               ];
+           }
+
          //weasis base64 dicom:get -i does not work
          /*
          RSDataResponse *response=[RSDataResponse responseWithData:[[[LFCGzipUtility gzipData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
@@ -1356,7 +1647,7 @@ NSString * SOPCLassOfReturnableSeries(
           [
           {
           "arcId":"devOID",
-          "baseUrl":"proxyURIString",
+          "baseUrl":"_proxyURIString_",
           "patientList":
           [
            {
@@ -1424,7 +1715,7 @@ NSString * SOPCLassOfReturnableSeries(
          for (NSString *devOID in lanArray)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
-            [requestDict setObject:[[path stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"json"]forKey:@"path"];
+            [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"json"]forKey:@"devOIDJSONPath"];
 
              switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
@@ -1433,26 +1724,24 @@ NSString * SOPCLassOfReturnableSeries(
             }
          }
 //reply with result found in path
-         NSArray *results=[defaultManager contentsOfDirectoryAtPath:path error:nil];
+         NSArray *results=[defaultManager contentsOfDirectoryAtPath:queryPath error:nil];
          NSMutableString *resultString=[NSMutableString stringWithString:@"["];
-         NSUInteger countdown=results.count;
          for (NSString *resultFile in results)
          {
-            countdown--;
             if ([[resultFile pathExtension] isEqualToString:@"json"])
             {
                [resultString appendString:
                 [NSString
                  stringWithContentsOfFile:
-                 [path stringByAppendingPathComponent:resultFile]
+                 [queryPath stringByAppendingPathComponent:resultFile]
                  encoding:NSUTF8StringEncoding
                  error:nil
                  ]
                 ];
-               if (countdown)[resultString appendString:@","];
+               [resultString appendString:@","];
             }
          }
-         [resultString appendString:@"]"];
+         [resultString replaceOccurrencesOfString:@"," withString:@"]" options:0 range:NSMakeRange(resultString.length -1,1)];
          
 //insert session
 
@@ -1460,12 +1749,24 @@ NSString * SOPCLassOfReturnableSeries(
          if (sessionIndex!=NSNotFound)
          {
             [resultString
-             replaceOccurrencesOfString:@"%@"
+             replaceOccurrencesOfString:@"_sessionString_"
              withString:values[sessionIndex]
              options:0
              range:NSMakeRange(0, resultString.length)
              ];
          }
+
+//insert proxyURI
+          NSInteger proxyURIIndex=[names indexOfObject:@"proxyURI"];
+           if (proxyURIIndex!=NSNotFound)
+           {
+              [resultString
+               replaceOccurrencesOfString:@"_proxyURIString_"
+               withString:values[proxyURIIndex]
+               options:0
+               range:NSMakeRange(0, resultString.length)
+               ];
+           }
 
          return
          [RSDataResponse
@@ -1481,20 +1782,18 @@ NSString * SOPCLassOfReturnableSeries(
          for (NSString *devOID in lanArray)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
-            NSString *zipFolderPath=[path stringByAppendingPathComponent:devOID];
-            [requestDict setObject:zipFolderPath forKey:@"path"];
-            if (![defaultManager fileExistsAtPath:zipFolderPath])
-               [defaultManager createDirectoryAtPath:zipFolderPath withIntermediateDirectories:NO attributes:nil error:nil];
+            NSString *devOIDPath=[queryPath stringByAppendingPathComponent:devOID];
+            [requestDict setObject:devOIDPath forKey:@"devOIDPath"];
 
              switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
                 case selectTypeSql:
-                  [DRS dicomzipSql4dictionary:requestDict];
+                  [DRS dicomzipSql4d:requestDict];
                   break;
             }
          }
-         //reply with result found in path
-         NSArray *results=[defaultManager contentsOfDirectoryAtPath:path error:nil];
+         //reply with result found in requestPpath
+         NSArray *results=[defaultManager contentsOfDirectoryAtPath:requestPath error:nil];
          NSMutableString *resultString=[NSMutableString stringWithString:@"["];
          NSUInteger countdown=results.count;
          for (NSString *resultFile in results)
@@ -1505,7 +1804,7 @@ NSString * SOPCLassOfReturnableSeries(
                [resultString appendString:
                 [NSString
                  stringWithContentsOfFile:
-                 [path stringByAppendingPathComponent:resultFile]
+                 [requestPath stringByAppendingPathComponent:resultFile]
                  encoding:NSUTF8StringEncoding
                  error:nil
                  ]
@@ -1539,8 +1838,8 @@ NSString * SOPCLassOfReturnableSeries(
           NSUInteger newIndex=[names indexOfObject:@"new"];
           if ((newIndex!=NSNotFound) && [values[newIndex] isEqualToString:@"true"])
           {
-              [defaultManager removeItemAtPath:path error:nil];
-              [defaultManager createDirectoryAtPath:path  withIntermediateDirectories:NO attributes:nil error:nil];
+              [defaultManager removeItemAtPath:requestPath error:nil];
+              [defaultManager createDirectoryAtPath:requestPath  withIntermediateDirectories:NO attributes:nil error:nil];
               
           }
 
@@ -1548,7 +1847,7 @@ NSString * SOPCLassOfReturnableSeries(
          for (NSString *devOID in lanArray)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
-            [requestDict setObject:[[path stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"path"];
+            [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
             NSUInteger maxCountIndex=[names indexOfObject:@"max"];
             if (maxCountIndex!=NSNotFound)[requestDict setObject:values[maxCountIndex] forKey:@"max"];
 
@@ -1562,16 +1861,16 @@ NSString * SOPCLassOfReturnableSeries(
 
 //reply with result found in path//TODO paging the answer
          NSMutableArray *resultsArray=[NSMutableArray array];
-         NSArray *resultsDirectory=[defaultManager contentsOfDirectoryAtPath:path error:nil];
+         NSArray *resultsDirectory=[defaultManager contentsOfDirectoryAtPath:queryPath error:nil];
          for (NSString *resultFile in resultsDirectory)
          {
             if ([[resultFile pathExtension] isEqualToString:@"plist"])
             {
-                NSArray *partialArray=[NSArray arrayWithContentsOfFile:[path stringByAppendingPathComponent:resultFile]];
+                NSArray *partialArray=[NSArray arrayWithContentsOfFile:[queryPath stringByAppendingPathComponent:resultFile]];
                 if ((partialArray.count==1)
                 && [partialArray[0] isKindOfClass:[NSNumber class]])
                 {
-                    LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"path"]);
+                    LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"queryPath"]);
                     return [RSDataResponse responseWithData:
                             [NSJSONSerialization
                              dataWithJSONObject:
@@ -1619,7 +1918,7 @@ NSString * SOPCLassOfReturnableSeries(
               && ([requestDict[@"max"] longLongValue] < resultsArray.count)
              )
          {
-            LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"path"]);
+            LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"queryPath"]);
              [dict setObject:[NSNumber numberWithLongLong:resultsArray.count] forKey:@"recordsFiltered"];
             [dict setObject:[NSNumber numberWithLongLong:resultsArray.count] forKey:@"recordsTotal"];
              [dict setObject:@[] forKey:@"data"];
@@ -1684,7 +1983,7 @@ NSString * SOPCLassOfReturnableSeries(
 
       } break;
    }
-   return [RSErrorResponse responseWithClientError:404 message:@"inesperate end of studyToken for %@", path];
+   return [RSErrorResponse responseWithClientError:404 message:@"inesperate end of studyToken for %@", requestPath];
 }
 
 

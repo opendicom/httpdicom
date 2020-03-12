@@ -78,20 +78,14 @@
 
       NSError  *error=nil;
       NSXMLElement *arcQueryElement=nil;
-      NSString *XMLString=[NSString stringWithContentsOfFile:d[@"path"] encoding:NSUTF8StringEncoding error:nil];
+      NSString *XMLString=[NSString stringWithContentsOfFile:d[@"devOIDXMLPath"] encoding:NSUTF8StringEncoding error:nil];
       if (XMLString) arcQueryElement=[[NSXMLElement alloc]initWithXMLString:XMLString error:&error];
-      if (arcQueryElement)
+      if (!arcQueryElement)
       {
-         //in order to use the cache from various sessions
-         [arcQueryElement addAttribute:[NSXMLNode attributeWithName:@"baseUrl" stringValue:d[@"proxyURIString"]]];
-      }
-      else
-      {
-         if (error) [[NSFileManager defaultManager] moveItemAtPath:d[@"path"] toPath:[d[@"path"] stringByAppendingPathExtension:@"badxml"] error:nil];
+         if (error) [[NSFileManager defaultManager] moveItemAtPath:d[@"devOIDXMLPath"] toPath:[d[@"devOIDXMLPath"] stringByAppendingPathExtension:@"badxml"] error:nil];
          arcQueryElement=
          [WeasisArcQuery
           weasisarcId:d[@"devOID"]
-          weasisbaseUrl:d[@"proxyURIString"]
           weasiswebLogin:nil
           weasisrequireOnlySOPInstanceUID:nil
           weasisadditionnalParameters:d[@"wadoweasisparameters"]
@@ -411,7 +405,7 @@ NSXMLElement *InstanceElement=
    //doc.characterEncoding=@"UTF-8";
    //doc.standalone=true;
    NSData *docData=[doc XMLData];
-   [docData writeToFile:d[@"path"] atomically:YES];
+   [docData writeToFile:d[@"devOIDXMLPath"] atomically:YES];
    }
 }
 @end

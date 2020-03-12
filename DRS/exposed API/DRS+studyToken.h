@@ -1,8 +1,8 @@
 #import "DRS.h"
 #import "DRS+weasis.h"
 #import "DRS+cornerstone.h"
-#import "DRS+dicomzip.h"
 #import "DRS+datatablesStudy.h"
+#import "DRS+dicomzip.h"
 
 #import "DICMTypes.h"
 #import "NSString+PCS.h"

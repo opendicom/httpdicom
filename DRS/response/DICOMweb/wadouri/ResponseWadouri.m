@@ -48,7 +48,7 @@
                    EUID:euid
                    SUID:suid
                    IUID:iuid
-              anonymize:false
+              anonymize:NO
           transferSyntax:@"*"
            ];
 }

@@ -192,6 +192,8 @@
 		842BF692229D82C800E19DA2 /* NSString+O01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04272F223ABE4C00E78FEA /* NSString+O01.h */; };
 		842BF693229D82C800E19DA2 /* NSString+A01.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A04270022389ADE00E78FEA /* NSString+A01.h */; };
 		842BF6A922A0027D00E19DA2 /* MLLP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A0426DD2232A39300E78FEA /* MLLP.framework */; };
+		A595CC7C24194C6D00448C70 /* DRS+dicomzip.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A3F897523F5C794005DE843 /* DRS+dicomzip.h */; };
+		A595CC7D24194C7D00448C70 /* DRS+dicomzip.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A3F897723F5C794005DE843 /* DRS+dicomzip.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -944,6 +946,7 @@
 				4A2D90772183455100371484 /* zlib.h in Headers */,
 				4A0FDF621E910C1D001E3426 /* RSBodyDecoder.h in Headers */,
 				4A94BEA4209228E10009C4AB /* NSDictionary+PCS.h in Headers */,
+				A595CC7C24194C6D00448C70 /* DRS+dicomzip.h in Headers */,
 				4A0FDF441E91078C001E3426 /* RSBodyReaderProtocol.h in Headers */,
 				4ABF11FD1FE6879C000B8DE6 /* NSMutableString+DSCD.h in Headers */,
 				4ABF11DE1FE5C11C000B8DE6 /* NSData+PCS.h in Headers */,
@@ -1109,6 +1112,7 @@
 				842BF68B229D825700E19DA2 /* NSString+O01.m in Sources */,
 				842BF68C229D825700E19DA2 /* NSString+A01.m in Sources */,
 				4A0FDF461E91078C001E3426 /* RSGZipEncoder.m in Sources */,
+				A595CC7D24194C7D00448C70 /* DRS+dicomzip.m in Sources */,
 				4AF40D60221C3FCF00103F99 /* RequestPatients.m in Sources */,
 				4A2F37F022884855004BE2A2 /* RequestMwlitems.m in Sources */,
 				4A19C9351E8F15B700DDD35D /* RSHandler.m in Sources */,

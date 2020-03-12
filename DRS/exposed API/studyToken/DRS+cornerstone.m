@@ -69,12 +69,12 @@
       NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
 
 
-      NSMutableDictionary *arc=[NSMutableDictionary dictionaryWithContentsOfFile:d[@"path"]];
+      NSMutableDictionary *arc=[NSMutableDictionary dictionaryWithContentsOfFile:d[@"devOIDJSONPath"]];
       if (!arc)
       {
          arc=[NSMutableDictionary dictionaryWithObjectsAndKeys:
          d[@"devOID"], @"arcId",
-         d[@"proxyURIString"],@"baseUrl",
+         @"_proxyURIString_",@"baseUrl",
          nil];
       }
       
@@ -373,8 +373,7 @@ As seen some casuistics can be resolved before any query to the instance table, 
                               NSString *wadouriInstance=
                               [NSString
                                stringWithFormat:
-                               @"wadouri:%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%%@&custodianOID=%@&arcId=%@%@",
-                               d[@"proxyURIString"],
+                               @"wadouri:_proxyURIString_?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=_sessionString_&custodianOID=%@&arcId=%@%@",
                                study[@"StudyInstanceUID"],
                                seriesSqlProperties[1],
                                instanceSqlProperties[2],
@@ -402,7 +401,7 @@ As seen some casuistics can be resolved before any query to the instance table, 
       }//end for each P
        
       NSData *docData=[NSJSONSerialization dataWithJSONObject:arc options:0 error:nil];
-      [docData writeToFile:d[@"path"] atomically:YES];
+      [docData writeToFile:d[@"devOIDJSONPath"] atomically:YES];
 
    }//end EP
 }

@@ -1,7 +1,7 @@
 [
  {
   "arcId":"devOID",
-  "baseUrl":"proxyURIString",
+  "baseUrl":"_proxyURIString_",
   "patientList":
   [
    {

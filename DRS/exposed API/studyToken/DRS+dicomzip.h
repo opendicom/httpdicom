@@ -4,8 +4,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DRS (dicomzip)
 
-+(void)dicomzipSql4dictionary:(NSDictionary*)d;
-+(RSResponse*)dicomzipChunks4dictionary:(NSDictionary*)d;
++(void)dicomzipSql4d:(NSDictionary*)d;
+//+(RSResponse*)dicomzipChunks4dictionary:(NSDictionary*)d;
 
 @end
 

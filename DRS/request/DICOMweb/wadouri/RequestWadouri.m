@@ -36,14 +36,14 @@
       NSLog(@"pacs + StudyInstanceUID + SeriesInstanceUID + SOPInstanceUID required");
       return nil;
    }
-   
-   NSMutableString *URLString=[NSMutableString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application%%2Fdicom&anonymize=%@&transferSyntax=%@",
+   //&anonymize=%@&transferSyntax=%@
+   NSMutableString *URLString=[NSMutableString stringWithFormat:@"%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&contentType=application%%2Fdicom",
                                pacs[@"wadouri"],
                                euid,
                                suid,
-                               iuid,
-                               anonymize?@"yes":@"no",
-                               transferSyntax
+                               iuid//,
+                               //anonymize?@"yes":@"no",
+                               //transferSyntax
                                ];
    
    return [NSMutableURLRequest
