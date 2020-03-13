@@ -59,11 +59,19 @@
    
 #pragma mark E from datatables plist
    NSArray *studyPlist=[NSArray arrayWithContentsOfFile:[d[@"devOIDPath"]stringByAppendingPathExtension:@"plist"]];
-   for (NSArray *study in studyPlist)
-   {
+    
+    NSArray *studiesSelected=nil;
+    if (d[@"StudyInstanceUIDRegexpString"])
+    {
+        NSPredicate *studyPredicate = [NSPredicate predicateWithFormat:@"SELF[16] == %@", d[@"StudyInstanceUIDRegexpString"]];
+        studiesSelected=[studyPlist filteredArrayUsingPredicate:studyPredicate];
+    }
+    else studiesSelected=studyPlist;
+    for (NSArray *study in studiesSelected)
+    {
 #pragma mark loop E
        
-       NSString *EPath=[d[@"devOIDPath"] stringByAppendingPathComponent:[study[DEEKey] stringValue]];
+       NSString *EPath=[d[@"devOIDPath"] stringByAppendingPathComponent:study[16]];//E
       
 #pragma mark series loop
       NSMutableData *seriesData=[NSMutableData data];
@@ -71,7 +79,7 @@
                         [NSString stringWithFormat:
                          sqlDictionary[@"S"],
                          sqlprolog,
-                         [study[DEEKey] stringValue],
+                         [study[20] stringValue],
                          @"",
                          sqlRecordThirteenUnits
                          ],
@@ -82,8 +90,16 @@
          continue;
       }
       NSArray *seriesSqlPropertiesArray=[seriesData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
-      for (NSArray *seriesSqlProperties in seriesSqlPropertiesArray)
-      {
+       
+       NSArray *seriesSelected=nil;
+       if (d[@"SeriesInstanceUIDRegexString"])
+       {
+           NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF[1] == %@", d[@"SeriesInstanceUIDRegexString"]];
+           seriesSelected=[seriesSqlPropertiesArray filteredArrayUsingPredicate:predicate];
+       }
+       else seriesSelected=seriesSqlPropertiesArray;
+       for (NSArray *seriesSqlProperties in seriesSelected)
+       {
           //add it? (SOPClass = yes)
          NSString *SOPClass=SOPCLassOfReturnableSeries(
           sqlcredentials,
@@ -100,9 +116,12 @@
          
          if (SOPClass)
          {
-              NSString *SPath=[EPath stringByAppendingPathComponent:seriesSqlProperties[0]];
-             if (![defaultManager fileExistsAtPath:EPath])
-                [defaultManager createDirectoryAtPath:EPath withIntermediateDirectories:YES attributes:nil error:nil];
+              NSString *SPath=[EPath stringByAppendingPathComponent:seriesSqlProperties[1]];
+             NSError *error=nil;
+             if (![defaultManager fileExistsAtPath:SPath])
+             {
+                 if (![defaultManager createDirectoryAtPath:SPath withIntermediateDirectories:YES attributes:nil error:&error]) LOG_ERROR(@"can not create series folder for zip. %@",[error description]);
+             }
 
                         
    #pragma mark instances depending on the SOP Class

@@ -127,39 +127,42 @@ enum DE {
  ============
  
  @[
- 0  ""
- 1  "
+ 0 (0)  ""
+ 1 (1-3)  "
     datatables/series?AccessionNumber=%@
     &IssuerOfAccessionNumber.UniversalEntityID=%@
     &StudyInstanceUID= %@
     &session=%@
     [EAN][EANIssuerUID][EUID]
     "
- 4  ERead
- 5  "
+ 2 (4)  ERead
+ 3 (5-6)  "
     datatables?PatientID=%@
     &IssuerOfPatientID.UniversalEntityID=%@
     &session=%@
     [PID][PIssuer]
     "
- 7  PName,
- 8  EDateTime,
- 9  EModalities
- 10 EDescription
- 11 ERef
- 12 ESocial
- 13 PIssuer
- 14 PBirthDate
- 15 PSex
- 16 EAN
- 17 EANIssuerUID
- 18 EID
- 19 EUID
- 20 EDateTime
- 21 EInstitution
+ 4 (7)  PName,
+ 5 (8  EDateTime,
+ 6 (9  EModalities
+ 7 (10 EDescription
+ 8 (11 ERef
+ 9 (12 ESocial
+ 10 (13 PIssuer
+ 11 (14 PBirthDate
+ 12 (15 PSex
+ 13 (16 EAN
+ 14 (17 EANIssuerUID
+ 15 (18 EID
+ 16 (19 EUID
+ 17 (20 EDateTime
+ 18 (21 EInstitution
  
- 22 PKey
- 23 EKey
+ 19 (22 PKey
+ 20 (23 EKey
+ 21 (24 devOID
+ 22 (25 cache
+ 23 (26 PID
  ]
  
  */

@@ -1403,9 +1403,11 @@ NSString * SOPCLassOfReturnableSeries(
 
 // SeriesInstanceUID
    NSInteger SeriesInstanceUIDIndex=[names indexOfObject:@"SeriesInstanceUID"];
+    NSString *SeriesInstanceUIDRegexString=nil;
    if (SeriesInstanceUIDIndex!=NSNotFound)
    {
-      [requestDict setObject:values[SeriesInstanceUIDIndex] forKey:@"SeriesInstanceUIDRegexString"];
+       SeriesInstanceUIDRegexString=values[SeriesInstanceUIDIndex];
+      [requestDict setObject:SeriesInstanceUIDRegexString forKey:@"SeriesInstanceUIDRegexString"];
       if (!buildCompareCanonical(
                                  cacheDict,
                                  canonicalQuery,
@@ -1792,35 +1794,77 @@ NSString * SOPCLassOfReturnableSeries(
                   break;
             }
          }
-         //reply with result found in requestPpath
-         NSArray *results=[defaultManager contentsOfDirectoryAtPath:requestPath error:nil];
-         NSMutableString *resultString=[NSMutableString stringWithString:@"["];
-         NSUInteger countdown=results.count;
-         for (NSString *resultFile in results)
+          
+         NSMutableArray *pathArray=[NSMutableArray array];
+         NSArray *studiesSelected=[StudyInstanceUIDRegexpString componentsSeparatedByString:@"|"];
+         BOOL oneStudySelected=(studiesSelected.count < 2);
+          
+         BOOL oneSeriesSelected=false;
+         NSArray *seriesSelected=nil;
+         if (SeriesInstanceUIDRegexString!=nil)
          {
-            countdown--;
-            if ([[resultFile pathExtension] isEqualToString:@"json"])
-            {
-               [resultString appendString:
-                [NSString
-                 stringWithContentsOfFile:
-                 [requestPath stringByAppendingPathComponent:resultFile]
-                 encoding:NSUTF8StringEncoding
-                 error:nil
-                 ]
-                ];
-               if (countdown)[resultString appendString:@","];
-            }
+             seriesSelected=[SeriesInstanceUIDRegexString componentsSeparatedByString:@"|"];
+             oneSeriesSelected=(seriesSelected.count < 2);
          }
-         [resultString appendString:@"]"];
-
-#pragma mark for testing
+         NSArray *devOIDItems=[defaultManager contentsOfDirectoryAtPath:queryPath error:nil];
+          for (NSString *devOIDItem in devOIDItems)
+          {
+              NSString *devOIDPath=[queryPath stringByAppendingPathComponent:devOIDItem];
+              NSArray *studyFolders=[defaultManager contentsOfDirectoryAtPath:devOIDPath error:nil];
+              if (studyFolders && studyFolders.count)
+              {
+                  //there is/are studies for this devOID
+                  if (oneStudySelected)
+                  {
+                      if ([studyFolders indexOfObject:StudyInstanceUIDRegexpString]!=NSNotFound)
+                      {
+                          //study found
+                          if (seriesSelected)
+                          {
+                              NSString *studyPath=[devOIDPath stringByAppendingPathComponent:StudyInstanceUIDRegexpString];
+                              NSArray *seriesFolders=[defaultManager contentsOfDirectoryAtPath:studyPath error:nil];
+                              for (NSString *seriesFolder in seriesFolders)
+                              {
+                                  if ([seriesSelected indexOfObject:seriesFolder]!=NSNotFound)
+                                  [pathArray addObject:[[devOIDItem stringByAppendingPathComponent:StudyInstanceUIDRegexpString] stringByAppendingPathComponent:seriesFolder]];
+                              }
+                          }
+                          else //complete study
+                          {
+                              [pathArray addObject:[devOIDItem stringByAppendingPathComponent:StudyInstanceUIDRegexpString]];
+                          }
+                      }
+                  }
+                  else //multiple studies
+                  {
+                      //more than one study selected
+                      for (NSString *studyFolder in studyFolders)
+                      {
+                          if ([studiesSelected indexOfObject:studyFolder]!=NSNotFound)
+                              [pathArray addObject:[devOIDItem stringByAppendingPathComponent:studyFolder]];
+                          
+                      }
+                  }
+              }
+          }
+          //LOG_INFO(@"%@",[pathArray description]);
+          NSString *zipPath=[[queryPath lastPathComponent] stringByAppendingPathExtension:@"zip"];
+          NSMutableString *zipCommand=
+          [NSMutableString
+           stringWithFormat:@"cd %@;rm -f %@;/usr/bin/zip -r %@ %@",
+           queryPath,
+           zipPath,
+           zipPath,
+           [pathArray componentsJoinedByString:@" "]
+           ];
+          NSMutableData *zipstdout=[NSMutableData data];
+          if (execUTF8Bash(@{},zipCommand,zipstdout)!=0) LOG_ERROR(@"zip error");
+          NSLog(@"%@",[queryPath stringByAppendingPathExtension:@"zip"]);
          return
          [RSDataResponse
-          responseWithData:[resultString dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
-#pragma mark TODO, return zip
-//         return [DRS dicomzipChunks4dictionary:requestDict];
-         return nil;
+          responseWithData:[NSData dataWithContentsOfFile:[queryPath stringByAppendingPathComponent:zipPath]]
+          contentType:@"application/zip"];//application/octet-stream
+         return nil;// [NSData dataWithContentsOfFile:[queryPath stringByAppendingPathExtension:@"zip"]]
       } break;
          
 #pragma mark osirix
