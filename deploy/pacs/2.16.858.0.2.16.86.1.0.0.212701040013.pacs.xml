@@ -49,7 +49,7 @@
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dcm4cheearc517mysql</string>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
             
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
@@ -144,7 +144,7 @@
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dcm4cheearc517mysql</string>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
             
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
@@ -239,7 +239,7 @@
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dcm4cheearc517mysql</string>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
             
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
@@ -286,7 +286,7 @@
             <key>qido</key>
             <string id="qido"></string>
             <key>stow</key>
-            <string id="stow"></string>
+            <string id="stow">http://192.168.1.102:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies</string>
             
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri"></string>
