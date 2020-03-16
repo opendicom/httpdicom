@@ -11,15 +11,179 @@
 
 #import "DRS+studyToken.h"
 
-BOOL buildCompareCanonical(NSDictionary *refDict, NSMutableString *mutableString, NSString* name, NSString* value)
+
+BOOL buildCompareCanonical(
+   BOOL isFromDatatables,
+   NSMutableDictionary *cacheDict,
+   NSString *rPID,
+   NSString *rFamily,
+   NSString *rGiven,
+   NSString *rMiddle,
+   NSString *rPrefix,
+   NSString *rSuffix,
+   NSString *rDate,
+   NSString *rMod,
+   NSString *rDesc,
+   NSString *rID,
+   NSMutableString *mutableString,
+   NSString* name,
+   NSString* value
+)
 {
-    if (refDict)
-    {
-        if (!refDict[name]) return true;
-        return [value isEqualToString:refDict[name]];
-    }
-    [mutableString appendFormat:@"\"%@\":\"%@\",",name,value];
-    return true;
+   //in all cases, prepare the canonical string
+   [mutableString appendFormat:@"\"%@\":\"%@\",",name,value];
+   
+//cache creation or new query from datatables
+   if (!cacheDict || !cacheDict.count) return true;
+   
+//existing cache
+   if (isFromDatatables)
+   {
+      //compare values, if not restrictive -> reset cacheDict
+      if ([name isEqualToString:@"AccessionNumber"])
+      {
+         [cacheDict removeAllObjects];
+         return true;
+
+      }
+      if ([name isEqualToString:@"PatientID"])
+      {
+         if (![value hasPrefix:cacheDict[name]])
+            [cacheDict removeAllObjects];//force new
+         else if (value.length) rPID=value;
+         return true;
+      }
+      if ([name isEqualToString:@"patientFamily"])
+      {
+         if (![value hasPrefix:cacheDict[name]])
+            [cacheDict removeAllObjects];//force new
+         else if (value.length) rFamily=value;
+         return true;
+      }
+      if ([name isEqualToString:@"patientGiven"])
+      {
+         if (![value hasPrefix:cacheDict[name]])
+            [cacheDict removeAllObjects];//force new
+         else if (value.length) rGiven=value;
+         return true;
+      }
+      if ([name isEqualToString:@"patientMiddle"])
+      {
+         if (![value hasPrefix:cacheDict[name]])
+            [cacheDict removeAllObjects];//force new
+         else if (value.length) rMiddle=value;
+         return true;
+      }
+      if ([name isEqualToString:@"patientPrefix"])
+      {
+         if (![value hasPrefix:cacheDict[name]])
+            [cacheDict removeAllObjects];//force new
+         else if (value.length) rPrefix=value;
+         return true;
+      }
+      if ([name isEqualToString:@"patientSuffix"])
+      {
+         if (![value hasPrefix:cacheDict[name]])
+            [cacheDict removeAllObjects];//force new
+         else if (value.length) rSuffix=value;
+         return true;
+      }
+      if ([name isEqualToString:@"StudyDescription"])
+      {
+         if (![value hasPrefix:cacheDict[name]])
+            [cacheDict removeAllObjects];//force new
+         else if (value.length) rDesc=value;
+         return true;
+      }
+      if ([name isEqualToString:@"StudyID"])
+      {
+         if (![value hasPrefix:cacheDict[name]])
+            [cacheDict removeAllObjects];//force new
+         else if (value.length) rID=value;
+         return true;
+      }
+      
+      if ([name isEqualToString:@"StudyDate"])
+      {
+         //@"%@-%@-%@|%@-%@-%@"
+         NSArray *cacheD=[cacheDict[@"StudyDate"] componentsSeparatedByString:@"|"];
+         NSArray *newD=[value componentsSeparatedByString:@"|"];
+
+         if (cacheD.count==1)
+         {
+            //on
+            if (
+                   (newD.count==2)
+                ||![cacheD[0] isEqualToString:value]
+                )
+               [cacheDict removeAllObjects];//force new
+            return true;
+         }
+         
+         //two parts
+         
+         //check start
+         if (
+                [cacheD[0] length]
+             && ([cacheD[0] compare:newD[0]]==NSOrderedDescending)
+             )
+            [cacheDict removeAllObjects];//force new
+      
+         //check end
+         if (
+                [cacheD[0] length]
+             && ([cacheD[0] compare:newD[0]]==NSOrderedAscending)
+             )
+            [cacheDict removeAllObjects];//force new
+         
+         if (cacheDict.count) rDate=value;
+         return true;
+      }
+      
+      if ([name isEqualToString:@"ModalityInStudy"])
+      {
+         if (!cacheDict[name]) rMod=value;
+         else [cacheDict removeAllObjects];//force new
+         return true;
+      }
+
+/*
+ Should not be modified ever through datatables GUI
+ 
+      StudyInstanceUIDRegexpString
+      refInstitutionLikeString
+      refServiceLikeString
+      refUserLikeString
+      refIDLikeString
+      refIDTypeLikeString
+      readInstitutionLikeString
+      readServiceLikeString
+      readUserLikeString
+      readIDLikeString
+      readIDTypeLikeString
+      */
+      if (
+            [name isEqualToString:@"refInstitution"]
+          ||[name isEqualToString:@"refService"]
+          ||[name isEqualToString:@"refUser"]
+          ||[name isEqualToString:@"refID"]
+          ||[name isEqualToString:@"refIDType"]
+          ||[name isEqualToString:@"readInstitution"]
+          ||[name isEqualToString:@"readService"]
+          ||[name isEqualToString:@"readUser"]
+          ||[name isEqualToString:@"readID"]
+          ||[name isEqualToString:@"readIDType"]
+          ||[name isEqualToString:@"StudyInstanceUID"]
+          )
+      {
+         [cacheDict removeAllObjects];//force new
+         return true;
+      }
+   }
+   
+   //in all other accessTypes, changes are not allowed
+   if (cacheDict[name]) return [value isEqualToString:cacheDict[name]];
+   return false;
 }
 
 /*
@@ -643,29 +807,91 @@ NSString * SOPCLassOfReturnableSeries(
                    acceptsGzip:(BOOL)acceptsGzip
 {
    NSFileManager *defaultManager=[NSFileManager defaultManager];
-    
+
+
+#pragma mark accessType
+
+   NSInteger accessTypeNumber=NSNotFound;
+   if (![requestPath isEqualToString:@"/studyToken"])
+      accessTypeNumber=[
+                  @[
+                     @"/weasis.xml",
+                     @"/cornerstone.json",
+                     @"/dicom.zip",
+                     @"/osirix.dcmURLs",
+                     @"/datatables",
+                     @"/datatables/studies",
+                     @"/datatables/patient",
+                     @"/iso.dicom.zip",
+                     @"/deflate.iso.dicom.zip",
+                     @"/max.deflate.iso.dicom.zip",
+                     @"/zip64.iso.dicom.zip",
+                     @"/wadors.dicom"
+                  ]  indexOfObject:requestPath
+                  ];
+   else
+   {
+      NSInteger accessTypeIndex=[names indexOfObject:@"accessType"];
+      if (accessTypeIndex==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType required in request"];
+      accessTypeNumber=[
+                  @[
+                     @"weasis.xml",
+                     @"cornerstone.json",
+                     @"dicom.zip",
+                     @"osirix.dcmURLs",
+                     @"datatables",
+                     @"datatables/sudies",
+                     @"datatables/patient",
+                     @"iso.dicom.zip",
+                     @"deflate.iso.dicom.zip",
+                     @"max.deflate.iso.dicom.zip",
+                     @"zip64.iso.dicom.zip",
+                     @"wadors.dicom"
+                  ]
+                  indexOfObject:values[accessTypeIndex]
+                  ];
+      if (accessTypeNumber==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
+   }
+
+   BOOL isFromDatatables=(accessTypeNumber==4);
+#pragma mark cache?
+   /*
+    if cacheDict, evalutate changes:
+    case datatables/study
+    -> evaluate if it is a restriction and if so, filter already existing results
+    case dicomzip,cornerstone,weasis, etc
+    -> should declare bad url
+    */
     NSString *queryPath=nil;
     NSUInteger cacheIndex=[names indexOfObject:@"cache"];
     NSString *cachePath=nil;
-    NSDictionary *cacheDict=nil;
-    NSMutableString *canonicalQuery=nil;
+   
+    NSString *rPID=nil;
+    NSString *rFamily=nil;
+    NSString *rGiven=nil;
+    NSString *rMiddle=nil;
+    NSString *rPrefix=nil;
+    NSString *rSuffix=nil;
+    NSString *rDate=nil;
+    NSString *rMod=nil;
+    NSString *rDesc=nil;
+    NSString *rID=nil;
+   //rPID,rFamily,rGiven,rMiddle,rPrefix,rSuffix,rDate,rMod,rDesc,rID
+    NSMutableDictionary *cacheDict=nil;
     if (   (cacheIndex!=NSNotFound)
         && ([values[cacheIndex] length])
        )
     {
         cachePath=[DRS.tokentmpDir stringByAppendingPathComponent:values[cacheIndex]];
         NSData *cacheData=[NSData dataWithContentsOfFile:[cachePath stringByAppendingPathExtension:@"json"]];
-        if (cacheData) cacheDict=[NSJSONSerialization JSONObjectWithData:cacheData options:0 error:nil];
+        if (cacheData) cacheDict=[NSJSONSerialization JSONObjectWithData:cacheData options:NSJSONReadingMutableContainers error:nil];
      }
     
-    if (cacheDict)
-        queryPath=cachePath;
-    else
-        canonicalQuery=[NSMutableString stringWithString:@"{"];
+    NSMutableString *canonicalQuery=[NSMutableString stringWithString:@"{"];
     
-   NSMutableDictionary *requestDict=[NSMutableDictionary dictionary];
-   NSInteger tokenIndex=[names indexOfObject:@"token"];
-   if (tokenIndex!=NSNotFound) [requestDict setObject:values[tokenIndex] forKey:@"tokenString"];
+    NSMutableDictionary *requestDict=[NSMutableDictionary dictionary];
+    NSInteger tokenIndex=[names indexOfObject:@"token"];
+    if (tokenIndex!=NSNotFound) [requestDict setObject:values[tokenIndex] forKey:@"tokenString"];
 
 
 
@@ -731,10 +957,20 @@ NSString * SOPCLassOfReturnableSeries(
        {
           if ([DICMTypes isUIPipeListString:values[StudyInstanceUIDIndex]])
           {
-             StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
+          StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
              [requestDict setObject:StudyInstanceUIDRegexpString forKey:@"StudyInstanceUIDRegexpString"];
-             if (!buildCompareCanonical(
+             if (!buildCompareCanonical(isFromDatatables,
                                         cacheDict,
+                                        nil,
+                                        nil,
+                                        nil,
+                                        nil,
+                                        nil,
+                                        nil,
+                                        nil,
+                                        nil,
+                                        nil,
+                                        nil,
                                         canonicalQuery,
                                         @"StudyInstanceUID",
                                         StudyInstanceUIDRegexpString
@@ -745,6 +981,7 @@ NSString * SOPCLassOfReturnableSeries(
        }
     }
 
+   
 #pragma mark AccessionNumber
     NSString *AccessionNumberEqualString=nil;
     NSInteger AccessionNumberIndex=[names indexOfObject:@"AccessionNumber"];
@@ -752,14 +989,25 @@ NSString * SOPCLassOfReturnableSeries(
     {
        AccessionNumberEqualString=[values[AccessionNumberIndex] sqlEqualEscapedString];
        [requestDict setObject:AccessionNumberEqualString forKey:@"AccessionNumberEqualString"];
-        if (!buildCompareCanonical(
+        if (!buildCompareCanonical(isFromDatatables,
                                    cacheDict,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
                                    canonicalQuery,
                                    @"AccessionNumber",
                                    AccessionNumberEqualString
                                    )
             ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
+
 
    
 #pragma mark 1. PatientID (Pid)
@@ -769,8 +1017,18 @@ NSString * SOPCLassOfReturnableSeries(
     {
        PatientIDLikeString=[values[PatientIDIndex] sqlLikeEscapedString];
        [requestDict setObject:PatientIDLikeString forKey:@"PatientIDLikeString"];
-        if (!buildCompareCanonical(
+        if (!buildCompareCanonical(isFromDatatables,
                                    cacheDict,
+                                   rPID,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
+                                   nil,
                                    canonicalQuery,
                                    @"PatientID",
                                    PatientIDLikeString
@@ -778,6 +1036,7 @@ NSString * SOPCLassOfReturnableSeries(
             ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
+   
 #pragma mark 2. PatientName (Ppn)
    
    BOOL patientNamePart=false;
@@ -789,8 +1048,18 @@ NSString * SOPCLassOfReturnableSeries(
       patientNamePart=true;
       patientFamilyLikeString=[values[patientFamilyIndex] regexQuoteEscapedString];
       [requestDict setObject:patientFamilyLikeString forKey:@"patientFamilyLikeString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  rFamily,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"patientFamily",
                                   patientFamilyLikeString
@@ -805,8 +1074,18 @@ NSString * SOPCLassOfReturnableSeries(
       patientNamePart=true;
       patientGivenLikeString=[values[patientGivenIndex] regexQuoteEscapedString];
       [requestDict setObject:patientGivenLikeString forKey:@"patientGivenLikeString"];
-      if (!buildCompareCanonical(
+      if (!buildCompareCanonical(isFromDatatables,
                                  cacheDict,
+                                 nil,
+                                 nil,
+                                 rGiven,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
                                  canonicalQuery,
                                  @"patientGiven",
                                  patientGivenLikeString
@@ -821,8 +1100,18 @@ NSString * SOPCLassOfReturnableSeries(
       patientNamePart=true;
       patientMiddleLikeString=[values[patientMiddleIndex] regexQuoteEscapedString];
       [requestDict setObject:patientMiddleLikeString forKey:@"patientMiddleLikeString"];
-      if (!buildCompareCanonical(
+      if (!buildCompareCanonical(isFromDatatables,
                                  cacheDict,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 rMiddle,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
                                  canonicalQuery,
                                  @"patientMiddle",
                                  patientMiddleLikeString
@@ -837,8 +1126,18 @@ NSString * SOPCLassOfReturnableSeries(
       patientNamePart=true;
       patientPrefixLikeString=[values[patientPrefixIndex] regexQuoteEscapedString];
       [requestDict setObject:patientPrefixLikeString forKey:@"patientPrefixLikeString"];
-      if (!buildCompareCanonical(
+      if (!buildCompareCanonical(isFromDatatables,
                                  cacheDict,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 rPrefix,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
                                  canonicalQuery,
                                  @"patientPrefix",
                                  patientPrefixLikeString
@@ -853,8 +1152,18 @@ NSString * SOPCLassOfReturnableSeries(
       patientNamePart=true;
       patientSuffixLikeString=[values[patientSuffixIndex] regexQuoteEscapedString];
       [requestDict setObject:patientSuffixLikeString forKey:@"patientSuffixLikeString"];
-      if (!buildCompareCanonical(
+      if (!buildCompareCanonical(isFromDatatables,
                                  cacheDict,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 rSuffix,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
                                  canonicalQuery,
                                  @"patientSuffix",
                                  patientSuffixLikeString
@@ -873,8 +1182,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             patientFamilyLikeString=PatientNameParts[0];
             [requestDict setObject:patientFamilyLikeString forKey:@"patientFamilyLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       rFamily,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"patientFamily",
                                        patientFamilyLikeString
@@ -885,8 +1204,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             patientGivenLikeString=PatientNameParts[1];
             [requestDict setObject:patientGivenLikeString forKey:@"patientGivenLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       rGiven,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"patientGiven",
                                        patientGivenLikeString
@@ -897,8 +1226,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             patientMiddleLikeString=PatientNameParts[2];
             [requestDict setObject:patientMiddleLikeString forKey:@"patientMiddleLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       rMiddle,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"patientMiddle",
                                        patientMiddleLikeString
@@ -909,8 +1248,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             patientPrefixLikeString=PatientNameParts[3];
             [requestDict setObject:patientPrefixLikeString forKey:@"patientPrefixLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       rPrefix,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"patientPrefix",
                                        patientPrefixLikeString
@@ -921,8 +1270,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             patientSuffixLikeString=PatientNameParts[4];
             [requestDict setObject:patientSuffixLikeString forKey:@"patientSuffixLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       rSuffix,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"patientSuffix",
                                        patientSuffixLikeString
@@ -940,8 +1299,18 @@ NSString * SOPCLassOfReturnableSeries(
     {
        StudyIDLikeString=[values[StudyIDIndex] sqlLikeEscapedString];
        [requestDict setObject:StudyIDLikeString forKey:@"StudyIDLikeString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  rID,
                                   canonicalQuery,
                                   @"StudyID",
                                   StudyIDLikeString
@@ -957,8 +1326,18 @@ NSString * SOPCLassOfReturnableSeries(
     if (StudyDateIndex!=NSNotFound)
     {
        NSString *StudyDateString=values[StudyDateIndex];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  rDate,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"StudyDate",
                                   StudyDateString
@@ -1010,8 +1389,18 @@ NSString * SOPCLassOfReturnableSeries(
     {
        StudyDescriptionRegexpString=[values[StudyDescriptionIndex] regexQuoteEscapedString];
        [requestDict setObject:StudyDescriptionRegexpString forKey:@"StudyDescriptionRegexpString"];
-       if (!buildCompareCanonical(
-                                  cacheDict,
+       if (!buildCompareCanonical(isFromDatatables,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  rDesc,
+                                  nil,
                                   canonicalQuery,
                                   @"StudyDescription",
                                   StudyDescriptionRegexpString
@@ -1031,8 +1420,18 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refInstitutionLikeString=[values[refInstitutionIndex] regexQuoteEscapedString];
        [requestDict setObject:refInstitutionLikeString forKey:@"refInstitutionLikeString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"refInstitution",
                                   refInstitutionLikeString
@@ -1047,8 +1446,18 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refServiceLikeString=[values[refServiceIndex] regexQuoteEscapedString];
        [requestDict setObject:refServiceLikeString forKey:@"refServiceLikeString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"refService",
                                   refServiceLikeString
@@ -1063,8 +1472,18 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refUserLikeString=[values[refUserIndex] regexQuoteEscapedString];
        [requestDict setObject:refUserLikeString forKey:@"refUserLikeString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"refUser",
                                   refUserLikeString
@@ -1079,8 +1498,18 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refIDLikeString=[values[refIDIndex] regexQuoteEscapedString];
        [requestDict setObject:refIDLikeString forKey:@"refIDLikeString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"refID",
                                   refIDLikeString
@@ -1095,8 +1524,18 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refIDTypeLikeString=[values[refIDTypeIndex] regexQuoteEscapedString];
        [requestDict setObject:refIDTypeLikeString forKey:@"refIDTypeLikeString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"refIDType",
                                   refIDTypeLikeString
@@ -1115,8 +1554,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             refInstitutionLikeString=refParts[0];
             [requestDict setObject:refInstitutionLikeString forKey:@"refInstitutionLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"refInstitution",
                                        refInstitutionLikeString
@@ -1127,8 +1576,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             refServiceLikeString=refParts[1];
             [requestDict setObject:refServiceLikeString forKey:@"refServiceLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"refService",
                                        refServiceLikeString
@@ -1139,8 +1598,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             refUserLikeString=refParts[2];
             [requestDict setObject:refUserLikeString forKey:@"refUserLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"refUser",
                                        refUserLikeString
@@ -1151,8 +1620,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             refIDLikeString=refParts[3];
             [requestDict setObject:refIDLikeString forKey:@"refIDLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"refID",
                                        refIDLikeString
@@ -1163,8 +1642,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             refIDTypeLikeString=refParts[4];
             [requestDict setObject:refIDTypeLikeString forKey:@"refIDTypeLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"refIDType",
                                        refIDTypeLikeString
@@ -1186,8 +1675,18 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readInstitutionLikeString=[values[readInstitutionIndex] regexQuoteEscapedString];
        [requestDict setObject:readInstitutionLikeString forKey:@"readInstitutionLikeString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"readInstitution",
                                   readInstitutionLikeString
@@ -1202,8 +1701,18 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readServiceLikeString=[values[readServiceIndex] regexQuoteEscapedString];
        [requestDict setObject:readServiceLikeString forKey:@"readServiceLikeString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"readService",
                                   readServiceLikeString
@@ -1218,8 +1727,18 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readUserLikeString=[values[readUserIndex] regexQuoteEscapedString];
        [requestDict setObject:readUserLikeString forKey:@"readUserLikeString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"readUser",
                                   readUserLikeString
@@ -1234,8 +1753,18 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readIDLikeString=[values[readIDIndex] regexQuoteEscapedString];
        [requestDict setObject:readIDLikeString forKey:@"readIDLikeString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"readID",
                                   readIDLikeString
@@ -1250,8 +1779,18 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readIDTypeLikeString=[values[readIDTypeIndex] regexQuoteEscapedString];
        [requestDict setObject:readIDTypeLikeString forKey:@"readIDTypeLikeString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"readIDType",
                                   readIDTypeLikeString
@@ -1270,8 +1809,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             readInstitutionLikeString=readParts[0];
             [requestDict setObject:readInstitutionLikeString forKey:@"readInstitutionLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"readInstitution",
                                        readInstitutionLikeString
@@ -1282,8 +1831,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             readServiceLikeString=readParts[1];
             [requestDict setObject:readServiceLikeString forKey:@"readServiceLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"readService",
                                        readServiceLikeString
@@ -1294,8 +1853,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             readUserLikeString=readParts[2];
             [requestDict setObject:readUserLikeString forKey:@"readUserLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"readUser",
                                        readUserLikeString
@@ -1306,8 +1875,18 @@ NSString * SOPCLassOfReturnableSeries(
          {
             readIDLikeString=readParts[3];
             [requestDict setObject:readIDLikeString forKey:@"readIDLikeString"];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"readID",
                                        readIDLikeString
@@ -1317,8 +1896,18 @@ NSString * SOPCLassOfReturnableSeries(
          if (readParts.count>4)
          {
             readIDTypeLikeString=readParts[4];
-            if (!buildCompareCanonical(
+            if (!buildCompareCanonical(isFromDatatables,
                                        cacheDict,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
+                                       nil,
                                        canonicalQuery,
                                        @"readIDType",
                                        readIDTypeLikeString
@@ -1335,8 +1924,18 @@ NSString * SOPCLassOfReturnableSeries(
    if ((SOPClassInStudyIndex!=NSNotFound) && [DICMTypes isSingleUIString:values[SOPClassInStudyIndex]])
    {
            [requestDict setObject:values[SOPClassInStudyIndex] forKey:@"SOPClassInStudyRegexpString"];
-           if (!buildCompareCanonical(
+           if (!buildCompareCanonical(isFromDatatables,
                                       cacheDict,
+                                      nil,
+                                      nil,
+                                      nil,
+                                      nil,
+                                      nil,
+                                      nil,
+                                      nil,
+                                      nil,
+                                      nil,
+                                      nil,
                                       canonicalQuery,
                                       @"SOPClassInStudy",
                                       values[SOPClassInStudyIndex]
@@ -1350,8 +1949,18 @@ NSString * SOPCLassOfReturnableSeries(
    if ((ModalityInStudyIndex!=NSNotFound) && [DICMTypes isSingleCSString:values[ModalityInStudyIndex]])
    {
       [requestDict setObject:values[ModalityInStudyIndex] forKey:@"ModalityInStudyRegexpString"];
-      if (!buildCompareCanonical(
+      if (!buildCompareCanonical(isFromDatatables,
                                  cacheDict,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 rMod,
+                                 nil,
+                                 nil,
                                  canonicalQuery,
                                  @"ModalityInStudy",
                                  values[ModalityInStudyIndex]
@@ -1365,8 +1974,18 @@ NSString * SOPCLassOfReturnableSeries(
    NSInteger issuerIndex=[names indexOfObject:@"issuer"];
    if (issuerIndex!=NSNotFound)
    {
-      if (!buildCompareCanonical(
+      if (!buildCompareCanonical(isFromDatatables,
                                  cacheDict,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
                                  canonicalQuery,
                                  @"issuer",
                                  [values[issuerIndex] sqlEqualEscapedString]
@@ -1408,8 +2027,18 @@ NSString * SOPCLassOfReturnableSeries(
    {
        SeriesInstanceUIDRegexString=values[SeriesInstanceUIDIndex];
       [requestDict setObject:SeriesInstanceUIDRegexString forKey:@"SeriesInstanceUIDRegexString"];
-      if (!buildCompareCanonical(
+      if (!buildCompareCanonical(isFromDatatables,
                                  cacheDict,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
                                  canonicalQuery,
                                  @"SeriesInstanceUID",
                                  values[SeriesInstanceUIDIndex]
@@ -1422,8 +2051,18 @@ NSString * SOPCLassOfReturnableSeries(
    if (SeriesNumberIndex!=NSNotFound)
    {
       [requestDict setObject:values[SeriesNumberIndex] forKey:@"SeriesNumberRegexString"];
-      if (!buildCompareCanonical(
+      if (!buildCompareCanonical(isFromDatatables,
                                  cacheDict,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
                                  canonicalQuery,
                                  @"SeriesNumber",
                                  values[SeriesNumberIndex]
@@ -1436,8 +2075,18 @@ NSString * SOPCLassOfReturnableSeries(
    if (SeriesDescriptionIndex!=NSNotFound)
    {
       [requestDict setObject:values[SeriesDescriptionIndex] forKey:@"SeriesDescriptionRegexString"];
-       if (!buildCompareCanonical(
+       if (!buildCompareCanonical(isFromDatatables,
                                   cacheDict,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
                                   canonicalQuery,
                                   @"SeriesDescription",
                                   values[SeriesDescriptionIndex]
@@ -1450,8 +2099,18 @@ NSString * SOPCLassOfReturnableSeries(
    if (ModalityIndex!=NSNotFound)
    {
       [requestDict setObject:values[ModalityIndex] forKey:@"ModalityRegexString"];
-      if (!buildCompareCanonical(
+      if (!buildCompareCanonical(isFromDatatables,
                                  cacheDict,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
                                  canonicalQuery,
                                  @"Modality",
                                  values[ModalityIndex]
@@ -1464,8 +2123,18 @@ NSString * SOPCLassOfReturnableSeries(
    if (SOPClassIndex!=NSNotFound)
    {
       [requestDict setObject:values[SOPClassIndex] forKey:@"SOPClassRegexString"];
-      if (!buildCompareCanonical(
+      if (!buildCompareCanonical(isFromDatatables,
                                  cacheDict,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
                                  canonicalQuery,
                                  @"SOPClass",
                                  values[SOPClassIndex]
@@ -1478,8 +2147,18 @@ NSString * SOPCLassOfReturnableSeries(
    if (SOPClassOffIndex!=NSNotFound)
    {
       [requestDict setObject:values[SOPClassOffIndex] forKey:@"SOPClassOffRegexString"];
-      if (!buildCompareCanonical(
+      if (!buildCompareCanonical(isFromDatatables,
                                  cacheDict,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
+                                 nil,
                                  canonicalQuery,
                                  @"SOPClassOff",
                                  values[SOPClassOffIndex]
@@ -1487,7 +2166,7 @@ NSString * SOPCLassOfReturnableSeries(
           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
-//hasRestriction?
+//hasSeriesRestriction?
    BOOL hasRestriction=
       requestDict[@"SeriesInstanceUIDRegexString"]
    || requestDict[@"SeriesNumberRegexString"]
@@ -1506,62 +2185,26 @@ NSString * SOPCLassOfReturnableSeries(
       //add nodes and start corresponding processes
    }
 
-#pragma mark caché
-   //path is the folder containing a file for each of the pacs consulted
-   //path.json is the corresponding canonical query
-    if (canonicalQuery)
-    {
+#pragma mark not cache -> create it
+   BOOL isRestriction=(cacheDict && cacheDict.count);
+   if (! isRestriction)
+   {
+      //new
        [canonicalQuery replaceCharactersInRange:NSMakeRange(canonicalQuery.length-1, 1) withString:@"}"];
        NSString *canonicalQuerySHA512String=[canonicalQuery MD5String];
        queryPath=[DRS.tokentmpDir stringByAppendingPathComponent:canonicalQuerySHA512String];
-       [canonicalQuery writeToFile:[queryPath stringByAppendingPathExtension:@"json"] atomically:NO encoding:NSUTF8StringEncoding error:nil];
-        [defaultManager createDirectoryAtPath:queryPath withIntermediateDirectories:NO attributes:nil error:nil];
+       if (![defaultManager fileExistsAtPath:queryPath])
+       {
+          //path.json is the corresponding canonical query
+          [canonicalQuery writeToFile:[queryPath stringByAppendingPathExtension:@"json"] atomically:NO encoding:NSUTF8StringEncoding error:nil];
+      
+          //path is the folder containing a file for each of the pacs consulted
+          [defaultManager createDirectoryAtPath:queryPath withIntermediateDirectories:NO attributes:nil error:nil];
+       }
     }
+    else queryPath=cachePath; //cache vigente
    
 
-#pragma mark accessType
-
-   NSInteger accessTypeNumber=NSNotFound;
-   if (![requestPath isEqualToString:@"/studyToken"])
-      accessTypeNumber=[
-                  @[
-                     @"/weasis.xml",
-                     @"/cornerstone.json",
-                     @"/dicom.zip",
-                     @"/osirix.dcmURLs",
-                     @"/datatables",
-                     @"/datatables/studies",
-                     @"/datatables/patient",
-                     @"/iso.dicom.zip",
-                     @"/deflate.iso.dicom.zip",
-                     @"/max.deflate.iso.dicom.zip",
-                     @"/zip64.iso.dicom.zip",
-                     @"/wadors.dicom"
-                  ]  indexOfObject:requestPath
-                  ];
-   else
-   {
-      NSInteger accessTypeIndex=[names indexOfObject:@"accessType"];
-      if (accessTypeIndex==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType required in request"];
-      accessTypeNumber=[
-                  @[
-                     @"weasis.xml",
-                     @"cornerstone.json",
-                     @"dicom.zip",
-                     @"osirix.dcmURLs",
-                     @"datatables",
-                     @"datatables/sudies",
-                     @"datatables/patient",
-                     @"iso.dicom.zip",
-                     @"deflate.iso.dicom.zip",
-                     @"max.deflate.iso.dicom.zip",
-                     @"zip64.iso.dicom.zip",
-                     @"wadors.dicom"
-                  ]
-                  indexOfObject:values[accessTypeIndex]
-                  ];
-      if (accessTypeNumber==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
-   }
    
    switch (accessTypeNumber)
    {
@@ -1884,26 +2527,29 @@ NSString * SOPCLassOfReturnableSeries(
           {
               [defaultManager removeItemAtPath:requestPath error:nil];
               [defaultManager createDirectoryAtPath:requestPath  withIntermediateDirectories:NO attributes:nil error:nil];
-              
           }
 
-//loop each LAN pacs producing part
-         for (NSString *devOID in lanArray)
+         if (!isRestriction)
          {
-            [requestDict setObject:devOID forKey:@"devOID"];
-            [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
-            NSUInteger maxCountIndex=[names indexOfObject:@"max"];
-            if (maxCountIndex!=NSNotFound)[requestDict setObject:values[maxCountIndex] forKey:@"max"];
-
-            switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
+            //is not a restriction of existing results
+//loop each LAN pacs producing part
+            for (NSString *devOID in lanArray)
             {
-                case selectTypeSql:
-                  [DRS datateblesStudySql4dictionary:requestDict];
-                  break;
+               [requestDict setObject:devOID forKey:@"devOID"];
+               [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
+               NSUInteger maxCountIndex=[names indexOfObject:@"max"];
+               if (maxCountIndex!=NSNotFound)[requestDict setObject:values[maxCountIndex] forKey:@"max"];
+
+               switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
+               {
+                   case selectTypeSql:
+                     [DRS datateblesStudySql4dictionary:requestDict];
+                     break;
+               }
             }
          }
 
-//reply with result found in path//TODO paging the answer
+#pragma mark resultsArray
          NSMutableArray *resultsArray=[NSMutableArray array];
          NSArray *resultsDirectory=[defaultManager contentsOfDirectoryAtPath:queryPath error:nil];
          for (NSString *resultFile in resultsDirectory)
@@ -1978,8 +2624,92 @@ NSString * SOPCLassOfReturnableSeries(
                     contentType:@"application/dicom+json"
                     ];
          }
-          
-          //order
+         
+#pragma mark isRestriction
+        if (isRestriction)
+        {
+         //create compound predicate
+           NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
+           {
+               //PatientID
+               if (rPID && [row[3] hasPrefix:rPID]) return false;
+
+               //PatientName
+               if (  rFamily
+                   ||rGiven
+                   ||rMiddle
+                   ||rPrefix
+                   ||rSuffix
+                   )
+               {
+                  NSArray *n=[row[4] componentsSeparatedByString:@"^"];
+                  NSUInteger c=n.count;
+                  if ((c > 0) && rFamily && ([n[0] length]))
+                  {
+                     if ([[n[0] componentsSeparatedByString:rFamily] count] < 2) return false;
+                  }
+                  if ((c > 1) && rGiven && ([n[1] length]))
+                  {
+                     if ([[n[1] componentsSeparatedByString:rGiven] count] < 2) return false;
+                  }
+                  if ((c > 2) && rMiddle && ([n[2] length]))
+                  {
+                     if ([[n[2] componentsSeparatedByString:rMiddle] count] < 2) return false;
+                  }
+                  if ((c > 3) && rPrefix && ([n[3] length]))
+                  {
+                     if ([[n[3] componentsSeparatedByString:rPrefix] count] < 2) return false;
+                  }
+                  if ((c > 4) && rSuffix && ([n[4] length]))
+                  {
+                     if ([[n[4] componentsSeparatedByString:rSuffix] count] < 2) return false;
+                  }
+
+               }
+
+               if (rDate)
+               {
+                  //@"%@-%@-%@|%@-%@-%@"
+                  NSArray *d=[rDate componentsSeparatedByString:@"|"];
+
+                  if (d.count==1)
+                  {
+                     //on
+                     if (![row[5] hasPrefix:d[0]]) return false;
+                  }
+                  
+                  //two parts
+                  
+                  //check start
+                  if (
+                         [d[0] length]
+                      && ([d[0] compare:row[5]]==NSOrderedDescending)
+                      ) return false;
+               
+                  //check end
+                  if (
+                         [d[1] length]
+                      && ([d[1] compare:row[5]]==NSOrderedAscending)
+                      ) return false;
+               }
+                    
+               if (rMod)//ModalityInStudy
+               {
+                  if ([[row[6] componentsSeparatedByString:rMod] count] < 2) return false;
+               }
+              
+               if (rDesc)//StudyDescription
+               {
+                  if ([[row[7] componentsSeparatedByString:rDesc] count] < 2) return false;
+               }
+               return true;
+            }];
+         
+            [resultsArray filterUsingPredicate:compoundPredicate];
+         }
+         
+         
+#pragma mark order
           NSUInteger orderIndex=[names indexOfObject:@"order"];
           NSUInteger dirIndex=[names indexOfObject:@"dir"];
           if ((orderIndex!=NSNotFound) && (dirIndex!=NSNotFound))

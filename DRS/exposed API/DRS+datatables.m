@@ -36,8 +36,8 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
 #pragma mark - parsing URL
      NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/studies?"][1];
 
-     NSMutableArray *names=[NSMutableArray array];
-     NSMutableArray *values=[NSMutableArray array];
+     NSMutableArray *names=[NSMutableArray arrayWithObject:@"accessType"];
+     NSMutableArray *values=[NSMutableArray arrayWithObject:@"datatables/study"];
      NSArray *datatablesRequestItems=[datatablesQueryPart componentsSeparatedByString:@"&"];
     
      for (NSString *param in datatablesRequestItems)
@@ -506,4 +506,5 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
 //subsampling with block predicate
 // //https://developer.apple.com/reference/foundation/nsmutablearray/1412085-filterusingpredicate?language=objc
 // https://stackoverflow.com/questions/13767516/nspredicate-on-array-of-arrays/33779086
+// https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/Articles/pSyntax.html
 // https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/Articles/pBNF.html#//apple_ref/doc/uid/TP40001796-217950

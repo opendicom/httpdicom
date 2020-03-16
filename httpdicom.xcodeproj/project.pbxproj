@@ -494,6 +494,8 @@
 				4A625A6C226F4C87005AEBF4 /* DRS+mwlitem.m */,
 				4A57391B2417AB07007B5FD6 /* DRS+report.h */,
 				4A57391C2417AB07007B5FD6 /* DRS+report.m */,
+				4A494CEE23745B62006F69DF /* DRS+store.h */,
+				4A494CEF23745B62006F69DF /* DRS+store.m */,
 			);
 			path = "exposed API";
 			sourceTree = "<group>";
@@ -602,8 +604,6 @@
 		4A57391A241795FE007B5FD6 /* not_tested */ = {
 			isa = PBXGroup;
 			children = (
-				4A494CEE23745B62006F69DF /* DRS+store.h */,
-				4A494CEF23745B62006F69DF /* DRS+store.m */,
 				4AF40D2E21F8FA8A00103F99 /* DRS+qido.h */,
 				4AF40D2F21F8FA8A00103F99 /* DRS+qido.m */,
 				4A2D905C2181E37C00371484 /* DRS+wadors.h */,

@@ -11,7 +11,7 @@ enum stowContentType{
 
 -(void)addPOSTstudiesHandler
 {
-   NSRegularExpression *stowRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs(\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*)\\/studies(\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*)?$" options:NSRegularExpressionCaseInsensitive error:NULL];
+   NSRegularExpression *stowRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/stow(\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*)\\/studies(\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*)?$" options:NSRegularExpressionCaseInsensitive error:NULL];
     
    NSArray *stowContentTypeArray=
    @[
