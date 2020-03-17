@@ -11,6 +11,20 @@
 
 #import "DRS+studyToken.h"
 
+BOOL appendImmutableToCanonical(
+    NSMutableDictionary *cacheDict,
+    NSMutableString *canonicalQuery,
+    NSString* name,
+    NSString* value
+)
+{
+    [canonicalQuery appendFormat:@"\"%@\":\"%@\",",name,value];
+    if (!cacheDict.count) return true;
+    if (cacheDict[name]) return [value isEqualToString:cacheDict[name]];
+    return false;
+}
+
+
 
 BOOL buildCompareCanonical(
    BOOL isFromDatatables,
@@ -134,8 +148,8 @@ BOOL buildCompareCanonical(
       
          //check end
          if (
-                [cacheD[0] length]
-             && ([cacheD[0] compare:newD[0]]==NSOrderedAscending)
+                [cacheD[1] length]
+             && ([newD[1] compare:cacheD[1]]==NSOrderedDescending)
              )
             [cacheDict removeAllObjects];//force new
          
@@ -143,12 +157,6 @@ BOOL buildCompareCanonical(
          return true;
       }
       
-      if ([name isEqualToString:@"ModalityInStudy"])
-      {
-         if (!cacheDict[name]) [rMod setString:value];
-         else [cacheDict removeAllObjects];//force new
-         return true;
-      }
 
 /*
  Should not be modified ever through datatables GUI
@@ -186,6 +194,7 @@ BOOL buildCompareCanonical(
    
    //in all other accessTypes, changes are not allowed
    if (cacheDict[name]) return [value isEqualToString:cacheDict[name]];
+    
    return false;
 }
 
@@ -805,8 +814,8 @@ NSString * SOPCLassOfReturnableSeries(
 +(RSResponse*)studyTokenSocket:(unsigned short)socket
                     requestURL:(NSURL*)requestURL
                    requestPath:(NSString*)requestPath
-                         names:(NSArray*)names
-                        values:(NSArray*)values
+                         names:(NSMutableArray*)names
+                        values:(NSMutableArray*)values
                    acceptsGzip:(BOOL)acceptsGzip
 {
    NSFileManager *defaultManager=[NSFileManager defaultManager];
@@ -1423,18 +1432,8 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refInstitutionLikeString=[values[refInstitutionIndex] regexQuoteEscapedString];
        [requestDict setObject:refInstitutionLikeString forKey:@"refInstitutionLikeString"];
-       if (!buildCompareCanonical(isFromDatatables,
+       if (!appendImmutableToCanonical(
                                   cacheDict,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
                                   canonicalQuery,
                                   @"refInstitution",
                                   refInstitutionLikeString
@@ -1449,18 +1448,8 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refServiceLikeString=[values[refServiceIndex] regexQuoteEscapedString];
        [requestDict setObject:refServiceLikeString forKey:@"refServiceLikeString"];
-       if (!buildCompareCanonical(isFromDatatables,
+       if (!appendImmutableToCanonical(
                                   cacheDict,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
                                   canonicalQuery,
                                   @"refService",
                                   refServiceLikeString
@@ -1475,19 +1464,9 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refUserLikeString=[values[refUserIndex] regexQuoteEscapedString];
        [requestDict setObject:refUserLikeString forKey:@"refUserLikeString"];
-       if (!buildCompareCanonical(isFromDatatables,
+       if (!appendImmutableToCanonical(
                                   cacheDict,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  canonicalQuery,
+                             canonicalQuery,
                                   @"refUser",
                                   refUserLikeString
                                   )
@@ -1501,18 +1480,8 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refIDLikeString=[values[refIDIndex] regexQuoteEscapedString];
        [requestDict setObject:refIDLikeString forKey:@"refIDLikeString"];
-       if (!buildCompareCanonical(isFromDatatables,
+       if (!appendImmutableToCanonical(
                                   cacheDict,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
                                   canonicalQuery,
                                   @"refID",
                                   refIDLikeString
@@ -1527,18 +1496,8 @@ NSString * SOPCLassOfReturnableSeries(
        refPart=true;
        refIDTypeLikeString=[values[refIDTypeIndex] regexQuoteEscapedString];
        [requestDict setObject:refIDTypeLikeString forKey:@"refIDTypeLikeString"];
-       if (!buildCompareCanonical(isFromDatatables,
+       if (!appendImmutableToCanonical(
                                   cacheDict,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
                                   canonicalQuery,
                                   @"refIDType",
                                   refIDTypeLikeString
@@ -1557,18 +1516,8 @@ NSString * SOPCLassOfReturnableSeries(
          {
             refInstitutionLikeString=refParts[0];
             [requestDict setObject:refInstitutionLikeString forKey:@"refInstitutionLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
+            if (!appendImmutableToCanonical(
                                        cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
                                        canonicalQuery,
                                        @"refInstitution",
                                        refInstitutionLikeString
@@ -1579,18 +1528,8 @@ NSString * SOPCLassOfReturnableSeries(
          {
             refServiceLikeString=refParts[1];
             [requestDict setObject:refServiceLikeString forKey:@"refServiceLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
+            if (!appendImmutableToCanonical(
                                        cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
                                        canonicalQuery,
                                        @"refService",
                                        refServiceLikeString
@@ -1601,18 +1540,8 @@ NSString * SOPCLassOfReturnableSeries(
          {
             refUserLikeString=refParts[2];
             [requestDict setObject:refUserLikeString forKey:@"refUserLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
+            if (!appendImmutableToCanonical(
                                        cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
                                        canonicalQuery,
                                        @"refUser",
                                        refUserLikeString
@@ -1623,18 +1552,8 @@ NSString * SOPCLassOfReturnableSeries(
          {
             refIDLikeString=refParts[3];
             [requestDict setObject:refIDLikeString forKey:@"refIDLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
+            if (!appendImmutableToCanonical(
                                        cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
                                        canonicalQuery,
                                        @"refID",
                                        refIDLikeString
@@ -1645,18 +1564,8 @@ NSString * SOPCLassOfReturnableSeries(
          {
             refIDTypeLikeString=refParts[4];
             [requestDict setObject:refIDTypeLikeString forKey:@"refIDTypeLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
+            if (!appendImmutableToCanonical(
                                        cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
                                        canonicalQuery,
                                        @"refIDType",
                                        refIDTypeLikeString
@@ -1678,18 +1587,8 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readInstitutionLikeString=[values[readInstitutionIndex] regexQuoteEscapedString];
        [requestDict setObject:readInstitutionLikeString forKey:@"readInstitutionLikeString"];
-       if (!buildCompareCanonical(isFromDatatables,
+       if (!appendImmutableToCanonical(
                                   cacheDict,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
                                   canonicalQuery,
                                   @"readInstitution",
                                   readInstitutionLikeString
@@ -1704,18 +1603,8 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readServiceLikeString=[values[readServiceIndex] regexQuoteEscapedString];
        [requestDict setObject:readServiceLikeString forKey:@"readServiceLikeString"];
-       if (!buildCompareCanonical(isFromDatatables,
+       if (!appendImmutableToCanonical(
                                   cacheDict,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
                                   canonicalQuery,
                                   @"readService",
                                   readServiceLikeString
@@ -1730,18 +1619,8 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readUserLikeString=[values[readUserIndex] regexQuoteEscapedString];
        [requestDict setObject:readUserLikeString forKey:@"readUserLikeString"];
-       if (!buildCompareCanonical(isFromDatatables,
+       if (!appendImmutableToCanonical(
                                   cacheDict,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
                                   canonicalQuery,
                                   @"readUser",
                                   readUserLikeString
@@ -1756,18 +1635,8 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readIDLikeString=[values[readIDIndex] regexQuoteEscapedString];
        [requestDict setObject:readIDLikeString forKey:@"readIDLikeString"];
-       if (!buildCompareCanonical(isFromDatatables,
+       if (!appendImmutableToCanonical(
                                   cacheDict,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
                                   canonicalQuery,
                                   @"readID",
                                   readIDLikeString
@@ -1782,18 +1651,8 @@ NSString * SOPCLassOfReturnableSeries(
        readPart=true;
        readIDTypeLikeString=[values[readIDTypeIndex] regexQuoteEscapedString];
        [requestDict setObject:readIDTypeLikeString forKey:@"readIDTypeLikeString"];
-       if (!buildCompareCanonical(isFromDatatables,
+       if (!appendImmutableToCanonical(
                                   cacheDict,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
                                   canonicalQuery,
                                   @"readIDType",
                                   readIDTypeLikeString
@@ -1812,18 +1671,8 @@ NSString * SOPCLassOfReturnableSeries(
          {
             readInstitutionLikeString=readParts[0];
             [requestDict setObject:readInstitutionLikeString forKey:@"readInstitutionLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
+            if (!appendImmutableToCanonical(
                                        cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
                                        canonicalQuery,
                                        @"readInstitution",
                                        readInstitutionLikeString
@@ -1834,18 +1683,8 @@ NSString * SOPCLassOfReturnableSeries(
          {
             readServiceLikeString=readParts[1];
             [requestDict setObject:readServiceLikeString forKey:@"readServiceLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
+            if (!appendImmutableToCanonical(
                                        cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
                                        canonicalQuery,
                                        @"readService",
                                        readServiceLikeString
@@ -1856,18 +1695,8 @@ NSString * SOPCLassOfReturnableSeries(
          {
             readUserLikeString=readParts[2];
             [requestDict setObject:readUserLikeString forKey:@"readUserLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
+            if (!appendImmutableToCanonical(
                                        cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
                                        canonicalQuery,
                                        @"readUser",
                                        readUserLikeString
@@ -1878,18 +1707,8 @@ NSString * SOPCLassOfReturnableSeries(
          {
             readIDLikeString=readParts[3];
             [requestDict setObject:readIDLikeString forKey:@"readIDLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
+            if (!appendImmutableToCanonical(
                                        cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
                                        canonicalQuery,
                                        @"readID",
                                        readIDLikeString
@@ -1899,18 +1718,8 @@ NSString * SOPCLassOfReturnableSeries(
          if (readParts.count>4)
          {
             readIDTypeLikeString=readParts[4];
-            if (!buildCompareCanonical(isFromDatatables,
+            if (!appendImmutableToCanonical(
                                        cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
                                        canonicalQuery,
                                        @"readIDType",
                                        readIDTypeLikeString
@@ -1927,18 +1736,8 @@ NSString * SOPCLassOfReturnableSeries(
    if ((SOPClassInStudyIndex!=NSNotFound) && [DICMTypes isSingleUIString:values[SOPClassInStudyIndex]])
    {
            [requestDict setObject:values[SOPClassInStudyIndex] forKey:@"SOPClassInStudyRegexpString"];
-           if (!buildCompareCanonical(isFromDatatables,
+           if (!appendImmutableToCanonical(
                                       cacheDict,
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil,
-                                      nil,
                                       canonicalQuery,
                                       @"SOPClassInStudy",
                                       values[SOPClassInStudyIndex]
@@ -1952,23 +1751,9 @@ NSString * SOPCLassOfReturnableSeries(
    if ((ModalityInStudyIndex!=NSNotFound) && [DICMTypes isSingleCSString:values[ModalityInStudyIndex]])
    {
       [requestDict setObject:values[ModalityInStudyIndex] forKey:@"ModalityInStudyRegexpString"];
-      if (!buildCompareCanonical(isFromDatatables,
-                                 cacheDict,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 rMod,
-                                 nil,
-                                 nil,
-                                 canonicalQuery,
-                                 @"ModalityInStudy",
-                                 values[ModalityInStudyIndex]
-                                 )
-          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+       [canonicalQuery appendFormat:@"\"ModalityInStudy\":\"%@\",",values[ModalityInStudyIndex]];
+       if (!cacheDict[@"ModalityInStudy"]) [rMod setString:values[ModalityInStudyIndex]];
+       else [cacheDict removeAllObjects];
    }
 
 #pragma mark issuer

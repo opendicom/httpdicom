@@ -130,9 +130,9 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
      
     NSString *modality=nil;
     NSUInteger modalitiesIndex=[names indexOfObject:@"Modalities"];
-    if ((modalitiesIndex != NSNotFound) && ![names[modalitiesIndex] isEqualToString:@"ALL"])
+    if ((modalitiesIndex != NSNotFound) && ![values[modalitiesIndex] isEqualToString:@"ALL"])
     {
-       modality=names[modalitiesIndex];
+       modality=values[modalitiesIndex];
        [names addObject:@"ModalityInStudy"];
        [values addObject:modality];
     }
@@ -163,13 +163,13 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
              [names addObject:@"readInstitution"];
              [values addObject:institutionOID];
           }
-           
+/*
           if (modality.length)
           {
              [names addObject:@"readService"];
              [values addObject:modality];
           }
-           
+ */
           [names addObject:@"readUser"];
           [values addObject:values[[names indexOfObject:@"username"]]];
            
@@ -193,13 +193,13 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
              [names addObject:@"refInstitution"];
              [values addObject:institutionOID];
           }
-           
+/*
           if (modality.length)
           {
              [names addObject:@"refService"];
              [values addObject:modality];
           }
-           
+ */
           [names addObject:@"refUser"];
           [values addObject:values[[names indexOfObject:@"username"]]];
            
@@ -224,7 +224,6 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
         } break;
 
     }
-    
     
     return [DRS
             studyTokenSocket:request.socketNumber

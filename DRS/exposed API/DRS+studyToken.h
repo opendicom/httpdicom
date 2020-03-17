@@ -177,10 +177,10 @@ static NSString *sqlRecordSixteenUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\"
 +(RSResponse*)studyTokenSocket:(unsigned short)socket
                     requestURL:(NSURL*)requestURL
                    requestPath:(NSString*)requestPath
-                         names:(NSArray*)names
-                        values:(NSArray*)values
+                         names:(NSMutableArray*)names
+                        values:(NSMutableArray*)values
                    acceptsGzip:(BOOL)acceptsGzip
-;//if length=0, no paging
+;
 
 @end
 
