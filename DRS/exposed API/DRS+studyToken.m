@@ -15,23 +15,23 @@
 BOOL buildCompareCanonical(
    BOOL isFromDatatables,
    NSMutableDictionary *cacheDict,
-   NSString *rPID,
-   NSString *rFamily,
-   NSString *rGiven,
-   NSString *rMiddle,
-   NSString *rPrefix,
-   NSString *rSuffix,
-   NSString *rDate,
-   NSString *rMod,
-   NSString *rDesc,
-   NSString *rID,
-   NSMutableString *mutableString,
+   NSMutableString *rPID,
+   NSMutableString *rFamily,
+   NSMutableString *rGiven,
+   NSMutableString *rMiddle,
+   NSMutableString *rPrefix,
+   NSMutableString *rSuffix,
+   NSMutableString *rDate,
+   NSMutableString *rMod,
+   NSMutableString *rDesc,
+   NSMutableString *rID,
+   NSMutableString *canonicalQuery,
    NSString* name,
    NSString* value
 )
 {
    //in all cases, prepare the canonical string
-   [mutableString appendFormat:@"\"%@\":\"%@\",",name,value];
+   [canonicalQuery appendFormat:@"\"%@\":\"%@\",",name,value];
    
 //cache creation or new query from datatables
    if (!cacheDict || !cacheDict.count) return true;
@@ -48,64 +48,67 @@ BOOL buildCompareCanonical(
       }
       if ([name isEqualToString:@"PatientID"])
       {
-         if (![value hasPrefix:cacheDict[name]])
+         if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
             [cacheDict removeAllObjects];//force new
-         else if (value.length) rPID=value;
+         else if (value.length) [rPID setString:value];
          return true;
       }
+       
       if ([name isEqualToString:@"patientFamily"])
       {
-         if (![value hasPrefix:cacheDict[name]])
+         if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
             [cacheDict removeAllObjects];//force new
-         else if (value.length) rFamily=value;
+         else if (value.length) [rFamily setString:value];
          return true;
       }
       if ([name isEqualToString:@"patientGiven"])
       {
-         if (![value hasPrefix:cacheDict[name]])
+         if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
             [cacheDict removeAllObjects];//force new
-         else if (value.length) rGiven=value;
+         else if (value.length) [rGiven setString:value];
          return true;
       }
       if ([name isEqualToString:@"patientMiddle"])
       {
-         if (![value hasPrefix:cacheDict[name]])
+         if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
             [cacheDict removeAllObjects];//force new
-         else if (value.length) rMiddle=value;
+         else if (value.length) [rMiddle setString:value];
          return true;
       }
       if ([name isEqualToString:@"patientPrefix"])
       {
-         if (![value hasPrefix:cacheDict[name]])
+         if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
             [cacheDict removeAllObjects];//force new
-         else if (value.length) rPrefix=value;
+         else if (value.length) [rPrefix setString:value];
          return true;
       }
       if ([name isEqualToString:@"patientSuffix"])
       {
-         if (![value hasPrefix:cacheDict[name]])
+         if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
             [cacheDict removeAllObjects];//force new
-         else if (value.length) rSuffix=value;
+         else if (value.length) [rSuffix setString:value];
          return true;
       }
       if ([name isEqualToString:@"StudyDescription"])
       {
-         if (![value hasPrefix:cacheDict[name]])
+         if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
             [cacheDict removeAllObjects];//force new
-         else if (value.length) rDesc=value;
+         else if (value.length) [rDesc setString:value];
          return true;
       }
       if ([name isEqualToString:@"StudyID"])
       {
-         if (![value hasPrefix:cacheDict[name]])
+         if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
             [cacheDict removeAllObjects];//force new
-         else if (value.length) rID=value;
+         else if (value.length) [rID setString:value];
          return true;
       }
       
       if ([name isEqualToString:@"StudyDate"])
       {
          //@"%@-%@-%@|%@-%@-%@"
+         if ([value isEqualToString:cacheDict[@"StudyDate"]]) return true;
+         
          NSArray *cacheD=[cacheDict[@"StudyDate"] componentsSeparatedByString:@"|"];
          NSArray *newD=[value componentsSeparatedByString:@"|"];
 
@@ -136,13 +139,13 @@ BOOL buildCompareCanonical(
              )
             [cacheDict removeAllObjects];//force new
          
-         if (cacheDict.count) rDate=value;
+         if (cacheDict.count) [rDate setString:value];
          return true;
       }
       
       if ([name isEqualToString:@"ModalityInStudy"])
       {
-         if (!cacheDict[name]) rMod=value;
+         if (!cacheDict[name]) [rMod setString:value];
          else [cacheDict removeAllObjects];//force new
          return true;
       }
@@ -176,7 +179,7 @@ BOOL buildCompareCanonical(
           ||[name isEqualToString:@"StudyInstanceUID"]
           )
       {
-         [cacheDict removeAllObjects];//force new
+         if (cacheDict[name] && ![value isEqualToString:cacheDict[name]]) [cacheDict removeAllObjects];//force new
          return true;
       }
    }
@@ -853,7 +856,7 @@ NSString * SOPCLassOfReturnableSeries(
       if (accessTypeNumber==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
    }
 
-   BOOL isFromDatatables=(accessTypeNumber==4);
+   BOOL isFromDatatables=(accessTypeNumber==5);
 #pragma mark cache?
    /*
     if cacheDict, evalutate changes:
@@ -866,16 +869,16 @@ NSString * SOPCLassOfReturnableSeries(
     NSUInteger cacheIndex=[names indexOfObject:@"cache"];
     NSString *cachePath=nil;
    
-    NSString *rPID=nil;
-    NSString *rFamily=nil;
-    NSString *rGiven=nil;
-    NSString *rMiddle=nil;
-    NSString *rPrefix=nil;
-    NSString *rSuffix=nil;
-    NSString *rDate=nil;
-    NSString *rMod=nil;
-    NSString *rDesc=nil;
-    NSString *rID=nil;
+    NSMutableString *rPID=[NSMutableString string];
+    NSMutableString *rFamily=[NSMutableString string];
+    NSMutableString *rGiven=[NSMutableString string];
+    NSMutableString *rMiddle=[NSMutableString string];
+    NSMutableString *rPrefix=[NSMutableString string];
+    NSMutableString *rSuffix=[NSMutableString string];
+    NSMutableString *rDate=[NSMutableString string];
+    NSMutableString *rMod=[NSMutableString string];
+    NSMutableString *rDesc=[NSMutableString string];
+    NSMutableString *rID=[NSMutableString string];
    //rPID,rFamily,rGiven,rMiddle,rPrefix,rSuffix,rDate,rMod,rDesc,rID
     NSMutableDictionary *cacheDict=nil;
     if (   (cacheIndex!=NSNotFound)
@@ -1390,7 +1393,7 @@ NSString * SOPCLassOfReturnableSeries(
        StudyDescriptionRegexpString=[values[StudyDescriptionIndex] regexQuoteEscapedString];
        [requestDict setObject:StudyDescriptionRegexpString forKey:@"StudyDescriptionRegexpString"];
        if (!buildCompareCanonical(isFromDatatables,
-                                  nil,
+                                  cacheDict,
                                   nil,
                                   nil,
                                   nil,
@@ -2186,8 +2189,8 @@ NSString * SOPCLassOfReturnableSeries(
    }
 
 #pragma mark not cache -> create it
-   BOOL isRestriction=(cacheDict && cacheDict.count);
-   if (! isRestriction)
+   BOOL studyRestriction=(cacheDict && cacheDict.count);
+   if (! studyRestriction)
    {
       //new
        [canonicalQuery replaceCharactersInRange:NSMakeRange(canonicalQuery.length-1, 1) withString:@"}"];
@@ -2529,7 +2532,7 @@ NSString * SOPCLassOfReturnableSeries(
               [defaultManager createDirectoryAtPath:requestPath  withIntermediateDirectories:NO attributes:nil error:nil];
           }
 
-         if (!isRestriction)
+         if (!studyRestriction)
          {
             //is not a restriction of existing results
 //loop each LAN pacs producing part
@@ -2625,49 +2628,55 @@ NSString * SOPCLassOfReturnableSeries(
                     ];
          }
          
-#pragma mark isRestriction
-        if (isRestriction)
+#pragma mark studyRestriction
+        if (studyRestriction)
         {
+            NSError *error=nil;
+            NSRegularExpression *descRegex=nil;
+           if (rDesc.length)
+           {
+               descRegex=[NSRegularExpression regularExpressionWithPattern:rDesc options:NSRegularExpressionCaseInsensitive error:&error];
+           }
          //create compound predicate
            NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
            {
                //PatientID
-               if (rPID && [row[3] hasPrefix:rPID]) return false;
+               if (rPID.length && ![row[23] hasPrefix:rPID]) return false;
 
                //PatientName
-               if (  rFamily
-                   ||rGiven
-                   ||rMiddle
-                   ||rPrefix
-                   ||rSuffix
+               if (  rFamily.length
+                   ||rGiven.length
+                   ||rMiddle.length
+                   ||rPrefix.length
+                   ||rSuffix.length
                    )
                {
                   NSArray *n=[row[4] componentsSeparatedByString:@"^"];
                   NSUInteger c=n.count;
-                  if ((c > 0) && rFamily && ([n[0] length]))
+                  if ((c > 0) && rFamily.length && ([n[0] length]))
                   {
                      if ([[n[0] componentsSeparatedByString:rFamily] count] < 2) return false;
                   }
-                  if ((c > 1) && rGiven && ([n[1] length]))
+                  if ((c > 1) && rGiven.length && ([n[1] length]))
                   {
                      if ([[n[1] componentsSeparatedByString:rGiven] count] < 2) return false;
                   }
-                  if ((c > 2) && rMiddle && ([n[2] length]))
+                  if ((c > 2) && rMiddle.length && ([n[2] length]))
                   {
                      if ([[n[2] componentsSeparatedByString:rMiddle] count] < 2) return false;
                   }
-                  if ((c > 3) && rPrefix && ([n[3] length]))
+                  if ((c > 3) && rPrefix.length && ([n[3] length]))
                   {
                      if ([[n[3] componentsSeparatedByString:rPrefix] count] < 2) return false;
                   }
-                  if ((c > 4) && rSuffix && ([n[4] length]))
+                  if ((c > 4) && rSuffix.length && ([n[4] length]))
                   {
                      if ([[n[4] componentsSeparatedByString:rSuffix] count] < 2) return false;
                   }
 
                }
 
-               if (rDate)
+               if (rDate.length)
                {
                   //@"%@-%@-%@|%@-%@-%@"
                   NSArray *d=[rDate componentsSeparatedByString:@"|"];
@@ -2693,14 +2702,14 @@ NSString * SOPCLassOfReturnableSeries(
                       ) return false;
                }
                     
-               if (rMod)//ModalityInStudy
+               if (rMod.length)//ModalityInStudy
                {
                   if ([[row[6] componentsSeparatedByString:rMod] count] < 2) return false;
                }
               
-               if (rDesc)//StudyDescription
+               if (rDesc.length)//StudyDescription
                {
-                  if ([[row[7] componentsSeparatedByString:rDesc] count] < 2) return false;
+                  if (![descRegex numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
                }
                return true;
             }];

@@ -19,7 +19,7 @@
  <string>SELECT study.study_iuid, study.pk FROM study </string>
  
  <key>Ewhere</key>
- <string>WHERE study.rejection_state!=2 </string>
+ <string>WHERE study.rejection_state!=2 AND study_query_attrs.view_id='regularUse' </string>
  
  
  <!-- E exclusive match--> 
@@ -42,37 +42,47 @@
   <!-- 0. accessionNumberIssuer -->
   <array>
    <string>LEFT JOIN issuer ON study.accno_issuer_fk=issuer.pk </string>
+   <string>LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_fk </string>
   </array>
   <!-- 1. match PID [0, 1 issuer] -->
   <array>
    <string>LEFT JOIN patient ON study.patient_fk=patient.pk </string>
    <string>LEFT JOIN patient_id ON patient.patient_id_fk=patient_id.pk </string>
    <string>LEFT JOIN issuer ON patient_id.issuer_fk=issuer.pk </string>
+   <string>LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_fk </string>
   </array>
   <!-- 2. match PatientName -->
   <array>
    <string>LEFT JOIN patient ON study.patient_fk=patient.pk </string>
    <string>LEFT JOIN person_name Ppn ON patient.pat_name_fk=Ppn.pk </string>
+   <string>LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_fk </string>
   </array>
   <!-- 3. match StudyID -->
-  <array/>
+  <array>
+   <string>LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_fk </string>
+  </array>
   <!-- 4. match StudyDate -->
-  <array/>
+  <array>
+   <string>LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_fk </string>
+  </array>
   <!-- 5. match StudyDescription -->
-  <array/>
+  <array>
+   <string>LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_fk </string>
+  </array>
   <!-- 6. match ReferringPhysician -->
   <array>
    <string>LEFT JOIN person_name Epn ON study.ref_phys_name_fk=Epn.pk </string>
+   <string>LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_fk </string>
   </array>
   <!-- 7. match ReadingPhysician -->
   <array/>
   <!-- 8. match SOPClassesInStudy -->
   <array>
-   <string>LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_pk </string>
+   <string>LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_fk </string>
   </array>
   <!-- 9. match ModalitiesInStudy -->    
   <array>
-   <string>LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_pk </string>
+   <string>LEFT JOIN study_query_attrs ON study.pk=study_query_attrs.study_fk </string>
   </array>
  </array>
   
