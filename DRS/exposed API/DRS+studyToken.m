@@ -25,7 +25,6 @@ BOOL appendImmutableToCanonical(
 }
 
 
-
 BOOL buildCompareCanonical(
    BOOL isFromDatatables,
    NSMutableDictionary *cacheDict,
@@ -44,15 +43,11 @@ BOOL buildCompareCanonical(
    NSString* value
 )
 {
-   //in all cases, prepare the canonical string
    [canonicalQuery appendFormat:@"\"%@\":\"%@\",",name,value];
    
 //cache creation or new query from datatables
    if (!cacheDict || !cacheDict.count) return true;
    
-//existing cache
-   if (isFromDatatables)
-   {
       //compare values, if not restrictive -> reset cacheDict
       if ([name isEqualToString:@"AccessionNumber"])
       {
@@ -189,7 +184,6 @@ BOOL buildCompareCanonical(
       {
          if (cacheDict[name] && ![value isEqualToString:cacheDict[name]]) [cacheDict removeAllObjects];//force new
          return true;
-      }
    }
    
    //in all other accessTypes, changes are not allowed
@@ -995,29 +989,17 @@ NSString * SOPCLassOfReturnableSeries(
 
    
 #pragma mark AccessionNumber
+    NSString *AccessionNumberRestriction=nil;
     NSString *AccessionNumberEqualString=nil;
     NSInteger AccessionNumberIndex=[names indexOfObject:@"AccessionNumber"];
     if (AccessionNumberIndex!=NSNotFound)
     {
-       AccessionNumberEqualString=[values[AccessionNumberIndex] sqlEqualEscapedString];
-       [requestDict setObject:AccessionNumberEqualString forKey:@"AccessionNumberEqualString"];
-        if (!buildCompareCanonical(isFromDatatables,
-                                   cacheDict,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   canonicalQuery,
-                                   @"AccessionNumber",
-                                   AccessionNumberEqualString
-                                   )
-            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+        AccessionNumberEqualString=[values[AccessionNumberIndex] sqlEqualEscapedString];
+        [requestDict setObject:AccessionNumberEqualString forKey:@"AccessionNumberEqualString"];
+        [canonicalQuery appendFormat:@"\"AccessionNumber\":\"%@\",",AccessionNumberEqualString];
+        NSString *cachedAN=cacheDict[@"AccessionNumber"];
+        if (cachedAN && ![AccessionNumberEqualString hasPrefix:cachedAN]) [cacheDict removeAllObjects];
+        else AccessionNumberRestriction=AccessionNumberEqualString;
     }
 
 
@@ -1029,25 +1011,11 @@ NSString * SOPCLassOfReturnableSeries(
     {
        PatientIDLikeString=[values[PatientIDIndex] sqlLikeEscapedString];
        [requestDict setObject:PatientIDLikeString forKey:@"PatientIDLikeString"];
-        if (!buildCompareCanonical(isFromDatatables,
-                                   cacheDict,
-                                   rPID,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   nil,
-                                   canonicalQuery,
-                                   @"PatientID",
-                                   PatientIDLikeString
-                                   )
-            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+       [canonicalQuery appendFormat:@"\"PatientID\":\"%@\",",PatientIDLikeString];
+       NSString *cachedPID=cacheDict[@"PatientID"];
+       if (cachedPID && ![PatientIDLikeString hasPrefix:cachedPID]) [cacheDict removeAllObjects];
+       else [rPID setString:PatientIDLikeString];
     }
-
    
 #pragma mark 2. PatientName (Ppn)
    
@@ -1762,18 +1730,8 @@ NSString * SOPCLassOfReturnableSeries(
    NSInteger issuerIndex=[names indexOfObject:@"issuer"];
    if (issuerIndex!=NSNotFound)
    {
-      if (!buildCompareCanonical(isFromDatatables,
+      if (!appendImmutableToCanonical(
                                  cacheDict,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
                                  canonicalQuery,
                                  @"issuer",
                                  [values[issuerIndex] sqlEqualEscapedString]
@@ -1815,18 +1773,8 @@ NSString * SOPCLassOfReturnableSeries(
    {
        SeriesInstanceUIDRegexString=values[SeriesInstanceUIDIndex];
       [requestDict setObject:SeriesInstanceUIDRegexString forKey:@"SeriesInstanceUIDRegexString"];
-      if (!buildCompareCanonical(isFromDatatables,
+      if (!appendImmutableToCanonical(
                                  cacheDict,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
                                  canonicalQuery,
                                  @"SeriesInstanceUID",
                                  values[SeriesInstanceUIDIndex]
@@ -1839,18 +1787,8 @@ NSString * SOPCLassOfReturnableSeries(
    if (SeriesNumberIndex!=NSNotFound)
    {
       [requestDict setObject:values[SeriesNumberIndex] forKey:@"SeriesNumberRegexString"];
-      if (!buildCompareCanonical(isFromDatatables,
+      if (!appendImmutableToCanonical(
                                  cacheDict,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
                                  canonicalQuery,
                                  @"SeriesNumber",
                                  values[SeriesNumberIndex]
@@ -1863,18 +1801,8 @@ NSString * SOPCLassOfReturnableSeries(
    if (SeriesDescriptionIndex!=NSNotFound)
    {
       [requestDict setObject:values[SeriesDescriptionIndex] forKey:@"SeriesDescriptionRegexString"];
-       if (!buildCompareCanonical(isFromDatatables,
+       if (!appendImmutableToCanonical(
                                   cacheDict,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
                                   canonicalQuery,
                                   @"SeriesDescription",
                                   values[SeriesDescriptionIndex]
@@ -1887,18 +1815,8 @@ NSString * SOPCLassOfReturnableSeries(
    if (ModalityIndex!=NSNotFound)
    {
       [requestDict setObject:values[ModalityIndex] forKey:@"ModalityRegexString"];
-      if (!buildCompareCanonical(isFromDatatables,
+      if (!appendImmutableToCanonical(
                                  cacheDict,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
                                  canonicalQuery,
                                  @"Modality",
                                  values[ModalityIndex]
@@ -1911,18 +1829,8 @@ NSString * SOPCLassOfReturnableSeries(
    if (SOPClassIndex!=NSNotFound)
    {
       [requestDict setObject:values[SOPClassIndex] forKey:@"SOPClassRegexString"];
-      if (!buildCompareCanonical(isFromDatatables,
+      if (!appendImmutableToCanonical(
                                  cacheDict,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
                                  canonicalQuery,
                                  @"SOPClass",
                                  values[SOPClassIndex]
@@ -1935,18 +1843,8 @@ NSString * SOPCLassOfReturnableSeries(
    if (SOPClassOffIndex!=NSNotFound)
    {
       [requestDict setObject:values[SOPClassOffIndex] forKey:@"SOPClassOffRegexString"];
-      if (!buildCompareCanonical(isFromDatatables,
+      if (!appendImmutableToCanonical(
                                  cacheDict,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
                                  canonicalQuery,
                                  @"SOPClassOff",
                                  values[SOPClassOffIndex]
@@ -1955,14 +1853,14 @@ NSString * SOPCLassOfReturnableSeries(
    }
 
 //hasSeriesRestriction?
-   BOOL hasRestriction=
+   BOOL hasSeriesRestriction=
       requestDict[@"SeriesInstanceUIDRegexString"]
    || requestDict[@"SeriesNumberRegexString"]
    || requestDict[@"SeriesDescriptionRegexString"]
    || requestDict[@"ModalityRegexString"]
    || requestDict[@"SOPClassRegexString"]
    || requestDict[@"SOPClassOffRegexString"];
-   [requestDict setObject:[NSNumber numberWithBool:hasRestriction] forKey:@"hasRestriction"];
+   [requestDict setObject:[NSNumber numberWithBool:hasSeriesRestriction] forKey:@"hasSeriesRestriction"];
 
 
    
@@ -1973,7 +1871,7 @@ NSString * SOPCLassOfReturnableSeries(
       //add nodes and start corresponding processes
    }
 
-#pragma mark not cache -> create it
+#pragma mark no cache -> create it
    BOOL studyRestriction=(cacheDict && cacheDict.count);
    if (! studyRestriction)
    {
@@ -2425,6 +2323,9 @@ NSString * SOPCLassOfReturnableSeries(
          //create compound predicate
            NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
            {
+               //AccessionNumber
+               if (AccessionNumberRestriction && ![row[13] hasPrefix:AccessionNumberRestriction]) return false;
+               
                //PatientID
                if (rPID.length && ![row[23] hasPrefix:rPID]) return false;
 
