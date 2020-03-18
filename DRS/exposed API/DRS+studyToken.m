@@ -24,106 +24,6 @@ BOOL appendImmutableToCanonical(
     return false;
 }
 
-
-BOOL buildCompareCanonical(
-   BOOL isFromDatatables,
-   NSMutableDictionary *cacheDict,
-   NSMutableString *rPID,
-   NSMutableString *rFamily,
-   NSMutableString *rGiven,
-   NSMutableString *rMiddle,
-   NSMutableString *rPrefix,
-   NSMutableString *rSuffix,
-   NSMutableString *rDate,
-   NSMutableString *rMod,
-   NSMutableString *rDesc,
-   NSMutableString *rID,
-   NSMutableString *canonicalQuery,
-   NSString* name,
-   NSString* value
-)
-{
-   [canonicalQuery appendFormat:@"\"%@\":\"%@\",",name,value];
-   
-//cache creation or new query from datatables
-   if (!cacheDict || !cacheDict.count) return true;
-     
-    if ([name isEqualToString:@"patientFamily"])
-    {
-       if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
-          [cacheDict removeAllObjects];//force new
-       else if (value.length) [rFamily setString:value];
-       return true;
-    }
-    if ([name isEqualToString:@"patientGiven"])
-    {
-       if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
-          [cacheDict removeAllObjects];//force new
-       else if (value.length) [rGiven setString:value];
-       return true;
-    }
-    if ([name isEqualToString:@"patientMiddle"])
-    {
-       if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
-          [cacheDict removeAllObjects];//force new
-       else if (value.length) [rMiddle setString:value];
-       return true;
-    }
-    if ([name isEqualToString:@"patientPrefix"])
-    {
-       if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
-          [cacheDict removeAllObjects];//force new
-       else if (value.length) [rPrefix setString:value];
-       return true;
-    }
-    if ([name isEqualToString:@"patientSuffix"])
-    {
-       if (cacheDict[name] && ![value hasPrefix:cacheDict[name]])
-          [cacheDict removeAllObjects];//force new
-       else if (value.length) [rSuffix setString:value];
-       return true;
-    }
-
-
-/*
- Should not be modified ever through datatables GUI
- 
-      StudyInstanceUIDRegexpString
-      refInstitutionLikeString
-      refServiceLikeString
-      refUserLikeString
-      refIDLikeString
-      refIDTypeLikeString
-      readInstitutionLikeString
-      readServiceLikeString
-      readUserLikeString
-      readIDLikeString
-      readIDTypeLikeString
-      */
-      if (
-            [name isEqualToString:@"refInstitution"]
-          ||[name isEqualToString:@"refService"]
-          ||[name isEqualToString:@"refUser"]
-          ||[name isEqualToString:@"refID"]
-          ||[name isEqualToString:@"refIDType"]
-          ||[name isEqualToString:@"readInstitution"]
-          ||[name isEqualToString:@"readService"]
-          ||[name isEqualToString:@"readUser"]
-          ||[name isEqualToString:@"readID"]
-          ||[name isEqualToString:@"readIDType"]
-          ||[name isEqualToString:@"StudyInstanceUID"]
-          )
-      {
-         if (cacheDict[name] && ![value isEqualToString:cacheDict[name]]) [cacheDict removeAllObjects];//force new
-         return true;
-   }
-   
-   //in all other accessTypes, changes are not allowed
-   if (cacheDict[name]) return [value isEqualToString:cacheDict[name]];
-    
-   return false;
-}
-
 /*
 study pk and patient pk of studies selected
 */
@@ -792,7 +692,6 @@ NSString * SOPCLassOfReturnableSeries(
       if (accessTypeNumber==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
    }
 
-   BOOL isFromDatatables=(accessTypeNumber==5);
 #pragma mark cache?
    /*
     if cacheDict, evalutate changes:
@@ -896,23 +795,14 @@ NSString * SOPCLassOfReturnableSeries(
           {
           StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
              [requestDict setObject:StudyInstanceUIDRegexpString forKey:@"StudyInstanceUIDRegexpString"];
-             if (!buildCompareCanonical(isFromDatatables,
-                                        cacheDict,
-                                        nil,
-                                        nil,
-                                        nil,
-                                        nil,
-                                        nil,
-                                        nil,
-                                        nil,
-                                        nil,
-                                        nil,
-                                        nil,
-                                        canonicalQuery,
-                                        @"StudyInstanceUID",
-                                        StudyInstanceUIDRegexpString
-                                        )
-                 ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+              if (!appendImmutableToCanonical(
+                                         cacheDict,
+                                         canonicalQuery,
+                                         @"StudyInstanceUID",
+                                         StudyInstanceUIDRegexpString
+                                         )
+                  ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+
           }
           else return [RSErrorResponse responseWithClientError:404 message:@"studyToken param StudyInstanceUID: %@",values[StudyInstanceUIDIndex]];
        }
@@ -950,258 +840,139 @@ NSString * SOPCLassOfReturnableSeries(
    
 #pragma mark 2. PatientName (Ppn)
    
-   BOOL patientNamePart=false;
-   
+   NSMutableString *PatientNameRegexString=[NSMutableString string];
+
    NSString *patientFamilyLikeString=nil;
    NSInteger patientFamilyIndex=[names indexOfObject:@"patientFamily"];
    if (patientFamilyIndex!=NSNotFound)
    {
-      patientNamePart=true;
       patientFamilyLikeString=[values[patientFamilyIndex] regexQuoteEscapedString];
-      [requestDict setObject:patientFamilyLikeString forKey:@"patientFamilyLikeString"];
-       if (!buildCompareCanonical(isFromDatatables,
-                                  cacheDict,
-                                  nil,
-                                  rFamily,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  nil,
-                                  canonicalQuery,
-                                  @"patientFamily",
-                                  patientFamilyLikeString
-                                  )
-           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+      [PatientNameRegexString appendString:patientFamilyLikeString];
+      [requestDict setObject:patientFamilyLikeString forKey:@"patientFamily"];
+      [canonicalQuery appendFormat:@"\"patientFamily\":\"%@\",",patientFamilyLikeString];
    }
-
+    
+   [PatientNameRegexString appendString:@"^"];
+    
    NSString *patientGivenLikeString=nil;
    NSInteger patientGivenIndex=[names indexOfObject:@"patientGiven"];
    if (patientGivenIndex!=NSNotFound)
    {
-      patientNamePart=true;
       patientGivenLikeString=[values[patientGivenIndex] regexQuoteEscapedString];
-      [requestDict setObject:patientGivenLikeString forKey:@"patientGivenLikeString"];
-      if (!buildCompareCanonical(isFromDatatables,
-                                 cacheDict,
-                                 nil,
-                                 nil,
-                                 rGiven,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 canonicalQuery,
-                                 @"patientGiven",
-                                 patientGivenLikeString
-                                 )
-          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+      [PatientNameRegexString appendString:patientGivenLikeString];
+      [requestDict setObject:patientGivenLikeString forKey:@"patientGiven"];
+      [canonicalQuery appendFormat:@"\"patientGiven\":\"%@\",",patientGivenLikeString];
    }
-
+     
+    [PatientNameRegexString appendString:@"^"];
+     
    NSString *patientMiddleLikeString=nil;
    NSInteger patientMiddleIndex=[names indexOfObject:@"patientMiddle"];
    if (patientMiddleIndex!=NSNotFound)
    {
-      patientNamePart=true;
       patientMiddleLikeString=[values[patientMiddleIndex] regexQuoteEscapedString];
-      [requestDict setObject:patientMiddleLikeString forKey:@"patientMiddleLikeString"];
-      if (!buildCompareCanonical(isFromDatatables,
-                                 cacheDict,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 rMiddle,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 canonicalQuery,
-                                 @"patientMiddle",
-                                 patientMiddleLikeString
-                                 )
-          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+      [PatientNameRegexString appendString:patientMiddleLikeString];
+      [requestDict setObject:patientMiddleLikeString forKey:@"patientMiddle"];
+      [canonicalQuery appendFormat:@"\"patientMiddle\":\"%@\",",patientMiddleLikeString];
    }
-
+     
+    [PatientNameRegexString appendString:@"^"];
+     
    NSString *patientPrefixLikeString=nil;
    NSInteger patientPrefixIndex=[names indexOfObject:@"patientPrefix"];
    if (patientPrefixIndex!=NSNotFound)
    {
-      patientNamePart=true;
       patientPrefixLikeString=[values[patientPrefixIndex] regexQuoteEscapedString];
-      [requestDict setObject:patientPrefixLikeString forKey:@"patientPrefixLikeString"];
-      if (!buildCompareCanonical(isFromDatatables,
-                                 cacheDict,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 rPrefix,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 canonicalQuery,
-                                 @"patientPrefix",
-                                 patientPrefixLikeString
-                                 )
-          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+      [PatientNameRegexString appendString:patientPrefixLikeString];
+      [requestDict setObject:patientPrefixLikeString forKey:@"patientPrefix"];
+      [canonicalQuery appendFormat:@"\"patientPrefix\":\"%@\",",patientPrefixLikeString];
    }
-
+     
+    [PatientNameRegexString appendString:@"^"];
+     
    NSString *patientSuffixLikeString=nil;
    NSInteger patientSuffixIndex=[names indexOfObject:@"patientSuffix"];
    if (patientSuffixIndex!=NSNotFound)
    {
-      patientNamePart=true;
       patientSuffixLikeString=[values[patientSuffixIndex] regexQuoteEscapedString];
-      [requestDict setObject:patientSuffixLikeString forKey:@"patientSuffixLikeString"];
-      if (!buildCompareCanonical(isFromDatatables,
-                                 cacheDict,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 rSuffix,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 canonicalQuery,
-                                 @"patientSuffix",
-                                 patientSuffixLikeString
-                                 )
-          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+      [PatientNameRegexString appendString:patientSuffixLikeString];
+      [requestDict setObject:patientSuffixLikeString forKey:@"patientSuffix"];
+      [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",patientSuffixLikeString];
    }
 
-   if (!patientNamePart)
+
+   if (PatientNameRegexString.length > 4) [PatientNameRegexString removeTrailingCarets];
+   else
    {
       NSInteger PatientNameIndex=[names indexOfObject:@"PatientName"];
-      if (PatientNameIndex!=NSNotFound)
-      {
-         NSString *PatientNameRegexString=[values[PatientNameIndex] regexQuoteEscapedString];
-         NSArray *PatientNameParts=[PatientNameRegexString componentsSeparatedByString:@"^"];
-         if (PatientNameParts.count>0)
-         {
-            patientFamilyLikeString=PatientNameParts[0];
-            [requestDict setObject:patientFamilyLikeString forKey:@"patientFamilyLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
-                                       cacheDict,
-                                       nil,
-                                       rFamily,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       canonicalQuery,
-                                       @"patientFamily",
-                                       patientFamilyLikeString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-        }
-         if (PatientNameParts.count>1)
-         {
-            patientGivenLikeString=PatientNameParts[1];
-            [requestDict setObject:patientGivenLikeString forKey:@"patientGivenLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
-                                       cacheDict,
-                                       nil,
-                                       nil,
-                                       rGiven,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       canonicalQuery,
-                                       @"patientGiven",
-                                       patientGivenLikeString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-         if (PatientNameParts.count>2)
-         {
-            patientMiddleLikeString=PatientNameParts[2];
-            [requestDict setObject:patientMiddleLikeString forKey:@"patientMiddleLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
-                                       cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       rMiddle,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       canonicalQuery,
-                                       @"patientMiddle",
-                                       patientMiddleLikeString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-         if (PatientNameParts.count>3)
-         {
-            patientPrefixLikeString=PatientNameParts[3];
-            [requestDict setObject:patientPrefixLikeString forKey:@"patientPrefixLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
-                                       cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       rPrefix,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       canonicalQuery,
-                                       @"patientPrefix",
-                                       patientPrefixLikeString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-         if (PatientNameParts.count>4)
-         {
-            patientSuffixLikeString=PatientNameParts[4];
-            [requestDict setObject:patientSuffixLikeString forKey:@"patientSuffixLikeString"];
-            if (!buildCompareCanonical(isFromDatatables,
-                                       cacheDict,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       rSuffix,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       nil,
-                                       canonicalQuery,
-                                       @"patientSuffix",
-                                       patientSuffixLikeString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-      }
+       if (PatientNameIndex==NSNotFound) [PatientNameRegexString setString:@""];
+       else //desglossing PatientName
+       {
+           [PatientNameRegexString setString:[[values[PatientNameIndex] removeTrailingCarets] regexQuoteEscapedString]];
+           NSArray *PatientNameParts=[PatientNameRegexString componentsSeparatedByString:@"^"];
+           if (PatientNameParts.count>0 && [PatientNameParts[0] length])
+           {
+              patientFamilyLikeString=PatientNameParts[0];
+              [requestDict setObject:patientFamilyLikeString forKey:@"patientFamily"];
+              [canonicalQuery appendFormat:@"\"patientFamily\":\"%@\",",patientFamilyLikeString];
+           }
+           if (PatientNameParts.count>1 && [PatientNameParts[1] length])
+           {
+              patientGivenLikeString=PatientNameParts[1];
+              [requestDict setObject:patientGivenLikeString forKey:@"patientGiven"];
+              [canonicalQuery appendFormat:@"\"patientGiven\":\"%@\",",patientGivenLikeString];
+           }
+           if (PatientNameParts.count>2 && [PatientNameParts[2] length])
+           {
+              patientMiddleLikeString=PatientNameParts[2];
+              [requestDict setObject:patientMiddleLikeString forKey:@"patientMiddle"];
+              [canonicalQuery appendFormat:@"\"patientMiddle\":\"%@\",",patientMiddleLikeString];
+           }
+           if (PatientNameParts.count>3 && [PatientNameParts[3] length])
+           {
+              patientPrefixLikeString=PatientNameParts[3];
+              [requestDict setObject:patientPrefixLikeString forKey:@"patientPrefix"];
+              [canonicalQuery appendFormat:@"\"patientPrefix\":\"%@\",",patientPrefixLikeString];
+           }
+           if (PatientNameParts.count>4 && [PatientNameParts[4] length])
+           {
+              patientSuffixLikeString=PatientNameParts[4];
+              [requestDict setObject:patientSuffixLikeString forKey:@"patientSuffix"];
+              [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",patientSuffixLikeString];
+           }
+       }
    }
-    
+    if (patientFamilyLikeString)
+    {
+       if (cacheDict[@"patientFamily"] && ![patientFamilyLikeString hasPrefix:cacheDict[@"patientFamily"]])
+          [cacheDict removeAllObjects];//force new
+       else if (patientFamilyLikeString.length) [rFamily setString:patientFamilyLikeString];
+    }
+    if (patientGivenLikeString)
+    {
+       if (cacheDict[@"patientGiven"] && ![patientGivenLikeString hasPrefix:cacheDict[@"patientGiven"]])
+          [cacheDict removeAllObjects];//force new
+       else if (patientGivenLikeString.length) [rGiven setString:patientGivenLikeString];
+    }
+    if (patientMiddleLikeString)
+    {
+       if (cacheDict[@"patientMiddle"] && ![patientMiddleLikeString hasPrefix:cacheDict[@"patientMiddle"]])
+          [cacheDict removeAllObjects];//force new
+       else if (patientMiddleLikeString.length) [rMiddle setString:patientMiddleLikeString];
+    }
+    if (patientPrefixLikeString)
+    {
+       if (cacheDict[@"patientPrefix"] && ![patientPrefixLikeString hasPrefix:cacheDict[@"patientPrefix"]])
+          [cacheDict removeAllObjects];//force new
+       else if (patientPrefixLikeString.length) [rPrefix setString:patientPrefixLikeString];
+    }
+    if (patientSuffixLikeString)
+    {
+       if (cacheDict[@"patientSuffix"] && ![patientSuffixLikeString hasPrefix:cacheDict[@"patientSuffix"]])
+          [cacheDict removeAllObjects];//force new
+       else if (patientSuffixLikeString.length) [rSuffix setString:patientSuffixLikeString];
+    }
+
 #pragma mark 3. StudyID (Eid)
     
     NSRegularExpression *EidRegex=nil;
@@ -2256,14 +2027,14 @@ NSString * SOPCLassOfReturnableSeries(
                   if ((d.count==1) && ![row[5] hasPrefix:d[0]]) return false;
                   //two parts
                   if ([d[0] length] && ([d[0] compare:row[5]]==NSOrderedDescending)) return false;
-                  if ([d[1] length] && ([row[5] compare:d[1]]==NSOrderedDescending)) return false;
+                  if ([d[1] length] && [d[1] compare:[row[5] substringToIndex:10]]==NSOrderedAscending) return false;
                }
                     
                if (rMod.length && [[row[6] componentsSeparatedByString:rMod] count] < 2) return false;
               
                if (EloRegex && ![EloRegex numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
                
-                if (EidRegex && ![EidRegex numberOfMatchesInString:row[15] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
+                if (EidRegex && ![EidRegex numberOfMatchesInString:row[15] options:0 range:NSMakeRange(0,[row[15] length])]) return false;
 
                return true;
             }];
