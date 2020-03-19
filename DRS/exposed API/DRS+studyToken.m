@@ -1029,7 +1029,11 @@ NSString * SOPCLassOfReturnableSeries(
                 if ([cacheComponents[0] length] && ([cacheComponents[0] compare:StudyDateComponents[0]]==NSOrderedDescending))[cacheDict removeAllObjects];
                 //check end
                 if ([cacheComponents[1] length] && ([StudyDateComponents[1] compare:cacheComponents[1]]==NSOrderedDescending)) [cacheDict removeAllObjects];
-                if (cacheDict.count) [rDate setString:StudyDateString];
+                if (cacheDict.count)
+                {
+                    if ([cacheComponents[1] length]) [rDate setString:[StudyDateString stringByAppendingString:@" 23:59"]];
+                    else [rDate setString:StudyDateString];
+                }
             }
         
           }
