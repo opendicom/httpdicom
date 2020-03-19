@@ -74,7 +74,7 @@
             <key>wadoweasisparameters</key>
             <string id="wadoweasisparameters">&amp;transferSyntax=*</string>            
             <key>wadocornerstoneparameters</key>
-            <string id="wadocornerstoneparameters"></string>            
+            <string id="wadocornerstoneparameters">&amp;contentType=application%2Fdicom&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
             <key>wadodicomzipparameters</key>
             <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
             <key>wadoosirixparameters</key>
