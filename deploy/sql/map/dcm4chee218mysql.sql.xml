@@ -177,7 +177,7 @@ issuer.entity_uid, \
 issuer.entity_uid_type \
 FROM study \
 LEFT JOIN issuer ON study.accno_issuer_fk=issuer.pk \
-WHERE pk=%@ \
+WHERE study.pk=%@ \
 %@ \
 " %@</string>
 
@@ -194,7 +194,7 @@ department, \
 station_name, \
 perf_physician, \
 laterality, \
-num_instances \
+num_instances, \
 DATE(pps_start), \
 TIME(pps_start) \
 FROM series \

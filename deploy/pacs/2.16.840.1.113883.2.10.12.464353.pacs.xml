@@ -42,11 +42,11 @@
             <key>sqlpassword</key>
             <string id="sqlpassword">p3l0t4</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 192.1.1.6 -b pacsdb -e </string>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -uroot -h 192.1.1.6 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dal55mysql</string>
+            <string id="sqlmap">dcm4chee218mysql</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
             
@@ -54,12 +54,12 @@
             <string id="sopstringencoding">4</string>
             
             <key>mllpip</key>
-            <string id="mllpip">127.0.0.1</string>
+            <string id="mllpip">192.1.1.6</string>
             <key>mllpport</key>
             <string id="mllpport">2575</string>
 
             <key>DICMip</key>
-            <string id="DICMip">127.0.0.1</string>
+            <string id="DICMip">192.1.1.6</string>
             <key>DICMport</key>
             <string id="DICMport">11113</string>
             
@@ -68,7 +68,7 @@
             <key>timeoutinterval</key>
             <string id="timeoutinterval">60</string>
             <key>wadouri</key>
-            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/FCS/wado</string>
+            <string id="wadouri">http://192.1.1.6:8080/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>            
             <key>wadoweasisparameters</key>
@@ -88,14 +88,14 @@
             <key>wadozip64parameters</key>
             <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
-            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/FCS/rs</string>
+            <string id="wadors">http://192.1.1.6:8080/dcm4chee-arc/aets/FCS/rs</string>
             <key>qido</key>
-            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/FCS/rs</string>
+            <string id="qido">http://192.1.1.6:8080/dcm4chee-arc/aets/FCS/rs</string>
             <key>stow</key>
             <string id="stow"></string>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/FCS</string>
+            <string id="dcm4cheelocaluri">http://192.1.1.6:8080/dcm4chee-arc</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
