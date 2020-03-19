@@ -1787,15 +1787,23 @@ NSString * SOPCLassOfReturnableSeries(
              switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
                 case selectTypeSql:
+                    [requestDict setObject:@"10" forKey:@"max"];
+                    [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
+
+                  [DRS datateblesStudySql4dictionary:requestDict];
                   [DRS dicomzipSql4d:requestDict];
                   break;
             }
          }
           
          NSMutableArray *pathArray=[NSMutableArray array];
-         NSArray *studiesSelected=[StudyInstanceUIDRegexpString componentsSeparatedByString:@"|"];
-         BOOL oneStudySelected=(studiesSelected.count < 2);
-          
+          NSArray *studiesSelected=nil;
+          BOOL oneStudySelected=false;
+          if (StudyInstanceUIDRegexpString)
+          {
+              studiesSelected=[StudyInstanceUIDRegexpString componentsSeparatedByString:@"|"];
+              oneStudySelected=(studiesSelected.count == 1);
+          }
          BOOL oneSeriesSelected=false;
          NSArray *seriesSelected=nil;
          if (SeriesInstanceUIDRegexString!=nil)
@@ -1810,9 +1818,17 @@ NSString * SOPCLassOfReturnableSeries(
               NSArray *studyFolders=[defaultManager contentsOfDirectoryAtPath:devOIDPath error:nil];
               if (studyFolders && studyFolders.count)
               {
-                  //there is/are studies for this devOID
-                  if (oneStudySelected)
+                  if (!studiesSelected)
                   {
+                      //every studies
+                      for (NSString *studyFolder in studyFolders)
+                      {
+                           [pathArray addObject:[devOIDItem stringByAppendingPathComponent:studyFolder]];
+                      }
+                  }
+                  else if (oneStudySelected)
+                  {
+                      //there is/are studies for this devOID
                       if ([studyFolders indexOfObject:StudyInstanceUIDRegexpString]!=NSNotFound)
                       {
                           //study found
