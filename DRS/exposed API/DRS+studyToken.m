@@ -725,7 +725,8 @@ NSString * SOPCLassOfReturnableSeries(
     
     NSMutableString *canonicalQuery=[NSMutableString stringWithString:@"{"];
     
-    NSMutableDictionary *requestDict=[NSMutableDictionary dictionary];
+    NSMutableDictionary *requestDict=[NSMutableDictionary dictionaryWithObject:@"1000" forKey:@"max"];
+
     NSInteger tokenIndex=[names indexOfObject:@"token"];
     if (tokenIndex!=NSNotFound) [requestDict setObject:values[tokenIndex] forKey:@"tokenString"];
 
@@ -1547,6 +1548,7 @@ NSString * SOPCLassOfReturnableSeries(
        [canonicalQuery replaceCharactersInRange:NSMakeRange(canonicalQuery.length-1, 1) withString:@"}"];
        NSString *canonicalQuerySHA512String=[canonicalQuery MD5String];
        queryPath=[DRS.tokentmpDir stringByAppendingPathComponent:canonicalQuerySHA512String];
+       
        if (![defaultManager fileExistsAtPath:queryPath])
        {
           //path.json is the corresponding canonical query
@@ -1570,6 +1572,8 @@ NSString * SOPCLassOfReturnableSeries(
          {
             [requestDict setObject:devOID forKey:@"devOID"];
             [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"xml"] forKey:@"devOIDXMLPath"];
+            [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
+
             [requestDict setObject:(DRS.pacs[devOID])[@"wadoweasisparameters"] forKey:@"wadoweasisparameters"];
             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
@@ -1641,73 +1645,6 @@ NSString * SOPCLassOfReturnableSeries(
       } break;
          
 #pragma mark cornerstone
-         /*
-          JSON returned
-          [
-          {
-          "arcId":"devOID",
-          "baseUrl":"_proxyURIString_",
-          "patientList":
-          [
-           {
-            "key"=123,
-            "PatientID":"",
-            "PatientName":"",
-            "IssuerOfPatientID":"",
-            "PatientBirthDate":"",
-            "PatientSex":"",
-            "studyList":
-            [
-             {
-              "key"=123,
-              "StudyInstanceUID":"",
-              "studyDescription":"",
-              "studyDate":"",
-              "StudyTime":"",
-              "AccessionNumber":"",
-              "StudyID":"",
-              "ReferringPhysicianName":"",
-              "numImages":"",
-              "modality":"",
-              "patientId":"",
-              "patientName":"",
-              "seriesList":
-              [
-               {
-                "key"=123,
-                "seriesDescription":"",
-                "seriesNumber":"",
-                "SeriesInstanceUID":"",
-                "SOPClassUID":"",
-                "Modality":"",
-                "WadoTransferSyntaxUID":"",
-                "Institution":"",
-                "Department":"",
-                "StationName":"",
-                "PerformingPhysician":"",
-                "Laterality":"",
-                "numImages":1,
-                "instanceList":
-                [
-                 {
-                  "key"=123,
-                  "InstanceNumber":"",
-                  "numFrames":1
-                  "SOPClassUID":"",
-                  "SOPInstanceUID":"",
-                  "imageId":"wadouriInstance",
-                 }
-                ]
-               }
-              ]
-             }
-            ]
-           }
-          ]
-         }
-
-         (-1=info not available, 0=not an image, 1=monoframe, x=multiframe)
-         */
       case accessTypeCornerstone:
       {
 //loop each LAN pacs producing part
@@ -1715,6 +1652,7 @@ NSString * SOPCLassOfReturnableSeries(
          {
             [requestDict setObject:devOID forKey:@"devOID"];
             [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"json"]forKey:@"devOIDJSONPath"];
+            [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
 
              switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
@@ -1783,13 +1721,11 @@ NSString * SOPCLassOfReturnableSeries(
             [requestDict setObject:devOID forKey:@"devOID"];
             NSString *devOIDPath=[queryPath stringByAppendingPathComponent:devOID];
             [requestDict setObject:devOIDPath forKey:@"devOIDPath"];
+            [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
 
              switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
                 case selectTypeSql:
-                    [requestDict setObject:@"10" forKey:@"max"];
-                    [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
-
                   [DRS datateblesStudySql4dictionary:requestDict];
                   [DRS dicomzipSql4d:requestDict];
                   break;
