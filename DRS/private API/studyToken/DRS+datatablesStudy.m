@@ -32,8 +32,6 @@
       NSString *sqlprolog=devDict[@"sqlprolog"];
       NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
    
-//apply EP (Study Patient) filters
-      NSMutableDictionary *EPDict=[NSMutableDictionary dictionary];
 
 #pragma mark - NEW
       
@@ -271,7 +269,7 @@
                case dateMatchBetween:
                {
                   [filters appendFormat:Eda[dateMatchBetween],
-                   isoMatching?d[@"StudyDateArray"][0]:[DICMTypes DAStringFromDAISOString:d[@"StudyDateArray"][0]],
+                   isoMatching?(d[@"StudyDateArray"])[0]:[DICMTypes DAStringFromDAISOString:d[@"StudyDateArray"][0]],
                    isoMatching?d[@"StudyDateArray"][3]:[DICMTypes DAStringFromDAISOString:d[@"StudyDateArray"][3]]
                    ];
 
@@ -403,7 +401,7 @@
               sqlcredentials,
               [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
                sqlprolog,
-               d[@"sqlselect"],
+               sqlDictionary[@"Eselect4dt"],
                sqlDictionary[@"Ewhere"],
                filters,
                @"",
@@ -419,7 +417,7 @@
        {
           NSArray *dtE=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:dtPN decreasing:NO];//NSUTF8StringEncoding
 
-          if (EPDict.count)
+          if (dtE.count)
           {
              if (maxCount < dtE.count) [[[NSString stringWithFormat:@"[%lu]",(unsigned long)dtE.count] dataUsingEncoding:NSUTF8StringEncoding] writeToFile:d[@"devOIDPLISTPath"] atomically:YES];
              else [dtE writeToFile:d[@"devOIDPLISTPath"] atomically:YES];

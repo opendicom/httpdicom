@@ -20,6 +20,7 @@
 <!-- E select -->    
                             <xs:group ref="EselectEP"/>
                             <xs:group ref="EselectEuiE"/>
+                            <xs:group ref="Eselect4dt"/>
                             <xs:group ref="Ewhere"/><!-- rejection state -->
 <!-- E exclusive match-->                
                             <xs:group ref="EmatchEui"/><!-- 1. match study UID -->                                                  
@@ -34,7 +35,6 @@
                             <!-- 7. match ReadingPhysician -->
                             <!-- 8. match SOPClassesInStudy -->
                             <!-- 9. match ModalitiesInStudy -->                            
-                            <xs:group ref="Ejoin"/>
                             <xs:group ref="Eand"/>
                            
                             
@@ -90,6 +90,14 @@
             <xs:element name="string"/>
         </xs:sequence>
     </xs:group>
+    
+    <xs:group name="Eselect4dt">
+        <xs:sequence>
+            <xs:element name="key" fixed="Eselect4dt"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
 
 <!-- E exclusive match-->
 
@@ -108,8 +116,8 @@
             <xs:group ref="array"/>
         </xs:sequence>
     </xs:group>    
-    
-<!-- E cumulative matches-->
+
+    <!-- E cumulative matches-->
 
     <xs:group name="Ejoin">
         <xs:sequence>
