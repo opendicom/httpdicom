@@ -19,9 +19,8 @@ BOOL appendImmutableToCanonical(
 )
 {
     [canonicalQuery appendFormat:@"\"%@\":\"%@\",",name,value];
-    if (!cacheDict.count) return true;
     if (cacheDict[name]) return [value isEqualToString:cacheDict[name]];
-    return false;
+    return true;
 }
 
 /*
@@ -32,7 +31,7 @@ RSResponse * sqlEP(
  NSDictionary        * sqlcredentials,
  NSDictionary        * sqlDictionary,
  NSString            * sqlprolog,
- BOOL                EuiE,
+ NSString            * sqlselect,
  NSString            * StudyInstanceUIDRegexpString,
  NSString            * AccessionNumberEqualString,
  NSString            * refInstitutionLikeString,
@@ -63,19 +62,26 @@ RSResponse * sqlEP(
    if (StudyInstanceUIDRegexpString)
 #pragma mark · StudyInstanceUID
    {
-//six parts: prolog,select,where,and,limit&order,format
+/*
+ six or more parts:
+   prolog
+   select
+   where
+   and+
+   limit&order
+   format
+ */
       if (execUTF8Bash(
           sqlcredentials,
           [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
+           
            sqlprolog,
-            EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+           sqlDictionary[@"EselectEuiE"],
            sqlDictionary[@"Ewhere"],
-           [NSString stringWithFormat:
-            sqlDictionary[@"EmatchEui"],
-            StudyInstanceUIDRegexpString
-            ],
+           [NSString stringWithFormat:sqlDictionary[@"EmatchEui"],StudyInstanceUIDRegexpString],
            @"",
            sqlTwoPks
+           
           ],
           mutableData)
           !=0) return [RSErrorResponse responseWithClientError:404 message:@"studyToken StudyInstanceUID %@ db error",StudyInstanceUIDRegexpString];
@@ -90,15 +96,14 @@ RSResponse * sqlEP(
          {
             if (execUTF8Bash(sqlcredentials,
                         [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
+                         
                          sqlprolog,
-                         EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+                         sqlselect,
                          sqlDictionary[@"Ewhere"],
-                         [NSString stringWithFormat:
-                          (sqlDictionary[@"EmatchEan"])[issuerNone],
-                          AccessionNumberEqualString
-                          ],
+                         [NSString stringWithFormat:(sqlDictionary[@"EmatchEan"])[issuerNone],AccessionNumberEqualString],
                          @"",
                          sqlTwoPks
+                         
                         ],
                         mutableData)
                 !=0) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessionNumber db error. AN='%@' issuer='%@'",AccessionNumberEqualString,[issuerArray componentsJoinedByString:@"^"]];
@@ -108,8 +113,9 @@ RSResponse * sqlEP(
          {
             if (execUTF8Bash(sqlcredentials,
                              [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
+                              
                               sqlprolog,
-                              EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+                              sqlselect,
                               ((sqlDictionary[@"Ejoin"])[0])[0],
                               sqlDictionary[@"Ewhere"],
                               [NSString stringWithFormat:
@@ -119,6 +125,7 @@ RSResponse * sqlEP(
                                ],
                               @"",
                               sqlTwoPks
+                              
                              ],
                              mutableData)
                 !=0) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessionNumber db error. AN='%@' issuer='%@'",AccessionNumberEqualString,[issuerArray componentsJoinedByString:@"^"]];
@@ -129,7 +136,7 @@ RSResponse * sqlEP(
             if (execUTF8Bash(sqlcredentials,
                              [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
                               sqlprolog,
-                              EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+                              sqlselect,
                               ((sqlDictionary[@"Ejoin"])[0])[0],
                               sqlDictionary[@"Ewhere"],
                               [NSString stringWithFormat:
@@ -151,7 +158,7 @@ RSResponse * sqlEP(
             if (execUTF8Bash(sqlcredentials,
                              [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
                               sqlprolog,
-                              EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+                              sqlselect,
                               ((sqlDictionary[@"Ejoin"])[0])[0],
                               sqlDictionary[@"Ewhere"],
                               [NSString stringWithFormat:
@@ -476,7 +483,7 @@ RSResponse * sqlEP(
            sqlcredentials,
            [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
             sqlprolog,
-            EuiE?sqlDictionary[@"EselectEuiE"]:sqlDictionary[@"EselectEP"],
+            sqlselect,
             [sqlJoins componentsJoinedByString:@""],
             sqlDictionary[@"Ewhere"],
             filters,

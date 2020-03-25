@@ -4,10 +4,6 @@
 
 @implementation DRS (datatables)
 
-/*
-http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=31847350
- */
-
 
 
 -(void)addDatatablesStudiesHandler
@@ -33,13 +29,12 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
 [self addHandler:@"GET" regex:dtstudiesRegex processBlock:
  ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
    {
-#pragma mark - parsing URL
-     NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/studies?"][1];
+      NSMutableArray *names=[NSMutableArray arrayWithObject:@"accessType"];
+      NSMutableArray *values=[NSMutableArray arrayWithObject:@"datatables/study"];
 
-     NSMutableArray *names=[NSMutableArray arrayWithObject:@"accessType"];
-     NSMutableArray *values=[NSMutableArray arrayWithObject:@"datatables/study"];
+#pragma mark url parsing
+     NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/studies?"][1];
      NSArray *datatablesRequestItems=[datatablesQueryPart componentsSeparatedByString:@"&"];
-    
      for (NSString *param in datatablesRequestItems)
      {
          NSArray *nameValue=[param componentsSeparatedByString:@"="];
@@ -50,6 +45,7 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
          }
      }
 
+#pragma mark +StudyDate?
      NSUInteger date_startIndex=[names indexOfObject:@"date_start"];
      NSUInteger date_endIndex=  [names indexOfObject:@"date_end"];
      BOOL hasDate_start=(date_startIndex != NSNotFound);
@@ -120,14 +116,19 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
        }
 
 
-#pragma mark adding name/value : institution, modality, rol
-    [names addObject:@"institution"];
-    NSString *custodiantitle=values[[names indexOfObject:@"custodiantitle"]];
-    NSString *aet=values[[names indexOfObject:@"aet"]];
-    NSString *institutionOID=(DRS.pacs[[custodiantitle stringByAppendingPathExtension:aet]])[@"pacsoid"];
-    [values addObject:institutionOID];
+#pragma mark +institution?
+    NSString *institutionOID=nil;
+    if ([names indexOfObject:@"institution"]==NSNotFound)
+    {
+       [names addObject:@"institution"];
+       NSString *custodiantitle=values[[names indexOfObject:@"custodiantitle"]];
+       NSString *aet=values[[names indexOfObject:@"aet"]];
+       NSString *institutionOID=(DRS.pacs[[custodiantitle stringByAppendingPathExtension:aet]])[@"pacsoid"];
+       [values addObject:institutionOID];
+    }
 
-     
+    
+#pragma mark +modalityInStudy?
     NSString *modality=nil;
     NSUInteger modalitiesIndex=[names indexOfObject:@"Modalities"];
     if ((modalitiesIndex != NSNotFound) && ![values[modalitiesIndex] isEqualToString:@"ALL"])
@@ -137,11 +138,10 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
        [values addObject:modality];
     }
 
-    // rol
+#pragma mark override query items depending on role
     // also applies to StudyInstanceUID and AccessionNumber
     switch ([roles indexOfObject:values[[names indexOfObject:@"role"]]])
     {
-          
           
        case rolPatient:
        {
@@ -153,7 +153,6 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
              [values addObject:values[usernameIndex]];
           }
        } break;
-
 
           
        case rolReading:
@@ -213,7 +212,8 @@ http://192.168.1.102:11114/datatablesstudy?StudyDate=2020-01-10&PatientID=318473
           //[names addObject:@"readIDType"];
           //[values addObject:];
        } break;
-            
+
+          
         case rolLocalPhysician:
         {
         } break;

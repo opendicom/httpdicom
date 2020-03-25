@@ -1,15 +1,9 @@
-#import "DRS+weasis.h"
+#import "DRS+cornerstone.h"
 #import "DRS+studyToken.h"
 
-#import "WeasisArcQuery.h"
-#import "WeasisPatient.h"
-#import "WeasisStudy.h"
-#import "WeasisSeries.h"
-#import "WeasisInstance.h"
+@implementation DRS (cornerstone)
 
-@implementation DRS (weasis)
-
-+(void)weasisSql4dictionary:(NSDictionary*)d
++(void)cornerstoneSql4dictionary:(NSDictionary*)d
 {
    NSDictionary *devDict=DRS.pacs[d[@"devOID"]];
    
@@ -25,7 +19,7 @@
     sqlcredentials,
     sqlDictionary,
     sqlprolog,
-    false,
+    d[@"Eselect4dt"],
     d[@"StudyInstanceUIDRegexpString"],
     d[@"AccessionNumberEqualString"],
     d[@"refInstitutionLikeString"],
@@ -75,30 +69,14 @@
       NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
 
 
-
-      NSError  *error=nil;
-      NSXMLElement *arcQueryElement=nil;
-      NSString *XMLString=[NSString stringWithContentsOfFile:d[@"devOIDXMLPath"] encoding:NSUTF8StringEncoding error:nil];
-      if (XMLString) arcQueryElement=[[NSXMLElement alloc]initWithXMLString:XMLString error:&error];
-      if (!arcQueryElement)
+      NSMutableDictionary *arc=[NSMutableDictionary dictionaryWithContentsOfFile:d[@"devOIDJSONPath"]];
+      if (!arc)
       {
-         if (error) [[NSFileManager defaultManager] moveItemAtPath:d[@"devOIDXMLPath"] toPath:[d[@"devOIDXMLPath"] stringByAppendingPathExtension:@"badxml"] error:nil];
-         arcQueryElement=
-         [WeasisArcQuery
-          weasisarcId:d[@"devOID"]
-          weasiswebLogin:nil
-          weasisrequireOnlySOPInstanceUID:nil
-          weasisadditionnalParameters:d[@"wadoweasisparameters"]
-          weasisoverrideDicomTagsList:nil
-          seriesFilterInstanceUID:d[@"SeriesInstanceUIDRegexString"]
-          seriesFilterNumber:d[@"SeriesNumberRegexString"]
-          seriesFilterDescription:d[@"SeriesDescriptionRegexString"]
-          seriesFilterModality:d[@"ModalityRegexString"]
-          seriesFilterSOPClass:d[@"SOPClassRegexString"]
-          seriesFilterSOPClassOff:d[@"SOPClassOffRegexString"]
-         ];
+         arc=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+         d[@"devOID"], @"arcId",
+         @"_proxyURIString_",@"baseUrl",
+         nil];
       }
-
       
       //prepare regex level series
        NSRegularExpression *SeriesInstanceUIDRegex = nil;
@@ -116,19 +94,29 @@
            if (d[@"SOPClassRegexString"]) SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SOPClassRegexString"] options:0 error:NULL];
            if (d[@"SOPClassOffRegexString"]) SOPClassOffRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SOPClassOffRegexString"] options:0 error:NULL];
        }
-
+      
 #pragma mark patient loop
-      NSArray *patientArray=[arcQueryElement elementsForName:@"Patient"];
-      NSMutableDictionary *patientDictionary=[NSMutableDictionary dictionary];
-      for (NSXMLElement *cachedPatient in patientArray)
-      {
-         [patientDictionary setObject:cachedPatient forKey:[[cachedPatient attributeForName:@"key"]stringValue]];
+      NSMutableArray *patientArray=arc[@"patientList"];
+      if (!patientArray) {
+         patientArray=[NSMutableArray array];
+         [arc setObject:patientArray forKey:@"patientList"];
       }
-         
+      
       for (NSString *P in [NSSet setWithArray:[EPDict allValues]])
       {
-         NSXMLElement *PatientElement=patientDictionary[P];
-         if (!PatientElement)
+         NSMutableArray *studyArray=nil;
+         
+         NSMutableDictionary *patient=[patientArray firstMutableDictionaryWithKey:@"key" isEqualToNumber:[NSNumber numberWithLongLong:[P longLongValue]]];
+         if (patient)
+         {
+            [studyArray setArray:arc[@"studyList"]];
+            if (!studyArray)
+            {
+               studyArray=[NSMutableArray array];
+               [patient setObject:studyArray forKey:@"studyList"];
+            }
+         }
+         else
          {
             NSMutableData *patientData=[NSMutableData data];
             if (execUTF8Bash(sqlcredentials,
@@ -145,32 +133,43 @@
                LOG_ERROR(@"studyToken patient db error");
                continue;
             }
+            
             NSArray *patientSqlPropertiesArray=[patientData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
-            PatientElement=
-            [WeasisPatient key:(patientSqlPropertiesArray[0])[0]
-             weasisPatientID:(patientSqlPropertiesArray[0])[1]
-             weasisPatientName:(patientSqlPropertiesArray[0])[2]
-             weasisIssuerOfPatientID:(patientSqlPropertiesArray[0])[3]
-             weasisPatientBirthDate:(patientSqlPropertiesArray[0])[4]
-             weasisPatientBirthTime:nil
-             weasisPatientSex:(patientSqlPropertiesArray[0])[5]
-             ];
-            [arcQueryElement addChild:PatientElement];
+            
+            studyArray=[NSMutableArray array];
+            patient=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+             [NSNumber numberWithLongLong:[(patientSqlPropertiesArray[0])[0] longLongValue]],@"key",
+             (patientSqlPropertiesArray[0])[1], @"PatientID",
+             [(patientSqlPropertiesArray[0])[2] removeTrailingCarets],@"PatientName",
+             (patientSqlPropertiesArray[0])[3],@"IssuerOfPatientID",
+             (patientSqlPropertiesArray[0])[4],@"PatientBirthDate",
+             (patientSqlPropertiesArray[0])[5],@"PatientSex",
+             studyArray,@"studyList",
+             nil
+            ];
+            [patientArray addObject:patient];
          }
+                              
 
 #pragma mark study loop
-         NSArray *studyArray=[PatientElement elementsForName:@"Study"];
-         NSMutableDictionary *studyDictionary=[NSMutableDictionary dictionary];
-         for (NSXMLElement *cachedStudy in studyArray)
-         {
-            [studyDictionary setObject:cachedStudy forKey:[[cachedStudy attributeForName:@"key"]stringValue]];
-         }
          for (NSString *E in EPDict)
          {
             if ([EPDict[E] isEqualToString:P])
             {
-               NSXMLElement *StudyElement=studyDictionary[E];//Study=Exam
-               if (!StudyElement)
+               NSMutableArray *seriesArray=nil;
+
+               NSMutableDictionary *study=[studyArray firstMutableDictionaryWithKey:@"key" isEqualToNumber:[NSNumber numberWithLongLong:[E longLongValue]]];
+
+               if (study) //found in cache
+               {
+                  [seriesArray setArray:study[@"seriesList"]];
+                  if (!seriesArray)
+                  {
+                     seriesArray=[NSMutableArray array];
+                     [study setObject:seriesArray forKey:@"seriesList"];
+                  }
+               }
+               else //new study
                {
                   NSMutableData *studyData=[NSMutableData data];
                   if (execUTF8Bash(sqlcredentials,
@@ -188,36 +187,28 @@
                      continue;
                   }
                   NSArray *studySqlPropertiesArray=[studyData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:YES];//NSUTF8StringEncoding
-
-                   // no issuer
-                   
-                  StudyElement=
-                  [WeasisStudy
-                   key:(studySqlPropertiesArray[0])[0]
-                   weasisStudyInstanceUID:(studySqlPropertiesArray[0])[1]
-                   weasisStudyDescription:(studySqlPropertiesArray[0])[2]
-                   weasisStudyDate:[DICMTypes DAStringFromDAISOString:(studySqlPropertiesArray[0])[3]]
-                   weasisStudyTime:[DICMTypes TMStringFromTMISOString:(studySqlPropertiesArray[0])[4]]
-                   weasisAccessionNumber:(studySqlPropertiesArray[0])[5]
-                   weasisStudyId:(studySqlPropertiesArray[0])[6]
-                   weasisReferringPhysicianName:(studySqlPropertiesArray[0])[7]
-                   readingPhysicianName:(studySqlPropertiesArray[0])[8]
-                   issuer:nil
-                   issuerType:nil
-                   series:(studySqlPropertiesArray[0])[9]
-                   modalities:(studySqlPropertiesArray[0])[10]
-                   ];
-                  [PatientElement addChild:StudyElement];
+               
+                  seriesArray=[NSMutableArray array];
+study=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+ [NSNumber numberWithLongLong:[(studySqlPropertiesArray[0])[0] longLongValue]],@"key",
+ (studySqlPropertiesArray[0])[1], @"StudyInstanceUID",
+ (studySqlPropertiesArray[0])[2], @"studyDescription",
+ [DICMTypes DAStringFromDAISOString:(studySqlPropertiesArray[0])[3]], @"studyDate",
+ [DICMTypes TMStringFromTMISOString:(studySqlPropertiesArray[0])[4]],@"StudyTime",
+ (studySqlPropertiesArray[0])[5],@"AccessionNumber",
+ (studySqlPropertiesArray[0])[6],@"StudyID",
+ [(studySqlPropertiesArray[0])[7] removeTrailingCarets],@"ReferringPhysicianName",
+ [(studySqlPropertiesArray[0])[8] removeTrailingCarets],@"NameOfPhysiciansReadingStudy",
+ (studySqlPropertiesArray[0])[9],@"modality",
+ patient[@"PatientID"],@"patientId",
+ patient[@"PatientName"],@"patientName",
+ seriesArray,@"seriesList",
+nil];
+                  [studyArray addObject:study];
                }
+         
                
 #pragma mark series loop
-               NSArray *seriesArray=[StudyElement elementsForName:@"Series"];
-               NSMutableDictionary *seriesDictionary=[NSMutableDictionary dictionary];
-               for (NSXMLElement *cachedSeries in seriesArray)
-               {
-                  [seriesDictionary setObject:cachedSeries forKey:[[cachedSeries attributeForName:@"key"]stringValue]];
-               }
-               
                NSMutableData *seriesData=[NSMutableData data];
                if (execUTF8Bash(sqlcredentials,
                                  [NSString stringWithFormat:
@@ -230,83 +221,83 @@
                                  seriesData)
                    !=0)
                {
-                  LOG_ERROR(@"studyToken study db error");
+                  LOG_ERROR(@"studyToken series db error");
                   continue;
                }
                NSArray *seriesSqlPropertiesArray=[seriesData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
                for (NSArray *seriesSqlProperties in seriesSqlPropertiesArray)
                {
-                  NSXMLElement *SeriesElement=seriesDictionary[seriesSqlProperties[0]];
+                  NSMutableDictionary *series=[seriesArray firstMutableDictionaryWithKey:@"key" isEqualToNumber:[NSNumber numberWithLongLong:[seriesSqlProperties[0] longLongValue]]];
                   NSString *SOPClass=nil;
-                  if (SeriesElement) //found in cache
+                  if (series) //found in cache
                   {
-                     if (![[[SeriesElement attributeForName:@"numImages"]stringValue] isEqualToString:seriesSqlProperties[10]]) SOPClass=[[SeriesElement attributeForName:@"SOPClassUID"]stringValue];//check instances
+                     if ([series[@"numImages"] longLongValue]!=[seriesSqlProperties[10]longLongValue]) SOPClass=series[@"SOPClassUID"];//check instances
                   }
                   else //new series
                   {
-                      //add it?
-                      SOPClass=SOPCLassOfReturnableSeries(
-                       sqlcredentials,
-                       sqlDictionary[@"Ici4S"],
-                       sqlprolog,
-                       seriesSqlProperties,
-                       SeriesInstanceUIDRegex,
-                       SeriesNumberRegex,
-                       SeriesDescriptionRegex,
-                       ModalityRegex,
-                       SOPClassRegex,
-                       SOPClassOffRegex
+                      //add it? (SOPClass = yes)
+                     SOPClass=SOPCLassOfReturnableSeries(
+                      sqlcredentials,
+                      sqlDictionary[@"Ici4S"],
+                      sqlprolog,
+                      seriesSqlProperties,
+                      SeriesInstanceUIDRegex,
+                      SeriesNumberRegex,
+                      SeriesDescriptionRegex,
+                      ModalityRegex,
+                      SOPClassRegex,
+                      SOPClassOffRegex
                      );
                   }
+                  
                   if (SOPClass)
                   {
-                     //did series exists
-                     if (!SeriesElement)
-                     {
-                        SeriesElement=
-                        [WeasisSeries
-                         key:seriesSqlProperties[0]
-                         weasisSeriesInstanceUID:seriesSqlProperties[1]
-                         weasisSeriesDescription:seriesSqlProperties[2]
-                         weasisSeriesNumber:seriesSqlProperties[3]
-                         weasisModality:seriesSqlProperties[4]
-                         weasisWadoTransferSyntaxUID:@"*"
-                         weasisWadoCompressionRate:nil
-                         weasisDirectDownloadThumbnail:nil
-                         sop:SOPClass
-                         institution:seriesSqlProperties[5]
-                         department:seriesSqlProperties[6]
-                         stationName:seriesSqlProperties[7]
-                         performingPhysician:seriesSqlProperties[8]
-                         laterality:seriesSqlProperties[9]
-                         images:seriesSqlProperties[10]
-                        ];
-                        [StudyElement addChild:SeriesElement];
-                     }
+                     //add series and instances
                      
+                     //instances
+NSMutableArray *instanceArray=[NSMutableArray array];
+series=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+[NSNumber numberWithLongLong:[seriesSqlProperties[0] longLongValue]],@"key",
+seriesSqlProperties[2], @"seriesDescription",
+seriesSqlProperties[3], @"seriesNumber",
+seriesSqlProperties[1], @"SeriesInstanceUID",
+SOPClass, @"SOPClassUID",
+seriesSqlProperties[4], @"Modality",
+@"*",@"WadoTransferSyntaxUID",
+seriesSqlProperties[5], @"Institution",
+seriesSqlProperties[6], @"Department",
+seriesSqlProperties[7], @"StationName",
+seriesSqlProperties[8], @"PerformingPhysician",
+seriesSqlProperties[9], @"Laterality",
+[NSNumber numberWithLongLong:[seriesSqlProperties[10] longLongValue]], @"numImages",
+instanceArray,@"instanceList",
+nil];
+                     
+                     [seriesArray addObject:series];
+
                      //add institution to studies
-                     [StudyElement addAttribute:[NSXMLNode attributeWithName:@"institution" stringValue:seriesSqlProperties[5]]];
-
-                                                      
+                     [study setObject:seriesSqlProperties[5] forKey:@"institution"];
+                                  
+                                 
 #pragma mark instances depending on the SOP Class
-                     /*
-                     pk, SOPInstanceUID and instance number are common to allo SOP Class
+/*
+pk, SOPInstanceUID and instance number are common to allo SOP Class
 
-                     In relation to Cornerstone, the number of frames is also important
-                     NumFrames=[NSNumber numberWithInt:[instanceSqlProperties[3] intValue]];
+In relation to Cornerstone, the number of frames is also important
+NumFrames=[NSNumber numberWithInt:[instanceSqlProperties[3] intValue]];
 
-                     This information is not available in non multiframe objects. Those shall have the value 0 if they are not frame based and 1 if they are always single frame.
+This information is not available in non multiframe objects. Those shall have the value 0 if they are not frame based and 1 if they are always single frame.
 
-                     In the case of multiframe SOP Classes:
-                     Since number of frames may belong to some binary blog of dicom attrs, we allow postprocessing on sql raw data, and then on table-organized results.
-                     We reserve the value -1 to state that the info is not available at all in the DB.
+In the case of multiframe SOP Classes:
+Since number of frames may belong to some binary blog of dicom attrs, we allow postprocessing on sql raw data, and then on table-organized results.
+We reserve the value -1 to state that the info is not available at all in the DB.
 
-                     As seen some casuistics can be resolved before any query to the instance table, based on the SOP Class already obtained for series filters, we use specific query depending on the case:
-                     - I0 corresponde to a non frame based object where number of frames is forced to 0
-                     - I1 corresponds to a monoframe object where number of frames is forced to 1
-                     - I corresponds to an enhanced SOP Class potentially containing multiframes.
-                     */
-                     
+As seen some casuistics can be resolved before any query to the instance table, based on the SOP Class already obtained for series filters, we use specific query depending on the case:
+- I0 corresponde to a non frame based object where number of frames is forced to 0
+- I1 corresponds to a monoframe object where number of frames is forced to 1
+- I corresponds to an enhanced SOP Class potentially containing multiframes.
+*/
+
                      NSMutableData *instanceData=[NSMutableData data];
                      if ([DRS.InstanceUniqueFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)//I1
                      {
@@ -370,25 +361,36 @@
                      }
                      NSArray *instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:sqlDictionary[@"IpostprocessingTitleMain"] orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
 
-
-#pragma mark instance loop
+                                 
+                              
+   #pragma mark instance loop
                      for (NSArray *instanceSqlProperties in instanceSqlPropertiesArray)
                      {
-                        //imageId = (weasis) DirectDownloadFile
                         switch (getTypeIndex)
                         {
                            case getTypeWado:
                            {
-NSXMLElement *InstanceElement=
-                        [WeasisInstance
-                         key:instanceSqlProperties[0]
-                         weasisInstanceNumber:instanceSqlProperties[3]
-                         NumberOfFrames:instanceSqlProperties[4]
-                         weasisSOPClassUID:instanceSqlProperties[1]
-                         weasisSOPInstanceUID:instanceSqlProperties[2]
-                         weasisDirectDownloadFile:nil];
-
-                        [SeriesElement addChild:InstanceElement];
+                              NSString *wadouriInstance=
+                              [NSString
+                               stringWithFormat:
+                               @"wadouri:_proxyURIString_?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=_sessionString_&custodianOID=%@&arcId=%@%@",
+                               study[@"StudyInstanceUID"],
+                               seriesSqlProperties[1],
+                               instanceSqlProperties[2],
+                               devDict[@"custodianoid"],
+                               d[@"devOID"],
+                               devDict[@"wadocornerstoneparameters"]
+                              ];
+                              [instanceArray addObject:
+     @{
+       @"key":[NSNumber numberWithLongLong: [instanceSqlProperties[0] longLongValue]],
+       @"InstanceNumber":instanceSqlProperties[3],
+       @"numFrames":[NSNumber numberWithLongLong:[instanceSqlProperties[4] longLongValue]],
+       @"SOPClassUID":instanceSqlProperties[1],
+       @"SOPInstanceUID":instanceSqlProperties[2],
+       @"imageId":wadouriInstance
+      }
+                              ];
                            } break;//end of WADO
                         }//end of GET switch
                      }//end for each I
@@ -397,15 +399,10 @@ NSXMLElement *InstanceElement=
             }//end of ([EPDict[E] isEqualToString:P])
          }//end for each E
       }//end for each P
+       
+      NSData *docData=[NSJSONSerialization dataWithJSONObject:arc options:0 error:nil];
+      [docData writeToFile:d[@"devOIDJSONPath"] atomically:YES];
 
-   NSXMLDocument *doc=[NSXMLDocument documentWithRootElement:arcQueryElement];
-
-//adds headers to the documents...DO NOT USE THEM to facilitate composition
-   //doc.documentContentKind=NSXMLDocumentXMLKind;
-   //doc.characterEncoding=@"UTF-8";
-   //doc.standalone=true;
-   NSData *docData=[doc XMLData];
-   [docData writeToFile:d[@"devOIDXMLPath"] atomically:YES];
-   }
+   }//end EP
 }
 @end

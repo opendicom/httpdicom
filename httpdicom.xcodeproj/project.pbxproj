@@ -451,6 +451,8 @@
 				4ABF11C31FE5BD14000B8DE6 /* DICM */,
 				4A2D90712183455000371484 /* ZLIB */,
 				4AF40D902222D03000103F99 /* MLLP */,
+				4AF40D3D220D9B0C00103F99 /* request */,
+				4AF40D5C221C3EBA00103F99 /* response */,
 				4A19C9171E8F15B700DDD35D /* RS */,
 				4AE49DEF2009E3F200B8F321 /* DRS */,
 				4AA20C4923101B0A005BD76D /* XML */,
@@ -480,24 +482,25 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		4A07FB6721F24EF900007B8B /* exposed API */ = {
+		4A07FB6721F24EF900007B8B /* private API */ = {
 			isa = PBXGroup;
 			children = (
-				4A57391A241795FE007B5FD6 /* not_tested */,
-				4A3F896F23F485D1005DE843 /* studyToken */,
+				4AE49DF0200D153000B8F321 /* DRS+pacs.h */,
+				4AE49DF1200D153000B8F321 /* DRS+pacs.m */,
+				4A2D90592181E37C00371484 /* DRS+datatables.h */,
+				4A2D90582181E37C00371484 /* DRS+datatables.m */,
 				4A494CED2371F879006F69DF /* studyToken.pages */,
 				4A34618B22F0ACC300368276 /* DRS+studyToken.h */,
 				4A34618C22F0ACC300368276 /* DRS+studyToken.m */,
-				4A2D90592181E37C00371484 /* DRS+datatables.h */,
-				4A2D90582181E37C00371484 /* DRS+datatables.m */,
-				4A625A6D226F4C87005AEBF4 /* DRS+mwlitem.h */,
-				4A625A6C226F4C87005AEBF4 /* DRS+mwlitem.m */,
+				4A3F896F23F485D1005DE843 /* studyToken */,
 				4A57391B2417AB07007B5FD6 /* DRS+report.h */,
 				4A57391C2417AB07007B5FD6 /* DRS+report.m */,
 				4A494CEE23745B62006F69DF /* DRS+store.h */,
 				4A494CEF23745B62006F69DF /* DRS+store.m */,
+				4A625A6D226F4C87005AEBF4 /* DRS+mwlitem.h */,
+				4A625A6C226F4C87005AEBF4 /* DRS+mwlitem.m */,
 			);
-			path = "exposed API";
+			path = "private API";
 			sourceTree = "<group>";
 		};
 		4A0FDF2B1E91078C001E3426 /* Response */ = {
@@ -601,15 +604,17 @@
 			path = studyToken;
 			sourceTree = "<group>";
 		};
-		4A57391A241795FE007B5FD6 /* not_tested */ = {
+		4A5739232424ED86007B5FD6 /* dicomweb API */ = {
 			isa = PBXGroup;
 			children = (
 				4AF40D2E21F8FA8A00103F99 /* DRS+qido.h */,
 				4AF40D2F21F8FA8A00103F99 /* DRS+qido.m */,
 				4A2D905C2181E37C00371484 /* DRS+wadors.h */,
 				4A2D905A2181E37C00371484 /* DRS+wadors.m */,
+				4A2D90602181E37D00371484 /* DRS+wadouri.h */,
+				4A2D90562181E37C00371484 /* DRS+wadouri.m */,
 			);
-			path = not_tested;
+			path = "dicomweb API";
 			sourceTree = "<group>";
 		};
 		4A94BE94208627AD0009C4AB /* DICOMweb */ = {
@@ -748,15 +753,10 @@
 		4AE49DEF2009E3F200B8F321 /* DRS */ = {
 			isa = PBXGroup;
 			children = (
-				4AF40D3D220D9B0C00103F99 /* request */,
-				4AF40D5C221C3EBA00103F99 /* response */,
-				4A07FB6721F24EF900007B8B /* exposed API */,
+				4A5739232424ED86007B5FD6 /* dicomweb API */,
+				4A07FB6721F24EF900007B8B /* private API */,
 				4AE49DD92008F1F600B8F321 /* DRS.h */,
 				4AE49DDA2008F1F600B8F321 /* DRS.m */,
-				4AE49DF0200D153000B8F321 /* DRS+pacs.h */,
-				4AE49DF1200D153000B8F321 /* DRS+pacs.m */,
-				4A2D90602181E37D00371484 /* DRS+wadouri.h */,
-				4A2D90562181E37C00371484 /* DRS+wadouri.m */,
 			);
 			path = DRS;
 			sourceTree = "<group>";
