@@ -9,21 +9,33 @@
    if ([d[@"max"] length]) maxCount=[d[@"max"] longLongValue];
 
 #pragma mark studyArray from cache?
-   NSMutableArray *studyArray=[NSMutableArray arrayWithContentsOfFile:d[@"devOIDPLISTPath"]];
-   //cache contains count
-   BOOL maxCountOK=true;
-   if (studyArray)
+   BOOL doPerformSQL=true;
+   NSMutableArray *studyArray=nil;
+   
+   if (d[@"new"] && [d[@"new"] isEqualToString:@"true"])
+      studyArray=[NSMutableArray array];
+   else
    {
-       if (   (studyArray.count==1)
-           && [studyArray[0] isKindOfClass:[NSNumber class]]
-           && ([studyArray[0] longLongValue] < maxCount)
-          )
-           [studyArray removeObjectAtIndex:0];
-       else
-           maxCountOK=(studyArray.count <= maxCount);
+      studyArray=[NSMutableArray arrayWithContentsOfFile:d[@"devOIDPLISTPath"]];
+      if (studyArray)
+      {
+          if (   (studyArray.count==1)
+              && [studyArray[0] isKindOfClass:[NSNumber class]]
+              && ([studyArray[0] longLongValue] < maxCount)
+             )
+              [studyArray removeObjectAtIndex:0];
+          else
+          {
+             doPerformSQL=(studyArray.count <= maxCount);
+             if (doPerformSQL)
+             {
+#pragma mark TODO unverify it if there is no need to repeat the sql query
+             }
+          }
+      }
+      else studyArray=[NSMutableArray array];
    }
-   else studyArray=[NSMutableArray array];
-   if (maxCountOK)
+   if (doPerformSQL)
    {
       
 #pragma mark sql init
@@ -32,8 +44,6 @@
       NSString *sqlprolog=devDict[@"sqlprolog"];
       NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
    
-
-#pragma mark - NEW
       
       NSMutableData * mutableData=[NSMutableData data];
       if (d[@"StudyInstanceUIDRegexpString"])
@@ -423,6 +433,6 @@
              else [dtE writeToFile:d[@"devOIDPLISTPath"] atomically:YES];
           }
       }
-   }//maxCountOK
+   }//doPerformSQL
 }
 @end

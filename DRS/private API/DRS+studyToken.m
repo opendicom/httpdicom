@@ -1833,8 +1833,6 @@ NSString * SOPCLassOfReturnableSeries(
       case accessTypeDatatablesstudies:
       case accessTypeDatatablespatient:
       {
-         NSLog(@"%@",[values description]);
-          
           NSUInteger newIndex=[names indexOfObject:@"new"];
           if ((newIndex!=NSNotFound) && [values[newIndex] isEqualToString:@"true"])
           {
