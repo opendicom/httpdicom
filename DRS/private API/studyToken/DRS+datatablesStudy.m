@@ -12,29 +12,25 @@
    BOOL doPerformSQL=true;
    NSMutableArray *studyArray=nil;
    
-   if (d[@"new"] && [d[@"new"] isEqualToString:@"true"])
-      studyArray=[NSMutableArray array];
-   else
-   {
-      studyArray=[NSMutableArray arrayWithContentsOfFile:d[@"devOIDPLISTPath"]];
-      if (studyArray)
+    studyArray=[NSMutableArray arrayWithContentsOfFile:d[@"devOIDPLISTPath"]];
+    if (studyArray)
+    {
+      if (   (studyArray.count==1)
+          && [studyArray[0] isKindOfClass:[NSNumber class]]
+          && ([studyArray[0] longLongValue] < maxCount)
+         )
+          [studyArray removeObjectAtIndex:0];
+      else
       {
-          if (   (studyArray.count==1)
-              && [studyArray[0] isKindOfClass:[NSNumber class]]
-              && ([studyArray[0] longLongValue] < maxCount)
-             )
-              [studyArray removeObjectAtIndex:0];
-          else
-          {
-             doPerformSQL=(studyArray.count <= maxCount);
-             if (doPerformSQL)
-             {
-#pragma mark TODO unverify it if there is no need to repeat the sql query
-             }
-          }
+         doPerformSQL=(studyArray.count <= maxCount);
+         if (doPerformSQL)
+         {
+    #pragma mark TODO unverify it if there is no need to repeat the sql query
+         }
       }
-      else studyArray=[NSMutableArray array];
-   }
+    }
+    else studyArray=[NSMutableArray array];
+
    if (doPerformSQL)
    {
       
@@ -61,7 +57,7 @@
                   d[@"StudyInstanceUIDRegexpString"]
                   ],
                  @"",
-                 sqlRecordTwentySevenUnits
+                 sqlRecordTwentyNineUnits
                 ],
                 mutableData)
                 !=0) LOG_WARNING(@"datatablesStudy StudyInstanceUID %@ db error",d[@"StudyInstanceUIDRegexpString"]);
@@ -85,7 +81,7 @@
                         d[@"AccessionNumberEqualString"]
                      ],
                      @"",
-                     sqlRecordTwentySevenUnits
+                     sqlRecordTwentyNineUnits
                      ],
                      mutableData)
                    !=0) LOG_WARNING(@"studyToken accessionNumber db error. AN='%@' issuer='%@'",d[@"AccessionNumberEqualString"],[d[@"issuerArray"] componentsJoinedByString:@"^"]);
@@ -105,7 +101,7 @@
                         d[@"issuerArray"][0]
                      ],
                      @"",
-                     sqlRecordTwentySevenUnits
+                     sqlRecordTwentyNineUnits
                     ],
                     mutableData)
                    !=0) LOG_WARNING(@"studyToken accessionNumber db error. AN='%@' issuer='%@'",d[@"AccessionNumberEqualString"],[d[@"issuerArray"] componentsJoinedByString:@"^"]);
@@ -126,7 +122,7 @@
                      d[@"issuerArray"][2]
                      ],
                     @"",
-                    sqlRecordTwentySevenUnits
+                    sqlRecordTwentyNineUnits
                     ],
                    mutableData)
                   !=0) LOG_WARNING(@"studyToken accessionNumber db error. AN='%@' issuer='%@'",d[@"AccessionNumberEqualString"],[d[@"issuerArray"] componentsJoinedByString:@"^"]);
@@ -405,7 +401,7 @@
             {
                [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEmo],d[@"SOPClassInStudyRegexpString"]];
             }
-               
+#pragma mark - execute sql
           //six parts: prolog,select,where,and,limit&order,format
           if (execUTF8Bash(
               sqlcredentials,
@@ -415,7 +411,7 @@
                sqlDictionary[@"Ewhere"],
                filters,
                @"",
-               sqlRecordTwentySevenUnits
+               sqlRecordTwentyNineUnits
               ],
               mutableData)
               !=0) LOG_WARNING(@"studyToken StudyInstanceUID %@ db error",d[@"StudyInstanceUIDRegexpString"]);
@@ -425,7 +421,7 @@
 
        if ([mutableData length])
        {
-          NSArray *dtE=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:dtPN decreasing:NO];//NSUTF8StringEncoding
+           NSArray *dtE=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:@"replaceCacheInstitution" dictionary:@{@"_institution_":d[@"devOID"], @"_cache_":[[d[@"devOIDPLISTPath"] stringByDeletingLastPathComponent]lastPathComponent]} orderedByUnitIndex:dtPN decreasing:NO];//NSUTF8StringEncoding
 
           if (dtE.count)
           {

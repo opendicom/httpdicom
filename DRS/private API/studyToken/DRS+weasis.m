@@ -17,7 +17,26 @@
    NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
    NSString *sqlprolog=devDict[@"sqlprolog"];
    NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
-   
+/*
+    #pragma mark E from datatables plist
+       NSArray *studyPlist=[NSArray arrayWithContentsOfFile:[d[@"devOIDPath"]stringByAppendingPathExtension:@"plist"]];
+        
+        NSArray *studiesSelected=nil;
+        if (d[@"StudyInstanceUIDRegexpString"])
+        {
+            NSPredicate *studyPredicate = [NSPredicate predicateWithFormat:@"SELF[16] == %@", d[@"StudyInstanceUIDRegexpString"]];
+            studiesSelected=[studyPlist filteredArrayUsingPredicate:studyPredicate];
+        }
+        else studiesSelected=studyPlist;
+        for (NSArray *study in studiesSelected)
+        {
+    #pragma mark loop E
+           
+           NSString *EPath=[d[@"devOIDPath"] stringByAppendingPathComponent:study[16]];//E
+
+    @"devOIDPLISTPath"]
+ */
+    
 //apply EP (Study Patient) filters
    NSMutableDictionary *EPDict=[NSMutableDictionary dictionary];
    RSResponse *sqlEPErrorReturned=sqlEP(
@@ -368,7 +387,7 @@
                            continue;
                         }
                      }
-                     NSArray *instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:sqlDictionary[@"IpostprocessingTitleMain"] orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+                     NSArray *instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:sqlDictionary[@"IpostprocessingTitleMain"] dictionary:nil orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
 
 
 #pragma mark instance loop

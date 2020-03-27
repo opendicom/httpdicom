@@ -29,10 +29,10 @@
 
 -(NSArray*)arrayOfRecordsOfStringUnitsEncoding:(NSStringEncoding)encoding orderedByUnitIndex:(NSUInteger)index decreasing:(BOOL)decreasing
 {
-   return [self arrayOfRecordsOfStringUnitsEncoding:encoding stringUnitsPostProcessTitle:nil orderedByUnitIndex:index decreasing:decreasing];
+    return [self arrayOfRecordsOfStringUnitsEncoding:encoding stringUnitsPostProcessTitle:nil dictionary:nil orderedByUnitIndex:index decreasing:decreasing];
 }
 
--(NSArray*)arrayOfRecordsOfStringUnitsEncoding:(NSStringEncoding)encoding stringUnitsPostProcessTitle:(NSString*)stringUnitsPostProcessTitle orderedByUnitIndex:(NSUInteger)index decreasing:(BOOL)decreasing
+-(NSArray*)arrayOfRecordsOfStringUnitsEncoding:(NSStringEncoding)encoding stringUnitsPostProcessTitle:(NSString*)stringUnitsPostProcessTitle dictionary:(NSDictionary*)d orderedByUnitIndex:(NSUInteger)index decreasing:(BOOL)decreasing
 {
    NSUInteger dataLength=[self length];
    if (dataLength==0)return @[];
@@ -45,7 +45,7 @@
       currentRecordSeparator=[self rangeOfData:recordSeparator options:0 range:dataRange];
       if (currentRecordSeparator.location==NSNotFound) return nil;//error
 
-      [recordArray addObject:[self arrayOfStringUnitsForRecordRange:NSMakeRange(dataRange.location,currentRecordSeparator.location - dataRange.location) encoding:encoding stringUnitsPostProcessTitle:stringUnitsPostProcessTitle]];
+       [recordArray addObject:[self arrayOfStringUnitsForRecordRange:NSMakeRange(dataRange.location,currentRecordSeparator.location - dataRange.location) encoding:encoding stringUnitsPostProcessTitle:stringUnitsPostProcessTitle dictionary:d]];
       
       dataRange=NSMakeRange(currentRecordSeparator.location + currentRecordSeparator.length, dataLength - currentRecordSeparator.location - currentRecordSeparator.length);
    }
@@ -62,7 +62,7 @@
 
 }
       
--(NSArray*)arrayOfStringUnitsForRecordRange:(NSRange)recordRange encoding:(NSStringEncoding)encoding stringUnitsPostProcessTitle:(NSString*)stringUnitsPostProcessTitle
+-(NSArray*)arrayOfStringUnitsForRecordRange:(NSRange)recordRange encoding:(NSStringEncoding)encoding stringUnitsPostProcessTitle:(NSString*)stringUnitsPostProcessTitle dictionary:(NSDictionary*)d
 {
    /*
     post processing may be placed in various places
@@ -115,7 +115,30 @@
          [unitArray replaceObjectAtIndex:4 withObject:decodedString];
       else [unitArray replaceObjectAtIndex:4 withObject:@"-1"];
    }
-   
+    
+   #pragma mark replaceCacheInstitution
+   if (
+       (stringUnitsPostProcessTitle)
+   &&  [stringUnitsPostProcessTitle length]
+   &&  [stringUnitsPostProcessTitle isEqualToString:@"replaceCacheInstitution"]
+   &&  ([unitArray count]>22)
+   )
+   {
+      NSMutableString *seriesString=[NSMutableString stringWithString:unitArray[1]];
+       [seriesString replaceOccurrencesOfString:@"_cache_" withString:d[@"_cache_"] options:0 range:NSMakeRange(0,seriesString.length)];
+       [seriesString replaceOccurrencesOfString:@"_institution_" withString:d[@"_institution_"] options:0 range:NSMakeRange(0,seriesString.length)];
+       [unitArray replaceObjectAtIndex:1 withObject:seriesString];
+
+       NSMutableString *patientString=[NSMutableString stringWithString:unitArray[3]];
+       [patientString replaceOccurrencesOfString:@"_cache_" withString:d[@"_cache_"] options:0 range:NSMakeRange(0,patientString.length)];
+       [patientString replaceOccurrencesOfString:@"_institution_" withString:d[@"_institution_"] options:0 range:NSMakeRange(0,patientString.length)];
+       [unitArray replaceObjectAtIndex:3 withObject:patientString];
+       
+       [unitArray replaceObjectAtIndex:21 withObject:d[@"_institution_"]];
+       [unitArray replaceObjectAtIndex:22 withObject:d[@"_cache_"]];
+
+   }
+
    return [NSArray arrayWithArray:unitArray];
 
 }

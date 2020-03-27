@@ -1548,8 +1548,8 @@ NSString * SOPCLassOfReturnableSeries(
    }
 
 #pragma mark no cache -> create it
-   BOOL studyRestriction=(cacheDict && cacheDict.count);
-   if (! studyRestriction)
+   BOOL isStudyRestriction=(cacheDict && cacheDict.count);
+   if (! isStudyRestriction)
    {
       //new
        [canonicalQuery replaceCharactersInRange:NSMakeRange(canonicalQuery.length-1, 1) withString:@"}"];
@@ -1567,6 +1567,35 @@ NSString * SOPCLassOfReturnableSeries(
     }
     else queryPath=cachePath; //cache vigente
    
+    
+#pragma mark get or create plist
+    
+    NSUInteger newIndex=[names indexOfObject:@"new"];
+    if ((newIndex!=NSNotFound) && [values[newIndex] isEqualToString:@"true"])
+    {
+      [defaultManager removeItemAtPath:requestPath error:nil];
+      [defaultManager createDirectoryAtPath:requestPath  withIntermediateDirectories:NO attributes:nil error:nil];
+    }
+
+    if (!isStudyRestriction)
+    {
+        //is not a restriction of existing results
+        //loop each LAN pacs producing part
+        for (NSString *devOID in lanArray)
+        {
+           [requestDict setObject:devOID forKey:@"devOID"];
+           [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
+           NSUInteger maxCountIndex=[names indexOfObject:@"max"];
+           if (maxCountIndex!=NSNotFound)[requestDict setObject:values[maxCountIndex] forKey:@"max"];
+
+           switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
+           {
+               case selectTypeSql:
+                 [DRS datateblesStudySql4dictionary:requestDict];
+                 break;
+           }
+        }
+    }
 
    
    switch (accessTypeNumber)
@@ -1833,43 +1862,25 @@ NSString * SOPCLassOfReturnableSeries(
       case accessTypeDatatablesstudies:
       case accessTypeDatatablespatient:
       {
-          NSUInteger newIndex=[names indexOfObject:@"new"];
-          if ((newIndex!=NSNotFound) && [values[newIndex] isEqualToString:@"true"])
-          {
-              [defaultManager removeItemAtPath:requestPath error:nil];
-              [defaultManager createDirectoryAtPath:requestPath  withIntermediateDirectories:NO attributes:nil error:nil];
-          }
-
-         if (!studyRestriction)
-         {
-            //is not a restriction of existing results
-//loop each LAN pacs producing part
-            for (NSString *devOID in lanArray)
-            {
-               [requestDict setObject:devOID forKey:@"devOID"];
-               [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
-               NSUInteger maxCountIndex=[names indexOfObject:@"max"];
-               if (maxCountIndex!=NSNotFound)[requestDict setObject:values[maxCountIndex] forKey:@"max"];
-
-               switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
-               {
-                   case selectTypeSql:
-                     [DRS datateblesStudySql4dictionary:requestDict];
-                     break;
-               }
-            }
-         }
 
 #pragma mark resultsArray
+          /*
+         NSData *_institution_=[@"_institution_" dataUsingEncoding:NSUTF8StringEncoding];
+         NSData *_cache_=[@"_cache_" dataUsingEncoding:NSUTF8StringEncoding];
+         NSData *_cache_replace=[[queryPath lastPathComponent] dataUsingEncoding:NSUTF8StringEncoding];
+           */
          NSMutableArray *resultsArray=[NSMutableArray array];
+          
          NSArray *resultsDirectory=[defaultManager contentsOfDirectoryAtPath:queryPath error:nil];
          for (NSString *resultFile in resultsDirectory)
          {
             if ([[resultFile pathExtension] isEqualToString:@"plist"])
             {
+
+                //NSMutableData *partialData=[NSMutableData dataWithContentsOfFile:[queryPath stringByAppendingPathComponent:resultFile]];
+                //if (partialData.length < 100)
                 NSArray *partialArray=[NSArray arrayWithContentsOfFile:[queryPath stringByAppendingPathComponent:resultFile]];
-                if ((partialArray.count==1)
-                && [partialArray[0] isKindOfClass:[NSNumber class]])
+                if ((partialArray.count==1) && [partialArray[0] isKindOfClass:[NSNumber class]])
                 {
                     LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"queryPath"]);
                     return [RSDataResponse responseWithData:
@@ -1888,7 +1899,40 @@ NSString * SOPCLassOfReturnableSeries(
                             contentType:@"application/dicom+json"
                             ];
                 }
+
+                /*
+                NSMutableData *partialDataReplace=[NSMutableData data];
+                NSData *_institution_replace=[[resultFile stringByDeletingPathExtension] dataUsingEncoding:NSUTF8StringEncoding];
+               NSRange partialDataRange=NSMakeRange(0,partialData.length);
+               NSRange _search_range=[partialData rangeOfData:_cache_ options:0 range:partialDataRange];
+               NSUInteger remainingLocation=0;
+               while (_search_range.location!=NSNotFound)
+               {
+                   [partialDataReplace appendData:[partialData subdataWithRange:NSMakeRange(partialDataRange.location,_search_range.location - partialDataRange.location)]];
+                   [partialDataReplace appendData:_cache_replace];
+                   
+                   remainingLocation=_search_range.location + _cache_replace.length;
+                   partialDataRange.location=remainingLocation;
+                   partialDataRange.length=partialData.length - partialDataRange.location;
+                   
+                   _search_range=[partialData rangeOfData:_institution_ options:0 range:partialDataRange];
+
+                   [partialDataReplace appendData:[partialData subdataWithRange:NSMakeRange(partialDataRange.location,_search_range.location - partialDataRange.location)]];
+                   [partialDataReplace appendData:_institution_replace];
+
+                   remainingLocation=_search_range.location + _institution_replace.length;
+                   partialDataRange.location=remainingLocation;
+                   partialDataRange.length=partialData.length - partialDataRange.location;
+                   
+                   _search_range=[partialData rangeOfData:_cache_ options:0 range:partialDataRange];
+
+               }
+                [partialDataReplace appendData:[partialData subdataWithRange:NSMakeRange(remainingLocation,partialData.length - remainingLocation)]];
+                NSArray *partialArray=[NSKeyedUnarchiver unarchiveObjectWithData:partialDataReplace];
                 [resultsArray addObjectsFromArray:partialArray];
+                 */
+                [resultsArray addObjectsFromArray:partialArray];
+                
             }
          }
 
@@ -1936,8 +1980,8 @@ NSString * SOPCLassOfReturnableSeries(
                     ];
          }
          
-#pragma mark studyRestriction
-        if (studyRestriction)
+#pragma mark isStudyRestriction
+        if (isStudyRestriction)
         {
          //create compound predicate
            NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
