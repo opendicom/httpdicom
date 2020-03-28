@@ -26,4 +26,14 @@
    }
    return array;
 }
+
+-(NSUInteger)nextIndexOfE4P:(NSString*)P startingAtIndex:(NSUInteger)startingIndex
+{
+    NSUInteger i=startingIndex;
+    while (i < self.count)
+    {
+        if ([(self[i])[19] isEqualToString:P]) return i;
+    }
+    return NSNotFound;
+}
 @end

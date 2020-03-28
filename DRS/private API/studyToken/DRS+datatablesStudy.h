@@ -60,37 +60,6 @@ enum DE {
 };
 
 
-enum dt {
-   dt_,
-   dtSurl,
-   dtED,
-   dtPurl,
-   dtPN,
-   dtEdatetime,
-   dtEQAmods,
-   dtEdesc,
-   dtERN,
-   dtEsoc,
-   dtPII,
-   dtPdate,
-   dtPsex,
-   dtEA,
-   dtEAI,
-   dtEI,
-   dtEU,
-   dtEtime,
-   dtEinst,
-   dtP,
-   dtE,
-   dtEpacs,
-   dtQcache,
-   dtPI,
-   dtEdate,
-   dtEQAseries,
-   dtEQAobjects,
-   dtEAU,
-   dtEAT
-};
 
 
 @interface DRS (datatablesStudy)

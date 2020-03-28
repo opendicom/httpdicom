@@ -1661,6 +1661,8 @@ NSString * SOPCLassOfReturnableSeries(
                ];
            }
 
+          [[resultString dataUsingEncoding:NSUTF8StringEncoding] writeToFile:@"/Volumes/TMP/prueba.xml" atomically:NO];
+          
          //weasis base64 dicom:get -i does not work
          /*
          RSDataResponse *response=[RSDataResponse responseWithData:[[[LFCGzipUtility gzipData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
@@ -1672,6 +1674,7 @@ NSString * SOPCLassOfReturnableSeries(
          responseWithData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]
          contentType:@"text/xml"];
          */
+          
          if (acceptsGzip)
             return [RSDataResponse
           responseWithData:[[resultString dataUsingEncoding:NSUTF8StringEncoding] gzip]
