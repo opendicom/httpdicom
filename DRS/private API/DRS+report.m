@@ -135,20 +135,44 @@
     
     NSData *XMLData=
     [ResponseWadouri
-     XMLStringFromPacs:devDict
+     objectFromPacs:devDict
      EUID:reportProperties[0]
      SUID:reportProperties[1]
      IUID:reportProperties[2]
+     acceptMediaType:@"application/dicom"
      ];
-    
+
+     NSRange XMLDataRange=NSMakeRange(0,XMLData.length);
+     NSMutableData *data=[NSMutableData data];
+
     if ([docType isEqualToString:@"DSCD"])
+    {
+       NSRange XMLPrefixRange=
+       [XMLData rangeOfData:XMLPrefixData
+                    options:0
+                      range:XMLDataRange
+        ];
+       
+       NSRange DSCDSuffixRange=
+       [XMLData rangeOfData:DSCDSuffixData
+                    options:0
+                      range:XMLDataRange
+        ];
+       
+       [data appendData:
+        [XMLData subdataWithRange:NSMakeRange(
+         XMLPrefixRange.location,
+         DSCDSuffixRange.location
+         - XMLPrefixRange.location
+         + DSCDSuffixData.length
+       )]];
+       
        return [RSDataResponse
-               responseWithData:XMLData
+               responseWithData:data
                contentType:@"text/xml"
                ];
+    }
     
-    NSRange XMLDataRange=NSMakeRange(0,XMLData.length);
-    NSMutableData *data=[NSMutableData dataWithData:XMLPrefixData];
 
     if ([docType isEqualToString:@"SCD"])
     {
@@ -163,7 +187,8 @@
                     options:0
                       range:XMLDataRange
         ];
-       
+        
+       [data appendData:XMLPrefixData];
        [data appendData:
         [XMLData subdataWithRange:NSMakeRange(
          SCDPrefixRange.location,
@@ -192,6 +217,7 @@
                    range:XMLDataRange
     ];
     
+    [data appendData:XMLPrefixData];
     [data appendData:
      [XMLData subdataWithRange:NSMakeRange(
       CDAPrefixRange.location,

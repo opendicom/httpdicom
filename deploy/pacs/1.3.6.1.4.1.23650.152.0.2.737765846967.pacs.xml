@@ -86,11 +86,11 @@
             <string id="wadomaxdeflateparameters">&amp;transferSyntax=*</string>            
             <key>wadozip64parameters</key>
             <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
-            <key>wadors</key>
+            <key>wadors</key><!-- IOCM_REGULAR_USE -->
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC/rs</string>
-            <key>qido</key>
+            <key>qido</key><!-- IOCM_REGULAR_USE -->
             <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC/rs</string>
-            <key>stow</key>
+            <key>stow</key><!-- IOCM_REGULAR_USE -->
             <string id="stow"></string>
 
             <key>dcm4cheelocaluri</key>
