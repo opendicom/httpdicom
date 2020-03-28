@@ -666,7 +666,8 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 
        [self addDatatablesPatientHandler];
        LOG_DEBUG(@"added handler GET /datatables/patient");
-       
+
+#pragma mark report
        [self addXMLReportHandler];
        LOG_DEBUG(@"added handler GET ^/(OT|DOC)/(DSCD|SCD|CDA|PDF)$");
 

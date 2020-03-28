@@ -9,6 +9,7 @@
 {
    NSRegularExpression *reportRegex = [NSRegularExpression regularExpressionWithPattern:@"^/(OT|DOC)/(DSCD|SCD|CDA|PDF)?$" options:0 error:NULL];
    
+    //http://127.0.0.1/DOC/DSCD?institution=2.16.858.2.10002752.72769.3&StudyInstanceUID=1.2.840.113564.102203349.2020020512235890075
    //two params:
    // (1) institution
    // (2)    EKey (first choice if PACS allows sql)
@@ -62,6 +63,7 @@
     NSUInteger EKeyIndex=[names indexOfObject:@"EKey"];
     NSUInteger StudyInstanceUIDIndex=[names indexOfObject:@"StudyInstanceUID"];
     NSUInteger AccessionNumberIndex=[names indexOfObject:@"AccessionNumber"];
+ 
     NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
     NSString *sqlprolog=devDict[@"sqlprolog"];
     NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
@@ -72,7 +74,7 @@
         && [devDict[@"select"]isEqualToString:@"sql"]
         )
     {
-       #pragma mark EKey
+#pragma mark EKey
        if (execUTF8Bash(sqlcredentials,
                         [NSString stringWithFormat:
                          sqlDictionary[@"RE"],//report EKey
@@ -83,28 +85,44 @@
                          ],
                         instanceData)
            !=0) return [RSErrorResponse responseWithServerError:500 message:@"DB problem"];
-       else
-       {
-
-       }
+       else if (!instanceData.length)
+        return [RSErrorResponse responseWithServerError:404 message:@"not found"];
     }
-    else if (StudyInstanceUIDIndex!=NSNotFound)
+    else if (   (StudyInstanceUIDIndex!=NSNotFound)
+             && [devDict[@"select"]isEqualToString:@"sql"]
+    )
     {
-       #pragma mark StudyInstanceUID
-       switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:devDict[@"select"]])
-       {
-           case selectTypeSql:
-           {
-#pragma mark TODO
-           } break;
-       }
-
-    }
-    else if (AccessionNumberIndex!=NSNotFound)
+#pragma mark StudyInstanceUID
+       if (execUTF8Bash(sqlcredentials,
+                        [NSString stringWithFormat:
+                         sqlDictionary[@"RU"],//report EKey
+                         sqlprolog,
+                         values[StudyInstanceUIDIndex],
+                         modality,
+                         sqlRecordThreeUnits
+                         ],
+                        instanceData)
+           !=0) return [RSErrorResponse responseWithServerError:500 message:@"DB problem"];
+       else if (!instanceData.length)
+               return [RSErrorResponse responseWithServerError:404 message:@"not found"];
+     }
+    else if (   (AccessionNumberIndex!=NSNotFound)
+             && [devDict[@"select"]isEqualToString:@"sql"]
+    )
     {
        #pragma mark AccessionNumber
-       #pragma mark TODO
-
+       if (execUTF8Bash(sqlcredentials,
+                        [NSString stringWithFormat:
+                         sqlDictionary[@"RA"],//report EKey
+                         sqlprolog,
+                         values[AccessionNumberIndex],
+                         modality,
+                         sqlRecordThreeUnits
+                         ],
+                        instanceData)
+           !=0) return [RSErrorResponse responseWithServerError:500 message:@"DB problem"];
+       else if (!instanceData.length)
+               return [RSErrorResponse responseWithServerError:404 message:@"not found"];
     }
     else return [RSErrorResponse responseWithClientError:404 message:@"bad URL, no study identifier"];
     
