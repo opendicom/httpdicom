@@ -109,9 +109,6 @@
     }
 
 
-/*
- NSString *EPath=[d[@"devOIDPath"] stringByAppendingPathComponent:study[16]];
- */
 #pragma mark patient loop
   NSMutableArray *ESelected=[NSMutableArray array];
   for (NSString *P in patientKeySet)
