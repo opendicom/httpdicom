@@ -357,7 +357,7 @@ As seen some casuistics can be resolved before any query to the instance table, 
                }//end for each I
             }//end if SOPClass
          }// end for each S
-         
+         Eindex=[studiesSelected nextIndexOfE4P:P startingAtIndex:Eindex + 1];
       }//end while Eindex != NSNotFound
    }//end for each P
     
