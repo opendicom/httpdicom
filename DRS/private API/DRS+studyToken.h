@@ -86,42 +86,6 @@ enum pnFilter{
 
 
 /*
-study pk and patient pk of studies selected
-*/
-RSResponse * sqlEP(
- NSMutableDictionary * EPDict,
- NSDictionary        * sqlcredentials,
- NSDictionary        * sqlDictionary,
- NSString            * sqlprolog,
- NSString            * sqlselect,
- NSString            * StudyInstanceUIDRegexpString,
- NSString            * AccessionNumberEqualString,
- NSString            * refInstitutionLikeString,
- NSString            * refServiceLikeString,
- NSString            * refUserLikeString,
- NSString            * refIDLikeString,
- NSString            * refIDTypeLikeString,
- NSString            * readInstitutionSqlLikeString,
- NSString            * readServiceSqlLikeString,
- NSString            * readUserSqlLikeString,
- NSString            * readIDSqlLikeString,
- NSString            * readIDTypeSqlLikeString,
- NSString            * StudyIDLikeString,
- NSString            * PatientIDLikeString,
- NSString            * patientFamilyLikeString,
- NSString            * patientGivenLikeString,
- NSString            * patientMiddleLikeString,
- NSString            * patientPrefixLikeString,
- NSString            * patientSuffixLikeString,
- NSArray             * issuerArray,
- NSArray             * StudyDateArray,
- NSString            * SOPClassInStudyRegexpString,
- NSString            * ModalityInStudyRegexpString,
- NSString            * StudyDescriptionRegexpString
-);
-
-
-/*
  applied at series level in each of the access type to restrict returned series.
  The function returns the SOPClass of series to be included
  */

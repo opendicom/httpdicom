@@ -285,12 +285,28 @@
           NSLog(@"%@",[names description]);
           NSLog(@"%@",[values description]);
 
-#pragma mark TODO
-          //remove filters
-          
-          //add filters
-          
-          
+#pragma mark remove filters
+          NSUInteger aetIndex=[names indexOfObject:@"aet"];
+          [names removeObjectAtIndex:aetIndex];
+          [values removeObjectAtIndex:aetIndex];
+          NSUInteger custodianIndex=[names indexOfObject:@"custodian"];
+          [names removeObjectAtIndex:custodianIndex];
+          [values removeObjectAtIndex:custodianIndex];
+          NSUInteger institutionIndex=[names indexOfObject:@"institution"];
+          [names removeObjectAtIndex:institutionIndex];
+          [values removeObjectAtIndex:institutionIndex];
+
+#pragma mark add filters
+          if (DRS.lan.count)
+          {
+             [names addObject:@"lanPacs"];
+             [values addObject:[DRS.lan componentsJoinedByString:@"|"]];
+          }
+          if (DRS.wan.count)
+          {
+             [names addObject:@"wanPacs"];
+             [values addObject:[DRS.wan componentsJoinedByString:@"|"]];
+          }
           
           return [DRS
                 studyTokenSocket:request.socketNumber
