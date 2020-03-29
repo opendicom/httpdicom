@@ -36,14 +36,14 @@ E.accession_no, \
 EAI.entity_id, \
 E.study_id, \
 E.study_iuid, \
-TIME(E.study_time), \
+TIME(E.study_datetime), \
 E.study_custom1, \
 P.pk, \
 E.pk, \
 '_institution_', \
 '_cache_', \
 P.pat_id, \
-DATE(E.study_date), \
+DATE(E.study_datetime), \
 E.num_series, \
 E.num_instances, \
 EAI.entity_uid, \
@@ -97,7 +97,7 @@ EAI.entity_uid_type \
  <string>FROM study AS E \
 LEFT JOIN issuer       EAI ON E.accno_issuer_fk=EAI.pk \
 LEFT JOIN patient      P   ON E.patient_fk=P.pk \
-WHERE \
+WHERE true \
 </string>
   
  
@@ -142,10 +142,10 @@ WHERE \
          <array/><!-- ISO in DB-->
          <array><!-- DICOM DA in DB-->
              <string></string> <!-- (empty) = any -->
-             <string>AND DATE(E.study_date) = '%@' </string> <!-- [aaaa-mm-dd] = on -->
-             <string>AND DATE(E.study_date) >= '%@' </string><!-- [aaaa-mm-dd][] = since -->
-             <string>AND NOT(DATE(E.study_date) > '%@') </string><!-- [][][aaaa-mm-dd] = until -->
-             <string>AND DATE(E.study_date) >= '%@' AND NOT(DATE(E.study_date) > '%@') </string><!-- [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+             <string>AND DATE(E.study_datetime) = '%@' </string> <!-- [aaaa-mm-dd] = on -->
+             <string>AND DATE(E.study_datetime) >= '%@' </string><!-- [aaaa-mm-dd][] = since -->
+             <string>AND NOT(DATE(E.study_datetime) > '%@') </string><!-- [][][aaaa-mm-dd] = until -->
+             <string>AND DATE(E.study_datetime) >= '%@' AND NOT(DATE(E.study_datetime) > '%@') </string><!-- [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
          </array>
      </array>
      <!-- 5. match StudyDescription -->
