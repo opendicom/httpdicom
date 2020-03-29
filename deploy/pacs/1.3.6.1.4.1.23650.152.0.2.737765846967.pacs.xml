@@ -45,7 +45,7 @@
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dal55mysql</string>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
             
@@ -136,11 +136,11 @@
             <key>sqlpassword</key>
             <string id="sqlpassword">pcs</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=pacsweb;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsweb -h 192.168.4.15 -b pacsdb -e </string>
+            <string id="sqlprolog">export MYSQL_PWD=pacsweb;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsweb -h 192.168.4.14 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dcm4chee2170mysql.plist</string>
+            <string id="sqlmap">dcm4chee217mysql</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
             
@@ -153,7 +153,7 @@
             <string id="mllpport">2575</string>
             
             <key>DICMip</key>
-            <string id="DICMip">192.168.4.15</string>
+            <string id="DICMip">192.168.4.14</string>
             <key>DICMport</key>
             <string id="DICMport">11112</string>
 
@@ -162,7 +162,7 @@
             <key>timeoutinterval</key>
             <string id="timeoutinterval">30</string>
             <key>wadouri</key>
-            <string id="wadouri">http://192.168.4.15:8080/wado</string>
+            <string id="wadouri">http://192.168.4.14:8080/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>
             <key>wadoweasisparameters</key>
@@ -235,7 +235,7 @@
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dal55mysql</string>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
             
@@ -436,7 +436,7 @@
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dal55mysql</string>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
             
@@ -637,7 +637,7 @@
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dal55mysql</string>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>filesystembaseuri</key>
             <string id="filesystembaseuri"></string>
             
