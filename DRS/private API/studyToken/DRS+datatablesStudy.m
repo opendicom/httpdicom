@@ -348,36 +348,38 @@
              || d[@"readIDTypeLikeString"]
              )
          {
-            NSString *pnFilterCompoundString=((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterCompound];
+            NSString *pnFilterCompoundString=((sqlDictionary[@"Eand"])[EcumulativeFilterRead])[pnFilterCompound];
             if (![d[@"pnFilterCompoundString"] isEqualToString:@""])
             {
                // DB with pn compound field
                NSString *regexp=nil;
+                /*
                if (d[@"readIDTypeLikeString"])
-                  regexp=[NSString stringWithFormat:@"%@^%@^%@^%@^%@",
-                  d[@"readInstitutionLikeString"]?d[@"readInstitutionLikeString"]:@"",
-                  d[@"readServiceLikeString"]?d[@"readServiceLikeString"]:@"",
-                  d[@"readUserLikeString"]?d[@"readUserLikeString"]:@"",
-                  d[@"readIDLikeString"]?d[@"readIDLikeString"]:@"",
+                  regexp=[NSString stringWithFormat:@"%@.%@.%@.%@.%@",
+                  d[@"readInstitutionLikeString"]?d[@"readInstitutionLikeString"]:@".*",
+                  d[@"readServiceLikeString"]?d[@"readServiceLikeString"]:@".*",
+                  d[@"readUserLikeString"]?d[@"readUserLikeString"]:@".*",
+                  d[@"readIDLikeString"]?d[@"readIDLikeString"]:@".*",
                   d[@"readIDTypeLikeString"]];
                else if (d[@"readIDLikeString"])
-                  regexp=[NSString stringWithFormat:@"%@^%@^%@^%@",
-                  d[@"readInstitutionLikeString"]?d[@"readInstitutionLikeString"]:@"",
-                  d[@"readServiceLikeString"]?d[@"readServiceLikeString"]:@"",
-                  d[@"readUserLikeString"]?d[@"readUserLikeString"]:@"",
+                  regexp=[NSString stringWithFormat:@"%@.%@.%@.%@",
+                  d[@"readInstitutionLikeString"]?d[@"readInstitutionLikeString"]:@".*",
+                  d[@"readServiceLikeString"]?d[@"readServiceLikeString"]:@".*",
+                          d[@"readUserLikeString"]?d[@"readUserLikeString"]:@".*",
                   d[@"readIDLikeString"]];
                else if (d[@"readUserLikeString"])
-                  regexp=[NSString stringWithFormat:@"%@^%@^%@",
-                  d[@"readInstitutionLikeString"]?d[@"readInstitutionLikeString"]:@"",
-                  d[@"readServiceLikeString"]?d[@"readServiceLikeString"]:@"",
+                  regexp=[NSString stringWithFormat:@"%@.%@.%@",
+                  d[@"readInstitutionLikeString"]?d[@"readInstitutionLikeString"]:@".*",
+                  d[@"readServiceLikeString"]?d[@"readServiceLikeString"]:@".*",
                   d[@"readUserLikeString"]];
                else if (d[@"readServiceLikeString"])
-                  regexp=[NSString stringWithFormat:@"%@^%@",
-                  d[@"readInstitutionLikeString"]?d[@"readInstitutionLikeString"]:@"",
+                  regexp=[NSString stringWithFormat:@"%@.%@",
+                  d[@"readInstitutionLikeString"]?d[@"readInstitutionLikeString"]:@".*",
                   d[@"readServiceLikeString"]];
                else if (d[@"readInstitutionLikeString"])
                   regexp=[NSString stringWithString:d[@"readInstitutionLikeString"]];
-               
+               */
+                if ([d[@"readUserLikeString"] length]) regexp=d[@"readUserLikeString"];
                if (regexp) [filters appendFormat:pnFilterCompoundString,regexp];
             }
             else
@@ -389,6 +391,7 @@
                if (d[@"readIDLikeString"]) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],d[@"readIDLikeString"]];
                if (d[@"readIDTypeLikeString"]) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],d[@"readIDTypeLikeString"]];
             }
+                 
          }
 
 

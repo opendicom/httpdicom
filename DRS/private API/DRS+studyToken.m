@@ -261,7 +261,6 @@ NSString * SOPCLassOfReturnableSeries(
    NSMutableArray *wanArray=[NSMutableArray array];
    
    NSInteger orgIndex=[names indexOfObject:@"institution"];
-   [requestDict setObject:values[orgIndex] forKey:@"institutionString"];
    if (orgIndex==NSNotFound)
    {
       orgIndex=[names indexOfObject:@"lanPacs"];
@@ -271,6 +270,7 @@ NSString * SOPCLassOfReturnableSeries(
    }
    else
    {
+      [requestDict setObject:values[orgIndex] forKey:@"institutionString"];
       NSArray *orgArray=[values[orgIndex] componentsSeparatedByString:@"|"];
       for (NSInteger i=[orgArray count]-1;i>=0;i--)
       {
@@ -547,7 +547,8 @@ NSString * SOPCLassOfReturnableSeries(
                 //check start
                 if ([cacheComponents[0] length] && ([cacheComponents[0] compare:StudyDateComponents[0]]==NSOrderedDescending))[cacheDict removeAllObjects];
                 //check end
-                if ([cacheComponents[1] length] && ([StudyDateComponents[1] compare:cacheComponents[1]]==NSOrderedDescending)) [cacheDict removeAllObjects];
+                
+                if ([cacheComponents[1] length] && ([StudyDateComponents.lastObject compare:cacheComponents[1]]==NSOrderedDescending)) [cacheDict removeAllObjects];
                 if (cacheDict.count)
                 {
                     if ([cacheComponents[1] length]) [rDate setString:[StudyDateString stringByAppendingString:@" 23:59"]];
@@ -930,7 +931,7 @@ NSString * SOPCLassOfReturnableSeries(
          case 1:
          {
             if ([array[0] length]==0) issuerArray=@[];
-            else if ([array[0] length]<17) issuerArray=[NSArray arrayWithArray:array];
+            else if ([array[0] length]<65) issuerArray=[NSArray arrayWithArray:array];
             else return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad param issuer: '%@'",values[issuerIndex]];
          } break;
          case 3:
@@ -1133,17 +1134,21 @@ NSString * SOPCLassOfReturnableSeries(
          NSMutableString *resultString=[NSMutableString stringWithString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><manifest xmlns=\"http://www.weasis.org/xsd/2.5\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"];
          for (NSString *resultFile in results)
          {
-            if ([[resultFile pathExtension] isEqualToString:@"xml"])
-            {
-               [resultString appendString:
-                [NSString
-                 stringWithContentsOfFile:
-                 [queryPath stringByAppendingPathComponent:resultFile]
-                 encoding:NSUTF8StringEncoding
-                 error:nil
-                 ]
-                ];
-            }
+             if ([[resultFile pathExtension] isEqualToString:@"xml"])
+             {
+                 if ([lanArray indexOfObject:[resultFile stringByDeletingPathExtension]]!=NSNotFound)
+                 {
+                 
+                   [resultString appendString:
+                    [NSString
+                     stringWithContentsOfFile:
+                     [queryPath stringByAppendingPathComponent:resultFile]
+                     encoding:NSUTF8StringEncoding
+                     error:nil
+                     ]
+                    ];
+                 }
+             }
          }
          [resultString appendString:@"</manifest>"];
          
@@ -1171,8 +1176,6 @@ NSString * SOPCLassOfReturnableSeries(
                range:NSMakeRange(0, resultString.length)
                ];
            }
-
-          [[resultString dataUsingEncoding:NSUTF8StringEncoding] writeToFile:@"/Volumes/TMP/prueba.xml" atomically:NO];
           
          //weasis base64 dicom:get -i does not work
          /*
@@ -1215,18 +1218,21 @@ NSString * SOPCLassOfReturnableSeries(
          NSMutableString *resultString=[NSMutableString stringWithString:@"["];
          for (NSString *resultFile in results)
          {
-            if ([[resultFile pathExtension] isEqualToString:@"json"])
-            {
-               [resultString appendString:
-                [NSString
-                 stringWithContentsOfFile:
-                 [queryPath stringByAppendingPathComponent:resultFile]
-                 encoding:NSUTF8StringEncoding
-                 error:nil
-                 ]
-                ];
-               [resultString appendString:@","];
-            }
+             if ([[resultFile pathExtension] isEqualToString:@"json"])
+             {
+                 if ([lanArray indexOfObject:[resultFile stringByDeletingPathExtension]]!=NSNotFound)
+                {
+                   [resultString appendString:
+                    [NSString
+                     stringWithContentsOfFile:
+                     [queryPath stringByAppendingPathComponent:resultFile]
+                     encoding:NSUTF8StringEncoding
+                     error:nil
+                     ]
+                    ];
+                   [resultString appendString:@","];
+                }
+             }
          }
          [resultString replaceOccurrencesOfString:@"," withString:@"]" options:0 range:NSMakeRange(resultString.length -1,1)];
          
@@ -1300,6 +1306,8 @@ NSString * SOPCLassOfReturnableSeries(
          NSArray *devOIDItems=[defaultManager contentsOfDirectoryAtPath:queryPath error:nil];
           for (NSString *devOIDItem in devOIDItems)
           {
+              if ([lanArray indexOfObject:devOIDItem]!=NSNotFound)
+              {
               NSString *devOIDPath=[queryPath stringByAppendingPathComponent:devOIDItem];
               NSArray *studyFolders=[defaultManager contentsOfDirectoryAtPath:devOIDPath error:nil];
               if (studyFolders && studyFolders.count)
@@ -1344,6 +1352,7 @@ NSString * SOPCLassOfReturnableSeries(
                           
                       }
                   }
+                }
               }
           }
           //LOG_INFO(@"%@",[pathArray description]);
@@ -1390,6 +1399,8 @@ NSString * SOPCLassOfReturnableSeries(
          {
             if ([[resultFile pathExtension] isEqualToString:@"plist"])
             {
+                if ([lanArray indexOfObject:[resultFile stringByDeletingPathExtension]]!=NSNotFound)
+                {
 
                 //NSMutableData *partialData=[NSMutableData dataWithContentsOfFile:[queryPath stringByAppendingPathComponent:resultFile]];
                 //if (partialData.length < 100)
@@ -1447,6 +1458,7 @@ NSString * SOPCLassOfReturnableSeries(
                  */
                 [resultsArray addObjectsFromArray:partialArray];
                 
+                }
             }
          }
 

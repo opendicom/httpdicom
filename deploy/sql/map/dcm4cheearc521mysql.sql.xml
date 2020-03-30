@@ -94,10 +94,9 @@ EAI.entity_uid_type \
  LEFT JOIN person_name       ERN ON study.ref_phys_name_fk=person_name.pk \
  LEFT JOIN issuer            EAI ON study.accno_issuer_fk=issuer.pk \
  WHERE E.pk=%@ \
- AND EQA.view_id='regularUse' \
+ AND EQA.view_id='hideRejected' \
  %@ \
  " %@ </string>
-
  
  <key>Ewhere</key>
  <string>FROM study AS       E \
@@ -109,9 +108,8 @@ LEFT JOIN patient_id        PI  ON P.patient_id_fk=PI.pk \
 LEFT JOIN issuer            PII ON PI.issuer_fk=PII.pk \
 LEFT JOIN person_name       PN  ON P.pat_name_fk=PN.pk \
 WHERE E.rejection_state!=2 \
-AND EQA.view_id='regularUse' \
+AND EQA.view_id='hideRejected' \
 </string>
-  
  
  <!-- match Study Instance UID -->
  <key>EmatchEui</key>
@@ -221,10 +219,10 @@ FROM series \
 LEFT JOIN person_name ON series.perf_phys_name_fk=person_name.pk \
 LEFT JOIN series_query_attrs ON series.pk=series_query_attrs.series_fk \
 WHERE series.study_fk=%@ \
-AND series_query_attrs.view_id='regularUse' \
 %@ \
 " %@ </string>
-
+<!--AND series_query_attrs.view_id='regularUse' \
+-->
 <key>I0</key><!-- instance of no frame object-->
 <string>%@ "\
 SELECT \

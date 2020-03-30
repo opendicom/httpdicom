@@ -41,7 +41,7 @@
             <key>sqlpassword</key>
             <string id="sqlpassword">pcs</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e </string>
+            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h localhost -P 13306 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
@@ -53,12 +53,12 @@
             <string id="sopstringencoding">4</string>
             
             <key>mllpip</key>
-            <string id="mllpip">127.0.0.1</string>
+            <string id="mllpip">192.168.4.15</string>
             <key>mllpport</key>
             <string id="mllpport">2575</string>
             
             <key>DICMip</key>
-            <string id="DICMip">127.0.0.1</string>
+            <string id="DICMip">192.168.4.15</string>
             <key>DICMport</key>
             <string id="DICMport">11113</string>
             
@@ -67,7 +67,7 @@
             <key>timeoutinterval</key>
             <string id="timeoutinterval">30</string>
             <key>wadouri</key>
-            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC/wado</string>
+            <string id="wadouri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>
             <key>wadoweasisparameters</key>
@@ -86,19 +86,19 @@
             <string id="wadomaxdeflateparameters">&amp;transferSyntax=*</string>            
             <key>wadozip64parameters</key>
             <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
-            <key>wadors</key><!-- IOCM_REGULAR_USE -->
-            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC/rs</string>
-            <key>qido</key><!-- IOCM_REGULAR_USE -->
-            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC/rs</string>
-            <key>stow</key><!-- IOCM_REGULAR_USE -->
+            <key>wadors</key>
+            <string id="wadors">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC/rs</string>
+            <key>qido</key>
+            <string id="qido">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC/rs</string>
+            <key>stow</key>
             <string id="stow"></string>
 
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC</string>
+            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
             <key>html5dicomuseractive</key>
             <false/>           
         </dict>
@@ -148,7 +148,7 @@
             <string id="sopstringencoding">4</string>
             
             <key>mllpip</key>
-            <string id="mllpip">127.0.0.1</string>
+            <string id="mllpip">192.168.4.15</string>
             <key>mllpport</key>
             <string id="mllpport">2575</string>
             
@@ -193,7 +193,7 @@
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
             <key>html5dicomuseractive</key>
             <false/>
         </dict>
@@ -231,7 +231,7 @@
             <key>sqlpassword</key>
             <string id="sqlpassword">pcs</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e </string>
+            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs 192.168.4.15 -P 13306 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
@@ -243,12 +243,12 @@
             <string id="sopstringencoding">4</string>
             
             <key>mllpip</key>
-            <string id="mllpip">127.0.0.1</string>
+            <string id="mllpip">192.168.4.15</string>
             <key>mllpport</key>
             <string id="mllpport">2575</string>
 
             <key>DICMip</key>
-            <string id="DICMip">127.0.0.1</string>
+            <string id="DICMip">192.168.4.15</string>
             <key>DICMport</key>
             <string id="DICMport">11113</string>
             
@@ -257,7 +257,7 @@
             <key>timeoutinterval</key>
             <string id="timeoutinterval">30</string>
             <key>wadouri</key>
-            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_LASERENA/wado</string>
+            <string id="wadouri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_LASERENA/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>
             <key>wadoweasisparameters</key>
@@ -277,18 +277,18 @@
             <key>wadozip64parameters</key>
             <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
-            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_LASERENA/rs</string>
+            <string id="wadors">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_LASERENA/rs</string>
             <key>qido</key>
-            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_LASERENA/rs</string>
+            <string id="qido">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_LASERENA/rs</string>
             <key>stow</key>
             <string id="stow"></string>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_LASERENA</string>
+            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_LASERENA</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
             <key>html5dicomuseractive</key>
             <false/>
             
@@ -303,7 +303,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -320,7 +320,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -337,7 +337,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -354,7 +354,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -371,7 +371,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -388,7 +388,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -432,7 +432,7 @@
             <key>sqlpassword</key>
             <string id="sqlpassword">pcs</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e </string>
+            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs 192.168.4.15 -P 13306 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
@@ -444,12 +444,12 @@
             <string id="sopstringencoding">4</string>
             
             <key>mllpip</key>
-            <string id="mllpip">127.0.0.1</string>
+            <string id="mllpip">192.168.4.15</string>
             <key>mllpport</key>
             <string id="mllpport">2575</string>
             
             <key>DICMip</key>
-            <string id="DICMip">127.0.0.1</string>
+            <string id="DICMip">192.168.4.15</string>
             <key>DICMport</key>
             <string id="DICMport">11113</string>
 
@@ -458,7 +458,7 @@
             <key>timeoutinterval</key>
             <string id="timeoutinterval">30</string>
             <key>wadouri</key>
-            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_OVALLE/wado</string>
+            <string id="wadouri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_OVALLE/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>
             <key>wadoweasisparameters</key>
@@ -478,18 +478,18 @@
             <key>wadozip64parameters</key>
             <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
-            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_OVALLE/rs</string>
+            <string id="wadors">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_OVALLE/rs</string>
             <key>qido</key>
-            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_OVALLE/rs</string>
+            <string id="qido">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_OVALLE/rs</string>
             <key>stow</key>
             <string id="stow"></string>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_OVALLE</string>
+            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_OVALLE</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
             <key>html5dicomuseractive</key>
             <false/>
             
@@ -504,7 +504,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -521,7 +521,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -538,7 +538,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -555,7 +555,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -572,7 +572,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -589,7 +589,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -633,7 +633,7 @@
             <key>sqlpassword</key>
             <string id="sqlpassword">pcs</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e </string>
+            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs 192.168.4.15 -P 13306 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
@@ -645,12 +645,12 @@
             <string id="sopstringencoding">4</string>
             
             <key>mllpip</key>
-            <string id="mllpip">127.0.0.1</string>
+            <string id="mllpip">192.168.4.15</string>
             <key>mllpport</key>
             <string id="mllpport">2575</string>
             
             <key>DICMip</key>
-            <string id="DICMip">127.0.0.1</string>
+            <string id="DICMip">192.168.4.15</string>
             <key>DICMport</key>
             <string id="DICMport">11113</string>
 
@@ -659,7 +659,7 @@
             <key>timeoutinterval</key>
             <string id="timeoutinterval">30</string>
             <key>wadouri</key>
-            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/wado</string>
+            <string id="wadouri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/wado</string>
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>
             <key>wadoweasisparameters</key>
@@ -679,18 +679,18 @@
             <key>wadozip64parameters</key>
             <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
-            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/rs</string>
+            <string id="wadors">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/rs</string>
             <key>qido</key>
-            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/rs</string>
+            <string id="qido">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/rs</string>
             <key>stow</key>
             <string id="stow"></string>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/IMATEC_VALLENAR</string>
+            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_VALLENAR</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
             <key>html5dicomuseractive</key>
             <false/>
             
@@ -705,7 +705,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -722,7 +722,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -739,7 +739,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -756,7 +756,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -773,7 +773,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -790,7 +790,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>

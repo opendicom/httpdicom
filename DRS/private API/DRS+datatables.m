@@ -117,13 +117,17 @@
 
 
 #pragma mark +institution?
+    NSString *custodiantitle=values[[names indexOfObject:@"custodiantitle"]];
+    NSString *aet=values[[names indexOfObject:@"aet"]];
+
     NSString *institutionOID=nil;
-    if ([names indexOfObject:@"institution"]==NSNotFound)
+    NSUInteger institutionIndex=[names indexOfObject:@"institution"];
+    if (institutionIndex!=NSNotFound)
+        institutionOID=values[institutionIndex];
+    else
     {
        [names addObject:@"institution"];
-       NSString *custodiantitle=values[[names indexOfObject:@"custodiantitle"]];
-       NSString *aet=values[[names indexOfObject:@"aet"]];
-       NSString *institutionOID=(DRS.pacs[[custodiantitle stringByAppendingPathExtension:aet]])[@"pacsoid"];
+       institutionOID=(DRS.pacs[[custodiantitle stringByAppendingPathExtension:aet]])[@"pacsoid"];
        [values addObject:institutionOID];
     }
 
@@ -157,31 +161,23 @@
           
        case rolReading:
        {
-          if (institutionOID.length)
-          {
-             [names addObject:@"readInstitution"];
-             [values addObject:institutionOID];
-          }
-/*
-          if (modality.length)
-          {
-             [names addObject:@"readService"];
-             [values addObject:modality];
-          }
- */
-          [names addObject:@"readUser"];
-          [values addObject:values[[names indexOfObject:@"username"]]];
+           NSMutableString *readString=[NSMutableString string];
+           if ([aet isEqualToString:custodiantitle])
+           {
+              [readString setString:@"("];
+               [readString appendString:[DRS.titlesaets[custodiantitle]componentsJoinedByString:@"|"]];
+               [readString appendString:@")"];
+
+           }
+           else [readString appendString:aet];
+
+           [readString appendString:@"^^"];
            
-           NSUInteger useroidIndex=[names indexOfObject:@"useroid"];
-          if (useroidIndex != NSNotFound)
-          {
-             [names addObject:@"readID"];
-             [values addObject:values[useroidIndex]];
-          }
-           
-          //[names addObject:@"readIDType"];
-          //[values addObject:];
-           
+           [readString appendString:values[[names indexOfObject:@"username"]]];
+
+           [names addObject:@"read"];
+           [values addObject:readString];
+
        } break;
               
               
@@ -282,20 +278,18 @@
                ]
            )
        {
-          NSLog(@"%@",[names description]);
-          NSLog(@"%@",[values description]);
 
 #pragma mark remove filters
-          NSUInteger aetIndex=[names indexOfObject:@"aet"];
-          [names removeObjectAtIndex:aetIndex];
-          [values removeObjectAtIndex:aetIndex];
-          NSUInteger custodianIndex=[names indexOfObject:@"custodian"];
-          [names removeObjectAtIndex:custodianIndex];
-          [values removeObjectAtIndex:custodianIndex];
-          NSUInteger institutionIndex=[names indexOfObject:@"institution"];
-          [names removeObjectAtIndex:institutionIndex];
-          [values removeObjectAtIndex:institutionIndex];
+           [names removeObjectAtIndex:cacheIndex];
+           [values removeObjectAtIndex:cacheIndex];
 
+           NSUInteger institutionIndex=[names indexOfObject:@"institution"];
+           if (institutionIndex!=NSNotFound)
+           {
+               [names removeObjectAtIndex:institutionIndex];
+               [values removeObjectAtIndex:institutionIndex];
+           }
+           
 #pragma mark add filters
           if (DRS.lan.count)
           {
