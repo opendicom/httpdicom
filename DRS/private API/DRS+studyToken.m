@@ -581,82 +581,82 @@ NSString * SOPCLassOfReturnableSeries(
 
     BOOL refPart=false;
 
-    NSString *refInstitutionLikeString=nil;
+    NSString *refInstitutionRegexpString=nil;
     NSInteger refInstitutionIndex=[names indexOfObject:@"refInstitution"];
     if (refInstitutionIndex!=NSNotFound)
     {
        refPart=true;
-       refInstitutionLikeString=[values[refInstitutionIndex] regexQuoteEscapedString];
-       [requestDict setObject:refInstitutionLikeString forKey:@"refInstitutionLikeString"];
+       refInstitutionRegexpString=[values[refInstitutionIndex] regexQuoteEscapedString];
+       [requestDict setObject:refInstitutionRegexpString forKey:@"refInstitutionRegexpString"];
        if (!appendImmutableToCanonical(
                                   cacheDict,
                                   canonicalQuery,
                                   @"refInstitution",
-                                  refInstitutionLikeString
+                                  refInstitutionRegexpString
                                   )
            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
-    NSString *refServiceLikeString=nil;
+    NSString *refServiceRegexpString=nil;
     NSInteger refServiceIndex=[names indexOfObject:@"refService"];
     if (refServiceIndex!=NSNotFound)
     {
        refPart=true;
-       refServiceLikeString=[values[refServiceIndex] regexQuoteEscapedString];
-       [requestDict setObject:refServiceLikeString forKey:@"refServiceLikeString"];
+       refServiceRegexpString=[values[refServiceIndex] regexQuoteEscapedString];
+       [requestDict setObject:refServiceRegexpString forKey:@"refServiceRegexpString"];
        if (!appendImmutableToCanonical(
                                   cacheDict,
                                   canonicalQuery,
                                   @"refService",
-                                  refServiceLikeString
+                                  refServiceRegexpString
                                   )
            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
-    NSString *refUserLikeString=nil;
+    NSString *refUserRegexpString=nil;
     NSInteger refUserIndex=[names indexOfObject:@"refUser"];
     if (refUserIndex!=NSNotFound)
     {
        refPart=true;
-       refUserLikeString=[values[refUserIndex] regexQuoteEscapedString];
-       [requestDict setObject:refUserLikeString forKey:@"refUserLikeString"];
+       refUserRegexpString=[values[refUserIndex] regexQuoteEscapedString];
+       [requestDict setObject:refUserRegexpString forKey:@"refUserRegexpString"];
        if (!appendImmutableToCanonical(
                                   cacheDict,
                              canonicalQuery,
                                   @"refUser",
-                                  refUserLikeString
+                                  refUserRegexpString
                                   )
            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
-    NSString *refIDLikeString=nil;
+    NSString *refIDRegexpString=nil;
     NSInteger refIDIndex=[names indexOfObject:@"refID"];
     if (refIDIndex!=NSNotFound)
     {
        refPart=true;
-       refIDLikeString=[values[refIDIndex] regexQuoteEscapedString];
-       [requestDict setObject:refIDLikeString forKey:@"refIDLikeString"];
+       refIDRegexpString=[values[refIDIndex] regexQuoteEscapedString];
+       [requestDict setObject:refIDRegexpString forKey:@"refIDRegexpString"];
        if (!appendImmutableToCanonical(
                                   cacheDict,
                                   canonicalQuery,
                                   @"refID",
-                                  refIDLikeString
+                                  refIDRegexpString
                                   )
            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
-    NSString *refIDTypeLikeString=nil;
+    NSString *refIDTypeRegexpString=nil;
     NSInteger refIDTypeIndex=[names indexOfObject:@"refIDType"];
     if (refIDTypeIndex!=NSNotFound)
     {
        refPart=true;
-       refIDTypeLikeString=[values[refIDTypeIndex] regexQuoteEscapedString];
-       [requestDict setObject:refIDTypeLikeString forKey:@"refIDTypeLikeString"];
+       refIDTypeRegexpString=[values[refIDTypeIndex] regexQuoteEscapedString];
+       [requestDict setObject:refIDTypeRegexpString forKey:@"refIDTypeRegexpString"];
        if (!appendImmutableToCanonical(
                                   cacheDict,
                                   canonicalQuery,
                                   @"refIDType",
-                                  refIDTypeLikeString
+                                  refIDTypeRegexpString
                                   )
            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
@@ -670,61 +670,61 @@ NSString * SOPCLassOfReturnableSeries(
          NSArray *refParts=[refRegexString componentsSeparatedByString:@"^"];
          if (refParts.count>0)
          {
-            refInstitutionLikeString=refParts[0];
-            [requestDict setObject:refInstitutionLikeString forKey:@"refInstitutionLikeString"];
+            refInstitutionRegexpString=refParts[0];
+            [requestDict setObject:refInstitutionRegexpString forKey:@"refInstitutionRegexpString"];
             if (!appendImmutableToCanonical(
                                        cacheDict,
                                        canonicalQuery,
                                        @"refInstitution",
-                                       refInstitutionLikeString
+                                       refInstitutionRegexpString
                                        )
                 ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (refParts.count>1)
          {
-            refServiceLikeString=refParts[1];
-            [requestDict setObject:refServiceLikeString forKey:@"refServiceLikeString"];
+            refServiceRegexpString=refParts[1];
+            [requestDict setObject:refServiceRegexpString forKey:@"refServiceRegexpString"];
             if (!appendImmutableToCanonical(
                                        cacheDict,
                                        canonicalQuery,
                                        @"refService",
-                                       refServiceLikeString
+                                       refServiceRegexpString
                                        )
                 ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (refParts.count>2)
          {
-            refUserLikeString=refParts[2];
-            [requestDict setObject:refUserLikeString forKey:@"refUserLikeString"];
+            refUserRegexpString=refParts[2];
+            [requestDict setObject:refUserRegexpString forKey:@"refUserRegexpString"];
             if (!appendImmutableToCanonical(
                                        cacheDict,
                                        canonicalQuery,
                                        @"refUser",
-                                       refUserLikeString
+                                       refUserRegexpString
                                        )
                 ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (refParts.count>3)
          {
-            refIDLikeString=refParts[3];
-            [requestDict setObject:refIDLikeString forKey:@"refIDLikeString"];
+            refIDRegexpString=refParts[3];
+            [requestDict setObject:refIDRegexpString forKey:@"refIDRegexpString"];
             if (!appendImmutableToCanonical(
                                        cacheDict,
                                        canonicalQuery,
                                        @"refID",
-                                       refIDLikeString
+                                       refIDRegexpString
                                        )
                 ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
           }
          if (refParts.count>4)
          {
-            refIDTypeLikeString=refParts[4];
-            [requestDict setObject:refIDTypeLikeString forKey:@"refIDTypeLikeString"];
+            refIDTypeRegexpString=refParts[4];
+            [requestDict setObject:refIDTypeRegexpString forKey:@"refIDTypeRegexpString"];
             if (!appendImmutableToCanonical(
                                        cacheDict,
                                        canonicalQuery,
                                        @"refIDType",
-                                       refIDTypeLikeString
+                                       refIDTypeRegexpString
                                        )
                 ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
@@ -736,82 +736,82 @@ NSString * SOPCLassOfReturnableSeries(
     
     BOOL readPart=false;
 
-    NSString *readInstitutionLikeString=nil;
+    NSString *readInstitutionRegexpString=nil;
     NSInteger readInstitutionIndex=[names indexOfObject:@"readInstitution"];
     if (readInstitutionIndex!=NSNotFound)
     {
        readPart=true;
-       readInstitutionLikeString=[values[readInstitutionIndex] regexQuoteEscapedString];
-       [requestDict setObject:readInstitutionLikeString forKey:@"readInstitutionLikeString"];
+       readInstitutionRegexpString=[values[readInstitutionIndex] regexQuoteEscapedString];
+       [requestDict setObject:readInstitutionRegexpString forKey:@"readInstitutionRegexpString"];
        if (!appendImmutableToCanonical(
                                   cacheDict,
                                   canonicalQuery,
                                   @"readInstitution",
-                                  readInstitutionLikeString
+                                  readInstitutionRegexpString
                                   )
            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
-    NSString *readServiceLikeString=nil;
+    NSString *readServiceRegexpString=nil;
     NSInteger readServiceIndex=[names indexOfObject:@"readService"];
     if (readServiceIndex!=NSNotFound)
     {
        readPart=true;
-       readServiceLikeString=[values[readServiceIndex] regexQuoteEscapedString];
-       [requestDict setObject:readServiceLikeString forKey:@"readServiceLikeString"];
+       readServiceRegexpString=[values[readServiceIndex] regexQuoteEscapedString];
+       [requestDict setObject:readServiceRegexpString forKey:@"readServiceRegexpString"];
        if (!appendImmutableToCanonical(
                                   cacheDict,
                                   canonicalQuery,
                                   @"readService",
-                                  readServiceLikeString
+                                  readServiceRegexpString
                                   )
            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
-    NSString *readUserLikeString=nil;
+    NSString *readUserRegexpString=nil;
     NSInteger readUserIndex=[names indexOfObject:@"readUser"];
     if (readUserIndex!=NSNotFound)
     {
        readPart=true;
-       readUserLikeString=[values[readUserIndex] regexQuoteEscapedString];
-       [requestDict setObject:readUserLikeString forKey:@"readUserLikeString"];
+       readUserRegexpString=[values[readUserIndex] regexQuoteEscapedString];
+       [requestDict setObject:readUserRegexpString forKey:@"readUserRegexpString"];
        if (!appendImmutableToCanonical(
                                   cacheDict,
                                   canonicalQuery,
                                   @"readUser",
-                                  readUserLikeString
+                                  readUserRegexpString
                                   )
            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
-    NSString *readIDLikeString=nil;
+    NSString *readIDRegexpString=nil;
     NSInteger readIDIndex=[names indexOfObject:@"readID"];
     if (readIDIndex!=NSNotFound)
     {
        readPart=true;
-       readIDLikeString=[values[readIDIndex] regexQuoteEscapedString];
-       [requestDict setObject:readIDLikeString forKey:@"readIDLikeString"];
+       readIDRegexpString=[values[readIDIndex] regexQuoteEscapedString];
+       [requestDict setObject:readIDRegexpString forKey:@"readIDRegexpString"];
        if (!appendImmutableToCanonical(
                                   cacheDict,
                                   canonicalQuery,
                                   @"readID",
-                                  readIDLikeString
+                                  readIDRegexpString
                                   )
            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
     
-    NSString *readIDTypeLikeString=nil;
+    NSString *readIDTypeRegexpString=nil;
     NSInteger readIDTypeIndex=[names indexOfObject:@"readIDType"];
     if (readIDTypeIndex!=NSNotFound)
     {
        readPart=true;
-       readIDTypeLikeString=[values[readIDTypeIndex] regexQuoteEscapedString];
-       [requestDict setObject:readIDTypeLikeString forKey:@"readIDTypeLikeString"];
+       readIDTypeRegexpString=[values[readIDTypeIndex] regexQuoteEscapedString];
+       [requestDict setObject:readIDTypeRegexpString forKey:@"readIDTypeRegexpString"];
        if (!appendImmutableToCanonical(
                                   cacheDict,
                                   canonicalQuery,
                                   @"readIDType",
-                                  readIDTypeLikeString
+                                  readIDTypeRegexpString
                                   )
            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
@@ -825,60 +825,60 @@ NSString * SOPCLassOfReturnableSeries(
          NSArray *readParts=[readRegexString componentsSeparatedByString:@"^"];
          if (readParts.count>0)
          {
-            readInstitutionLikeString=readParts[0];
-            [requestDict setObject:readInstitutionLikeString forKey:@"readInstitutionLikeString"];
+            readInstitutionRegexpString=readParts[0];
+            [requestDict setObject:readInstitutionRegexpString forKey:@"readInstitutionRegexpString"];
             if (!appendImmutableToCanonical(
                                        cacheDict,
                                        canonicalQuery,
                                        @"readInstitution",
-                                       readInstitutionLikeString
+                                       readInstitutionRegexpString
                                        )
                 ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (readParts.count>1)
          {
-            readServiceLikeString=readParts[1];
-            [requestDict setObject:readServiceLikeString forKey:@"readServiceLikeString"];
+            readServiceRegexpString=readParts[1];
+            [requestDict setObject:readServiceRegexpString forKey:@"readServiceRegexpString"];
             if (!appendImmutableToCanonical(
                                        cacheDict,
                                        canonicalQuery,
                                        @"readService",
-                                       readServiceLikeString
+                                       readServiceRegexpString
                                        )
                 ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (readParts.count>2)
          {
-            readUserLikeString=readParts[2];
-            [requestDict setObject:readUserLikeString forKey:@"readUserLikeString"];
+            readUserRegexpString=readParts[2];
+            [requestDict setObject:readUserRegexpString forKey:@"readUserRegexpString"];
             if (!appendImmutableToCanonical(
                                        cacheDict,
                                        canonicalQuery,
                                        @"readUser",
-                                       readUserLikeString
+                                       readUserRegexpString
                                        )
                 ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (readParts.count>3)
          {
-            readIDLikeString=readParts[3];
-            [requestDict setObject:readIDLikeString forKey:@"readIDLikeString"];
+            readIDRegexpString=readParts[3];
+            [requestDict setObject:readIDRegexpString forKey:@"readIDRegexpString"];
             if (!appendImmutableToCanonical(
                                        cacheDict,
                                        canonicalQuery,
                                        @"readID",
-                                       readIDLikeString
+                                       readIDRegexpString
                                        )
                 ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }
          if (readParts.count>4)
          {
-            readIDTypeLikeString=readParts[4];
+            readIDTypeRegexpString=readParts[4];
             if (!appendImmutableToCanonical(
                                        cacheDict,
                                        canonicalQuery,
                                        @"readIDType",
-                                       readIDTypeLikeString
+                                       readIDTypeRegexpString
                                        )
                 ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
          }

@@ -163,11 +163,11 @@ AND EQA.view_id='hideRejected' \
      <!-- 6. match ReferringPhysician -->
      <array>
          <string></string>
-         <string>AND ERN.family_name LIKE '%@' </string>
-         <string>AND ERN.given_name LIKE '%@' </string>
-         <string>AND ERN.middle_name LIKE '%@' </string>
-         <string>AND ERN.name_prefix LIKE '%@' </string>
-         <string>AND ERN.name_suffix LIKE '%@' </string>
+         <string>AND ERN.family_name REGEXP '%@' </string>
+         <string>AND ERN.given_name REGEXP '%@' </string>
+         <string>AND ERN.middle_name REGEXP '%@' </string>
+         <string>AND ERN.name_prefix REGEXP '%@' </string>
+         <string>AND ERN.name_suffix REGEXP '%@' </string>
      </array>
      <!-- 7. match ReadingPhysician -->
      <array>
