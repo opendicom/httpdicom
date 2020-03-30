@@ -545,9 +545,9 @@ NSString * SOPCLassOfReturnableSeries(
             else
             {
                 //check start
-                if ([cacheComponents[0] length] && ([cacheComponents[0] compare:StudyDateComponents[0]]==NSOrderedDescending))[cacheDict removeAllObjects];
-                //check end
+                if ([cacheComponents[0] length] && ([StudyDateComponents[0] compare:cacheComponents[0]]==NSOrderedAscending))[cacheDict removeAllObjects];
                 
+                //check end
                 if ([cacheComponents[1] length] && ([StudyDateComponents.lastObject compare:cacheComponents[1]]==NSOrderedDescending)) [cacheDict removeAllObjects];
                 if (cacheDict.count)
                 {
