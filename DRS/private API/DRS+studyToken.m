@@ -733,157 +733,166 @@ NSString * SOPCLassOfReturnableSeries(
 
 
 #pragma mark 7. read
+    NSMutableArray *readArray=nil;
     
-    BOOL readPart=false;
-
-    NSString *readInstitutionRegexpString=nil;
+    NSInteger readIndex=[names indexOfObject:@"read"];
     NSInteger readInstitutionIndex=[names indexOfObject:@"readInstitution"];
-    if (readInstitutionIndex!=NSNotFound)
-    {
-       readPart=true;
-       readInstitutionRegexpString=[values[readInstitutionIndex] regexQuoteEscapedString];
-       [requestDict setObject:readInstitutionRegexpString forKey:@"readInstitutionRegexpString"];
-       if (!appendImmutableToCanonical(
-                                  cacheDict,
-                                  canonicalQuery,
-                                  @"readInstitution",
-                                  readInstitutionRegexpString
-                                  )
-           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-    }
-
-    NSString *readServiceRegexpString=nil;
     NSInteger readServiceIndex=[names indexOfObject:@"readService"];
-    if (readServiceIndex!=NSNotFound)
-    {
-       readPart=true;
-       readServiceRegexpString=[values[readServiceIndex] regexQuoteEscapedString];
-       [requestDict setObject:readServiceRegexpString forKey:@"readServiceRegexpString"];
-       if (!appendImmutableToCanonical(
-                                  cacheDict,
-                                  canonicalQuery,
-                                  @"readService",
-                                  readServiceRegexpString
-                                  )
-           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-    }
-
-    NSString *readUserRegexpString=nil;
     NSInteger readUserIndex=[names indexOfObject:@"readUser"];
-    if (readUserIndex!=NSNotFound)
-    {
-       readPart=true;
-       readUserRegexpString=[values[readUserIndex] regexQuoteEscapedString];
-       [requestDict setObject:readUserRegexpString forKey:@"readUserRegexpString"];
-       if (!appendImmutableToCanonical(
-                                  cacheDict,
-                                  canonicalQuery,
-                                  @"readUser",
-                                  readUserRegexpString
-                                  )
-           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-    }
-
-    NSString *readIDRegexpString=nil;
     NSInteger readIDIndex=[names indexOfObject:@"readID"];
-    if (readIDIndex!=NSNotFound)
-    {
-       readPart=true;
-       readIDRegexpString=[values[readIDIndex] regexQuoteEscapedString];
-       [requestDict setObject:readIDRegexpString forKey:@"readIDRegexpString"];
-       if (!appendImmutableToCanonical(
-                                  cacheDict,
-                                  canonicalQuery,
-                                  @"readID",
-                                  readIDRegexpString
-                                  )
-           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-    }
-    
-    NSString *readIDTypeRegexpString=nil;
     NSInteger readIDTypeIndex=[names indexOfObject:@"readIDType"];
-    if (readIDTypeIndex!=NSNotFound)
+    
+    if (readIndex!=NSNotFound)
     {
-       readPart=true;
-       readIDTypeRegexpString=[values[readIDTypeIndex] regexQuoteEscapedString];
-       [requestDict setObject:readIDTypeRegexpString forKey:@"readIDTypeRegexpString"];
-       if (!appendImmutableToCanonical(
-                                  cacheDict,
-                                  canonicalQuery,
-                                  @"readIDType",
-                                  readIDTypeRegexpString
-                                  )
-           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+        readArray=[NSMutableArray array];
+        [readArray setArray:[[values[readIndex] regexQuoteEscapedString] componentsSeparatedByString:@"^"]];
+        switch (readArray.count) {
+            case 5:{
+                if ([readArray[4] length])
+                {
+                    if (!appendImmutableToCanonical(
+                                           cacheDict,
+                                           canonicalQuery,
+                                           @"readIDType",
+                                           readArray[4]
+                                           )
+                    ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+                }
+            }
+            case 4:{
+                if ([readArray[3] length])
+                {
+                    if (!appendImmutableToCanonical(
+                                           cacheDict,
+                                           canonicalQuery,
+                                           @"readID",
+                                           readArray[3]
+                                           )
+                    ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+                }
+            }
+            case 3:{
+                if ([readArray[2] length])
+                {
+                    if (!appendImmutableToCanonical(
+                                           cacheDict,
+                                           canonicalQuery,
+                                           @"readUser",
+                                           readArray[2]
+                                           )
+                    ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+                }
+            }
+            case 2:{
+                if ([readArray[1] length])
+                {
+                    if (!appendImmutableToCanonical(
+                                           cacheDict,
+                                           canonicalQuery,
+                                           @"readService",
+                                           readArray[1]
+                                           )
+                    ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+                }
+            }
+            case 1:{
+                if ([readArray[0] length])
+                {
+                    if (!appendImmutableToCanonical(
+                                           cacheDict,
+                                           canonicalQuery,
+                                           @"readInstitution",
+                                           readArray[0]
+                                           )
+                    ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+                }
+            }
+        }
+        
+    }
+    else if (  (readInstitutionIndex!=NSNotFound)
+             ||(readServiceIndex!=NSNotFound)
+             ||(readUserIndex!=NSNotFound)
+             ||(readIDIndex!=NSNotFound)
+             ||(readIDTypeIndex!=NSNotFound)
+            )
+    {
+        readArray=[NSMutableArray array];
+
+        if (readIDTypeIndex!=NSNotFound)
+        {
+            NSString *value=values[readIDTypeIndex];
+            [readArray insertObject:value atIndex:0];
+            if (!appendImmutableToCanonical(
+                                   cacheDict,
+                                   canonicalQuery,
+                                   @"readIDType",
+                                   value
+                                   )
+            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+        }
+
+        if (readIDIndex!=NSNotFound)
+        {
+            NSString *value=values[readIDIndex];
+            [readArray insertObject:value atIndex:0];
+            if (!appendImmutableToCanonical(
+                                   cacheDict,
+                                   canonicalQuery,
+                                   @"readID",
+                                   value
+                                   )
+            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+        }
+        else if (readArray.count) [readArray insertObject:@"" atIndex:0];
+
+        
+        if (readUserIndex!=NSNotFound)
+        {
+            NSString *value=values[readUserIndex];
+            [readArray insertObject:value atIndex:0];
+            if (!appendImmutableToCanonical(
+                                   cacheDict,
+                                   canonicalQuery,
+                                   @"readUser",
+                                   value
+                                   )
+            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+        }
+        else if (readArray.count) [readArray insertObject:@"" atIndex:0];
+        
+        
+        if (readServiceIndex!=NSNotFound)
+        {
+            NSString *value=values[readServiceIndex];
+            [readArray insertObject:value atIndex:0];
+            if (!appendImmutableToCanonical(
+                                   cacheDict,
+                                   canonicalQuery,
+                                   @"readService",
+                                   value
+                                   )
+            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+        }
+        else if (readArray.count) [readArray insertObject:@"" atIndex:0];
+
+        
+        if (readInstitutionIndex!=NSNotFound)
+        {
+            NSString *value=values[readInstitutionIndex];
+            [readArray replaceObjectAtIndex:0 withObject:value];
+            if (!appendImmutableToCanonical(
+                                   cacheDict,
+                                   canonicalQuery,
+                                   @"readInstitution",
+                                   value
+                                   )
+            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+        }
+        else if (readArray.count) [readArray insertObject:@"" atIndex:0];
     }
 
-   if (!readPart)
-   {
-      NSInteger readIndex=[names indexOfObject:@"read"];
-      if (readIndex!=NSNotFound)
-      {
-         NSString *readRegexString=[values[readIndex] regexQuoteEscapedString];
-         NSArray *readParts=[readRegexString componentsSeparatedByString:@"^"];
-         if (readParts.count>0)
-         {
-            readInstitutionRegexpString=readParts[0];
-            [requestDict setObject:readInstitutionRegexpString forKey:@"readInstitutionRegexpString"];
-            if (!appendImmutableToCanonical(
-                                       cacheDict,
-                                       canonicalQuery,
-                                       @"readInstitution",
-                                       readInstitutionRegexpString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-         if (readParts.count>1)
-         {
-            readServiceRegexpString=readParts[1];
-            [requestDict setObject:readServiceRegexpString forKey:@"readServiceRegexpString"];
-            if (!appendImmutableToCanonical(
-                                       cacheDict,
-                                       canonicalQuery,
-                                       @"readService",
-                                       readServiceRegexpString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-         if (readParts.count>2)
-         {
-            readUserRegexpString=readParts[2];
-            [requestDict setObject:readUserRegexpString forKey:@"readUserRegexpString"];
-            if (!appendImmutableToCanonical(
-                                       cacheDict,
-                                       canonicalQuery,
-                                       @"readUser",
-                                       readUserRegexpString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-         if (readParts.count>3)
-         {
-            readIDRegexpString=readParts[3];
-            [requestDict setObject:readIDRegexpString forKey:@"readIDRegexpString"];
-            if (!appendImmutableToCanonical(
-                                       cacheDict,
-                                       canonicalQuery,
-                                       @"readID",
-                                       readIDRegexpString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-         if (readParts.count>4)
-         {
-            readIDTypeRegexpString=readParts[4];
-            if (!appendImmutableToCanonical(
-                                       cacheDict,
-                                       canonicalQuery,
-                                       @"readIDType",
-                                       readIDTypeRegexpString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-      }
-   }
+    if (readArray) [requestDict setObject:readArray forKey:@"readArray"];
 
     
 #pragma mark 8. SOPClassInStudyString

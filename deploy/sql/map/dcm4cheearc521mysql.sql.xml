@@ -171,12 +171,12 @@ AND EQA.view_id='hideRejected' \
      </array>
      <!-- 7. match ReadingPhysician -->
      <array>
-         <string>AND E.study_custom3 REGEXP '%@' </string>
-         <string>%@ </string>
-         <string>%@ </string>
-         <string>%@ </string>
-         <string>%@ </string>
-         <string>%@ </string>
+         <string>AND E.study_custom3 REGEXP '^%@$' </string>
+         <string></string>
+         <string></string>
+         <string></string>
+         <string></string>
+         <string></string>
      </array>
      <!-- 8. match SOPClassesInStudy -->
      <string>AND EQA.cuids_in_study REGEXP '%@' </string>
