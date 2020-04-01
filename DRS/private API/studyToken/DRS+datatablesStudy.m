@@ -341,33 +341,29 @@
          
          
 #pragma mark 7 ED
-         if (d[@"PNArray"])
+         if (d[@"readArray"])
          {
-            NSString *pnFilterCompoundString=((sqlDictionary[@"Eand"])[EcumulativeFilterRead])[pnFilterCompound];
-            if (![d[@"pnFilterCompoundString"] isEqualToString:@""])
+            NSArray *readArray=d[@"readArray"];
+            NSString *compoundFormat=((sqlDictionary[@"Eand"])[EcumulativeFilterRead])[pnFilterCompound];
+            if (compoundFormat.length)
             {
                 NSMutableArray *jockerArray=[NSMutableArray array];
-                for (NSString *component in d[@"PNArray"])
+                for (NSString *component in readArray)
                 {
                     if (component.length) [jockerArray addObject:component];
                     else [jockerArray addObject:@".*"];
                 }
-                [filters appendFormat:pnFilterCompoundString,[jockerArray componentsJoinedByString:@"\\\\\\\\^"]];
+                [filters appendFormat:compoundFormat,[jockerArray componentsJoinedByString:@"\\\\\\\\^"]];
             }
             else
             {
                //DB with pn detailed fields
-               if (d[@"readInstitutionRegexpString"] && ([d[@"readInstitutionRegexpString"] length])) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterFamily],d[@"readInstitutionRegexpString"]];
-                
-               if (d[@"readServiceRegexpString"] && ([d[@"readServiceRegexpString"] length])) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],d[@"readServiceRegexpString"]];
-                
-               if (d[@"readUserRegexpString"] && ([d[@"readUserRegexpString"] length])) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],d[@"readUserRegexpString"]];
-                
-               if (d[@"readIDRegexpString"] && ([d[@"readIDRegexpString"] length])) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],d[@"readIDRegexpString"]];
-                
-               if (d[@"readIDTypeRegexpString"] && ([d[@"readIDTypeRegexpString"] length])) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],d[@"readIDTypeRegexpString"]];
+               NSArray *formats=(sqlDictionary[@"Eand"])[EcumulativeFilterRead];
+               for (NSUInteger i=0;i<readArray.count;i++)
+               {
+                  if (readArray[0] && [readArray[0] length]) [filters appendFormat:formats[i+1],readArray[0]];
+               }
             }
-                 
          }
 
 

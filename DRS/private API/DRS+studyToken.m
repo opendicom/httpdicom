@@ -404,138 +404,25 @@ NSString * SOPCLassOfReturnableSeries(
    
 #pragma mark 2. PatientName (Ppn)
    
-   NSMutableString *PatientNameRegexString=[NSMutableString string];
+   NSUInteger patientIndex[5];
+   patientIndex[0]=[names indexOfObject:@"patientFamily"];
+   patientIndex[1]=[names indexOfObject:@"patientGiven"];
+   patientIndex[2]=[names indexOfObject:@"patientMiddle"];
+   patientIndex[3]=[names indexOfObject:@"patientPrefix"];
+   patientIndex[4]=[names indexOfObject:@"patientSuffix"];
 
-   NSString *patientFamilyLikeString=nil;
-   NSInteger patientFamilyIndex=[names indexOfObject:@"patientFamily"];
-   if (patientFamilyIndex!=NSNotFound)
-   {
-      patientFamilyLikeString=[values[patientFamilyIndex] regexQuoteEscapedString];
-      [PatientNameRegexString appendString:patientFamilyLikeString];
-      [requestDict setObject:patientFamilyLikeString forKey:@"patientFamily"];
-      [canonicalQuery appendFormat:@"\"patientFamily\":\"%@\",",patientFamilyLikeString];
-   }
-    
-   [PatientNameRegexString appendString:@"^"];
-    
-   NSString *patientGivenLikeString=nil;
-   NSInteger patientGivenIndex=[names indexOfObject:@"patientGiven"];
-   if (patientGivenIndex!=NSNotFound)
-   {
-      patientGivenLikeString=[values[patientGivenIndex] regexQuoteEscapedString];
-      [PatientNameRegexString appendString:patientGivenLikeString];
-      [requestDict setObject:patientGivenLikeString forKey:@"patientGiven"];
-      [canonicalQuery appendFormat:@"\"patientGiven\":\"%@\",",patientGivenLikeString];
-   }
-     
-    [PatientNameRegexString appendString:@"^"];
-     
-   NSString *patientMiddleLikeString=nil;
-   NSInteger patientMiddleIndex=[names indexOfObject:@"patientMiddle"];
-   if (patientMiddleIndex!=NSNotFound)
-   {
-      patientMiddleLikeString=[values[patientMiddleIndex] regexQuoteEscapedString];
-      [PatientNameRegexString appendString:patientMiddleLikeString];
-      [requestDict setObject:patientMiddleLikeString forKey:@"patientMiddle"];
-      [canonicalQuery appendFormat:@"\"patientMiddle\":\"%@\",",patientMiddleLikeString];
-   }
-     
-    [PatientNameRegexString appendString:@"^"];
-     
-   NSString *patientPrefixLikeString=nil;
-   NSInteger patientPrefixIndex=[names indexOfObject:@"patientPrefix"];
-   if (patientPrefixIndex!=NSNotFound)
-   {
-      patientPrefixLikeString=[values[patientPrefixIndex] regexQuoteEscapedString];
-      [PatientNameRegexString appendString:patientPrefixLikeString];
-      [requestDict setObject:patientPrefixLikeString forKey:@"patientPrefix"];
-      [canonicalQuery appendFormat:@"\"patientPrefix\":\"%@\",",patientPrefixLikeString];
-   }
-     
-    [PatientNameRegexString appendString:@"^"];
-     
-   NSString *patientSuffixLikeString=nil;
-   NSInteger patientSuffixIndex=[names indexOfObject:@"patientSuffix"];
-   if (patientSuffixIndex!=NSNotFound)
-   {
-      patientSuffixLikeString=[values[patientSuffixIndex] regexQuoteEscapedString];
-      [PatientNameRegexString appendString:patientSuffixLikeString];
-      [requestDict setObject:patientSuffixLikeString forKey:@"patientSuffix"];
-      [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",patientSuffixLikeString];
-   }
+   NSMutableArray *patientArray=buildPNArray(
+     names,
+     values,
+     [names indexOfObject:@"PatientName"],
+     patientIndex,
+     @[@"patientFamily",@"patientGiven",@"patientMiddle",@"patientPrefix",@"patientSuffix"],
+     cacheDict,
+     canonicalQuery
+   );
+   if (!patientArray) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+   if (patientArray.count) [requestDict setObject:patientArray forKey:@"patientArray"];
 
-
-   if (PatientNameRegexString.length > 4) [PatientNameRegexString removeTrailingCarets];
-   else
-   {
-      NSInteger PatientNameIndex=[names indexOfObject:@"PatientName"];
-       if (PatientNameIndex==NSNotFound) [PatientNameRegexString setString:@""];
-       else //desglossing PatientName
-       {
-           [PatientNameRegexString setString:[[values[PatientNameIndex] removeTrailingCarets] regexQuoteEscapedString]];
-           NSArray *PatientNameParts=[PatientNameRegexString componentsSeparatedByString:@"^"];
-           if (PatientNameParts.count>0 && [PatientNameParts[0] length])
-           {
-              patientFamilyLikeString=PatientNameParts[0];
-              [requestDict setObject:patientFamilyLikeString forKey:@"patientFamily"];
-              [canonicalQuery appendFormat:@"\"patientFamily\":\"%@\",",patientFamilyLikeString];
-           }
-           if (PatientNameParts.count>1 && [PatientNameParts[1] length])
-           {
-              patientGivenLikeString=PatientNameParts[1];
-              [requestDict setObject:patientGivenLikeString forKey:@"patientGiven"];
-              [canonicalQuery appendFormat:@"\"patientGiven\":\"%@\",",patientGivenLikeString];
-           }
-           if (PatientNameParts.count>2 && [PatientNameParts[2] length])
-           {
-              patientMiddleLikeString=PatientNameParts[2];
-              [requestDict setObject:patientMiddleLikeString forKey:@"patientMiddle"];
-              [canonicalQuery appendFormat:@"\"patientMiddle\":\"%@\",",patientMiddleLikeString];
-           }
-           if (PatientNameParts.count>3 && [PatientNameParts[3] length])
-           {
-              patientPrefixLikeString=PatientNameParts[3];
-              [requestDict setObject:patientPrefixLikeString forKey:@"patientPrefix"];
-              [canonicalQuery appendFormat:@"\"patientPrefix\":\"%@\",",patientPrefixLikeString];
-           }
-           if (PatientNameParts.count>4 && [PatientNameParts[4] length])
-           {
-              patientSuffixLikeString=PatientNameParts[4];
-              [requestDict setObject:patientSuffixLikeString forKey:@"patientSuffix"];
-              [canonicalQuery appendFormat:@"\"patientSuffix\":\"%@\",",patientSuffixLikeString];
-           }
-       }
-   }
-    if (patientFamilyLikeString)
-    {
-       if (cacheDict[@"patientFamily"] && ![patientFamilyLikeString hasPrefix:cacheDict[@"patientFamily"]])
-          [cacheDict removeAllObjects];//force new
-       else if (patientFamilyLikeString.length) [rFamily setString:patientFamilyLikeString];
-    }
-    if (patientGivenLikeString)
-    {
-       if (cacheDict[@"patientGiven"] && ![patientGivenLikeString hasPrefix:cacheDict[@"patientGiven"]])
-          [cacheDict removeAllObjects];//force new
-       else if (patientGivenLikeString.length) [rGiven setString:patientGivenLikeString];
-    }
-    if (patientMiddleLikeString)
-    {
-       if (cacheDict[@"patientMiddle"] && ![patientMiddleLikeString hasPrefix:cacheDict[@"patientMiddle"]])
-          [cacheDict removeAllObjects];//force new
-       else if (patientMiddleLikeString.length) [rMiddle setString:patientMiddleLikeString];
-    }
-    if (patientPrefixLikeString)
-    {
-       if (cacheDict[@"patientPrefix"] && ![patientPrefixLikeString hasPrefix:cacheDict[@"patientPrefix"]])
-          [cacheDict removeAllObjects];//force new
-       else if (patientPrefixLikeString.length) [rPrefix setString:patientPrefixLikeString];
-    }
-    if (patientSuffixLikeString)
-    {
-       if (cacheDict[@"patientSuffix"] && ![patientSuffixLikeString hasPrefix:cacheDict[@"patientSuffix"]])
-          [cacheDict removeAllObjects];//force new
-       else if (patientSuffixLikeString.length) [rSuffix setString:patientSuffixLikeString];
-    }
 
 #pragma mark 3. StudyID (Eid)
     
@@ -624,172 +511,46 @@ NSString * SOPCLassOfReturnableSeries(
     
 #pragma mark 6. ref
 
-    BOOL refPart=false;
+   NSUInteger refIndex[5];
+   refIndex[0]=[names indexOfObject:@"refIDType"];
+   refIndex[1]=[names indexOfObject:@"refID"];
+   refIndex[2]=[names indexOfObject:@"refUser"];
+   refIndex[3]=[names indexOfObject:@"refService"];
+   refIndex[4]=[names indexOfObject:@"refInstitution"];
 
-    NSString *refInstitutionRegexpString=nil;
-    NSInteger refInstitutionIndex=[names indexOfObject:@"refInstitution"];
-    if (refInstitutionIndex!=NSNotFound)
-    {
-       refPart=true;
-       refInstitutionRegexpString=[values[refInstitutionIndex] regexQuoteEscapedString];
-       [requestDict setObject:refInstitutionRegexpString forKey:@"refInstitutionRegexpString"];
-       if (!appendImmutableToCanonical(
-                                  cacheDict,
-                                  canonicalQuery,
-                                  @"refInstitution",
-                                  refInstitutionRegexpString
-                                  )
-           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-    }
-
-    NSString *refServiceRegexpString=nil;
-    NSInteger refServiceIndex=[names indexOfObject:@"refService"];
-    if (refServiceIndex!=NSNotFound)
-    {
-       refPart=true;
-       refServiceRegexpString=[values[refServiceIndex] regexQuoteEscapedString];
-       [requestDict setObject:refServiceRegexpString forKey:@"refServiceRegexpString"];
-       if (!appendImmutableToCanonical(
-                                  cacheDict,
-                                  canonicalQuery,
-                                  @"refService",
-                                  refServiceRegexpString
-                                  )
-           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-    }
-
-    NSString *refUserRegexpString=nil;
-    NSInteger refUserIndex=[names indexOfObject:@"refUser"];
-    if (refUserIndex!=NSNotFound)
-    {
-       refPart=true;
-       refUserRegexpString=[values[refUserIndex] regexQuoteEscapedString];
-       [requestDict setObject:refUserRegexpString forKey:@"refUserRegexpString"];
-       if (!appendImmutableToCanonical(
-                                  cacheDict,
-                             canonicalQuery,
-                                  @"refUser",
-                                  refUserRegexpString
-                                  )
-           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-    }
-
-    NSString *refIDRegexpString=nil;
-    NSInteger refIDIndex=[names indexOfObject:@"refID"];
-    if (refIDIndex!=NSNotFound)
-    {
-       refPart=true;
-       refIDRegexpString=[values[refIDIndex] regexQuoteEscapedString];
-       [requestDict setObject:refIDRegexpString forKey:@"refIDRegexpString"];
-       if (!appendImmutableToCanonical(
-                                  cacheDict,
-                                  canonicalQuery,
-                                  @"refID",
-                                  refIDRegexpString
-                                  )
-           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-    }
-
-    NSString *refIDTypeRegexpString=nil;
-    NSInteger refIDTypeIndex=[names indexOfObject:@"refIDType"];
-    if (refIDTypeIndex!=NSNotFound)
-    {
-       refPart=true;
-       refIDTypeRegexpString=[values[refIDTypeIndex] regexQuoteEscapedString];
-       [requestDict setObject:refIDTypeRegexpString forKey:@"refIDTypeRegexpString"];
-       if (!appendImmutableToCanonical(
-                                  cacheDict,
-                                  canonicalQuery,
-                                  @"refIDType",
-                                  refIDTypeRegexpString
-                                  )
-           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-    }
-   
-   if (!refPart)
-   {
-      NSInteger refIndex=[names indexOfObject:@"ref"];
-      if (refIndex!=NSNotFound)
-      {
-         NSString *refRegexString=[values[refIndex] regexQuoteEscapedString];
-         NSArray *refParts=[refRegexString componentsSeparatedByString:@"^"];
-         if (refParts.count>0)
-         {
-            refInstitutionRegexpString=refParts[0];
-            [requestDict setObject:refInstitutionRegexpString forKey:@"refInstitutionRegexpString"];
-            if (!appendImmutableToCanonical(
-                                       cacheDict,
-                                       canonicalQuery,
-                                       @"refInstitution",
-                                       refInstitutionRegexpString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-         if (refParts.count>1)
-         {
-            refServiceRegexpString=refParts[1];
-            [requestDict setObject:refServiceRegexpString forKey:@"refServiceRegexpString"];
-            if (!appendImmutableToCanonical(
-                                       cacheDict,
-                                       canonicalQuery,
-                                       @"refService",
-                                       refServiceRegexpString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-         if (refParts.count>2)
-         {
-            refUserRegexpString=refParts[2];
-            [requestDict setObject:refUserRegexpString forKey:@"refUserRegexpString"];
-            if (!appendImmutableToCanonical(
-                                       cacheDict,
-                                       canonicalQuery,
-                                       @"refUser",
-                                       refUserRegexpString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-         if (refParts.count>3)
-         {
-            refIDRegexpString=refParts[3];
-            [requestDict setObject:refIDRegexpString forKey:@"refIDRegexpString"];
-            if (!appendImmutableToCanonical(
-                                       cacheDict,
-                                       canonicalQuery,
-                                       @"refID",
-                                       refIDRegexpString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-          }
-         if (refParts.count>4)
-         {
-            refIDTypeRegexpString=refParts[4];
-            [requestDict setObject:refIDTypeRegexpString forKey:@"refIDTypeRegexpString"];
-            if (!appendImmutableToCanonical(
-                                       cacheDict,
-                                       canonicalQuery,
-                                       @"refIDType",
-                                       refIDTypeRegexpString
-                                       )
-                ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-         }
-      }
-   }
+   NSMutableArray *refArray=buildPNArray(
+     names,
+     values,
+     [names indexOfObject:@"ref"],
+     refIndex,
+     @[@"refInstitution",@"refService",@"refUser",@"refID",@"refIDType"],
+     cacheDict,
+     canonicalQuery
+   );
+   if (!refArray) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+   if (refArray.count) [requestDict setObject:refArray forKey:@"refArray"];
 
 
 #pragma mark 7. read
-    NSUInteger PNConcatIndex=[names indexOfObject:@"read"];
 
-    NSUInteger PNPartIndex[5];
-    PNPartIndex[0]=[names indexOfObject:@"readIDType"];
-    PNPartIndex[1]=[names indexOfObject:@"readID"];
-    PNPartIndex[2]=[names indexOfObject:@"readUser"];
-    PNPartIndex[3]=[names indexOfObject:@"readService"];
-    PNPartIndex[4]=[names indexOfObject:@"readInstitution"];
+    NSUInteger readIndex[5];
+    readIndex[0]=[names indexOfObject:@"readIDType"];
+    readIndex[1]=[names indexOfObject:@"readID"];
+    readIndex[2]=[names indexOfObject:@"readUser"];
+    readIndex[3]=[names indexOfObject:@"readService"];
+    readIndex[4]=[names indexOfObject:@"readInstitution"];
 
-    NSMutableArray *PNArray=buildPNArray(names,values,PNConcatIndex,PNPartIndex,@[@"readInstitution",@"readService",@"readUser",@"readID",@"readIDType"],cacheDict,canonicalQuery);
-    if (!PNArray) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-    if (PNArray.count) [requestDict setObject:PNArray forKey:@"PNArray"];
+    NSMutableArray *readArray=buildPNArray(
+      names,
+      values,
+      [names indexOfObject:@"read"],
+      readIndex,
+      @[@"readInstitution",@"readService",@"readUser",@"readID",@"readIDType"],
+      cacheDict,
+      canonicalQuery
+    );
+    if (!readArray) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+    if (readArray.count) [requestDict setObject:readArray forKey:@"readArray"];
 
     
 #pragma mark 8. SOPClassInStudyString
