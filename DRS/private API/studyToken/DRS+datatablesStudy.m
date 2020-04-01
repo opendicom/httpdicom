@@ -341,13 +341,13 @@
          
          
 #pragma mark 7 ED
-         if (d[@"readArray"])
+         if (d[@"PNArray"])
          {
             NSString *pnFilterCompoundString=((sqlDictionary[@"Eand"])[EcumulativeFilterRead])[pnFilterCompound];
             if (![d[@"pnFilterCompoundString"] isEqualToString:@""])
             {
                 NSMutableArray *jockerArray=[NSMutableArray array];
-                for (NSString *component in d[@"readArray"])
+                for (NSString *component in d[@"PNArray"])
                 {
                     if (component.length) [jockerArray addObject:component];
                     else [jockerArray addObject:@".*"];
