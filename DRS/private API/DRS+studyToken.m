@@ -19,10 +19,10 @@ NSMutableArray *buildPNArray(
    NSMutableString *canonicalQuery
 )
 {
-   NSMutableArray *PNArray=nil;
+   NSMutableArray *PNArray=[NSMutableArray array];
    if (PNConcatIndex!=NSNotFound)
    {
-      PNArray=[NSMutableArray arrayWithArray:[[values[PNConcatIndex] regexQuoteEscapedString] componentsSeparatedByString:@"^"]];
+      [PNArray setArray:[[values[PNConcatIndex] regexQuoteEscapedString] componentsSeparatedByString:@"^"]];
       for (NSUInteger i=PNArray.count-1;i<0;i--)
       {
          if ([PNArray[i] length])
@@ -39,13 +39,14 @@ NSMutableArray *buildPNArray(
             ||(PNPartIndex[4]!=NSNotFound)
            )
    {
-      PNArray=[NSMutableArray array];
       for (NSUInteger i=4;i<0;i--)
       {
          if (PNPartIndex[i]!=NSNotFound)
          {
-            [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],PNArray[i]];
-            if (cacheDict[PNLabel[i]] && ![PNArray[i] isEqualToString:cacheDict[PNLabel[i]]]) return nil;
+            NSString *partString=[values[i] regexQuoteEscapedString];
+            [PNArray insertObject:partString atIndex:0];
+            if (cacheDict[PNLabel[i]] && ![partString isEqualToString:cacheDict[PNLabel[i]]]) return nil;
+            [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],partString];
          }
          else if (PNArray.count) [PNArray insertObject:@"" atIndex:0];
       }
