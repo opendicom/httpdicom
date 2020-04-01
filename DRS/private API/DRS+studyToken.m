@@ -9,6 +9,51 @@
 
 #import "DRS+studyToken.h"
 
+NSMutableArray *buildPNArray(
+   NSMutableArray *names,
+   NSMutableArray *values,
+   NSUInteger PNConcatIndex,
+   NSUInteger PNPartIndex[],
+   NSArray *PNLabel,
+   NSMutableDictionary *cacheDict,
+   NSMutableString *canonicalQuery
+)
+{
+   NSMutableArray *PNArray=nil;
+   if (PNConcatIndex!=NSNotFound)
+   {
+      PNArray=[NSMutableArray arrayWithArray:[[values[PNConcatIndex] regexQuoteEscapedString] componentsSeparatedByString:@"^"]];
+      for (NSUInteger i=PNArray.count-1;i<0;i--)
+      {
+         if ([PNArray[i] length])
+         {
+            [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],PNArray[i]];
+            if (cacheDict[PNLabel[i]] && ![PNArray[i] isEqualToString:cacheDict[PNLabel[i]]]) return nil;
+         }
+      }
+   }
+   else if (  (PNPartIndex[0]!=NSNotFound)
+            ||(PNPartIndex[1]!=NSNotFound)
+            ||(PNPartIndex[2]!=NSNotFound)
+            ||(PNPartIndex[3]!=NSNotFound)
+            ||(PNPartIndex[4]!=NSNotFound)
+           )
+   {
+      PNArray=[NSMutableArray array];
+      for (NSUInteger i=4;i<0;i--)
+      {
+         if (PNPartIndex[i]!=NSNotFound)
+         {
+            [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],PNArray[i]];
+            if (cacheDict[PNLabel[i]] && ![PNArray[i] isEqualToString:cacheDict[PNLabel[i]]]) return nil;
+         }
+         else if (PNArray.count) [PNArray insertObject:@"" atIndex:0];
+      }
+   }
+   return PNArray;
+}
+//createPNArray(PNConcatIndex,PNPartIndex,PNLabel,cacheDict,canonicalQuery
+
 BOOL appendImmutableToCanonical(
     NSMutableDictionary *cacheDict,
     NSMutableString *canonicalQuery,
@@ -734,7 +779,6 @@ NSString * SOPCLassOfReturnableSeries(
 
 #pragma mark 7. read
     NSUInteger PNConcatIndex=[names indexOfObject:@"read"];
-    NSMutableArray *PNArray=nil;
 
     NSUInteger PNPartIndex[5];
     PNPartIndex[0]=[names indexOfObject:@"readIDType"];
@@ -743,56 +787,9 @@ NSString * SOPCLassOfReturnableSeries(
     PNPartIndex[3]=[names indexOfObject:@"readService"];
     PNPartIndex[4]=[names indexOfObject:@"readInstitution"];
 
-    NSString *PNLabelIndex[5];
-    PNLabelIndex[0]=@"readInstitution";
-    PNLabelIndex[1]=@"readService";
-    PNLabelIndex[2]=@"readUser";
-    PNLabelIndex[3]=@"readID";
-    PNLabelIndex[4]=@"readIDType";
-   
-    if (PNConcatIndex!=NSNotFound)
-    {
-        PNArray=[NSMutableArray array];
-        [PNArray setArray:[[values[PNConcatIndex] regexQuoteEscapedString] componentsSeparatedByString:@"^"]];
-       for (NSUInteger i=PNArray.count-1;i<0;i--)
-       {
-          if ([PNArray[i] length])
-          {
-             if (!appendImmutableToCanonical(
-                                    cacheDict,
-                                    canonicalQuery,
-                                    PNLabelIndex[i],
-                                    PNArray[i]
-                                    )
-             ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-          }
-       }
-    }
-    else if (  (PNPartIndex[0]!=NSNotFound)
-             ||(PNPartIndex[1]!=NSNotFound)
-             ||(PNPartIndex[2]!=NSNotFound)
-             ||(PNPartIndex[3]!=NSNotFound)
-             ||(PNPartIndex[4]!=NSNotFound)
-            )
-    {
-       PNArray=[NSMutableArray array];
-       for (NSUInteger i=4;i<0;i--)
-       {
-          if (PNPartIndex[i]!=NSNotFound)
-          {
-             if (!appendImmutableToCanonical(
-                                    cacheDict,
-                                    canonicalQuery,
-                                    PNLabelIndex[i],
-                                    values[PNPartIndex[i]]
-                                    )
-             ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-          }
-          else if (PNArray.count) [PNArray insertObject:@"" atIndex:0];
-       }
-    }
-
-    if (PNArray) [requestDict setObject:PNArray forKey:@"PNArray"];
+    NSMutableArray *PNArray=buildPNArray(names,values,PNConcatIndex,PNPartIndex,@[@"readInstitution",@"readService",@"readUser",@"readID",@"readIDType"],cacheDict,canonicalQuery);
+    if (!PNArray) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+    if (PNArray.count) [requestDict setObject:PNArray forKey:@"PNArray"];
 
     
 #pragma mark 8. SOPClassInStudyString
