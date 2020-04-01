@@ -179,57 +179,30 @@
             }
          }
          
-
-         if (   d[@"patientFamilyLikeString"]
-             || d[@"patientGivenLikeString"]
-             || d[@"patientMiddleLikeString"]
-             || d[@"patientPrefixLikeString"]
-             || d[@"patientSuffixLikeString"]
-             )
 #pragma mark 2 PN
+         if (d[@"patientArray"])
          {
-             NSString *pnFilterCompoundString=((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterCompound];
-            if (![pnFilterCompoundString isEqualToString:@""])
+            NSArray *patientArray=d[@"patientArray"];
+            NSString *compoundFormat=((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterCompound];
+            if (compoundFormat.length)
             {
-               // DB with pn compound field
-               NSString *regexp=nil;
-               if (d[@"patientSuffixLikeString"])
-                  regexp=[NSString stringWithFormat:@"%@^%@^%@^%@^%@",
-                  d[@"patientFamilyLikeString"]?d[@"patientFamilyLikeString"]:@"",
-                  d[@"patientGivenLikeString"]?d[@"patientGivenLikeString"]:@"",
-                  d[@"patientMiddleLikeString"]?d[@"patientMiddleLikeString"]:@"",
-                  d[@"patientPrefixLikeString"]?d[@"patientPrefixLikeString"]:@"",
-                  d[@"patientSuffixLikeString"]];
-               else if (d[@"patientPrefixLikeString"])
-                  regexp=[NSString stringWithFormat:@"%@^%@^%@^%@",
-                  d[@"patientFamilyLikeString"]?d[@"patientFamilyLikeString"]:@"",
-                  d[@"patientGivenLikeString"]?d[@"patientGivenLikeString"]:@"",
-                  d[@"patientMiddleLikeString"]?d[@"patientMiddleLikeString"]:@"",
-                  d[@"patientPrefixLikeString"]];
-               else if (d[@"patientMiddleLikeString"])
-                  regexp=[NSString stringWithFormat:@"%@^%@^%@",
-                  d[@"patientFamilyLikeString"]?d[@"patientFamilyLikeString"]:@"",
-                  d[@"patientGivenLikeString"]?d[@"patientGivenLikeString"]:@"",
-                  d[@"patientMiddleLikeString"]];
-               else if (d[@"patientGivenLikeString"])
-                  regexp=[NSString stringWithFormat:@"%@^%@",
-                  d[@"patientFamilyLikeString"]?d[@"patientFamilyLikeString"]:@"",
-                  d[@"patientGivenLikeString"]];
-               else if (d[@"patientFamilyLikeString"])
-                  regexp=[NSString stringWithString:d[@"patientFamilyLikeString"]];
-               
-               if (regexp) [filters appendFormat:pnFilterCompoundString,regexp];
+                NSMutableArray *jockerArray=[NSMutableArray array];
+                for (NSString *component in patientArray)
+                {
+                    if (component.length) [jockerArray addObject:component];
+                    else [jockerArray addObject:@".*"];
+                }
+                [filters appendFormat:compoundFormat,[jockerArray componentsJoinedByString:@"\\\\\\\\^"]];
             }
             else
             {
                //DB with pn detailed fields
-               if (d[@"patientFamilyLikeString"]) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterFamily],d[@"patientFamilyLikeString"]];
-               if (d[@"patientGivenLikeString"]) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterGiven],d[@"patientGivenLikeString"]];
-               if (d[@"patientMiddleLikeString"]) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterMiddle],d[@"patientMiddleLikeString"]];
-               if (d[@"patientPrefixLikeString"]) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterPrefix],d[@"patientPrefixLikeString"]];
-               if (d[@"patientSuffixLikeString"]) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterSuffix],d[@"patientSuffixLikeString"]];
+               NSArray *formats=(sqlDictionary[@"Eand"])[EcumulativeFilterPpn];
+               for (NSUInteger i=0;i<patientArray.count;i++)
+               {
+                  if (patientArray[0] && [patientArray[0] length]) [filters appendFormat:formats[i+1],patientArray[0]];
+               }
             }
-
          }
          
 #pragma mark 3 Eid
@@ -289,53 +262,28 @@
          
          
 #pragma mark 6 ERN
-         if (   d[@"refInstitutionRegexpString"]
-             || d[@"refServiceRegexpString"]
-             || d[@"refUserRegexpString"]
-             || d[@"refIDRegexpString"]
-             || d[@"refIDTypeRegexpString"]
-             )
+         if (d[@"refArray"])
          {
-            NSString *pnFilterCompoundString=((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterCompound];
-            if (![d[@"pnFilterCompoundString"] isEqualToString:@""])
+            NSArray *refArray=d[@"refArray"];
+            NSString *compoundFormat=((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterCompound];
+            if (compoundFormat.length)
             {
-               // DB with pn compound field
-               NSString *regexp=nil;
-               if (d[@"refIDTypeRegexpString"])
-                  regexp=[NSString stringWithFormat:@"%@^%@^%@^%@^%@",
-                  d[@"refInstitutionRegexpString"]?d[@"refInstitutionRegexpString"]:@"",
-                  d[@"refServiceRegexpString"]?d[@"refServiceRegexpString"]:@"",
-                  d[@"refUserRegexpString"]?d[@"refUserRegexpString"]:@"",
-                  d[@"refIDRegexpString"]?d[@"refIDRegexpString"]:@"",
-                  d[@"refIDTypeRegexpString"]];
-               else if (d[@"refIDRegexpString"])
-                  regexp=[NSString stringWithFormat:@"%@^%@^%@^%@",
-                  d[@"refInstitutionRegexpString"]?d[@"refInstitutionRegexpString"]:@"",
-                  d[@"refServiceRegexpString"]?d[@"refServiceRegexpString"]:@"",
-                  d[@"refUserRegexpString"]?d[@"refUserRegexpString"]:@"",
-                  d[@"refIDRegexpString"]];
-               else if (d[@"refUserRegexpString"])
-                  regexp=[NSString stringWithFormat:@"%@^%@^%@",
-                  d[@"refInstitutionRegexpString"]?d[@"refInstitutionRegexpString"]:@"",
-                  d[@"refServiceRegexpString"]?d[@"refServiceRegexpString"]:@"",
-                  d[@"refUserRegexpString"]];
-               else if (d[@"refServiceRegexpString"])
-                  regexp=[NSString stringWithFormat:@"%@^%@",
-                  d[@"refInstitutionRegexpString"]?d[@"refInstitutionRegexpString"]:@"",
-                  d[@"refServiceRegexpString"]];
-               else if (d[@"refInstitutionRegexpString"])
-                  regexp=[NSString stringWithString:d[@"refInstitutionRegexpString"]];
-               
-               if (regexp) [filters appendFormat:pnFilterCompoundString,regexp];
+                NSMutableArray *jockerArray=[NSMutableArray array];
+                for (NSString *component in refArray)
+                {
+                    if (component.length) [jockerArray addObject:component];
+                    else [jockerArray addObject:@".*"];
+                }
+                [filters appendFormat:compoundFormat,[jockerArray componentsJoinedByString:@"\\\\\\\\^"]];
             }
             else
             {
                //DB with pn detailed fields
-               if (d[@"refInstitutionRegexpString"]) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterFamily],d[@"refInstitutionRegexpString"]];
-               if (d[@"refServiceRegexpString"]) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],d[@"refServiceRegexpString"]];
-               if (d[@"refUserRegexpString"]) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],d[@"refUserRegexpString"]];
-               if (d[@"refIDRegexpString"]) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],d[@"refIDRegexpString"]];
-               if (d[@"refIDTypeRegexpString"]) [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterGiven],d[@"refIDTypeRegexpString"]];
+               NSArray *formats=(sqlDictionary[@"Eand"])[EcumulativeFilterRef];
+               for (NSUInteger i=0;i<refArray.count;i++)
+               {
+                  if (refArray[0] && [refArray[0] length]) [filters appendFormat:formats[i+1],refArray[0]];
+               }
             }
          }
          
