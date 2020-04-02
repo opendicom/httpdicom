@@ -789,6 +789,7 @@ NSString * SOPCLassOfReturnableSeries(
       [defaultManager createDirectoryAtPath:requestPath  withIntermediateDirectories:NO attributes:nil error:nil];
     }
 
+   
     if (!isStudyRestriction)
     {
         //is not a restriction of existing results
@@ -808,6 +809,77 @@ NSString * SOPCLassOfReturnableSeries(
            }
         }
     }
+   else
+   {
+      //create corresponding predicate and add it to the request dictionary
+      [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
+      {
+          //AccessionNumber
+          if (studyRestrictionDict[@"AccessionNumber"] && ![row[13] hasPrefix:studyRestrictionDict[@"AccessionNumber"]]) return false;
+          
+          //PatientID
+          if (patientRestrictionDict[@"PatientID"] && ![row[23] hasPrefix:patientRestrictionDict[@"PatientID"]]) return false;
+
+          //PatientName
+          BOOL family=[patientRestrictionDict[@"PatientFamily"] length];
+          BOOL given=[patientRestrictionDict[@"PatientGiven"] length];
+          BOOL middle=[patientRestrictionDict[@"PatientMiddle"] length];
+          BOOL prefix=[patientRestrictionDict[@"PatientPrefix"] length];
+          BOOL suffix=[patientRestrictionDict[@"PatientSuffix"] length];
+          if (  family ||given ||middle ||prefix ||suffix)
+          {
+             NSArray *n=[row[4] componentsSeparatedByString:@"^"];
+             NSUInteger c=n.count;
+             if ((c > 0) && family && ([n[0] length]))
+             {
+                if ([[n[0] componentsSeparatedByString:patientRestrictionDict[@"PatientFamily"]] count] < 2) return false;
+                
+                
+                if ((c > 1) && given && ([n[1] length]))
+                {
+                   if ([[n[1] componentsSeparatedByString:patientRestrictionDict[@"PatientGiven"]] count] < 2) return false;
+
+                   
+                   if ((c > 2) && middle && ([n[2] length]))
+                   {
+                      if ([[n[2] componentsSeparatedByString:patientRestrictionDict[@"PatientMiddle"]] count] < 2) return false;
+                      
+                      
+                      if ((c > 3) && prefix && ([n[3] length]))
+                      {
+                         if ([[n[3] componentsSeparatedByString:patientRestrictionDict[@"PatientPrefix"]] count] < 2) return false;
+                            
+                            
+                         if ((c > 4) && suffix && ([n[4] length]))
+                         {
+                            if ([[n[4] componentsSeparatedByString:patientRestrictionDict[@"PatientSuffix"]] count] < 2) return false;
+                         }
+                      }
+                   }
+                }
+             }
+          }
+
+          if (studyRestrictionDict[@"StudyDate"])
+          {
+             //@"%@-%@-%@|%@-%@-%@"
+             NSArray *d=[studyRestrictionDict[@"StudyDate"] componentsSeparatedByString:@"|"];
+             if ((d.count==1) && ![row[5] hasPrefix:d[0]]) return false;
+             //two parts
+             if ([d[0] length] && ([d[0] compare:row[5]]==NSOrderedDescending)) return false;
+             if ([d[1] length] && [d[1] compare:[row[5] substringToIndex:10]]==NSOrderedAscending) return false;
+          }
+               
+          if ([studyRestrictionDict[@"ModalityInStudy"] length] && [[row[6] componentsSeparatedByString:studyRestrictionDict[@"ModalityInStudy"]] count] < 2) return false;
+         
+          if (studyRestrictionDict[@"StudyDescription"] && ![StudyDescriptionRestrictionRegex numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
+         
+          if (studyRestrictionDict[@"StudyID"] && ![StudyIDRestrictionRegex numberOfMatchesInString:row[15] options:0 range:NSMakeRange(0,[row[15] length])]) return false;
+
+          return true;
+      }] forKey:@"predicate"];
+
+   }
 
    
    switch (accessTypeNumber)
@@ -979,7 +1051,7 @@ NSString * SOPCLassOfReturnableSeries(
             [requestDict setObject:devOIDPath forKey:@"devOIDPath"];
             [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
 
-             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
+            switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
                 case selectTypeSql:
                   [DRS datateblesStudySql4dictionary:requestDict];
@@ -1173,75 +1245,7 @@ NSString * SOPCLassOfReturnableSeries(
 #pragma mark isStudyRestriction
         if (isStudyRestriction)
         {
-         //create compound predicate
-           NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
-           {
-               //AccessionNumber
-               if (studyRestrictionDict[@"AccessionNumber"] && ![row[13] hasPrefix:studyRestrictionDict[@"AccessionNumber"]]) return false;
-               
-               //PatientID
-               if (patientRestrictionDict[@"PatientID"] && ![row[23] hasPrefix:patientRestrictionDict[@"PatientID"]]) return false;
-
-               //PatientName
-               BOOL family=[patientRestrictionDict[@"PatientFamily"] length];
-               BOOL given=[patientRestrictionDict[@"PatientGiven"] length];
-               BOOL middle=[patientRestrictionDict[@"PatientMiddle"] length];
-               BOOL prefix=[patientRestrictionDict[@"PatientPrefix"] length];
-               BOOL suffix=[patientRestrictionDict[@"PatientSuffix"] length];
-               if (  family ||given ||middle ||prefix ||suffix)
-               {
-                  NSArray *n=[row[4] componentsSeparatedByString:@"^"];
-                  NSUInteger c=n.count;
-                  if ((c > 0) && family && ([n[0] length]))
-                  {
-                     if ([[n[0] componentsSeparatedByString:patientRestrictionDict[@"PatientFamily"]] count] < 2) return false;
-                     
-                     
-                     if ((c > 1) && given && ([n[1] length]))
-                     {
-                        if ([[n[1] componentsSeparatedByString:patientRestrictionDict[@"PatientGiven"]] count] < 2) return false;
-
-                        
-                        if ((c > 2) && middle && ([n[2] length]))
-                        {
-                           if ([[n[2] componentsSeparatedByString:patientRestrictionDict[@"PatientMiddle"]] count] < 2) return false;
-                           
-                           
-                           if ((c > 3) && prefix && ([n[3] length]))
-                           {
-                              if ([[n[3] componentsSeparatedByString:patientRestrictionDict[@"PatientPrefix"]] count] < 2) return false;
-                                 
-                                 
-                              if ((c > 4) && suffix && ([n[4] length]))
-                              {
-                                 if ([[n[4] componentsSeparatedByString:patientRestrictionDict[@"PatientSuffix"]] count] < 2) return false;
-                              }
-                           }
-                        }
-                     }
-                  }
-               }
-
-               if (studyRestrictionDict[@"StudyDate"])
-               {
-                  //@"%@-%@-%@|%@-%@-%@"
-                  NSArray *d=[studyRestrictionDict[@"StudyDate"] componentsSeparatedByString:@"|"];
-                  if ((d.count==1) && ![row[5] hasPrefix:d[0]]) return false;
-                  //two parts
-                  if ([d[0] length] && ([d[0] compare:row[5]]==NSOrderedDescending)) return false;
-                  if ([d[1] length] && [d[1] compare:[row[5] substringToIndex:10]]==NSOrderedAscending) return false;
-               }
-                    
-               if ([studyRestrictionDict[@"ModalityInStudy"] length] && [[row[6] componentsSeparatedByString:studyRestrictionDict[@"ModalityInStudy"]] count] < 2) return false;
-              
-               if (studyRestrictionDict[@"StudyDescription"] && ![StudyDescriptionRestrictionRegex numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
-              
-               if (studyRestrictionDict[@"StudyID"] && ![StudyIDRestrictionRegex numberOfMatchesInString:row[15] options:0 range:NSMakeRange(0,[row[15] length])]) return false;
-
-               return true;
-            }];
-         
-            [resultsArray filterUsingPredicate:compoundPredicate];
+            [resultsArray filterUsingPredicate:requestDict[@"predicate"]];
          }
          
          
