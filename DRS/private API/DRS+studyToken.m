@@ -13,9 +13,10 @@ NSMutableArray *buildPNArray(
    NSMutableArray *names,
    NSMutableArray *values,
    NSUInteger PNConcatIndex,
-   NSUInteger PNPartIndex[],
+   NSUInteger PNIndex[],
    NSArray *PNLabel,
-   NSMutableDictionary *cacheDict,
+   NSMutableDictionary *cachedQueryDict,
+   NSMutableDictionary *restrictionDict,
    NSMutableString *canonicalQuery
 )
 {
@@ -28,24 +29,32 @@ NSMutableArray *buildPNArray(
          if ([PNArray[i] length])
          {
             [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],PNArray[i]];
-            if (cacheDict[PNLabel[i]] && ![PNArray[i] isEqualToString:cacheDict[PNLabel[i]]]) return nil;
+            if (cachedQueryDict[PNLabel[i]])
+            {
+               if(![PNArray[i] hasPrefix:cachedQueryDict[PNLabel[i]]]) return nil;
+               [restrictionDict setObject:PNArray[i] forKey:PNLabel[i]];
+            }
          }
       }
    }
-   else if (  (PNPartIndex[0]!=NSNotFound)
-            ||(PNPartIndex[1]!=NSNotFound)
-            ||(PNPartIndex[2]!=NSNotFound)
-            ||(PNPartIndex[3]!=NSNotFound)
-            ||(PNPartIndex[4]!=NSNotFound)
+   else if (  (PNIndex[0]!=NSNotFound)
+            ||(PNIndex[1]!=NSNotFound)
+            ||(PNIndex[2]!=NSNotFound)
+            ||(PNIndex[3]!=NSNotFound)
+            ||(PNIndex[4]!=NSNotFound)
            )
    {
       for (NSUInteger i=4;i<0;i--)
       {
-         if (PNPartIndex[i]!=NSNotFound)
+         if (PNIndex[i]!=NSNotFound)
          {
             NSString *partString=[values[i] regexQuoteEscapedString];
             [PNArray insertObject:partString atIndex:0];
-            if (cacheDict[PNLabel[i]] && ![partString isEqualToString:cacheDict[PNLabel[i]]]) return nil;
+            if (cachedQueryDict[PNLabel[i]])
+            {
+               if (![partString hasPrefix:cachedQueryDict[PNLabel[i]]]) return nil;
+               [restrictionDict setObject:partString forKey:PNLabel[i]];
+            }
             [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],partString];
          }
          else if (PNArray.count) [PNArray insertObject:@"" atIndex:0];
@@ -53,17 +62,19 @@ NSMutableArray *buildPNArray(
    }
    return PNArray;
 }
-//createPNArray(PNConcatIndex,PNPartIndex,PNLabel,cacheDict,canonicalQuery
 
 BOOL appendImmutableToCanonical(
-    NSMutableDictionary *cacheDict,
+    NSMutableDictionary *cachedQueryDict,
+    NSMutableDictionary *restrictionDict,
     NSMutableString *canonicalQuery,
     NSString* name,
     NSString* value
 )
 {
     [canonicalQuery appendFormat:@"\"%@\":\"%@\",",name,value];
-    if (cacheDict[name]) return [value isEqualToString:cacheDict[name]];
+    if (cachedQueryDict[name])
+       return [value isEqualToString:cachedQueryDict[name]];
+    [restrictionDict setObject:value forKey:name];
     return true;
 }
 
@@ -258,7 +269,7 @@ NSString * SOPCLassOfReturnableSeries(
 
 #pragma mark cache?
    /*
-    if cacheDict, evalutate changes:
+    if cachedQueryDict, evalutate changes:
     case datatables/study
     -> evaluate if it is a restriction and if so, filter already existing results
     case dicomzip,cornerstone,weasis, etc
@@ -268,28 +279,22 @@ NSString * SOPCLassOfReturnableSeries(
     NSUInteger cacheIndex=[names indexOfObject:@"cache"];
     NSString *cachePath=nil;
    
-    NSMutableString *rPID=[NSMutableString string];
-    NSMutableString *rFamily=[NSMutableString string];
-    NSMutableString *rGiven=[NSMutableString string];
-    NSMutableString *rMiddle=[NSMutableString string];
-    NSMutableString *rPrefix=[NSMutableString string];
-    NSMutableString *rSuffix=[NSMutableString string];
-    NSMutableString *rDate=[NSMutableString string];
-    NSMutableString *rMod=[NSMutableString string];
-   //rPID,rFamily,rGiven,rMiddle,rPrefix,rSuffix,rDate,rMod,rDesc,rID
-    NSMutableDictionary *cacheDict=nil;
+    NSMutableDictionary *cachedQueryDict=nil;
     if (   (cacheIndex!=NSNotFound)
         && ([values[cacheIndex] length])
        )
     {
         cachePath=[DRS.tokentmpDir stringByAppendingPathComponent:values[cacheIndex]];
         NSData *cacheData=[NSData dataWithContentsOfFile:[cachePath stringByAppendingPathExtension:@"json"]];
-        if (cacheData) cacheDict=[NSJSONSerialization JSONObjectWithData:cacheData options:NSJSONReadingMutableContainers error:nil];
+        if (cacheData) cachedQueryDict=[NSJSONSerialization JSONObjectWithData:cacheData options:NSJSONReadingMutableContainers error:nil];
      }
     
     NSMutableString *canonicalQuery=[NSMutableString stringWithString:@"{"];
     
     NSMutableDictionary *requestDict=[NSMutableDictionary dictionaryWithObject:@"1000" forKey:@"max"];
+   NSMutableDictionary *patientRestrictionDict=[NSMutableDictionary dictionary];
+   NSMutableDictionary *studyRestrictionDict=[NSMutableDictionary dictionary];
+   NSMutableDictionary *seriesRestrictionDict=[NSMutableDictionary dictionary];
 
     NSInteger tokenIndex=[names indexOfObject:@"token"];
     if (tokenIndex!=NSNotFound) [requestDict setObject:values[tokenIndex] forKey:@"tokenString"];
@@ -358,16 +363,15 @@ NSString * SOPCLassOfReturnableSeries(
        {
           if ([DICMTypes isUIPipeListString:values[StudyInstanceUIDIndex]])
           {
-          StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
+             StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
              [requestDict setObject:StudyInstanceUIDRegexpString forKey:@"StudyInstanceUIDRegexpString"];
               if (!appendImmutableToCanonical(
-                                         cacheDict,
-                                         canonicalQuery,
-                                         @"StudyInstanceUID",
-                                         StudyInstanceUIDRegexpString
-                                         )
-                  ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-
+                     cachedQueryDict,
+                     studyRestrictionDict,
+                     canonicalQuery,
+                     @"StudyInstanceUID",
+                     StudyInstanceUIDRegexpString
+                  )) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
           }
           else return [RSErrorResponse responseWithClientError:404 message:@"studyToken param StudyInstanceUID: %@",values[StudyInstanceUIDIndex]];
        }
@@ -375,17 +379,19 @@ NSString * SOPCLassOfReturnableSeries(
 
    
 #pragma mark AccessionNumber
-    NSString *AccessionNumberRestriction=nil;
     NSString *AccessionNumberEqualString=nil;
     NSInteger AccessionNumberIndex=[names indexOfObject:@"AccessionNumber"];
     if (AccessionNumberIndex!=NSNotFound)
     {
         AccessionNumberEqualString=[values[AccessionNumberIndex] sqlEqualEscapedString];
         [requestDict setObject:AccessionNumberEqualString forKey:@"AccessionNumberEqualString"];
-        [canonicalQuery appendFormat:@"\"AccessionNumber\":\"%@\",",AccessionNumberEqualString];
-        NSString *cachedAN=cacheDict[@"AccessionNumber"];
-        if (cachedAN && ![AccessionNumberEqualString hasPrefix:cachedAN]) [cacheDict removeAllObjects];
-        else AccessionNumberRestriction=AccessionNumberEqualString;
+        if (!appendImmutableToCanonical(
+              cachedQueryDict,
+              studyRestrictionDict,
+              canonicalQuery,
+              @"AccessionNumber",
+              AccessionNumberEqualString
+           )) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
 
 
@@ -397,10 +403,13 @@ NSString * SOPCLassOfReturnableSeries(
     {
        PatientIDLikeString=[values[PatientIDIndex] sqlLikeEscapedString];
        [requestDict setObject:PatientIDLikeString forKey:@"PatientIDLikeString"];
-       [canonicalQuery appendFormat:@"\"PatientID\":\"%@\",",PatientIDLikeString];
-       NSString *cachedPID=cacheDict[@"PatientID"];
-       if (cachedPID && ![PatientIDLikeString hasPrefix:cachedPID]) [cacheDict removeAllObjects];
-       else [rPID setString:PatientIDLikeString];
+       if (!appendImmutableToCanonical(
+              cachedQueryDict,
+              patientRestrictionDict,
+              canonicalQuery,
+              @"PatientID",
+              PatientIDLikeString
+           )) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
     }
    
 #pragma mark 2. PatientName (Ppn)
@@ -418,7 +427,8 @@ NSString * SOPCLassOfReturnableSeries(
      [names indexOfObject:@"PatientName"],
      patientIndex,
      @[@"patientFamily",@"patientGiven",@"patientMiddle",@"patientPrefix",@"patientSuffix"],
-     cacheDict,
+     cachedQueryDict,
+     patientRestrictionDict,
      canonicalQuery
    );
    if (!patientArray) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
@@ -427,7 +437,7 @@ NSString * SOPCLassOfReturnableSeries(
 
 #pragma mark 3. StudyID (Eid)
     
-    NSRegularExpression *EidRegex=nil;
+    NSRegularExpression *StudyIDRestrictionRegex=nil;
     NSString *StudyIDLikeString=nil;
     NSInteger StudyIDIndex=[names indexOfObject:@"StudyID"];
     if (StudyIDIndex!=NSNotFound)
@@ -435,12 +445,16 @@ NSString * SOPCLassOfReturnableSeries(
        StudyIDLikeString=[values[StudyIDIndex] sqlLikeEscapedString];
        [requestDict setObject:StudyIDLikeString forKey:@"StudyIDLikeString"];
 
-        [canonicalQuery appendFormat:@"\"StudyID\":\"%@\",",StudyIDLikeString];
-        NSString *cachedStudyID=cacheDict[@"StudyID"];
-        if (cachedStudyID && ![StudyIDLikeString hasPrefix:cachedStudyID])
-                     [cacheDict removeAllObjects];//force new
-        else if (StudyIDLikeString) EidRegex=[NSRegularExpression regularExpressionWithPattern:StudyIDLikeString options:NSRegularExpressionCaseInsensitive error:&error];
-        if (error) LOG_WARNING(@"%@",[error description]);
+       if (!appendImmutableToCanonical(
+             cachedQueryDict,
+             studyRestrictionDict,
+             canonicalQuery,
+             @"StudyID",
+             StudyIDLikeString
+          )) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+       
+       StudyIDRestrictionRegex=[NSRegularExpression regularExpressionWithPattern:StudyIDLikeString options:NSRegularExpressionCaseInsensitive error:&error];
+
     }
 
     
@@ -468,45 +482,48 @@ NSString * SOPCLassOfReturnableSeries(
         [requestDict setObject:StudyDateArray forKey:@"StudyDateArray"];
 
 //cache restriction
-        if (![StudyDateString isEqualToString:cacheDict[@"StudyDate"]])
+        if (![StudyDateString isEqualToString:cachedQueryDict[@"StudyDate"]])
         {
-            NSArray *cacheComponents=[cacheDict[@"StudyDate"] componentsSeparatedByString:@"|"];
+            NSArray *cacheComponents=[cachedQueryDict[@"StudyDate"] componentsSeparatedByString:@"|"];
             if (cacheComponents.count==1) //on
             {
-                if ((StudyDateComponents.count==2) || ![cacheComponents[0] isEqualToString:StudyDateString]) [cacheDict removeAllObjects];
+                if ((StudyDateComponents.count==2) || ![cacheComponents[0] isEqualToString:StudyDateString]) [cachedQueryDict removeAllObjects];
             }
             else
             {
                 //check start
-                if ([cacheComponents[0] length] && ([StudyDateComponents[0] compare:cacheComponents[0]]==NSOrderedAscending))[cacheDict removeAllObjects];
+                if ([cacheComponents[0] length] && ([StudyDateComponents[0] compare:cacheComponents[0]]==NSOrderedAscending))[cachedQueryDict removeAllObjects];
                 
                 //check end
-                if ([cacheComponents[1] length] && ([StudyDateComponents.lastObject compare:cacheComponents[1]]==NSOrderedDescending)) [cacheDict removeAllObjects];
-                if (cacheDict.count)
+                if ([cacheComponents[1] length] && ([StudyDateComponents.lastObject compare:cacheComponents[1]]==NSOrderedDescending)) [cachedQueryDict removeAllObjects];
+                if (cachedQueryDict.count)
                 {
-                    if ([cacheComponents[1] length]) [rDate setString:[StudyDateString stringByAppendingString:@" 23:59"]];
-                    else [rDate setString:StudyDateString];
+                   if ([cacheComponents[1] length]) [studyRestrictionDict setObject:[StudyDateString stringByAppendingString:@" 23:59"] forKey:@"StudyDate"];
+                    else [studyRestrictionDict setObject:StudyDateString forKey:@"StudyDate"];
                 }
             }
         
-          }
+         }
     }
 
  
 #pragma mark 5. StudyDescription (Elo)
-     NSRegularExpression *EloRegex=nil;
-     NSString *StudyDescriptionRegexpString=nil;
-     NSInteger StudyDescriptionIndex=[names indexOfObject:@"StudyDescription"];
-     if (StudyDescriptionIndex!=NSNotFound)
-    {
+   NSRegularExpression *StudyDescriptionRestrictionRegex=nil;
+   NSString *StudyDescriptionRegexpString=nil;
+   NSInteger StudyDescriptionIndex=[names indexOfObject:@"StudyDescription"];
+   if (StudyDescriptionIndex!=NSNotFound)
+   {
        StudyDescriptionRegexpString=[values[StudyDescriptionIndex] regexQuoteEscapedString];
        [requestDict setObject:StudyDescriptionRegexpString forKey:@"StudyDescriptionRegexpString"];
-       [canonicalQuery appendFormat:@"\"StudyDescription\":\"%@\",",StudyDescriptionRegexpString];
-       NSString *cachedStudyDescription=cacheDict[@"StudyDescription"];
-       if (cachedStudyDescription && ![StudyDescriptionRegexpString hasPrefix:cachedStudyDescription])
-                    [cacheDict removeAllObjects];//force new
-       else if (StudyDescriptionRegexpString) EloRegex=[NSRegularExpression regularExpressionWithPattern:StudyDescriptionRegexpString options:NSRegularExpressionCaseInsensitive error:&error];
-       if (error) LOG_WARNING(@"%@",[error description]);
+       
+       if (!appendImmutableToCanonical(
+             cachedQueryDict,
+             studyRestrictionDict,
+             canonicalQuery,
+             @"StudyDescription",
+             StudyDescriptionRegexpString
+          )) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+       StudyDescriptionRestrictionRegex=[NSRegularExpression regularExpressionWithPattern:StudyDescriptionRegexpString options:NSRegularExpressionCaseInsensitive error:&error];
     }
 
     
@@ -525,7 +542,8 @@ NSString * SOPCLassOfReturnableSeries(
      [names indexOfObject:@"ref"],
      refIndex,
      @[@"refInstitution",@"refService",@"refUser",@"refID",@"refIDType"],
-     cacheDict,
+     cachedQueryDict,
+     studyRestrictionDict,
      canonicalQuery
    );
    if (!refArray) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
@@ -547,7 +565,8 @@ NSString * SOPCLassOfReturnableSeries(
       [names indexOfObject:@"read"],
       readIndex,
       @[@"readInstitution",@"readService",@"readUser",@"readID",@"readIDType"],
-      cacheDict,
+      cachedQueryDict,
+      studyRestrictionDict,
       canonicalQuery
     );
     if (!readArray) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
@@ -561,7 +580,8 @@ NSString * SOPCLassOfReturnableSeries(
    {
            [requestDict setObject:values[SOPClassInStudyIndex] forKey:@"SOPClassInStudyRegexpString"];
            if (!appendImmutableToCanonical(
-                                      cacheDict,
+                                      cachedQueryDict,
+                                      studyRestrictionDict,
                                       canonicalQuery,
                                       @"SOPClassInStudy",
                                       values[SOPClassInStudyIndex]
@@ -575,9 +595,14 @@ NSString * SOPCLassOfReturnableSeries(
    if ((ModalityInStudyIndex!=NSNotFound) && [DICMTypes isSingleCSString:values[ModalityInStudyIndex]])
    {
       [requestDict setObject:values[ModalityInStudyIndex] forKey:@"ModalityInStudyRegexpString"];
-       [canonicalQuery appendFormat:@"\"ModalityInStudy\":\"%@\",",values[ModalityInStudyIndex]];
-       if (!cacheDict[@"ModalityInStudy"]) [rMod setString:values[ModalityInStudyIndex]];
-       else [cacheDict removeAllObjects];
+       if (!appendImmutableToCanonical(
+                                  cachedQueryDict,
+                                  studyRestrictionDict,
+                                  canonicalQuery,
+                                  @"ModalityInStudy",
+                                  values[ModalityInStudyIndex]
+                                  )
+           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
 #pragma mark issuer
@@ -587,7 +612,8 @@ NSString * SOPCLassOfReturnableSeries(
    if (issuerIndex!=NSNotFound)
    {
       if (!appendImmutableToCanonical(
-                                 cacheDict,
+                                 cachedQueryDict,
+                                 patientRestrictionDict,
                                  canonicalQuery,
                                  @"issuer",
                                  [values[issuerIndex] sqlEqualEscapedString]
@@ -630,7 +656,8 @@ NSString * SOPCLassOfReturnableSeries(
        SeriesInstanceUIDRegexString=values[SeriesInstanceUIDIndex];
       [requestDict setObject:SeriesInstanceUIDRegexString forKey:@"SeriesInstanceUIDRegexString"];
       if (!appendImmutableToCanonical(
-                                 cacheDict,
+                                 cachedQueryDict,
+                                 seriesRestrictionDict,
                                  canonicalQuery,
                                  @"SeriesInstanceUID",
                                  values[SeriesInstanceUIDIndex]
@@ -644,7 +671,8 @@ NSString * SOPCLassOfReturnableSeries(
    {
       [requestDict setObject:values[SeriesNumberIndex] forKey:@"SeriesNumberRegexString"];
       if (!appendImmutableToCanonical(
-                                 cacheDict,
+                                 cachedQueryDict,
+                                 seriesRestrictionDict,
                                  canonicalQuery,
                                  @"SeriesNumber",
                                  values[SeriesNumberIndex]
@@ -658,7 +686,8 @@ NSString * SOPCLassOfReturnableSeries(
    {
       [requestDict setObject:values[SeriesDescriptionIndex] forKey:@"SeriesDescriptionRegexString"];
        if (!appendImmutableToCanonical(
-                                  cacheDict,
+                                  cachedQueryDict,
+                                  seriesRestrictionDict,
                                   canonicalQuery,
                                   @"SeriesDescription",
                                   values[SeriesDescriptionIndex]
@@ -672,7 +701,8 @@ NSString * SOPCLassOfReturnableSeries(
    {
       [requestDict setObject:values[ModalityIndex] forKey:@"ModalityRegexString"];
       if (!appendImmutableToCanonical(
-                                 cacheDict,
+                                 cachedQueryDict,
+                                 seriesRestrictionDict,
                                  canonicalQuery,
                                  @"Modality",
                                  values[ModalityIndex]
@@ -686,7 +716,8 @@ NSString * SOPCLassOfReturnableSeries(
    {
       [requestDict setObject:values[SOPClassIndex] forKey:@"SOPClassRegexString"];
       if (!appendImmutableToCanonical(
-                                 cacheDict,
+                                 cachedQueryDict,
+                                 seriesRestrictionDict,
                                  canonicalQuery,
                                  @"SOPClass",
                                  values[SOPClassIndex]
@@ -700,7 +731,8 @@ NSString * SOPCLassOfReturnableSeries(
    {
       [requestDict setObject:values[SOPClassOffIndex] forKey:@"SOPClassOffRegexString"];
       if (!appendImmutableToCanonical(
-                                 cacheDict,
+                                 cachedQueryDict,
+                                 seriesRestrictionDict,
                                  canonicalQuery,
                                  @"SOPClassOff",
                                  values[SOPClassOffIndex]
@@ -708,15 +740,15 @@ NSString * SOPCLassOfReturnableSeries(
           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
 
-//hasSeriesRestriction?
-   BOOL hasSeriesRestriction=
+//hasSeriesFilter?
+   BOOL hasSeriesFilter=
       requestDict[@"SeriesInstanceUIDRegexString"]
    || requestDict[@"SeriesNumberRegexString"]
    || requestDict[@"SeriesDescriptionRegexString"]
    || requestDict[@"ModalityRegexString"]
    || requestDict[@"SOPClassRegexString"]
    || requestDict[@"SOPClassOffRegexString"];
-   [requestDict setObject:[NSNumber numberWithBool:hasSeriesRestriction] forKey:@"hasSeriesRestriction"];
+   [requestDict setObject:[NSNumber numberWithBool:hasSeriesFilter] forKey:@"hasSeriesFilter"];
 
 
    
@@ -728,7 +760,7 @@ NSString * SOPCLassOfReturnableSeries(
    }
 
 #pragma mark no cache -> create it
-   BOOL isStudyRestriction=(cacheDict && cacheDict.count);
+   BOOL isStudyRestriction=(cachedQueryDict && cachedQueryDict.count);
    if (! isStudyRestriction)
    {
       //new
@@ -1069,75 +1101,39 @@ NSString * SOPCLassOfReturnableSeries(
             {
                 if ([lanArray indexOfObject:[resultFile stringByDeletingPathExtension]]!=NSNotFound)
                 {
-
-                //NSMutableData *partialData=[NSMutableData dataWithContentsOfFile:[queryPath stringByAppendingPathComponent:resultFile]];
-                //if (partialData.length < 100)
-                NSArray *partialArray=[NSArray arrayWithContentsOfFile:[queryPath stringByAppendingPathComponent:resultFile]];
-                if ((partialArray.count==1) && [partialArray[0] isKindOfClass:[NSNumber class]])
-                {
-                    LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"queryPath"]);
-                    return [RSDataResponse responseWithData:
-                            [NSJSONSerialization
-                             dataWithJSONObject:
-                             @{
-                              @"draw":values[[names indexOfObject:@"draw"]],
-                              @"recordsFiltered":[NSNumber numberWithLongLong:resultsArray.count],
-                              @"recordsTotal":[NSNumber numberWithLongLong:resultsArray.count],
-                              @"data":@[],
-                              @"error":[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only",requestDict[@"max"]]
-                             }
-                             options:0
-                             error:nil
-                            ]
-                            contentType:@"application/dicom+json"
-                            ];
-                }
-
-                /*
-                NSMutableData *partialDataReplace=[NSMutableData data];
-                NSData *_institution_replace=[[resultFile stringByDeletingPathExtension] dataUsingEncoding:NSUTF8StringEncoding];
-               NSRange partialDataRange=NSMakeRange(0,partialData.length);
-               NSRange _search_range=[partialData rangeOfData:_cache_ options:0 range:partialDataRange];
-               NSUInteger remainingLocation=0;
-               while (_search_range.location!=NSNotFound)
-               {
-                   [partialDataReplace appendData:[partialData subdataWithRange:NSMakeRange(partialDataRange.location,_search_range.location - partialDataRange.location)]];
-                   [partialDataReplace appendData:_cache_replace];
-                   
-                   remainingLocation=_search_range.location + _cache_replace.length;
-                   partialDataRange.location=remainingLocation;
-                   partialDataRange.length=partialData.length - partialDataRange.location;
-                   
-                   _search_range=[partialData rangeOfData:_institution_ options:0 range:partialDataRange];
-
-                   [partialDataReplace appendData:[partialData subdataWithRange:NSMakeRange(partialDataRange.location,_search_range.location - partialDataRange.location)]];
-                   [partialDataReplace appendData:_institution_replace];
-
-                   remainingLocation=_search_range.location + _institution_replace.length;
-                   partialDataRange.location=remainingLocation;
-                   partialDataRange.length=partialData.length - partialDataRange.location;
-                   
-                   _search_range=[partialData rangeOfData:_cache_ options:0 range:partialDataRange];
-
-               }
-                [partialDataReplace appendData:[partialData subdataWithRange:NSMakeRange(remainingLocation,partialData.length - remainingLocation)]];
-                NSArray *partialArray=[NSKeyedUnarchiver unarchiveObjectWithData:partialDataReplace];
-                [resultsArray addObjectsFromArray:partialArray];
-                 */
-                [resultsArray addObjectsFromArray:partialArray];
-                
+                   NSArray *partialArray=[NSArray arrayWithContentsOfFile:[queryPath stringByAppendingPathComponent:resultFile]];
+                   if ((partialArray.count==1) && [partialArray[0] isKindOfClass:[NSNumber class]])
+                   {
+                       LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"queryPath"]);
+                       return [RSDataResponse responseWithData:
+                               [NSJSONSerialization
+                                dataWithJSONObject:
+                                @{
+                                 @"draw":values[[names indexOfObject:@"draw"]],
+                                 @"recordsFiltered":[NSNumber numberWithLongLong:resultsArray.count],
+                                 @"recordsTotal":[NSNumber numberWithLongLong:resultsArray.count],
+                                 @"data":@[],
+                                 @"error":[NSString stringWithFormat:@"you need a narrower filter. The browser table accepts up to %@ matches only",requestDict[@"max"]]
+                                }
+                                options:0
+                                error:nil
+                               ]
+                               contentType:@"application/dicom+json"
+                               ];
+                   }
+                   [resultsArray addObjectsFromArray:partialArray];
                 }
             }
          }
 
-          NSMutableDictionary *dict=[NSMutableDictionary dictionary];
-          NSUInteger drawIndex=[names indexOfObject:@"draw"];
-          if (drawIndex!=NSNotFound)
+         NSMutableDictionary *dict=[NSMutableDictionary dictionary];
+         NSUInteger drawIndex=[names indexOfObject:@"draw"];
+         if (drawIndex!=NSNotFound)
               [dict setObject:values[drawIndex] forKey:@"draw"];
 
          //no response?
-          if (!resultsArray.count)
-          {
+         if (!resultsArray.count)
+         {
               [dict setObject:@0 forKey:@"recordsFiltered"];
               [dict setObject:@0 forKey:@"recordsTotal"];
               [dict setObject:@[] forKey:@"data"];
@@ -1181,59 +1177,66 @@ NSString * SOPCLassOfReturnableSeries(
            NSPredicate *compoundPredicate = [NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
            {
                //AccessionNumber
-               if (AccessionNumberRestriction && ![row[13] hasPrefix:AccessionNumberRestriction]) return false;
+               if (studyRestrictionDict[@"AccessionNumber"] && ![row[13] hasPrefix:studyRestrictionDict[@"AccessionNumber"]]) return false;
                
                //PatientID
-               if (rPID.length && ![row[23] hasPrefix:rPID]) return false;
+               if (patientRestrictionDict[@"PatientID"] && ![row[23] hasPrefix:patientRestrictionDict[@"PatientID"]]) return false;
 
                //PatientName
-               if (  rFamily.length
-                   ||rGiven.length
-                   ||rMiddle.length
-                   ||rPrefix.length
-                   ||rSuffix.length
-                   )
+               BOOL family=[patientRestrictionDict[@"PatientFamily"] length];
+               BOOL given=[patientRestrictionDict[@"PatientGiven"] length];
+               BOOL middle=[patientRestrictionDict[@"PatientMiddle"] length];
+               BOOL prefix=[patientRestrictionDict[@"PatientPrefix"] length];
+               BOOL suffix=[patientRestrictionDict[@"PatientSuffix"] length];
+               if (  family ||given ||middle ||prefix ||suffix)
                {
                   NSArray *n=[row[4] componentsSeparatedByString:@"^"];
                   NSUInteger c=n.count;
-                  if ((c > 0) && rFamily.length && ([n[0] length]))
+                  if ((c > 0) && family && ([n[0] length]))
                   {
-                     if ([[n[0] componentsSeparatedByString:rFamily] count] < 2) return false;
-                  }
-                  if ((c > 1) && rGiven.length && ([n[1] length]))
-                  {
-                     if ([[n[1] componentsSeparatedByString:rGiven] count] < 2) return false;
-                  }
-                  if ((c > 2) && rMiddle.length && ([n[2] length]))
-                  {
-                     if ([[n[2] componentsSeparatedByString:rMiddle] count] < 2) return false;
-                  }
-                  if ((c > 3) && rPrefix.length && ([n[3] length]))
-                  {
-                     if ([[n[3] componentsSeparatedByString:rPrefix] count] < 2) return false;
-                  }
-                  if ((c > 4) && rSuffix.length && ([n[4] length]))
-                  {
-                     if ([[n[4] componentsSeparatedByString:rSuffix] count] < 2) return false;
-                  }
+                     if ([[n[0] componentsSeparatedByString:patientRestrictionDict[@"PatientFamily"]] count] < 2) return false;
+                     
+                     
+                     if ((c > 1) && given && ([n[1] length]))
+                     {
+                        if ([[n[1] componentsSeparatedByString:patientRestrictionDict[@"PatientGiven"]] count] < 2) return false;
 
+                        
+                        if ((c > 2) && middle && ([n[2] length]))
+                        {
+                           if ([[n[2] componentsSeparatedByString:patientRestrictionDict[@"PatientMiddle"]] count] < 2) return false;
+                           
+                           
+                           if ((c > 3) && prefix && ([n[3] length]))
+                           {
+                              if ([[n[3] componentsSeparatedByString:patientRestrictionDict[@"PatientPrefix"]] count] < 2) return false;
+                                 
+                                 
+                              if ((c > 4) && suffix && ([n[4] length]))
+                              {
+                                 if ([[n[4] componentsSeparatedByString:patientRestrictionDict[@"PatientSuffix"]] count] < 2) return false;
+                              }
+                           }
+                        }
+                     }
+                  }
                }
 
-               if (rDate.length)
+               if (studyRestrictionDict[@"StudyDate"])
                {
                   //@"%@-%@-%@|%@-%@-%@"
-                  NSArray *d=[rDate componentsSeparatedByString:@"|"];
+                  NSArray *d=[studyRestrictionDict[@"StudyDate"] componentsSeparatedByString:@"|"];
                   if ((d.count==1) && ![row[5] hasPrefix:d[0]]) return false;
                   //two parts
                   if ([d[0] length] && ([d[0] compare:row[5]]==NSOrderedDescending)) return false;
                   if ([d[1] length] && [d[1] compare:[row[5] substringToIndex:10]]==NSOrderedAscending) return false;
                }
                     
-               if (rMod.length && [[row[6] componentsSeparatedByString:rMod] count] < 2) return false;
+               if ([studyRestrictionDict[@"ModalityInStudy"] length] && [[row[6] componentsSeparatedByString:studyRestrictionDict[@"ModalityInStudy"]] count] < 2) return false;
               
-               if (EloRegex && ![EloRegex numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
-               
-                if (EidRegex && ![EidRegex numberOfMatchesInString:row[15] options:0 range:NSMakeRange(0,[row[15] length])]) return false;
+               if (studyRestrictionDict[@"StudyDescription"] && ![StudyDescriptionRestrictionRegex numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
+              
+               if (studyRestrictionDict[@"StudyID"] && ![StudyIDRestrictionRegex numberOfMatchesInString:row[15] options:0 range:NSMakeRange(0,[row[15] length])]) return false;
 
                return true;
             }];
@@ -1243,10 +1246,10 @@ NSString * SOPCLassOfReturnableSeries(
          
          
 #pragma mark order
-          NSUInteger orderIndex=[names indexOfObject:@"order"];
-          NSUInteger dirIndex=[names indexOfObject:@"dir"];
-          if ((orderIndex!=NSNotFound) && (dirIndex!=NSNotFound))
-          {
+         NSUInteger orderIndex=[names indexOfObject:@"order"];
+         NSUInteger dirIndex=[names indexOfObject:@"dir"];
+         if ((orderIndex!=NSNotFound) && (dirIndex!=NSNotFound))
+         {
             int column=[values[orderIndex] intValue];
             if ([values[dirIndex] isEqualToString:@"desc"])
             {
