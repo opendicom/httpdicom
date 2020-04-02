@@ -45,30 +45,6 @@
          }
      }
 
-#pragma mark PatientID (4 characters min)
-    NSUInteger PatientIDIssuer=[names indexOfObject:@"PatientID"];
-       if (PatientIDIssuer && ([values[PatientIDIssuer] length]<4))
-       return [RSDataResponse responseWithData:
-       [NSJSONSerialization
-        dataWithJSONObject:
-        @{
-         @"draw":values[[names indexOfObject:@"draw"]],
-         @"recordsFiltered":@0,
-         @"recordsTotal":@0,
-         @"data":@[],
-         @"error":@""
-        }
-        options:0
-        error:nil
-       ]
-       contentType:@"application/dicom+json"
-       ];
-    
-#pragma mark PatientName (4 characters min)
-
-#pragma mark StudyDescription (4 characters min)
-
-#pragma mark StudyID (4 characters min)
 
 #pragma mark +StudyDate?
      NSUInteger date_startIndex=[names indexOfObject:@"date_start"];
