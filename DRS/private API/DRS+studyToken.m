@@ -877,7 +877,7 @@ NSString * SOPCLassOfReturnableSeries(
           if (studyRestrictionDict[@"StudyID"] && ![StudyIDRestrictionRegex numberOfMatchesInString:row[15] options:0 range:NSMakeRange(0,[row[15] length])]) return false;
 
           return true;
-      }] forKey:@"predicate"];
+      }] forKey:@"studyPredicate"];
 
    }
 
@@ -1245,7 +1245,7 @@ NSString * SOPCLassOfReturnableSeries(
 #pragma mark isStudyRestriction
         if (isStudyRestriction)
         {
-            [resultsArray filterUsingPredicate:requestDict[@"predicate"]];
+            [resultsArray filterUsingPredicate:requestDict[@"studyPredicate"]];
          }
          
          

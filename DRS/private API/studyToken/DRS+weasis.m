@@ -99,8 +99,14 @@
         NSPredicate *studyPredicate = [NSPredicate predicateWithFormat:@"SELF[16] == %@", d[@"StudyInstanceUIDRegexpString"]];
         studiesSelected=[studyPlist filteredArrayUsingPredicate:studyPredicate];
     }
+    else if (d[@"studyPredicate"])
+    {
+        studiesSelected=[studyPlist filteredArrayUsingPredicate:d[@"studyPredicate"]];
+    }
     else studiesSelected=studyPlist;
-
+   
+//filterUsingPredicate:requestDict[@"predicate"]];
+   
     //patients key from datalist
     NSMutableSet *patientKeySet=[NSMutableSet set];
     for (NSArray *study in studiesSelected)
