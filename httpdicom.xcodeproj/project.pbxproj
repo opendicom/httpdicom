@@ -594,12 +594,12 @@
 			children = (
 				4A3F898423FDA2E0005DE843 /* DRS+datatablesStudy.h */,
 				4A3F898123FDA2E0005DE843 /* DRS+datatablesStudy.m */,
+				4A3F897023F486AA005DE843 /* DRS+weasis.h */,
+				4A3F897123F486AA005DE843 /* DRS+weasis.m */,
 				4A3F897623F5C794005DE843 /* DRS+cornerstone.h */,
 				4A3F897423F5C794005DE843 /* DRS+cornerstone.m */,
 				4A3F897523F5C794005DE843 /* DRS+dicomzip.h */,
 				4A3F897723F5C794005DE843 /* DRS+dicomzip.m */,
-				4A3F897023F486AA005DE843 /* DRS+weasis.h */,
-				4A3F897123F486AA005DE843 /* DRS+weasis.m */,
 			);
 			path = studyToken;
 			sourceTree = "<group>";

@@ -23,17 +23,27 @@ NSMutableArray *buildPNArray(
    NSMutableArray *PNArray=[NSMutableArray array];
    if (PNConcatIndex!=NSNotFound)
    {
+       
       [PNArray setArray:[[values[PNConcatIndex] regexQuoteEscapedString] componentsSeparatedByString:@"^"]];
-      for (NSUInteger i=PNArray.count-1;i<0;i--)
+      NSUInteger i=PNArray.count;
+      while (i > 0)
       {
+         i--;
          if ([PNArray[i] length])
          {
-            [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],PNArray[i]];
             if (cachedQueryDict[PNLabel[i]])
             {
                if(![PNArray[i] hasPrefix:cachedQueryDict[PNLabel[i]]]) return nil;
-               [studyRestrictionDict setObject:PNArray[i] forKey:PNLabel[i]];
             }
+             if ([@[@"ref",@"read"] indexOfObject:PNLabel[i]]!=NSNotFound)
+                 [studyRestrictionDict setObject:PNArray[i] forKey:PNLabel[i]];
+             else
+             {
+                 NSError *error=nil;
+                 [studyRestrictionDict setObject:[NSRegularExpression regularExpressionWithPattern:PNArray[i] options:NSRegularExpressionCaseInsensitive error:&error] forKey:PNLabel[i]];
+                 if (error) LOG_WARNING(@"%@",[error debugDescription]);
+             }
+             [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],PNArray[i]];
          }
       }
    }
@@ -50,11 +60,16 @@ NSMutableArray *buildPNArray(
          {
             NSString *partString=[values[i] regexQuoteEscapedString];
             [PNArray insertObject:partString atIndex:0];
-            if (cachedQueryDict[PNLabel[i]])
-            {
-               if (![partString hasPrefix:cachedQueryDict[PNLabel[i]]]) return nil;
-               [studyRestrictionDict setObject:partString forKey:PNLabel[i]];
-            }
+            if (cachedQueryDict[PNLabel[i]] && ![partString hasPrefix:cachedQueryDict[PNLabel[i]]]) return nil;
+            
+             if ([@[@"ref",@"read"] indexOfObject:PNLabel[i]]!=NSNotFound)
+                 [studyRestrictionDict setObject:partString forKey:PNLabel[i]];
+             else
+             {
+                 NSError *error=nil;
+                 [studyRestrictionDict setObject:[NSRegularExpression regularExpressionWithPattern:partString options:NSRegularExpressionCaseInsensitive error:&error] forKey:PNLabel[i]];
+                 if (error) LOG_WARNING(@"%@",[error debugDescription]);
+             }
             [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],partString];
          }
          else if (PNArray.count) [PNArray insertObject:@"" atIndex:0];
@@ -72,9 +87,11 @@ BOOL appendImmutableToCanonical(
 )
 {
     [canonicalQuery appendFormat:@"\"%@\":\"%@\",",name,value];
-    if (cachedQueryDict[name])
-       return [value isEqualToString:cachedQueryDict[name]];
-    [studyRestrictionDict setObject:value forKey:name];
+    if ((cachedQueryDict[name]) && ![value hasPrefix:cachedQueryDict[name]]) return false;
+
+    NSError *error=nil;
+    [studyRestrictionDict setObject:[NSRegularExpression regularExpressionWithPattern:value options:NSRegularExpressionCaseInsensitive error:&error] forKey:name];
+     if (error) LOG_WARNING(@"%@",[error debugDescription]);
     return true;
 }
 
@@ -419,7 +436,6 @@ NSString * SOPCLassOfReturnableSeries(
    patientIndex[2]=[names indexOfObject:@"patientMiddle"];
    patientIndex[3]=[names indexOfObject:@"patientPrefix"];
    patientIndex[4]=[names indexOfObject:@"patientSuffix"];
-
    NSMutableArray *patientArray=buildPNArray(
      names,
      values,
@@ -814,49 +830,41 @@ NSString * SOPCLassOfReturnableSeries(
       [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
       {
           //AccessionNumber
-          if (studyRestrictionDict[@"AccessionNumber"] && ![row[13] hasPrefix:studyRestrictionDict[@"AccessionNumber"]]) return false;
+          if (studyRestrictionDict[@"AccessionNumber"] && ![studyRestrictionDict[@"AccessionNumber"] numberOfMatchesInString:row[13] options:0 range:NSMakeRange(0,[row[13] length])]) return false;
           
           //PatientID
-          if (studyRestrictionDict[@"PatientID"] && ![row[23] hasPrefix:studyRestrictionDict[@"PatientID"]]) return false;
+          if (studyRestrictionDict[@"PatientID"] && ![studyRestrictionDict[@"PatientID"] numberOfMatchesInString:row[23] options:0 range:NSMakeRange(0,[row[23] length])]) return false;
 
           //PatientName
-          BOOL family=[studyRestrictionDict[@"PatientFamily"] length];
-          BOOL given=[studyRestrictionDict[@"PatientGiven"] length];
-          BOOL middle=[studyRestrictionDict[@"PatientMiddle"] length];
-          BOOL prefix=[studyRestrictionDict[@"PatientPrefix"] length];
-          BOOL suffix=[studyRestrictionDict[@"PatientSuffix"] length];
-          if (  family ||given ||middle ||prefix ||suffix)
+          if (  studyRestrictionDict[@"patientFamily"]
+              ||studyRestrictionDict[@"patientGiven"]
+              ||studyRestrictionDict[@"patientMiddle"]
+              ||studyRestrictionDict[@"patientPrefix"]
+              ||studyRestrictionDict[@"patientSuffix"]
+              )
           {
              NSArray *n=[row[4] componentsSeparatedByString:@"^"];
              NSUInteger c=n.count;
-             if ((c > 0) && family && ([n[0] length]))
+             if ((c > 0) && studyRestrictionDict[@"patientFamily"] && ([n[0] length]))
              {
-                if ([[n[0] componentsSeparatedByString:studyRestrictionDict[@"PatientFamily"]] count] < 2) return false;
-                
-                
-                if ((c > 1) && given && ([n[1] length]))
-                {
-                   if ([[n[1] componentsSeparatedByString:studyRestrictionDict[@"PatientGiven"]] count] < 2) return false;
-
-                   
-                   if ((c > 2) && middle && ([n[2] length]))
-                   {
-                      if ([[n[2] componentsSeparatedByString:studyRestrictionDict[@"PatientMiddle"]] count] < 2) return false;
-                      
-                      
-                      if ((c > 3) && prefix && ([n[3] length]))
-                      {
-                         if ([[n[3] componentsSeparatedByString:studyRestrictionDict[@"PatientPrefix"]] count] < 2) return false;
-                            
-                            
-                         if ((c > 4) && suffix && ([n[4] length]))
-                         {
-                            if ([[n[4] componentsSeparatedByString:studyRestrictionDict[@"PatientSuffix"]] count] < 2) return false;
-                         }
-                      }
-                   }
-                }
+                if (![studyRestrictionDict[@"patientFamily"] numberOfMatchesInString:n[0] options:0 range:NSMakeRange(0,[n[0] length])]) return false;
              }
+              if ((c > 1) && studyRestrictionDict[@"patientGiven"] && ([n[1] length]))
+              {
+                 if (![studyRestrictionDict[@"patientGiven"] numberOfMatchesInString:n[1] options:0 range:NSMakeRange(0,[n[1] length])]) return false;
+              }
+              if ((c > 2) && studyRestrictionDict[@"patientMiddle"] && ([n[2] length]))
+              {
+                 if (![studyRestrictionDict[@"patientMiddle"] numberOfMatchesInString:n[2] options:0 range:NSMakeRange(0,[n[2] length])]) return false;
+              }
+              if ((c > 3) && studyRestrictionDict[@"patientPrefix"] && ([n[3] length]))
+              {
+                 if (![studyRestrictionDict[@"patientPrefix"] numberOfMatchesInString:n[3] options:0 range:NSMakeRange(0,[n[3] length])]) return false;
+              }
+              if ((c > 4) && studyRestrictionDict[@"patientSuffix"] && ([n[4] length]))
+              {
+                 if (![studyRestrictionDict[@"patientSuffix"] numberOfMatchesInString:n[4] options:0 range:NSMakeRange(0,[n[4] length])]) return false;
+              }
           }
 
           if (studyRestrictionDict[@"StudyDate"])
@@ -869,15 +877,24 @@ NSString * SOPCLassOfReturnableSeries(
              if ([d[1] length] && [d[1] compare:[row[5] substringToIndex:10]]==NSOrderedAscending) return false;
           }
                
-          if ([studyRestrictionDict[@"ModalityInStudy"] length] && [[row[6] componentsSeparatedByString:studyRestrictionDict[@"ModalityInStudy"]] count] < 2) return false;
+          if (studyRestrictionDict[@"ModalityInStudy"] && ![studyRestrictionDict[@"ModalityInStudy"] numberOfMatchesInString:row[6] options:0 range:NSMakeRange(0,[row[6] length])]) return false;
          
-          if (studyRestrictionDict[@"StudyDescription"] && ![StudyDescriptionRestrictionRegex numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
+          if (studyRestrictionDict[@"StudyDescription"] && ![studyRestrictionDict[@"StudyDescription"] numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
          
-          if (studyRestrictionDict[@"StudyID"] && ![StudyIDRestrictionRegex numberOfMatchesInString:row[15] options:0 range:NSMakeRange(0,[row[15] length])]) return false;
+          if (studyRestrictionDict[@"StudyID"] && ![studyRestrictionDict[@"StudyID"] numberOfMatchesInString:row[15] options:0 range:NSMakeRange(0,[row[15] length])]) return false;
 
           return true;
       }] forKey:@"studyPredicate"];
-      LOG_VERBOSE(@"%@",[requestDict[@"studyPredicate"] description]);
+       
+      NSMutableString *predicateString=[NSMutableString string];
+      for (NSString *key in [studyRestrictionDict allKeys])
+      {
+          if ([key isEqualToString:@"StudyDate"])
+              [predicateString appendFormat:@"%@:'%@' ",key,studyRestrictionDict[key]];
+          else
+              [predicateString appendFormat:@"%@:'%@' ",key,[studyRestrictionDict[key] pattern]];
+      }
+      LOG_VERBOSE(@"%@",predicateString);
    }
 
    

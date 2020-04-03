@@ -65,9 +65,7 @@ EAI.entity_uid_type \
  LEFT JOIN person_name PN  ON patient.pat_name_fk=person_name.pk \
  LEFT JOIN patient_id  PI  ON patient.patient_id_fk=patient_id.pk \
  LEFT JOIN issuer      PII ON patient_id.issuer_fk=issuer.pk \
- WHERE P.pk=%@ \
- %@ \
- " %@ </string>
+ WHERE P.pk=%@ %@ " %@ </string>
   
  <key>E</key><!-- examen -->
  <string>%@ "\
@@ -93,10 +91,8 @@ EAI.entity_uid_type \
  LEFT JOIN study_query_attrs EQA ON study_query_attrs.study_fk=study.pk \
  LEFT JOIN person_name       ERN ON study.ref_phys_name_fk=person_name.pk \
  LEFT JOIN issuer            EAI ON study.accno_issuer_fk=issuer.pk \
- WHERE E.pk=%@ \
- AND EQA.view_id='hideRejected' \
- %@ \
- " %@ </string>
+ WHERE EQA.view_id='hideRejected' \
+ AND E.pk=%@ %@ " %@ </string>
  
  <key>Ewhere</key>
  <string>FROM study AS       E \
@@ -107,8 +103,7 @@ LEFT JOIN patient           P   ON E.patient_fk=P.pk \
 LEFT JOIN patient_id        PI  ON P.patient_id_fk=PI.pk \
 LEFT JOIN issuer            PII ON PI.issuer_fk=PII.pk \
 LEFT JOIN person_name       PN  ON P.pat_name_fk=PN.pk \
-WHERE E.rejection_state!=2 \
-AND EQA.view_id='hideRejected' \
+WHERE E.rejection_state!=2 AND EQA.view_id='hideRejected' \
 </string>
  
  <!-- match Study Instance UID -->

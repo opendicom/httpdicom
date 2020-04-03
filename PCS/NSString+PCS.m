@@ -346,7 +346,7 @@
     .
     */
    
-   //string delimiters become char joker
+   //string delimiters becomes char joker
    NSMutableString *escapedString=[NSMutableString stringWithString:self];
    NSUInteger escapesPerformed=0;
    escapesPerformed+=[escapedString
@@ -358,6 +358,13 @@
    escapesPerformed+=[escapedString
     replaceOccurrencesOfString:@"\""
     withString:@"."
+    options:0
+    range:NSMakeRange(0, escapedString.length)
+    ];
+    //url encoded %5E becomes ^
+   escapesPerformed+=[escapedString
+    replaceOccurrencesOfString:@"%5E"
+    withString:@"^"
     options:0
     range:NSMakeRange(0, escapedString.length)
     ];
