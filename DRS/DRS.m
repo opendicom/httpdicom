@@ -283,7 +283,11 @@ static NSArray             *_InstanceMultiFrameSOPClass=nil;
 
 int execUTF8Bash(NSDictionary *environment, NSString *writeString, NSMutableData *readData)
 {
-   LOG_DEBUG(@"%@",writeString);
+   NSArray *whereSeparated=[writeString componentsSeparatedByString:@"WHERE"];
+   if  (whereSeparated.count==2)
+   LOG_VERBOSE(@"%@",[whereSeparated[1] componentsSeparatedByString:@"WHERE"][0]);
+   else LOG_DEBUG(@"%@",writeString);
+   
    return execTask(environment, @"/bin/bash",@[@"-s"], [writeString dataUsingEncoding:NSUTF8StringEncoding], readData);
 }
 
@@ -319,7 +323,7 @@ int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArg
    
    [task waitUntilExit];
    int terminationStatus = [task terminationStatus];
-   if (terminationStatus!=0) LOG_INFO(@"ERROR task terminationStatus: %d",terminationStatus);
+   if (terminationStatus!=0) LOG_WARNING(@"ERROR task terminationStatus: %d",terminationStatus);
    return terminationStatus;
 }
 
