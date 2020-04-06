@@ -21,6 +21,40 @@
 }
 
 - (void)addHandler:(NSString*)method
+             path:(NSString*)path
+      processBlock:(RSProcessBlock)processBlock
+{
+    RSHandler* handler = [[RSHandler alloc] initWithMatchBlock:
+                          ^RSRequest *(NSString* requestMethod, NSURL* requestURL, NSDictionary* requestHeaders, NSString* urlPath, NSDictionary* urlQuery, NSString* local, NSString* remote)
+                          {
+                              
+                              if (![requestMethod isEqualToString:method]) return nil;
+                              
+                              if (!path || ![path isEqualToString:urlPath]) return nil;                              
+                              
+                              RSRequest* request =
+                              [
+                               [RSRequest alloc]
+                               initWithMethod:requestMethod
+                               url:requestURL
+                               headers:requestHeaders
+                               path:urlPath
+                               query:urlQuery
+                               local:local
+                               remote:remote
+                               socketNumber:0
+                               ];
+
+                              return request;
+                          }
+                          
+                                                  processBlock:processBlock
+                          ];
+    
+    [_handlers insertObject:handler atIndex:0];
+}
+
+- (void)addHandler:(NSString*)method
              regex:(NSRegularExpression*)regex
       processBlock:(RSProcessBlock)processBlock
 {
@@ -50,7 +84,18 @@
                                   }
                               }
                               
-                              RSRequest* request = [[RSRequest alloc] initWithMethod:requestMethod url:requestURL headers:requestHeaders path:urlPath query:urlQuery local:local remote:remote];
+                              RSRequest* request =
+                              [
+                               [RSRequest alloc]
+                               initWithMethod:requestMethod
+                               url:requestURL
+                               headers:requestHeaders
+                               path:urlPath
+                               query:urlQuery
+                               local:local
+                               remote:remote
+                               socketNumber:0
+                               ];
                               /**
                                *  Attribute key asociated to an NSArray containing NSStrings from a RSRequest with the contents of any regular expression captures done on the request path.
                                @warning This attribute will only be set on the request if adding a handler using  -addHandlerForMethod:pathRegex:requestClass:processBlock:.
@@ -129,6 +174,7 @@
         int noSigPipe = 1;
         setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));  // Make sure this socket cannot generate SIG_PIPE
         
+         //JF20190916 RS calling RSConnection
           [[[RSConnection alloc] initWithLocalAddress:localAddress remoteAddress:remoteAddress socket:socket]self];  // Connection will automatically retain
       } else {
         LOG_ERROR(@"Failed accepting %s socket: %s (%i)", isIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);

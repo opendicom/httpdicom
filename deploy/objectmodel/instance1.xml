@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DICM:NativeDicomModel 
+ xmlns:DICM="http://dicom.nema.org/PS3.19/models/NativeDICOM"
+ xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://dicom.nema.org/PS3.19/models/NativeDICOM 
+ file:/Users/jacquesfauquex/opendicom/httpdicom/deploy/objectmodel/DICMXMLnative.xsd">
+ <DICM:DicomAttribute tag="00010001" privateCreator="asfasf"></DICM:DicomAttribute>
+ <DICM:DicomAttribute tag="00020002" vr="SQ">
+  <DICM:Item number="1"></DICM:Item>
+   
+ </DICM:DicomAttribute>
+ <DICM:DicomAttribute  tag="00200020" vr="PN" >
+  <DICM:PersonName number="1">
+   
+  </DICM:PersonName>
+   
+
+ </DICM:DicomAttribute>
+</DICM:NativeDicomModel>

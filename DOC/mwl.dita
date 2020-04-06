@@ -1,0 +1,1077 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="topic_ckn_z5q_tdb">
+    <title>HTTPDICOM: API del servicio MWL </title>
+    <body>
+        <p>HTTPDICOM incluye funciones de Modality Worklist DICOM (MWL) para disponibilizar la
+            información del paciente en todas las etapas del estudio imagenologico.</p>
+        <p/>
+        <section id="section_vq1_h4l_3hb">
+            <title>Versionado del documento</title>
+            <p>JF = Jacques Fauquex</p>
+            <p>
+                <table frame="all" rowsep="1" colsep="1" id="table_w4q_m4l_3hb">
+                    <tgroup cols="3">
+                        <colspec colname="c1" colnum="1" colwidth="1.44*"/>
+                        <colspec colname="c2" colnum="2" colwidth="1*"/>
+                        <colspec colname="c3" colnum="3" colwidth="10.65*"/>
+                        <thead>
+                            <row>
+                                <entry>Fecha</entry>
+                                <entry>Autor</entry>
+                                <entry>Modificaciones</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>20190412</entry>
+                                <entry>JF</entry>
+                                <entry>Versión inicial</entry>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </p>
+        </section>
+        <p> </p>
+        <section id="section_pjd_nq2_3hb">
+            <title>Definiciones</title>
+            <p>
+                <table frame="all" rowsep="1" colsep="1" id="table_znx_cr2_3hb">
+                    <tgroup cols="2">
+                        <colspec colname="c1" colnum="1" colwidth="1*"/>
+                        <colspec colname="c2" colnum="2" colwidth="2.95*"/>
+                        <thead>
+                            <row>
+                                <entry>Palabra</entry>
+                                <entry>Significado</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>RIS</entry>
+                                <entry>programa de gestión agenda y recepción de paciente.
+                                    Frecuentemente se trata de un desarrollo propio del
+                                    establecimiento.</entry>
+                            </row>
+                            <row>
+                                <entry>HTTPDICOM</entry>
+                                <entry>nuestro programa que vincula equipos de gestión con equipos
+                                    imagenologicos, y guarda y distribuye las imágenes. Facilita el
+                                    uso de imágenes DICOM gracias al protocolo de comunicación
+                                    universal HTTP</entry>
+                            </row>
+                            <row>
+                                <entry>NAVEGADOR WEB</entry>
+                                <entry>Punto de acceso a HTTPDICOM para usuario humano. Los
+                                    navegadores WEB más conocidos son FIREFOX, CHROME y SAFARI y
+                                    funcionan desde computadora, tablet y celular</entry>
+                            </row>
+                            <row>
+                                <entry>CLIENTE REST</entry>
+                                <entry>Punto de acceso a HTTPDICOM para interconexión con otros
+                                    programas, por ejemplo para que el RIS se comunique con
+                                    HTTPDICOM</entry>
+                            </row>
+                            <row>
+                                <entry>UID</entry>
+                                <entry>identificador único constuido de numeros separados por
+                                    puntos. por ejemplo 1.2.0.520. Regex:
+                                    @"^[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*$". Máx 64
+                                    caracteres.</entry>
+                            </row>
+                            <row>
+                                <entry>SH</entry>
+                                <entry>Nombre corto. Valor alfanumerico de hasta 16 caracteres.
+                                    Regex:
+                                    @"^(?:\\s*)([^\\r\\n\\f\\t]*[^\\r\\n\\f\\t\\s])(?:\\s*)$"</entry>
+                            </row>
+                            <row>
+                                <entry>MIRTH Connect</entry>
+                                <entry>interfaz de comunicación multi plata forma, multi protocolos
+                                    (que incluye protocolos HL7 y DICOM)</entry>
+                            </row>
+                            <row>
+                                <entry>HL7</entry>
+                                <entry>Protocolos de transmisión de datos médicos. Los más usados
+                                    son HL7 v2 (envio de información), CDA (estructura de documento
+                                    clínico) y FHIR (envió de información en formato JSON)</entry>
+                            </row>
+                            <row>
+                                <entry>JSON</entry>
+                                <entry>sintaxis de escritura de diccionario de propiedades que
+                                    soporta contenidos de tipo lista y diccionario embedido</entry>
+                            </row>
+                            <row>
+                                <entry>MWL</entry>
+                                <entry>Modality WorkList (lista de trabajo). Protocolo de
+                                    comunicación de información de paciente y estudio a realizar que
+                                    usan los equipos de imagenología DICOM. Requiere un servidor de
+                                    Modality Worklist.</entry>
+                            </row>
+                            <row>
+                                <entry>OT</entry>
+                                <entry>Other Type. Objeto DICOM que no es una imagen</entry>
+                            </row>
+                            <row>
+                                <entry>DOC</entry>
+                                <entry>Objeto DICOM tipo documento. Limitamos su uso a documentos
+                                    informes</entry>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry/>
+                                <entry/>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </p>
+        </section>
+        <section id="section_iyd_tvq_tdb">
+            <title>Proceso de creación de estudio imagenológico</title>
+            <ol id="ol_hmg_ds2_3hb">
+                <li>El paciente se presenta en el establecimiento para realizarse un estudio
+                    imagenológico.</li>
+                <li>Un funcionario registra su llegada en el RIS.</li>
+                <li>El RIS envia la información del paciente y estudio a HTTPDICOM por protocolo
+                        REST.<ol id="ol_p1r_xt2_3hb">
+                        <li>Alternativamente, programos un proxy MIRTHConnect para extraer la
+                            información del RIS y pasarla a HTTPDICOM. </li>
+                        <li>Alternativamente, si no existe RIS, creamos un formulario especifico
+                            para cualquier navegador web que permite registrar el paciente
+                            directamente en HTTPDICOM.</li>
+                    </ol></li>
+                <li>HTTPDICOM crea una tarea MWL en un servidor DICOM que pone la información del
+                    paciente y estudio a disposición del equipo imagenológico.</li>
+                <li>HTTPDICOM crea un objeto DICOM OT de solicitud que será el primer documento del
+                    estudio imagenologico.</li>
+                <li>El técnico radiologo selecciona el paciente en la lista de trabajo del equipo
+                    imagenologico y produce imágenes. Estas incorporan automaticamente los datos del
+                    paciente, sin necesidad de ingresarlos nuevamente desde el teclado. Eso evita
+                    errores de tipeo.</li>
+                <li>El técnico manda las imágenes del equipo imagenologico a HTTPDICOM.</li>
+                <li>El radiologo accede desde navegador web a la solicitud e imágenes
+                    correspondientes y escribe el informe desde el editor de informes de la página
+                    web.</li>
+                <li>Desde navegador web, el paciente accede a su solicitud, imágenes e informe.</li>
+                <li>HTTPDICOM puede enviar el informe en formato CDA a un sistema de Historia
+                    Clínica Electrónica.</li>
+            </ol>
+        </section>
+        <section id="section_v4y_gbr_tdb">
+            <title>Comunicación de los datos del paciente y estudio a HTTPDICOM</title>
+            <p>HTTPDICOM acepta tres formatos:</p>
+            <p>
+                <ul id="ul_hhp_lbr_tdb">
+                    <li>HTTP(S) POST application/json</li>
+                    <li>HTTP(S) POST multipart/form-data (formulario html5)</li>
+                    <li>HTTP(S) POST application/x-www-form-urlencoded (formulario html5 sin HTTP
+                        body)</li>
+                </ul>
+            </p>
+            <p>Los dos primeros formatos permiten adjuntar un documento PDF.</p>
+        </section>
+        <section id="section_yd2_b4r_tdb">
+            <title>Detalle de los datos a communicar para cada nuevo estudio</title>
+            <p>El acceso a los estudios por navegador web requiere más formalidad que cuando se
+                entrega un informe papel finalizando la comunicación entre paciente y
+                establecimiento en relación al estudio realizado. En el caso del acceso web, es
+                crucial que el paciente este identificado exactamente de la misma forma en todos los
+                episodios de atención médica. De eso depende que pueda acceder a toda su historia
+                imagenologica con un mismo identificador cuando entra en la página web.</p>
+            <p>Por otro lado, en anticipación a la creación de redes de información de salud cada
+                vez más integradas, HTTPDICOM, en conformidad con el estándar DICOM, impone que los
+                identificadores sean universales. Por ejemplo, cuando se usa el número de cédula, se
+                debe indicar también a HTTPDICOM que se trata de una cédula y que fue emitida en
+                Chile. Así dicho número no se puede confundirse con un número igual, que sería de
+                libreta de conducir brazileña.</p>
+            <p>En el mismo espiritu, HTTPDICOM incluye una solución completa para la codificación de
+                los estudios y su relación con los códigos FONASA. Eso facilita la creación de
+                estadísticas y gestión administrativa.</p>
+            <p>Para lograr todos objetivos, HTTPDICOM requiere datos, que se pueden subdivir en tres
+                grupos y un grupo más repetido hasta 4 veces.</p>
+            <p><b>Notas relativas a las tablas</b>
+            </p>
+            <p>
+                <ol id="ol_o12_mz2_3hb">
+                    <li>columna opcionalidad: <ol id="ol_s2q_qhb_jhb">
+                            <li>?=opcional</li>
+                            <li>entre parentesis se precisa el valor por defecto usado cuando el
+                                dato no está presente en el pedido</li>
+                            <li>1=valor único obligatorio</li>
+                        </ol></li>
+                    <li>La columna =ORMO01 es el equivalente en el protocolo HLV v2.</li>
+                    <li>La columna =DICOM es el equivalente en los atributos copiados dentro de las
+                        imágenes DICOM.</li>
+                    <li>Para cada dato se puede usar o su nombre o cualquier uno de sus sinonimos.
+                        Los sinonimos están presentes para garantizar la compatibilidad con
+                        versiones anteriores.</li>
+                </ol>
+            </p>
+        </section>
+        <section id="section_bvj_gv2_3hb">
+            <p>
+                <table frame="all" rowsep="1" colsep="1" id="table_x3g_mx5_fhb">
+                    <title>Establecimiento</title>
+                    <tgroup cols="5">
+                        <colspec colname="c1" colnum="1" colwidth="1*"/>
+                        <colspec colname="c2" colnum="2" colwidth="1*"/>
+                        <colspec colname="c3" colnum="3" colwidth="1*"/>
+                        <colspec colname="c4" colnum="4" colwidth="1*"/>
+                        <colspec colname="c5" colnum="5" colwidth="1*"/>
+                        <thead>
+                            <row>
+                                <entry>nombre</entry>
+                                <entry>sinonimo</entry>
+                                <entry>opcionalidad*</entry>
+                                <entry>formato</entry>
+                                <entry>comentario</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry><b>pacs</b></entry>
+                                <entry/>
+                                <entry>? (UID indicado como parametro del comando run)</entry>
+                                <entry>UID</entry>
+                                <entry>selección de la unidad ejecutora</entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+                <table frame="all" rowsep="1" colsep="1" id="table_uss_ty2_3hb">
+                    <title>Paciente</title>
+                    <tgroup cols="8">
+                        <colspec colname="c1" colnum="1" colwidth="1*"/>
+                        <colspec colname="c2" colnum="2" colwidth="1*"/>
+                        <colspec colname="c3" colnum="3" colwidth="1*"/>
+                        <colspec colname="c4" colnum="4" colwidth="1*"/>
+                        <colspec colname="c5" colnum="5" colwidth="1*"/>
+                        <colspec colname="c6" colnum="6" colwidth="1*"/>
+                        <colspec colname="newCol8" colnum="7" colwidth="1*"/>
+                        <colspec colname="newCol7" colnum="8" colwidth="1*"/>
+                        <thead>
+                            <row>
+                                <entry>nombre</entry>
+                                <entry>sinonimo</entry>
+                                <entry>opcionalidad*</entry>
+                                <entry>formato</entry>
+                                <entry>comentario</entry>
+                                <entry>=ORMO01</entry>
+                                <entry>=OMIO23</entry>
+                                <entry>=DICOM</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>patFamily1Name</entry>
+                                <entry>apellido1</entry>
+                                <entry>1</entry>
+                                <entry>mayusculas</entry>
+                                <entry/>
+                                <entry>PID_5</entry>
+                                <entry/>
+                                <entry>00100010</entry>
+                            </row>
+                            <row>
+                                <entry>patFamily2Name</entry>
+                                <entry>apellido2, motherMaidenName</entry>
+                                <entry>?</entry>
+                                <entry>mayusculas</entry>
+                                <entry>en httpdicom, viene luego de apellido1 separado por >, en la
+                                    mwl usamos el tag 00101060 para que no aparezca el ></entry>
+                                <entry>PID_6</entry>
+                                <entry/>
+                                <entry>00100010>| 00101060</entry>
+                            </row>
+                            <row>
+                                <entry>patGivenNames</entry>
+                                <entry>nombres</entry>
+                                <entry>?</entry>
+                                <entry>mayusculas</entry>
+                                <entry/>
+                                <entry>PID_5</entry>
+                                <entry/>
+                                <entry>00100010^</entry>
+                            </row>
+                            <row>
+                                <entry>patBirthDate</entry>
+                                <entry>PatientBirthDate</entry>
+                                <entry>?</entry>
+                                <entry>aaaammdd</entry>
+                                <entry/>
+                                <entry>PID_7</entry>
+                                <entry/>
+                                <entry>00100030</entry>
+                            </row>
+                            <row>
+                                <entry>patAdministrativeGender</entry>
+                                <entry>PatientSex</entry>
+                                <entry>?</entry>
+                                <entry>M | F | O</entry>
+                                <entry>masculino, feminino, otro</entry>
+                                <entry>PID_8</entry>
+                                <entry/>
+                                <entry>00100040</entry>
+                            </row>
+                            <row>
+                                <entry>patID</entry>
+                                <entry>PatientID</entry>
+                                <entry>1</entry>
+                                <entry>SH</entry>
+                                <entry/>
+                                <entry>PID_3.1</entry>
+                                <entry/>
+                                <entry>00100020</entry>
+                            </row>
+                            <row>
+                                <entry>patIDCountry</entry>
+                                <entry>PatientIDCountry</entry>
+                                <entry>1</entry>
+                                <entry>ISO3166</entry>
+                                <entry>2 o 3 letras</entry>
+                                <entry>PID_3.3</entry>
+                                <entry/>
+                                <entry>00100021</entry>
+                            </row>
+                            <row>
+                                <entry>patIDType</entry>
+                                <entry>PatientIDType</entry>
+                                <entry>1</entry>
+                                <entry>ICAO</entry>
+                                <entry/>
+                                <entry>PID_3.3</entry>
+                                <entry/>
+                                <entry>00100021</entry>
+                            </row>
+                            <row>
+                                <entry>patPassword</entry>
+                                <entry>clave</entry>
+                                <entry>?</entry>
+                                <entry>min 7 caracteres</entry>
+                                <entry>se envia a htmldicom (ausencia->no se crea el usuario</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+                <table frame="all" rowsep="1" colsep="1" id="table_p1h_5y2_3hb">
+                    <title>Solicitud</title>
+                    <tgroup cols="8">
+                        <colspec colname="c1" colnum="1" colwidth="1*"/>
+                        <colspec colname="c2" colnum="2" colwidth="1*"/>
+                        <colspec colname="c3" colnum="3" colwidth="1*"/>
+                        <colspec colname="c4" colnum="4" colwidth="1*"/>
+                        <colspec colname="c5" colnum="5" colwidth="1*"/>
+                        <colspec colname="c6" colnum="6" colwidth="1*"/>
+                        <colspec colname="newCol8" colnum="7" colwidth="1*"/>
+                        <colspec colname="newCol7" colnum="8" colwidth="1*"/>
+                        <thead>
+                            <row>
+                                <entry>nombre</entry>
+                                <entry>sinonimo</entry>
+                                <entry>opcionalidad*</entry>
+                                <entry>formato</entry>
+                                <entry>comentario</entry>
+                                <entry>=ORMO01</entry>
+                                <entry>=OMIO23</entry>
+                                <entry>=DICOM</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>isrInsurance</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry/>
+                                <entry>no usado</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry>isrPlacerNumber</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry/>
+                                <entry>libre para referencia del lado del referring</entry>
+                                <entry>ORC_2</entry>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry>isrFillerNumber</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry>AN ( ^ANLocal | ^^ANUniversal^ANType )</entry>
+                                <entry>repite AN pero con Issuer </entry>
+                                <entry>ORC_3.1^2^3^4</entry>
+                                <entry/>
+                                <entry>00402017 00402027.00400031 00402027.00400032
+                                    00402027.00400033 </entry>
+                            </row>
+                            <row>
+                                <entry>isrAN</entry>
+                                <entry>AccessionNumber</entry>
+                                <entry>1</entry>
+                                <entry>SH</entry>
+                                <entry>Para ORMO01, igualamos AN con Filler Issuer and Number, no
+                                    parseamos OBR_18</entry>
+                                <entry>OBR_18,ORC_3.1</entry>
+                                <entry/>
+                                <entry>00080050</entry>
+                            </row>
+                            <row>
+                                <entry morerows="1">isrANIssuer</entry>
+                                <entry>issuerLocal</entry>
+                                <entry morerows="1">0</entry>
+                                <entry>SH</entry>
+                                <entry>nombre corto del servicio o de la institución</entry>
+                                <entry>ORC_3.2</entry>
+                                <entry/>
+                                <entry>00080051.00400031</entry>
+                            </row>
+                            <row>
+                                <entry>issuerUniversal</entry>
+                                <entry>OID</entry>
+                                <entry>usamos OID</entry>
+                                <entry>ORC_3.3</entry>
+                                <entry/>
+                                <entry>00080051.00400032</entry>
+                            </row>
+                            <row>
+                                <entry>isrANType</entry>
+                                <entry>issuerTipo</entry>
+                                <entry>0</entry>
+                                <entry>DNS, EUI64, ISO (=OID), URI, UUID, X400, X500</entry>
+                                <entry>local->vacío, universal, ISO</entry>
+                                <entry>ORC_3.4</entry>
+                                <entry/>
+                                <entry>00080051.00400033</entry>
+                            </row>
+                            <row>
+                                <entry>isrReferring</entry>
+                                <entry>ReferringPhysiciansName</entry>
+                                <entry>?</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00321032</entry>
+                            </row>
+                            <row>
+                                <entry>isrReading</entry>
+                                <entry>NameOfPhysicianReadingStudy</entry>
+                                <entry>?</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00081060</entry>
+                            </row>
+                            <row>
+                                <entry>isrStudyIUID</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry/>
+                                <entry>no usado</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                            <row>
+                                <entry>reqID</entry>
+                                <entry>RequestedProcedureID</entry>
+                                <entry>?(generador de números consecutivos)</entry>
+                                <entry>SH</entry>
+                                <entry>puede ser buena opción copiar ahí el AN</entry>
+                                <entry/>
+                                <entry/>
+                                <entry>00401001</entry>
+                            </row>
+                            <row>
+                                <entry>reqProcedure</entry>
+                                <entry>StudyDescription</entry>
+                                <entry>+</entry>
+                                <entry>código^titulo^vocabulario ( no | en la descripción )</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00321060 &amp; 00321064</entry>
+                            </row>
+                            <row>
+                                <entry>reqPriority</entry>
+                                <entry>RequestedProcedurePriority</entry>
+                                <entry>?</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00401003</entry>
+                            </row>
+                            <row>
+                                <entry>reqMsg</entry>
+                                <entry/>
+                                <entry>?</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00102000</entry>
+                            </row>
+                            <row>
+                                <entry>reqPdf</entry>
+                                <entry/>
+                                <entry>?</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+                <table frame="all" rowsep="1" colsep="1" id="table_bjj_5y2_3hb">
+                    <title>Paso 1 del protocolo</title>
+                    <tgroup cols="8">
+                        <colspec colname="c1" colnum="1" colwidth="1*"/>
+                        <colspec colname="c2" colnum="2" colwidth="1*"/>
+                        <colspec colname="c3" colnum="3" colwidth="1*"/>
+                        <colspec colname="c4" colnum="4" colwidth="1*"/>
+                        <colspec colname="c5" colnum="5" colwidth="1*"/>
+                        <colspec colname="c6" colnum="6" colwidth="1*"/>
+                        <colspec colname="newCol8" colnum="7" colwidth="1*"/>
+                        <colspec colname="newCol7" colnum="8" colwidth="1*"/>
+                        <thead>
+                            <row>
+                                <entry>nombre</entry>
+                                <entry>sinonimo</entry>
+                                <entry>opcionalidad*</entry>
+                                <entry>formato</entry>
+                                <entry>comentario</entry>
+                                <entry>=ORMO01</entry>
+                                <entry>=OMIO23</entry>
+                                <entry>=DICOM</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>sps1Modality</entry>
+                                <entry>Modality, modalidad</entry>
+                                <entry>(*)</entry>
+                                <entry>(**) CR, CT, MR,NM, US, PT, XA, RF, DX, MG, SR</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00080060</entry>
+                            </row>
+                            <row>
+                                <entry>sps1AET</entry>
+                                <entry/>
+                                <entry>(*)</entry>
+                                <entry>SH</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00400001</entry>
+                            </row>
+                            <row>
+                                <entry>sps1Date</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry>aaaammdd</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00400002</entry>
+                            </row>
+                            <row>
+                                <entry>sps1Time</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry>hhmmss</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00400003</entry>
+                            </row>
+                            <row>
+                                <entry>sps1Technician</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00400006</entry>
+                            </row>
+                            <row>
+                                <entry>sps1Location</entry>
+                                <entry>sala, service, servicio, sps1Service</entry>
+                                <entry>(*)</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00400011</entry>
+                            </row>
+                            <row>
+                                <entry>sps1StationName</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00400010</entry>
+                            </row>
+                            <row>
+                                <entry>sps1Protocol</entry>
+                                <entry/>
+                                <entry>?</entry>
+                                <entry>código^titulo^vocabulario ( no | )</entry>
+                                <entry/>
+                                <entry/>
+                                <entry/>
+                                <entry>00400007 &amp; 00400008</entry>
+                            </row>
+                            <row>
+                                <entry>sps1ID</entry>
+                                <entry/>
+                                <entry>0</entry>
+                                <entry/>
+                                <entry>No se puede copiar ahí el AN si el request contiene varios
+                                    steps (pasos)</entry>
+                                <entry/>
+                                <entry/>
+                                <entry>00400009</entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </p>
+            <p><b>Eventuales Paso 2, Paso 3 y Paso 4 del protocolo</b></p>
+            <p>Repite paso 1 pero con prefijo sps2, sps3 y sps4 respectivamente, en lugar de
+                sps1.</p>
+            <p/>
+        </section>
+        <section id="section_k5b_vwb_jhb">
+            <p>(*) complete list: CR, CT, MR,NM, US, OT,DG, ES, LS, PT, RG, TG, XA, RF, RTIMAGE,
+                RTDOSE, RTSTRUCT, RTPLAN, RTRECORD, HC, DX, MG, IO, PX, GM, SM, XC, PR, AU, ECG,
+                EPS, HD, SR IVUS, OP, SMR, AR, KER, VA, SRF, OCT, LEN, OPV, OPM, OAM, RESP, KO, SEG,
+                REG, OPT, BDUS, BMD, FID, PLAN, IOL, IVOCT</p>
+            <p>Se pueden agregar pasos 2, 3 y 4. El digito en el nombree cambia acorde.</p>
+            <p/>
+            <p>Lista en formato json: </p>
+            <p>{</p>
+            <p> "pacs":"", "sala":"", "modalidad":"", </p>
+            <p/>
+            <p> "apellido1":"", "apellido2":"", "nombres":"", "PatientID":"", "PatientIDCountry":"",
+                "PatientIDType":"", "clave":"", "PatientBirthDate":"", "PatientSex":"",</p>
+            <p/>
+            <p>"AccessionNumber":"", "issuerLocal":"", "issuerUniversal":"", "issuerTipo":"",
+                "StudyDescription":"", "Priority":"", "NameofPhysicianReadingStudy":"",</p>
+            <p/>
+            <p> "ReferringPhysiciansName":"", "enclosureTextarea":"", "enclosurePdf":"" </p>
+            <p>}</p>
+            <p>Los parámetros que empiezan con una mayúscula corresponden exactamente con un
+                atributo DICOM. Una búsqueda en internet con este nombre brinda información
+                detallada sobre el parámetro.</p>
+            <p>Los parámetros que empiezan con una minúscula nos permite crear atributos DICOM.</p>
+            <p>Separamos los parámetros en cuatro lineas. La primera acción requiere solamente los
+                datos de la primera linea y permite verificar los datos del PACS/RIS que publicará
+                la tarea de MWL. La segunda acción require los datos de las dos primeras lineas para
+                crear o verificar los datos del paciente en el PACS/RIS. La tercer acción crea el
+                item de MWL y copia la información de descripción de estudio y datos del radiólogo
+                previsto para escribir el diagnóstico. La última acción crea el documento DICOM de
+                solicitud (llamado también orden de servicio) que precisa la codificación y publica
+                un eventual documento pdf y eventualmente texto de acompañamiento.</p>
+            <p>Detallamos a continuación el formato de cada uno de los parámetros.</p>
+        </section>
+        <section id="section_yvs_m4r_tdb">
+            <title>pacs, modalidad, sala</title>
+            <p><b>pacs</b> es opcional cuando el pedido de creación de item de MWL es local. Sino,
+                contiene el OID (máximo 64 caracteres) del PACS.</p>
+            <p>En el archivo de configuración, cada PACS tiene asociado una lista de servicios,
+                también llamados <b>sala</b>. Cada uno de ellos tiene una MWL dedicada. En la
+                configuración ya está registrado el AET del equipo de imagenología correspondiente.
+                Pues es suficiente referirse solamente a la sala por su nombre sin necesidad de
+                conocer el AET. </p>
+            <p>Por defecto, estos servicios tienen mismo nombre que la modalidad DICOM (por ejemplo
+                CT, CR, US, XA, MG, etc...), pero también pueden tener nombre específico. </p>
+            <p>El equipo DICOM de una sala permite a veces la creación de objetos DICOM de varias
+                modalidades, en este caso conviene completar la información de la sala por la de la
+                modalidad. Si la sala se usa para una sola modalidad, el nombre de la sala es
+                suficiente.</p>
+            <p>Alternativamente, en caso de no indicar el nombre de la sala se puede indicar una
+                modalidad DICOM. Por ejemplo:</p>
+            <p><ul id="ul_snn_25w_tdb">
+                    <li>CT (tomografía)</li>
+                    <li>CR (rayos X)</li>
+                    <li>MG (mamografía)</li>
+                    <li>US (ultrasonido)</li>
+                    <li>MR (resonancia)</li>
+                </ul> La lista completa se encuentra en <xref
+                    href="http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1.1"
+                    format="html" scope="external"/></p>
+            <p/>
+            <p>En resumen :</p>
+            <p>
+                <ul id="ul_xjl_vqr_tdb">
+                    <li>Cuando el pedido de creación de MWL es local, el dato <b>pacs</b> es
+                        opcional</li>
+                    <li><b>sala</b> o <b>modalidad</b> es obligatorio</li>
+                    <li>en caso que a una sala correspondan varias modalidades, ambos <b>sala</b> y
+                            <b>modalidad</b> son obligatorios</li>
+                </ul>
+            </p>
+            <p/>
+        </section>
+        <section id="section_o4y_drr_tdb">
+            <title>AccessionNumber, issuerLocal, issuerUniversal, issuerTipo</title>
+            <p>El número de acceso es el vínculo entre el RIS y nuestro PACS WEB. Es único para cada
+                estudio nuevo. Este número permite que el RIS acceda a toda la información del
+                estudio en cualquier momento. Puede ser un número interno o un número externo (por
+                ejemplo el número de orden del seguro de salud que autorizó el estudio).
+                Formalmente, contiene un máximo de 16 letras y cifras, sin espacio.</p>
+            <p>Para diferenciar si el AccessionNumber es interno o externo se indica el dominio
+                dónde fue creado. Existen dos formas de precisar el dominio. </p>
+            <p>En sistemas de salud con poca organización informática, se usa un issuerLocal. Por
+                ejemplo, la clínica ABC realiza estudios para sus pacientes y para una aseguradora
+                externa DEF. ABC y DEF serían los valores a indicar en el parámetro issuerLocal. </p>
+            <p>En sistmas de salud organizados en redes informáticas, cada unidad ejecutora está
+                identificada por un identificador de tipo :</p>
+            <p>
+                <ul id="ul_tg1_lsw_tdb">
+                    <li>DNS (nombres de internet unidos por puntos. En ASCII o enteros)</li>
+                    <li>EUI64 (IEEE Extended Unique Identifier)</li>
+                    <li>ISO (OID, es decir enteros unidos por puntos)</li>
+                    <li>URI</li>
+                    <li>UUID</li>
+                    <li>X400</li>
+                    <li>X500</li>
+                </ul>
+            </p>
+            <p>En este caso se complementa el AccessionNumber con el parámetro issuerUniversal y el
+                issuerTipo que corresponde.</p>
+            <p/>
+        </section>
+        <section id="section_x4k_1tw_tdb">
+            <title>StudyDescription</title>
+            <p>La descripción del estudio es un texto libre. Puede ser fuente de codificación
+                automática en base a vocabulario estándar. </p>
+            <p>Un archivo de configuración "procedure" asociado a cada pacs contiene la lista
+                exhaustiva de los procedimientos codificados. Cuando la descripcion del estudio
+                corresponde unívocamente con una entrada de esta lista, entonces el PACS WEB
+                registra la codificación correspondiente en la metadata del estudio por medio del
+                CDA de solicitud.</p>
+            <p>El titulo del estudio puede corresponder a más de un código. Por ejemplo tomografía
+                cadera, tórax y cuello puede corresponder a un código para cada región. Eso está
+                definido en el archivo de configuración "procedure".</p>
+            <p/>
+        </section>
+        <section id="section_ftx_kzw_tdb">
+            <title>apellido1, apellido2, nombres</title>
+            <p>La separación de los componentes del nombre es lo correcto y es un requerimiento
+                normal para la creación del documento de informe médico. En caso de tener a
+                disposición solo el conjunto de nombres sin separación clara entre sus componentes,
+                ponerlo en apellido1, pero no es ideal.</p>
+            <p/>
+        </section>
+        <section id="section_qxx_l1x_tdb">
+            <title>PatientID, PatientIDCountry, PatientIDType</title>
+            <p>PatientID no puede contener espacio ni superar 16 caracteres.</p>
+            <p>PatientIDCountry es uno de los códigos del país tal definido en ISO 3166. El servidor
+                acepta cualquiera de las variantes definidas en el ISO (dos letras, tres letras,
+                número, etc). <xref href="https://en.wikipedia.org/wiki/ISO_3166-1" format="html"
+                    scope="external"/></p>
+            <p>PatientIDType recibe el número de documento tal definido por ICAO:</p>
+            <p>
+                <table id="table_gxh_vdx_tdb">
+                    <tgroup cols="2">
+                        <colspec colnum="1" colname="col1" colwidth="100px"/>
+                        <colspec colnum="2" colname="col2"/>
+                        <tbody>
+                            <row>
+                                <entry>69020</entry>
+                                <entry>CARNE DE ASISTENCIA DE SALUD PRIVADA</entry>
+                            </row>
+                            <row>
+                                <entry>69019</entry>
+                                <entry>CARNE DE ASISTENCIA DE SALUD PUBLICA</entry>
+                            </row>
+                            <row>
+                                <entry>69018</entry>
+                                <entry>CARNE DE ASISTENCIA SOCIAL</entry>
+                            </row>
+                            <row>
+                                <entry>68932</entry>
+                                <entry>CARNE DE PRACTICO (ICAO - CP)</entry>
+                            </row>
+                            <row>
+                                <entry>69017</entry>
+                                <entry>CARNE MILITAR</entry>
+                            </row>
+                            <row>
+                                <entry>69096</entry>
+                                <entry>CARNE O DOCUMENTO FRONTERIZO</entry>
+                            </row>
+                            <row>
+                                <entry>69015</entry>
+                                <entry>CARNE O REGISTRO PROFESIONAL</entry>
+                            </row>
+                            <row>
+                                <entry>69016</entry>
+                                <entry>CARNE POLICIAL</entry>
+                            </row>
+                            <row>
+                                <entry>68909</entry>
+                                <entry>CEDULA DE IDENTIDAD (ICAO - ID)</entry>
+                            </row>
+                            <row>
+                                <entry>68944</entry>
+                                <entry>CREDENCIAL CIVICA (ICAO - CC)</entry>
+                            </row>
+                            <row>
+                                <entry>68946</entry>
+                                <entry>CREW MEMBER CERTIFICATE (ICAO - AC)</entry>
+                            </row>
+                            <row>
+                                <entry>68939</entry>
+                                <entry>DOC. VIAJE - UN 1951 - (ICAO - UN)</entry>
+                            </row>
+                            <row>
+                                <entry>68910</entry>
+                                <entry>DOCUMENTO DE IDENTIDAD (ICAO - DN) </entry>
+                            </row>
+                            <row>
+                                <entry>68927</entry>
+                                <entry>LAISSEZ PASSER UN (ICAO - LP)</entry>
+                            </row>
+                            <row>
+                                <entry>68918</entry>
+                                <entry>LIBRETA CIVICA (ICAO - LC)</entry>
+                            </row>
+                            <row>
+                                <entry>68933</entry>
+                                <entry>LIBRETA DE BAQUEANO (ICAO - LB)</entry>
+                            </row>
+                            <row>
+                                <entry>69012</entry>
+                                <entry>LIBRETA DE CONDUCIR EXTRANJERA</entry>
+                            </row>
+                            <row>
+                                <entry>69011</entry>
+                                <entry>LIBRETA DE CONDUCIR NACIONAL</entry>
+                            </row>
+                            <row>
+                                <entry>68916</entry>
+                                <entry>LIBRETA DE ENROLAMIENTO (ICAO - LE)</entry>
+                            </row>
+                            <row>
+                                <entry>69014</entry>
+                                <entry>LIBRETA DE PROPIEDAD VEHICULAR EXTRANJERA</entry>
+                            </row>
+                            <row>
+                                <entry>69013</entry>
+                                <entry>LIBRETA DE PROPIEDAD VEHICULAR NACIONAL</entry>
+                            </row>
+                            <row>
+                                <entry>69025</entry>
+                                <entry>LIBRETA DE TRIPULANTE (ICAO - LT)</entry>
+                            </row>
+                            <row>
+                                <entry>69024</entry>
+                                <entry>OTRO DOCUMENTO DE IDENTIFICACION PERSONAL</entry>
+                            </row>
+                            <row>
+                                <entry>68912</entry>
+                                <entry>PASAPORTE (ICAO - P)</entry>
+                            </row>
+                            <row>
+                                <entry>68928</entry>
+                                <entry>PASAPORTE CEE (ICAO - EE)</entry>
+                            </row>
+                            <row>
+                                <entry>68929</entry>
+                                <entry>PASAPORTE DE EMERGENCIA (ICAO EM)</entry>
+                            </row>
+                            <row>
+                                <entry>68919</entry>
+                                <entry>PASAPORTE DE SERVICIO (ICAO - PS)</entry>
+                            </row>
+                            <row>
+                                <entry>68915</entry>
+                                <entry>PASAPORTE DIPLOMATICO (ICAO - PD)</entry>
+                            </row>
+                            <row>
+                                <entry>68922</entry>
+                                <entry>PASAPORTE ESPECIAL (ICAO - PE)</entry>
+                            </row>
+                            <row>
+                                <entry>68926</entry>
+                                <entry>PASAPORTE OEA (ICAO - PT)</entry>
+                            </row>
+                            <row>
+                                <entry>68920</entry>
+                                <entry>PASAPORTE OFICIAL (ICAO - PO)</entry>
+                            </row>
+                            <row>
+                                <entry>68947</entry>
+                                <entry>PASAPORTE PROVISORIO (ICAO - PP)</entry>
+                            </row>
+                            <row>
+                                <entry>69097</entry>
+                                <entry>PASE LIBRE FRONTERIZO</entry>
+                            </row>
+                            <row>
+                                <entry>68943</entry>
+                                <entry>SALVOCONDUCTO (ICAO - SC)</entry>
+                            </row>
+                            <row>
+                                <entry>68936</entry>
+                                <entry>SALVOCONDUCTO ONU ASILADO (ICAO - SU)</entry>
+                            </row>
+                            <row>
+                                <entry>68937</entry>
+                                <entry>SALVOCONDUCTO ONU FUNCIONARIO (ICAO - PU)</entry>
+                            </row>
+                            <row>
+                                <entry>68945</entry>
+                                <entry>SIN DOCUMENTO (ICAO - SD)</entry>
+                            </row>
+                            <row>
+                                <entry>69021</entry>
+                                <entry>TARJETA DE CREDITO</entry>
+                            </row>
+                            <row>
+                                <entry>69022</entry>
+                                <entry>TARJETA DE DEBITO</entry>
+                            </row>
+                            <row>
+                                <entry>68930</entry>
+                                <entry>TARJETA DE IDENTIDAD (ICAO - I)</entry>
+                            </row>
+                            <row>
+                                <entry>69023</entry>
+                                <entry>TARJETA DE USO DE TRANSPORTE DE PASAJEROS</entry>
+                            </row>
+                            <row>
+                                <entry>68923</entry>
+                                <entry>TITULO DE IDENTIDAD Y VIAJE (ICAO - PX)</entry>
+                            </row>
+                            <row>
+                                <entry>68941</entry>
+                                <entry>TITULO DE V. CRUZ ROJA (ICAO - CR)</entry>
+                            </row>
+                            <row>
+                                <entry>68924</entry>
+                                <entry>VALIDO DE VIAJE CONSULAR (ICAO - VC)</entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </p>
+        </section>
+        <section id="section_oss_zdx_tdb">
+            <title>clave</title>
+            <p>Opcional. Si está, se crea un usuario identificado por número de documento y clave en
+                htlm5dicom para que el paciente tenga acceso a su estudio.</p>
+            <p/>
+        </section>
+        <section id="section_imv_g2x_tdb">
+            <title>PatientBirthDate, PatientSex</title>
+            <p>PatientBirthDate tiene formato aaaammdd. Año 4 cifras, mes (2 cifras) eventualente
+                empezando con cero, día (2 cifras) eventualmetne empezando con cero.</p>
+            <p>PatientSex es o F (Femenino) o M (Masculino) o O (otro, no especificado).</p>
+            <p/>
+        </section>
+        <section id="section_jbl_khx_tdb">
+            <title>Priority</title>
+            <p>Opcional. Acepta los valores MEDIUM o HIGH.</p>
+        </section>
+        <section id="section_h4n_r2x_tdb">
+            <title>ReferringPhysiciansName, NameofPhysicianReadingStudy</title>
+            <p>ReferringPhysiciansName y NameofPhysicianReadingStudy ambos siguen el formato
+                identificadorDeInstitución^nombreDeServicio^nombreDelUsuarioMedico. El identificador
+                de la institución puede ser el nombre corto o su OID. El servicio puede ser el
+                nombre por defecto del servico, o sea la modalidad de imágenes DICOM producidas en
+                el servicio.</p>
+            <p>Es posible indicar solo institución y servicio, o solamente institución.</p>
+            <p>El archivo de configuración de PACS permite asociar un código a
+                ReferringPhysiciansName o NameofPhysicianReadingStudy. Por ejemplo,
+                HospitalA^CT^doctor1 puede corresponder al código 1.</p>
+            <p>En el archivo de configuración del PACS existe un seteo titulado
+                "readingAsReferring". Cuando se activa esta opción, distorsiona la información
+                provista en la MWL, indicando NameofPhysicianReadingStudy en lugar de
+                ReferringPhysiciansName. El interés de está distorsión consiste en que
+                ReferringPhysiciansName es modificable desde la consola del equipo DICOM. Hace
+                posible definir qué radiólogo será responsable de informar el estudio una vez que se
+                adquieren las imágenes, antes de mandarlas al PACS WEB. Al recibir las imágenes el
+                PACS WEB repone las informaciones donde van en la metadata DICOM,
+                ReferringPhysiciansName dentro de ReferringPhysiciansName y
+                NameofPhysicianReadingStudy dentro de NameofPhysicianReadingStudy.</p>
+        </section>
+        <section id="section_xvy_k3x_tdb">
+            <title>enclosureTextarea, enclosurePdf</title>
+            <p>Estos parámetros son opcionales.</p>
+            <p>enclosureTextarea permite ingresar texto con elemento de datos clínicos, indicaciones
+                o demás informaciones necesarias para la realización del informe por el
+                radiólogo.</p>
+            <p>enclosurePdf permite adjuntar un documento pdf codificado base64 para el mismo
+                propósito. </p>
+        </section>
+    </body>
+</topic>

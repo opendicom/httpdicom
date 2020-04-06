@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist
+    xmlns="http://www.opendicom.com/xsd/plist/pacs.xsd"
+    
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opendicom.com/xsd/plist/pacs.xsd pacs.xsd"
+    
+    version="1.0"
+    >
+    <!-- Clínica de Imágenes Dres. Parada -->
+    <!-- CIP -->
+    <!-- 2.16.858.0.2.16.86.9.0.0.2.214462250019 -->
+    <!-- 214462250019 -->
+    <array>
+        
+        <dict>
+            <key>pacsoid</key>
+            <string id="pacsoid">2.16.858.2.214462250019.72769.1</string><!-- .pacs.1 -->
+            <key>pacsaet</key>
+            <string id="pacsaet">CIP</string>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc">+0300</string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">CIP</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">2.16.858.0.2.16.86.9.0.0.2.214462250019</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri">190.64.48.21</string>
+            <key>countrycode</key>
+            <string id="countrycode">uy</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            
+            <key>select</key>
+            <string id="select">sql</string>
+            <key>get</key>
+            <string id="get">wado</string>
+            <key>mwl</key>
+            <string id="mwl">none</string>
+            
+            <key>sqlcredentials</key>
+            <string id="sqlcredentials">MYSQL_PWD</string>
+            <key>sqlpassword</key>
+            <string id="sqlpassword">pcs</string>
+            <key>sqlprolog</key>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upcs -h 192.168.250.1 -b pacsdb2 -e </string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dcm4chee2147mysql</string>
+            
+            <key>filesystembaseuri</key>
+            <string id="filesystembaseuri"></string>
+            
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            
+            <key>mllpip</key>
+            <string id="mllpip"></string>
+            <key>mllpport</key>
+            <string id="mllpport">2575</string>
+
+            <key>DICMip</key>
+            <string id="DICMip">192.168.250.1</string>
+            <key>DICMport</key>
+            <string id="DICMport">11112</string>
+            
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">60</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://192.168.250.1:8080/wado</string>
+            <key>wadoadditionalparameters</key>
+            <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>            
+            <key>wadoweasisparameters</key>
+            <string id="wadoweasisparameters">&amp;transferSyntax=*</string>            
+            <key>wadocornerstoneparameters</key>
+            <string id="wadocornerstoneparameters"></string>            
+            <key>wadodicomzipparameters</key>
+            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadoosirixparameters</key>
+            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
+            <key>wadoisodicomzipparameters</key>
+            <string id="wadoisodicomzipparameters">&amp;transferSyntax=*</string>            
+            <key>wadodeflateparameters</key>
+            <string id="wadodeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadomaxdeflateparameters</key>
+            <string id="wadomaxdeflateparameters">&amp;transferSyntax=*</string>            
+            <key>wadozip64parameters</key>
+            <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
+            <key>wadors</key>
+            <string id="wadors"></string>
+            <key>qido</key>
+            <string id="qido"></string>
+            <key>stow</key>
+            <string id="stow"></string>
+            
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri"></string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
+            <key>html5dicomuserserviceuri</key>
+            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <key>html5dicomuseractive</key>
+            <false/>            
+         </dict>
+    </array>
+</plist>

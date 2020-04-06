@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist
+xmlns="http://www.opendicom.com/xsd/plist/sql.xsd"
+
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.opendicom.com/xsd/plist/sql.xsd sql.xsd"
+
+version="1.0"
+>
+<dict>
+           
+<key>sqlTitle</key>
+<string>dcm4chee218mysql</string>
+
+<!-- E select -->
+<key>EselectEP</key>
+<string>SELECT study.pk, study.patient_fk FROM study </string>
+<key>EselectEuiE</key>
+<string>SELECT study.study_iuid, study.pk FROM study </string>
+
+<key>Ewhere</key><!-- no IOCM -->
+<string>WHERE true </string>
+    
+<!-- E exclusive match-->
+
+<!-- 1. match study UID -->
+<key>EmatchEui</key>
+<string>AND study.study_iuid REGEXP '%@' </string>
+
+<!-- 2. match accession number [0, 1 entity_id, 2 entity_uid + type, 3 entity_uid + type + entity_id]-->
+<key>EmatchEan</key>
+<array>  
+<string>AND study.accession_no='%@' </string>
+<string>AND study.accession_no='%@' AND issuer.entity_id='@%' </string>
+<string>AND study.accession_no='%@' AND issuer.entity_uid='@%' AND issuer.entity_uid_type='@%' </string>
+<string>AND study.accession_no='%@' AND issuer.entity_uid='@%' AND issuer.entity_uid_type='@%' AND issuer.entity_id='@%' </string>
+</array>
+
+
+<!-- E cumulative matches-->
+
+<key>Ejoin</key>
+<array>
+<!-- 0. accessionNumberIssuer -->
+<array>
+    <string>LEFT JOIN issuer ON study.accno_issuer_fk=issuer.pk </string>
+</array>
+<!-- 1. PID -->
+<array>
+    <string>LEFT JOIN patient ON study.patient_fk=patient.pk </string>
+</array>
+<!-- 2. PatientName -->
+<array>
+    <string>LEFT JOIN patient ON study.patient_fk=patient.pk </string>
+</array>
+<!-- 3. match StudyID -->
+<array/>
+<!-- 4. match StudyDate -->
+<array/>
+<!-- 5. match StudyDescription -->
+<array/>
+<!-- 6. match ReferringPhysician -->
+<array/>
+<!-- 7. match ReadingPhysician -->
+<array/>
+<!-- 8. match SOPClassesInStudy -->
+<array/>
+<!-- 9. match ModalitiesInStudy -->    
+<array/>
+</array>
+    
+    
+<key>Eand</key> 
+<array>
+<array/>
+<!-- 1. match PID [0, 1 issuer] -->
+<array>
+    <string>AND patient.pat_id like '%@' </string>
+    <string>AND patient.pat_id like '%@' AND patient.pat_id_issuer = '%@' </string>
+</array>
+<!-- 2. match PatientName -->
+<array>
+    <string>AND patient.pat_name REGEXP '%@' </string>
+    <string/>
+    <string/>
+    <string/>
+    <string/>
+    <string/>
+</array>
+<!-- 3. match StudyID -->
+<string>AND  study_id like '%@' </string>
+<!-- 4. match StudyDate-->
+<array>
+    <array><!-- ISO in DB -->
+        <string></string> <!-- (empty) = any -->
+        <string>AND DATE(study.study_datetime) = '%@' </string> <!-- [aaaa-mm-dd] = on -->
+        <string>AND DATE(study.study_datetime) >= '%@' </string><!-- [aaaa-mm-dd][] = since -->
+        <string>AND NOT(DATE(study.study_datetime) > '%@') </string><!-- [][][aaaa-mm-dd] = until -->
+        <string>AND DATE(study.study_datetime) >= '%@' AND NOT(DATE(study.study_datetime) > '%@') </string><!-- [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+    </array>
+    <!-- DICOM in DB-->
+    <array/>
+</array>
+<!-- 5. match StudyDescription -->
+<string>AND study.study_desc REGEXP '%@' </string>
+<!-- 6. match ReferringPhysician -->
+<array>
+    <string>AND study.ref_physician REGEXP '%@' </string>
+    <string/>
+    <string/>
+    <string/>
+    <string/>
+    <string/>
+</array>        
+<!-- 7. match ReadingPhysician -->
+<array>
+    <string>AND study.study_custom3 REGEXP '%@' </string>
+    <string>%@ </string>
+    <string>%@ </string>
+    <string>%@ </string>
+    <string>%@ </string>
+    <string>%@ </string>
+</array>                
+<!-- 8. match SOPClassesInStudy -->
+<string>AND study.cuids_in_study REGEXP '%@' </string>
+<!-- 9. match ModalitiesInStudy -->
+<string>AND study.mods_in_study REGEXP '%@' </string>
+</array>
+
+<!-- end of E cumulative matches-->
+
+
+<!-- instance ci 4 series pk -->
+<key>Ici4S</key>
+<string>%@ "SELECT sop_cuid FROM instance WHERE series_fk='%@' %@" %@</string>
+    
+<!-- instance ui 4 series pk -->
+<key>Iui4S</key>
+<string>%@ "SELECT sop_iuid FROM instance WHERE series_fk='%@' %@" %@</string>
+
+  
+    
+<!-- properties-->
+
+<key>P</key><!-- patient -->
+<string>%@ "\
+SELECT \
+patient.pk, \
+patient.pat_id, \
+patient.pat_name, \
+patient.pat_id_issuer, \
+patient.pat_birthdate, \
+patient.pat_sex \
+FROM patient \
+WHERE pk=%@ \
+%@ \
+" %@</string>
+
+<key>E</key><!-- examen -->
+<string>%@ "\
+SELECT \
+study.pk, \
+study.study_iuid, \
+study.study_desc, \
+DATE(study.study_datetime), \
+TIME(study.study_datetime), \
+study.accession_no, \
+study.study_id, \
+study.ref_physician, \
+study.study_custom3, \
+study.num_series, \
+study.mods_in_study, \
+study.study_custom1, \
+study.study_custom2, \
+issuer.entity_id, \
+issuer.entity_uid, \
+issuer.entity_uid_type \
+FROM study \
+LEFT JOIN issuer ON study.accno_issuer_fk=issuer.pk \
+WHERE study.pk=%@ \
+%@ \
+" %@</string>
+
+<key>S</key><!-- serie -->
+<string>%@ "\
+SELECT \
+pk, \
+series_iuid, \
+series_desc, \
+series_no, \
+modality, \
+institution, \
+department, \
+station_name, \
+perf_physician, \
+laterality, \
+num_instances, \
+DATE(pps_start), \
+TIME(pps_start) \
+FROM series \
+WHERE study_fk=%@ \
+%@ \
+" %@</string>
+
+<key>I0</key><!-- instance of no frame object-->
+<string>%@ "\
+SELECT \
+pk, \
+sop_cuid, \
+sop_iuid, \
+inst_no, \
+0 \
+FROM instance \
+WHERE series_fk='%@' \
+%@ \
+%@ \
+%@ \
+" %@</string>
+
+<key>I1</key><!-- instance of unique frame object -->
+<string>%@ "\
+SELECT \
+pk, \
+sop_cuid, \
+sop_iuid, \
+inst_no, \
+1 \
+FROM instance \
+WHERE series_fk='%@' \
+%@ \
+%@ \
+%@ \
+" %@</string>
+
+<key>I</key><!-- instance -->
+<string>%@ "\
+SELECT \
+pk, \
+sop_cuid, \
+sop_iuid, \
+inst_no, \
+HEX(inst_attrs) \
+FROM instance \
+WHERE series_fk='%@' \
+%@ \
+%@ \
+%@ \
+" %@</string>
+
+<key>ANDinstanceSOPClass</key>
+<string>AND sop_cuid  REGEXP '%@'</string>
+
+<key>ANDinstanceSOPClassOff</key>
+<string>AND NOT(sop_cuid  REGEXP '%@')</string>
+
+<key>IpostprocessingCommandsSh</key><!-- if empty, default array  -->      
+<string>| awk ' BEGIN{ ORS="\x0D\x0A"; OFS="\x1F\x7C";}{print $1, $2, $3, $4, $5}' | sed 's/080005004353.*280008004953....//'</string>
+
+<key>IpostprocessingTitleMain</key>      
+<string>fifthTextUnitHEX2ASCII</string>
+
+<key>RE</key><!-- Report EKey -->
+<string>%@ "\
+SELECT \
+study.study_iuid, \
+series.series_iuid, \
+instance.sopiuid, \
+FROM instance \
+LEFT JOIN series ON series.pk=instance.series_fk
+LEFT JOIN study ON study.pk=series.study_fk
+WHERE study.pk='%@' \
+AND series.modality='%@' \
+AND instance.sop_cuid='1.2.840.10008.5.1.4.1.1.104.2' \
+ORDER BY instance.created_time DESC \
+LIMIT 1; \
+" %@ </string>
+    
+<key>RU</key><!-- Report StudyInstanceUID -->
+<string>%@ "\
+SELECT \
+study.study_iuid, \
+series.series_iuid, \
+instance.sopiuid, \
+FROM instance \
+LEFT JOIN series ON series.pk=instance.series_fk
+LEFT JOIN study ON study.pk=series.study_fk
+WHERE study.study_iuid='%@' \
+AND series.modality='%@' \
+AND instance.sop_cuid='1.2.840.10008.5.1.4.1.1.104.2' \
+ORDER BY instance.created_time DESC \
+LIMIT 1; \
+" %@ </string>
+    
+<key>RA</key><!-- Report AccessionNumber -->
+<string>%@ "\
+SELECT \
+study.study_iuid, \
+series.series_iuid, \
+instance.sopiuid, \
+FROM instance \
+LEFT JOIN series ON series.pk=instance.series_fk
+LEFT JOIN study ON study.pk=series.study_fk
+WHERE study.accession_no='%@' \
+AND series.modality='%@' \
+AND instance.sop_cuid='1.2.840.10008.5.1.4.1.1.104.2' \
+ORDER BY instance.created_time DESC \
+LIMIT 1; \
+" %@ </string>
+</dict>
+
+</plist>

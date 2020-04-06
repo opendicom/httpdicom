@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.opendicom.com/xsd/plist/sql.xsd"
+    xmlns="http://www.opendicom.com/xsd/plist/sql.xsd" 
+    elementFormDefault="qualified"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" 
+    vc:minVersion="1.1"
+    >
+    
+    <xs:element name="plist">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="dict">
+                    <xs:complexType>
+                        <xs:sequence>
+                            
+                            <xs:group ref="sqlTitle"/>
+                            
+<!-- E select -->    
+                            <xs:group ref="EselectEP"/>
+                            <xs:group ref="EselectEuiE"/>
+                            <xs:group ref="Eselect4dt"/>
+                            <xs:group ref="Ewhere"/><!-- rejection state -->
+<!-- E exclusive match-->                
+                            <xs:group ref="EmatchEui"/><!-- 1. match study UID -->                                                  
+                            <xs:group ref="EmatchEan"/><!-- 2. match accession number -->
+<!-- E cumulative matches-->
+                            <!-- 1. match PID [0, 1 issuer] -->                            
+                            <!-- 2. match PatientName -->
+                            <!-- 3. match StudyID -->
+                            <!-- 4. match StudyDate -->
+                            <!-- 5. match StudyDescription -->
+                            <!-- 6. match ReferringPhysician -->
+                            <!-- 7. match ReadingPhysician -->
+                            <!-- 8. match SOPClassesInStudy -->
+                            <!-- 9. match ModalitiesInStudy -->                            
+                            <xs:group ref="Eand"/>
+                           
+                            
+ <!-- I -->
+                            <xs:group ref="Ici4S"/>
+                            <xs:group ref="Iui4S"/>
+                            
+ <!-- properties -->
+                            <xs:group ref="P"/>
+                            <xs:group ref="E"/>
+                            <xs:group ref="S"/>
+                            <xs:group ref="I0"/>
+                            <xs:group ref="I1"/>
+                            <xs:group ref="I"/>
+                            <xs:group ref="ANDinstanceSOPClass"/>
+                            <xs:group ref="ANDinstanceSOPClassOff"/>
+                            <xs:group ref="IpostprocessingCommandsSh"/>      
+                            <xs:group ref="IpostprocessingTitleMain"/>
+<!--report (E, UID, AN) -->
+                            <xs:group ref="RE"/>
+                            <xs:group ref="RU"/>
+                            <xs:group ref="RA"/>
+
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="version" fixed="1.0"/>
+        </xs:complexType>
+    </xs:element>    
+
+    <!-- ================================= grupos ================================ -->
+
+    <xs:group name="sqlTitle">
+        <xs:sequence>
+            <xs:element name="key" fixed="sqlTitle"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+
+<!-- E select -->
+    
+    <xs:group name="EselectEP">
+        <xs:sequence>
+            <xs:element name="key" fixed="EselectEP"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:group name="EselectEuiE">
+        <xs:sequence>
+            <xs:element name="key" fixed="EselectEuiE"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="Eselect4dt">
+        <xs:sequence>
+            <xs:element name="key" fixed="Eselect4dt"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+
+<!-- E exclusive match-->
+
+    <!-- 1. match study UID -->
+    <xs:group name="EmatchEui">
+        <xs:sequence>
+            <xs:element name="key" fixed="EmatchEui"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <!-- 2. match accession number [0, 1 issuer, 2 issuer+type] -->
+    <xs:group name="EmatchEan">
+        <xs:sequence>
+            <xs:element name="key" fixed="EmatchEan"/>
+            <xs:group ref="array"/>
+        </xs:sequence>
+    </xs:group>    
+
+    <!-- E cumulative matches-->
+
+    <xs:group name="Ejoin">
+        <xs:sequence>
+            <xs:element name="key" fixed="Ejoin"/>
+            <xs:group ref="array"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="Ewhere">
+        <xs:sequence>
+            <xs:element name="key" fixed="Ewhere"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="Eand">
+        <xs:sequence>
+            <xs:element name="key" fixed="Eand"/>
+            <xs:group ref="array"/>
+        </xs:sequence>
+    </xs:group>
+    
+    
+<!-- I -->
+    
+    <xs:group name="Ici4S">
+        <xs:sequence>
+            <xs:element name="key" fixed="Ici4S"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    <xs:group name="Iui4S">
+        <xs:sequence>
+            <xs:element name="key" fixed="Iui4S"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <!-- properties -->
+    
+    <xs:group name="P">
+        <xs:sequence>
+            <xs:element name="key" fixed="P"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    <xs:group name="E">
+        <xs:sequence>
+            <xs:element name="key" fixed="E"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    <xs:group name="S">
+        <xs:sequence>
+            <xs:element name="key" fixed="S"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="I0">
+        <xs:sequence>
+            <xs:element name="key" fixed="I0"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="I1">
+        <xs:sequence>
+            <xs:element name="key" fixed="I1"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="I">
+        <xs:sequence>
+            <xs:element name="key" fixed="I"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="ANDinstanceSOPClass">
+        <xs:sequence>
+            <xs:element name="key" fixed="ANDinstanceSOPClass"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="ANDinstanceSOPClassOff">
+        <xs:sequence>
+            <xs:element name="key" fixed="ANDinstanceSOPClassOff"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:group name="IpostprocessingCommandsSh">
+        <xs:sequence>
+            <xs:element name="key" fixed="IpostprocessingCommandsSh"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="IpostprocessingTitleMain">
+        <xs:sequence>
+            <xs:element name="key" fixed="IpostprocessingTitleMain"/>
+            <xs:element name="string"/>
+            <!-- option: lastTextUnitHEX2ASCII -->
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="RE">
+        <xs:sequence>
+            <xs:element name="key" fixed="RE"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:group name="RU">
+        <xs:sequence>
+            <xs:element name="key" fixed="RU"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:group name="RA">
+        <xs:sequence>
+            <xs:element name="key" fixed="RA"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+
+    <!-- ================================================================= -->
+    
+    
+    
+    <!-- ================================================================= -->
+    <!-- not sufficiently described -->
+    <!-- missing determinations:  -->
+    <!-- Ejoin and Eand are symetric arrays (no string) -->
+    <!-- There is a max of 2 levels of arrays -->
+    <xs:group name="array">
+        <xs:sequence>
+            <xs:element name="array">
+                <xs:complexType>
+                    <xs:choice maxOccurs="unbounded">
+                        <xs:element name="string"/>
+                        <xs:element name="array"/>
+                    </xs:choice>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:group>
+
+
+</xs:schema>

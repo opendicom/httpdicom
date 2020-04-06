@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist
+ xmlns="http://www.opendicom.com/xsd/plist/sql.xsd"
+        
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.opendicom.com/xsd/plist/sql.xsd sql.xsd"
+        
+ version="1.0"
+>
+<dict>
+        
+ <key>sqlTitle</key>
+ <string>dcm4cheearc521mysql</string>
+
+ <!-- E select -->
+ <key>EselectEP</key><!--study primary key, patient primary key-->
+ <string>SELECT study.pk, study.patient_fk </string>
+ <key>EselectEuiE</key><!--study instance UID, study primary key-->
+ <string>SELECT study.study_iuid, study.pk </string>
+ <key>Eselect4dt</key><!--datatables-->
+ <string>SELECT \
+'', \
+CONCAT( '?EKey=', E.pk, '&amp;cache=_cache_&amp;institution=_institution_&amp;StudyInstanceUID=', E.study_iuid ) ,\
+E.study_custom3, \
+IF(PII.entity_id != 'NULL', CONCAT( '?PatientID=', PI.pat_id, '&amp;issuer=', PII.entity_id, '&amp;cache=_cache_&amp;institution=_institution_&amp;max=1000&amp;start=0&amp;length=1000'), CONCAT( '?PatientID=', PI.pat_id,'&amp;cache=_cache_&amp;institution=_institution_&amp;max=1000&amp;start=0&amp;length=1000') ), \
+CONCAT( IFNULL( PN.family_name,'' ), '^', IFNULL( PN.given_name,'' ), '^', IFNULL( PN.middle_name,'' ), '^', IFNULL( PN.name_prefix,'' ), '^', IFNULL(PN.name_suffix,'')), \
+CONCAT( SUBSTRING(E.study_date,1,4), '-', SUBSTRING(E.study_date,5,2), '-',SUBSTRING(E.study_date,7,2), ' ', SUBSTRING(E.study_time,1,2), ':', SUBSTRING(E.study_time,3,2)), \
+EQA.mods_in_study, \
+E.study_desc, \
+CONCAT(IFNULL(ERN.family_name,''), '^', IFNULL(ERN.given_name,''), '^', IFNULL(ERN.middle_name,''), '^', IFNULL(ERN.name_prefix,''), '^', IFNULL(ERN.name_suffix,'')), \
+E.study_custom2, \
+PII.entity_id, \
+P.pat_birthdate, \
+P.pat_sex, \
+E.accession_no, \
+EAI.entity_id, \
+E.study_id, \
+E.study_iuid, \
+E.study_time, \
+E.study_custom1, \
+P.pk, \
+E.pk, \
+'_institution_', \
+'_cache_', \
+PI.pat_id, \
+E.study_date, \
+EQA.num_series, \
+EQA.num_instances, \
+EAI.entity_uid, \
+EAI.entity_uid_type \
+</string>
+
+ 
+ 
+ <key>P</key><!-- patient -->
+ <string>%@ "\
+ SELECT \
+ P.pk, \
+ PI.pat_id, \
+ CONCAT(IFNULL(PN.family_name,''), '^', IFNULL(PN.given_name,''), '^', IFNULL(PN.middle_name,''), '^', IFNULL(PN.name_prefix,''), '^', IFNULL(PN.name_suffix,'')), \
+ PII.entity_id, \
+ P.pat_birthdate, \
+ P.pat_sex \
+ FROM patient AS       P \
+ LEFT JOIN person_name PN  ON patient.pat_name_fk=person_name.pk \
+ LEFT JOIN patient_id  PI  ON patient.patient_id_fk=patient_id.pk \
+ LEFT JOIN issuer      PII ON patient_id.issuer_fk=issuer.pk \
+ WHERE P.pk=%@ %@ " %@ </string>
+  
+ <key>E</key><!-- examen -->
+ <string>%@ "\
+ SELECT \
+ E.pk, \
+ E.study_iuid, \
+ E.study_desc, \
+ E.study_date, \
+ E.study_time, \
+ E.accession_no, \
+ E.study_id, \
+ CONCAT(IFNULL(ERF.family_name,''), '^', IFNULL(ERF.given_name,''), '^', IFNULL(ERF.middle_name,''), '^', IFNULL(ERF.name_prefix,''), '^', IFNULL(ERF.name_suffix,'')), \
+ E.study_custom3, \
+ EQA.num_series, \
+ EQA.mods_in_study, \
+ E.study_custom1, \
+ E.study_custom2, \
+ E.study_custom3, \
+ EAI.entity_id, \
+ EAI.entity_uid, \
+ EAI.entity_uid_type \
+ FROM study AS               E\
+ LEFT JOIN study_query_attrs EQA ON study_query_attrs.study_fk=study.pk \
+ LEFT JOIN person_name       ERN ON study.ref_phys_name_fk=person_name.pk \
+ LEFT JOIN issuer            EAI ON study.accno_issuer_fk=issuer.pk \
+ WHERE EQA.view_id='hideRejected' \
+ AND E.pk=%@ %@ " %@ </string>
+ 
+ <key>Ewhere</key>
+ <string>FROM study AS       E \
+LEFT JOIN study_query_attrs EQA ON E.pk= EQA.study_fk \
+LEFT JOIN issuer            EAI ON E.accno_issuer_fk=EAI.pk \
+LEFT JOIN person_name       ERN ON E.ref_phys_name_fk=ERN.pk \
+LEFT JOIN patient           P   ON E.patient_fk=P.pk \
+LEFT JOIN patient_id        PI  ON P.patient_id_fk=PI.pk \
+LEFT JOIN issuer            PII ON PI.issuer_fk=PII.pk \
+LEFT JOIN person_name       PN  ON P.pat_name_fk=PN.pk \
+WHERE E.rejection_state!=2 AND EQA.view_id='hideRejected' \
+</string>
+ 
+ <!-- match Study Instance UID -->
+ <key>EmatchEui</key>
+ <string>AND E.study_iuid REGEXP '%@' \</string>
+ 
+ 
+ <!-- match AccessionNumber -->
+ <!-- [0, 1 entity_id, 2 entity_uid + type, 3 entity_uid + type + entity_id]-->
+ <key>EmatchEan</key>
+ <array>  
+  <string>AND E.accession_no='%@' \</string>
+  <string>AND E.accession_no='%@' AND EAI.entity_id='@%' \</string>
+  <string>AND E.accession_no='%@' AND EAI.entity_uid='@%' AND EAI.entity_uid_type='@%' \</string>
+  <string>AND E.accession_no='%@' AND EAI.entity_uid='@%' AND EAI.entity_uid_type='@%' AND EAI.entity_id='@%' \</string>
+ </array>
+ 
+ 
+ <!-- E cumulative matches-->
+ <key>Eand</key>
+ <array>
+     <array/>
+     <!-- 1. match PID [0, 1 issuer] -->
+     <array>
+        <string>AND PI.pat_id like '%@' </string>
+        <string>AND PI.pat_id like '%@' AND PII.entity_id = '%@' </string>
+     </array>
+     <!-- 2. match PatientName -->
+     <array>
+        <string></string>
+        <string>AND PN.family_name LIKE '%@' </string>
+        <string>AND PN.given_name LIKE '%@' </string>
+        <string>AND PN.middle_name LIKE '%@' </string>
+        <string>AND PN.name_prefix LIKE '%@' </string>
+        <string>AND PN.name_suffix LIKE '%@' </string>
+     </array>
+     <!-- 3. match StudyID -->
+     <string>AND  E.study_id like '%@' </string>
+     <!-- 4. match StudyDate-->
+     <array>
+         <array/><!-- ISO in DB-->
+         <array><!-- DICOM DA in DB-->
+             <string></string> <!-- (empty) = any -->
+             <string>AND E.study_date = '%@' </string> <!-- [aaaa-mm-dd] = on -->
+             <string>AND E.study_date >= '%@' </string><!-- [aaaa-mm-dd][] = since -->
+             <string>AND NOT(E.study_date > '%@') </string><!-- [][][aaaa-mm-dd] = until -->
+             <string>AND E.study_date >= '%@' AND NOT(E.study_date > '%@') </string><!-- [aaaa-mm-dd][][][aaaa-mm-dd] = between -->
+         </array>
+     </array>
+     <!-- 5. match StudyDescription -->
+     <string>AND E.study_desc REGEXP '%@' </string>
+     <!-- 6. match ReferringPhysician -->
+     <array>
+         <string></string>
+         <string>AND ERN.family_name REGEXP '%@' </string>
+         <string>AND ERN.given_name REGEXP '%@' </string>
+         <string>AND ERN.middle_name REGEXP '%@' </string>
+         <string>AND ERN.name_prefix REGEXP '%@' </string>
+         <string>AND ERN.name_suffix REGEXP '%@' </string>
+     </array>
+     <!-- 7. match ReadingPhysician -->
+     <array>
+         <string>AND E.study_custom3 REGEXP '^%@$' </string>
+         <string></string>
+         <string></string>
+         <string></string>
+         <string></string>
+         <string></string>
+     </array>
+     <!-- 8. match SOPClassesInStudy -->
+     <string>AND EQA.cuids_in_study REGEXP '%@' </string>
+     <!-- 9. match ModalitiesInStudy -->
+     <string>AND EQA.mods_in_study REGEXP '%@' </string>
+ </array>
+ 
+ 
+ 
+<!-- instance ci 4 series pk -->
+<!-- check on series rejection state already performed at series level --> 
+<key>Ici4S</key>
+<string>%@ "SELECT sop_cuid FROM instance WHERE series_fk='%@' %@" %@ </string>
+              
+<!-- instance ui 4 series pk -->
+<key>Iui4S</key>
+<string>%@ "SELECT sop_iuid FROM instance WHERE series_fk='%@' %@" %@ </string>
+
+ 
+        
+<!-- properties (check on series rejection state already performed at study and series level selection) -->       
+
+<key>S</key><!-- serie -->
+<string>%@ "\
+SELECT \
+series.pk, \
+series.series_iuid, \
+series.series_desc, \
+series.series_no, \
+series.modality, \
+series.institution, \
+series.department, \
+series.station_name, \
+CONCAT(IFNULL(person_name.family_name,''), '^', IFNULL(person_name.given_name,''), '^', IFNULL(person_name.middle_name,''), '^', IFNULL(person_name.name_prefix,''), '^', IFNULL(person_name.name_suffix,'')), \
+series.laterality, \
+series_query_attrs.num_instances, \
+series.pps_start_date, \
+series.pps_start_time \
+FROM series \
+LEFT JOIN person_name ON series.perf_phys_name_fk=person_name.pk \
+LEFT JOIN series_query_attrs ON series.pk=series_query_attrs.series_fk \
+WHERE series.study_fk=%@ \
+%@ \
+" %@ </string>
+<!--AND series_query_attrs.view_id='regularUse' \
+-->
+<key>I0</key><!-- instance of no frame object-->
+<string>%@ "\
+SELECT \
+pk, \
+sop_cuid, \
+sop_iuid, \
+inst_no, \
+0 \
+FROM instance \
+WHERE series_fk='%@' \
+%@ \
+%@ \
+%@ \
+" %@ </string>
+
+<key>I1</key><!-- instance of unique frame object -->
+<string>%@ "\
+SELECT \
+pk, \
+sop_cuid, \
+sop_iuid, \
+inst_no, \
+1 \
+FROM instance \
+WHERE series_fk='%@' \
+%@ \
+%@ \
+%@ \
+" %@ </string>
+ 
+<key>I</key><!-- instance -->
+<string>%@ "\
+SELECT \
+pk, \
+sop_cuid, \
+sop_iuid, \
+inst_no, \
+num_frames \
+FROM instance \
+WHERE series_fk='%@' \
+%@ \
+%@ \
+%@ \
+" %@ </string>
+
+ <key>ANDinstanceSOPClass</key>
+ <string>AND sop_cuid  REGEXP '%@'</string>
+
+ <key>ANDinstanceSOPClassOff</key>
+ <string>AND NOT(sop_cuid  REGEXP '%@')</string>
+
+<key>IpostprocessingCommandsSh</key><!-- if empty, default array  -->
+<string></string>
+
+<key>IpostprocessingTitleMain</key>
+<string></string>
+
+<key>RE</key><!-- Report EKey -->
+<string>%@ "\
+SELECT \
+study.study_iuid, \
+series.series_iuid, \
+instance.sop_iuid \
+FROM instance \
+LEFT JOIN series ON series.pk=instance.series_fk
+LEFT JOIN study ON study.pk=series.study_fk
+WHERE study.pk='%@' \
+AND series.modality='%@' \
+AND study.rejection_state!=2 \
+AND series.rejection_state!=2 \
+AND instance.sop_cuid='1.2.840.10008.5.1.4.1.1.104.2' \
+ORDER BY instance.created_time DESC \
+LIMIT 1; \
+" %@ </string>
+
+<key>RU</key><!-- Report StudyInstanceUID -->
+<string>%@ "\
+SELECT \
+study.study_iuid, \
+series.series_iuid, \
+instance.sop_iuid \
+FROM instance \
+LEFT JOIN series ON series.pk=instance.series_fk
+LEFT JOIN study ON study.pk=series.study_fk
+WHERE study.study_iuid='%@' \
+AND series.modality='%@' \
+AND study.rejection_state!=2 \
+AND series.rejection_state!=2 \
+AND instance.sop_cuid='1.2.840.10008.5.1.4.1.1.104.2' \
+ORDER BY instance.created_time DESC \
+LIMIT 1; \
+" %@ </string>
+
+<key>RA</key><!-- Report AccessionNumber -->
+<string>%@ "\
+SELECT \
+study.study_iuid, \
+series.series_iuid, \
+instance.sop_iuid \
+FROM instance \
+LEFT JOIN series ON series.pk=instance.series_fk
+LEFT JOIN study ON study.pk=series.study_fk
+WHERE study.accession_no='%@' \
+AND series.modality='%@' \
+AND study.rejection_state!=2 \
+AND series.rejection_state!=2 \
+AND instance.sop_cuid='1.2.840.10008.5.1.4.1.1.104.2' \
+ORDER BY instance.created_time DESC \
+LIMIT 1; \
+" %@ </string>
+
+ 
+</dict>
+
+</plist>

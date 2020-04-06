@@ -1,0 +1,150 @@
+level
+	select COUNT(instance.SOPUID)
+
+
+Graphs, SQL labels and DICM object model
+=================================
+
+The representation of the  DICOM object model in databases has been subject to variations among PACS projects. Not only tables and columns have different names, but also specialized tables are added -or not.
+
+We reconcile these diferences with the use of sql labels for tables and columns. We create a graph corresponding to the widest dispersion of data found in PACS databases and then map the tables and columns of PACS databases to these labels.
+
+
+graph
+------
+
+                      J
+                      *
+                      +
+                      D
+                      +
+                      *  
+C                     +
+|                     T
+P         J         +++++++             
+*          *          *            ?
++++++++++++           N
+                      E                       *
+++++++++++++++++++
+
+       EN    EQ
+
+S
++-----+-----+-----+--+
+*
++      SC     SR    SN    SQ
+I
+
++-----+
+		  IV
+          |
+        VN
+
+J    = jurisdiction (issuer)
+D   = document (id)
+T		=	record Target patient
+TN	= target name
+''
+E		= study
+EP	= study Procedure
+PC	= Procedure code
+EI		= study accessionNumber Issuer
+EN	= study refering physician Name
+EQ	= study Query attributes
+
+S		= Series
+SC	= Series Step Code
+SN	= Series Performing Physician Name
+SQ	= Series Query attributes
+SR	= Series Request
+
+I		= Instance
+IV    = VerifyingObserver
+VN  = ObserverName
+
+
+FROM
+-------
+
+The translation of this graph into tables and columns by means of labels occurs in the FROM WHERE and SELECT parts of the sql query.
+
+The FROM is  made of :
+- a root table node in the graph : I, S, E or T
+- followed by the other necessary tables separated by comas
+
+For instance:
+- If all attributes of the table "patient" which we label "T" are found in the same table, FROM, reads like this:
+FROM patient T, patient TD, patient DI, patient TN
+(The same table is referred to by all the labels)
+- If the attibutes of the patient are distributed among various tables (like in dcm4chee-arc), the FROM clause reads:
+FROM patient T, patient_id TD, issuer DI, person_name TN
+
+Lista de correspondencia with dcm4chee-arc-light:
+
+I					instance
+DI	, EI			issuer
+T					patient
+TD				patient_id
+TN,EN,SN 	person_name
+EP				study_pcode
+PC,SC		code
+S					series
+SQ				series_query_attrs
+SR				series_req
+E					study
+EQ				study_query_attrs
+
+
+WHERE
+---------
+
+The WHERE Clause defines the relation between the tables :
+- starts with a condition on the status of the root record (status "2" equals "rejected") or the passthrough 1=1
+- adds conditions relating the nodes defined in FROM (if necesary). This has the same efect as a LEFT JOIN
+- adds conditions relative to the specific filter.
+
+
+SELECT
+----------
+col labels are defined as follows:
+SELECT [COL.ROOTTABLE|FUNCTION] as [ROOTTABLE][_DICMKEYWORD]* ,
+
+Functions are usefull for DICOM types which may be represented in SQL types other than string y/o groups of cols.
+
+PN
+==
+DICOM PN type may be represented in databases in many diferent ways...
+DICM MODEL is divided into Alphabetic, Ideographic and Phonetic, each of which being subdivided into FamilyName, GivenName, MiddleName, NamePrefix and NameSuffix.
+
+The atomic type asked for is always Alphabetic with the five components joined by ^. This is solved with a sql concat() instead of just a col name
+
+DT, DA, TM
+========
+DT, DA, TM may be respresented in diferent formats
+may be stored as DICM string or as iso date. A function need to transform to DICM formats in col names.
+
+
+*********************************************************************************************************
+
+HTTPDICOM clases
+-----------------------
+
+Classes wadors, wadouri, datatables query: NSMutableURLRequest (REST)
+========================================================
+use metadatabase FROM WHERE SELECT
+initialization of the clases transfer plist to dicts
+The invocations refer to pacs (in order to know the sql access url start)
+
+Class sql
+=======
+
+initialize formatting of sql responses valid for every sql
+
+is instantiated for each of the known DBs
+transforms metadatabase FROM WHERE SELECT into proper sql for a specific datatable
+
+Class pacs
+========
+sql access
+
+

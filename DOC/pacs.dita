@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="Untitled">
+    <title>PCSs: nexos para enlazar redes DICOM locales</title>
+    <body>
+        <p>La red DICOM local de un establecimiento de salud (servicio de radiología, clínica u hospital) consiste de varios PACS (Picture Archiving and Communication System, concepto genérico que incluye también estaciones de trabajo e modalidades de adquisición de imágenes) que hablan DICOM entre sí. No están configurados para soportar consultas desde internet, la red de redes.</p>
+        <p>Para ese último, conviene establecer un custodio entre la red mundial y cada establecimiento que se encargue de los problemas de direccionamiento, protocolo de comunicación, seguridad de datos etc... Es la razón por la cual hemos creado el <b>PCS (Picture Communication System)</b>, que es un nuevo tipo de PACS sin obligación de almacenamiento duradero pero con especialización en la comunicación global-local. El PCS tiene un pie dentro de la red mundial y otro dentro del establecimiento. Desde la red mundial se hace posible consultar imágenes médicas disponibles dentro de un PACS de un establecimiento a través del PCS del establecimiento.</p>
+        <p>Además, un PCS puede asociarse con el PCS de otro establecimiento y consolidar resultados obtenidos dentro de ambos establecimientos.</p>
+        <image href="pacs.png" id="image_hbt_d52_lbb" align="center" height="400"/>
+        <section id="section_yhg_552_lbb">
+            <title>Identificación del PCS custodio</title>
+            <p>
+                <ul id="ul_abr_q5q_ddb">
+                    <li><b>cutodianoid</b> (HomeCommunityID, attribute DICOM (0040,E031))</li>
+                    <li><b>custodianglobaluri</b></li>
+                    <li><b>custodiantitle</b> (de hasta 16 caracteres) fácil de recordar</li>
+                </ul>
+            </p>
+        </section>
+        <section>
+            <title>Identificación del PACS</title>
+            <ul>
+                <li><b>pacsoid</b> (RepositoryUniqueID, attribute DICOM (0040,E030))</li>
+                <li><b>preferredstudyidentificator</b> (StudyInstanceUID o AccessionNumber)</li>
+                <li><b>TimezoneOffsetFromUTC</b> (format +/-HHMM)</li>
+                <li><b>custodiantitle</b></li>
+                <li><b>cutodianoid</b> (HomeCommunityID, attribute DICOM (0040,E031))</li>
+                <li><b>custodianglobaluri</b></li>
+                <li><b>pacsaet</b> (nombre de 16 caracteres máx usado localmente en las transacciones con protocolo DICOM DICM)</li>
+            </ul>
+        </section>
+        <section id="section_ijy_w1h_tbb">
+            <title>PCS y PACS</title>
+            <p>El PCS maneja 4 tipo de conexiones :</p>
+            <p>
+                <ul id="ul_fmn_5dh_tbb">
+                    <li>a PACS corriendo localmente en referencia al PCS (por http)</li>
+                    <li>a PACS accesibles a traves de la red DICOM local (por DICOM DICM)</li>
+                    <li>a PCS custodios de otros establecimientos (por http). El PCS custodio recibiendo el request asume la tarea de consolidar las informaciones obtenidas desde todos sus PACS locales en una única response.</li>
+                    <li>a PACS locales especificos de otros establecimientos accedidos mediante el PCS custodio correspondiente (por http)</li>
+                </ul>
+            </p>
+        </section>
+        <section id="section_pw1_zr2_gdb">
+            <title>Propiedades adicionales del PACS local</title>
+            <p>Si el PACS es local en relación al PCS custodio, se agregan propiedades que definen el modo de comunicación entre ellos. Se usa siempre el protocolo más rápido disponible:</p>
+            <p><ol id="ol_chq_j51_cdb">
+                    <li>En primer lugar SQL. Junto con SQL, file system o si no está disponible wadouri.</li>
+                    <li>En segundo lugar, DICOM DICM.</li>
+                </ol>Cada PCS mantiene una lista exhaustiva de PACS locales y configuraciones para cada uno de ellos.</p>
+            <p>
+                <ul id="ol_ms1_fsh_tbb">
+                    <li><b>sqlprolog</b> (permite conectarse al sql del device)</li>
+                    <li><b>sqlstringencoding</b> (4=UTF-8, 5=latin1)</li>
+                    <li><b>sqlmap</b> (enlace al diccionario que lista en lenguaje sql específico las traducciones de los queries usados)</li>
+                    <li><b>filesystembaseuri</b> (en caso de acceder directamente a los archivos de imágenes)</li>
+                    <li><b>wadolocalouri</b> (uri del servicio en caso que el PACS local soporte esta funcionalidad)</li>
+                    <li><b>wadouriadditionalparameters</b> (por ejemplo
+                        '&amp;amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida)</li>
+                    <li><b>dcm4cheelocaluri</b> (uri del dcm4chee-arc-light del PCS, base de servicios proprietary rest, dicomweb y DICM)</li>
+                    <li><b>dcm4cheeDICMproxytitle</b> (aet de dcm4chee-arc-light cuando funciona como proxy DICOM DICM)</li>
+                    <li><b>cachepolicy</b> (useProtocolCachePolicy, reloadIgnoringLocalCacheData, returnCacheDataElseLoad, returnCacheDataDontLoad)</li>
+                    <li><b>timeoutinterval</b> (entre 10 y 999. default 60)</li>
+                </ul>
+            </p>
+        </section>
+        <section id="section_j3q_trs_ndb">
+            <title>Worklist</title>
+            <p>A PACS/RIS maneja workitems. El servicio httpdicom /mwlitem  facilita la creación de
+                tales workitems. Para ello, el PCS usa los servicios rest dcm4chee-arc :</p>
+            <p>
+                <ul id="ul_yrt_sss_ndb">
+                    <li>patients</li>
+                    <li>mwlitems</li>
+                    <li>stow (json)</li>
+                </ul>
+            </p>
+        </section>
+    </body>
+</topic>

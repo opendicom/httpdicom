@@ -14,7 +14,14 @@
 }
 
 - (BOOL)open:(NSError**)error {
-    int result = deflateInit2(&_stream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 + 16, 8, Z_DEFAULT_STRATEGY);
+    int result = deflateInit2(
+                              &_stream,
+                              Z_DEFAULT_COMPRESSION,
+                              Z_DEFLATED,
+                              15 + 16,
+                              8,
+                              Z_DEFAULT_STRATEGY
+                              );
     if (result != Z_OK) {
         if (error) {
             *error = [NSError errorWithDomain:kZlibErrorDomain code:result userInfo:nil];
