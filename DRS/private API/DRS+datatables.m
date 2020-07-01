@@ -14,7 +14,7 @@
    @"Radiologo",
    @"Solicitante",
    @"Medico",
-   @"Autrenticador"
+   @"Autenticador"
    ];
    enum rolesEnum{
       rolPatient,

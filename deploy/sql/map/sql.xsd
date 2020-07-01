@@ -21,6 +21,11 @@
                             <xs:group ref="EselectEP"/>
                             <xs:group ref="EselectEuiE"/>
                             <xs:group ref="Eselect4dt"/>
+                            
+                            <xs:group ref="P"/>
+                            <xs:group ref="E"/>
+                            
+                            
                             <xs:group ref="Ewhere"/><!-- rejection state -->
 <!-- E exclusive match-->                
                             <xs:group ref="EmatchEui"/><!-- 1. match study UID -->                                                  
@@ -43,8 +48,6 @@
                             <xs:group ref="Iui4S"/>
                             
  <!-- properties -->
-                            <xs:group ref="P"/>
-                            <xs:group ref="E"/>
                             <xs:group ref="S"/>
                             <xs:group ref="I0"/>
                             <xs:group ref="I1"/>
