@@ -50,7 +50,7 @@
                 sqlcredentials,
                 [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
                  sqlprolog,
-                 d[@"sqlselect"],
+                 sqlDictionary[@"Eselect4dt"],
                  sqlDictionary[@"Ewhere"],
                  [NSString stringWithFormat:
                   sqlDictionary[@"EmatchEui"],
@@ -65,7 +65,6 @@
       else if (d[@"AccessionNumberEqualString"])
 #pragma mark · EA
       {
-
          switch ([d[@"issuerArray"] count]) {
                
             case issuerNone:
@@ -74,7 +73,7 @@
                    sqlcredentials,
                    [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
                      sqlprolog,
-                     d[@"sqlselect"],
+                     sqlDictionary[@"Eselect4dt"],
                      sqlDictionary[@"Ewhere"],
                      [NSString stringWithFormat:
                         (sqlDictionary[@"EmatchEan"])[issuerNone],
@@ -93,7 +92,7 @@
                    sqlcredentials,
                    [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
                      sqlprolog,
-                     d[@"sqlselect"],
+                     sqlDictionary[@"Eselect4dt"],
                      sqlDictionary[@"Ewhere"],
                      [NSString stringWithFormat:
                         (sqlDictionary[@"EmatchEan"])[issuerLocal],
@@ -113,7 +112,7 @@
                    sqlcredentials,
                    [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
                     sqlprolog,
-                    d[@"sqlselect"],
+                    sqlDictionary[@"Eselect4dt"],
                     sqlDictionary[@"Ewhere"],
                     [NSString stringWithFormat:
                      (sqlDictionary[@"EmatchEan"])[issuerUniversal],
@@ -135,7 +134,7 @@
                    sqlcredentials,
                    [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
                     sqlprolog,
-                    d[@"sqlselect"],
+                    sqlDictionary[@"Eselect4dt"],
                     sqlDictionary[@"Ewhere"],
                     [NSString stringWithFormat:
                      (sqlDictionary[@"EmatchEan"])[issuerDivision],
