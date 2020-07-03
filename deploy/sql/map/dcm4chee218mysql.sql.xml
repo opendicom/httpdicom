@@ -26,7 +26,7 @@ CONCAT( '?EKey=', E.pk, '&amp;cache=_cache_&amp;institution=_institution_&amp;St
 E.study_custom3, \
 IF(P.pat_id_issuer != 'NULL', CONCAT( '?PatientID=', P.pat_id, '&amp;issuer=', P.pat_id_issuer, '&amp;cache=_cache_&amp;institution=_institution_&amp;max=1000&amp;start=0&amp;length=1000'), CONCAT( '?PatientID=', P.pat_id,'&amp;cache=_cache_&amp;institution=_institution_&amp;max=1000&amp;start=0&amp;length=1000') ), \
 P.pat_name, \
-E.study.study_datetime, \
+E.study_datetime, \
 E.mods_in_study, \
 E.study_desc, \
 E.ref_physician, \
@@ -44,7 +44,7 @@ P.pk, \
 E.pk, \
 '_institution_', \
 '_cache_', \
-PI.pat_id, \
+P.pat_id, \
 DATE(E.study_datetime), \
 E.num_series, \
 E.num_instances, \
@@ -104,10 +104,10 @@ WHERE TRUE </string>
 <!-- 2. match accession number [0, 1 entity_id, 2 entity_uid + type, 3 entity_uid + type + entity_id]-->
 <key>EmatchEan</key>
 <array>  
-<string>AND E.accession_no='%@' \</string>
-<string>AND E.accession_no='%@' AND EAI.entity_id='@%' \</string>
-<string>AND E.accession_no='%@' AND EAI.entity_uid='@%' AND EAI.entity_uid_type='@%' \</string>
-<string>AND E.accession_no='%@' AND EAI.entity_uid='@%' AND EAI.entity_uid_type='@%' AND EAI.entity_id='@%' \</string>
+<string>AND E.accession_no='%@' </string>
+<string>AND E.accession_no='%@' AND EAI.entity_id='@%' </string>
+<string>AND E.accession_no='%@' AND EAI.entity_uid='@%' AND EAI.entity_uid_type='@%' </string>
+<string>AND E.accession_no='%@' AND EAI.entity_uid='@%' AND EAI.entity_uid_type='@%' AND EAI.entity_id='@%' </string>
 </array>
 
 
