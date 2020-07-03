@@ -283,7 +283,7 @@ static NSArray             *_InstanceMultiFrameSOPClass=nil;
 
 int execUTF8Bash(NSDictionary *environment, NSString *writeString, NSMutableData *readData)
 {
-   NSArray *whereSeparated=[writeString componentsSeparatedByString:@"WHERE"];
+   /*NSArray *whereSeparated=[writeString componentsSeparatedByString:@"WHERE"];
     
    if  (whereSeparated.count==2)
    {
@@ -291,7 +291,7 @@ int execUTF8Bash(NSDictionary *environment, NSString *writeString, NSMutableData
        NSRange firstBackSlashOffset=[sqlOnly rangeOfString:@"\\"];
        LOG_VERBOSE(@"%@",[sqlOnly substringFromIndex:firstBackSlashOffset.location + 2]);
    }
-   else LOG_DEBUG(@"%@",writeString);
+   else*/ LOG_DEBUG(@"%@",writeString);
    
    return execTask(environment, @"/bin/bash",@[@"-s"], [writeString dataUsingEncoding:NSUTF8StringEncoding], readData);
 }
