@@ -93,7 +93,7 @@ WHERE E.pk=%@ %@ " %@ </string>
 <string>FROM study AS E \
 LEFT JOIN patient P ON E.patient_fk=P.pk \
 LEFT JOIN issuer EAI ON E.accno_issuer_fk=EAI.pk \
-WHERE \</string>
+WHERE TRUE </string>
     
 <!-- E exclusive match-->
 
