@@ -1056,42 +1056,49 @@ NSString * SOPCLassOfReturnableSeries(
          
 #pragma mark dicomzip
       case accessTypeDicomzip:
-      case accessTypeIsoDicomZip:
-      case accessTypeDeflateIsoDicomZip:
-      case accessTypeMaxDeflateIsoDicomZip:
       {
+         NSMutableArray *seriesPaths=[NSMutableArray array];
          for (NSString *devOID in lanArray)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
-            NSString *devOIDPath=[queryPath stringByAppendingPathComponent:devOID];
-            [requestDict setObject:devOIDPath forKey:@"devOIDPath"];
             [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
+             [requestDict setObject:(DRS.pacs[devOID])[@"filesystems"] forKey:@"mountPoints"];
 
             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
                 case selectTypeSql:
                   [DRS datateblesStudySql4dictionary:requestDict];
-                  [DRS dicomzipSql4d:requestDict];
+                  //[seriesPaths addObjectsFromArray:[DRS dicomzipSql4d:requestDict]];
+                  [DRS addSeriesPathFor:requestDict toArray:seriesPaths];
                   break;
             }
          }
-          
-         NSMutableArray *pathArray=[NSMutableArray array];
-          NSArray *studiesSelected=nil;
-          BOOL oneStudySelected=false;
-          if (StudyInstanceUIDRegexpString)
+
+         //return [DRS dicomzipStreamForQueryPath:queryPath];
+         return [DRS dicomzipStreamForSeriesPaths:seriesPaths];
+
+         /*
+           
+          NSMutableArray *pathArray=[NSMutableArray array];
+           NSArray *studiesSelected=nil;
+           BOOL oneStudySelected=false;
+           if (StudyInstanceUIDRegexpString)
+           {
+               studiesSelected=[StudyInstanceUIDRegexpString componentsSeparatedByString:@"|"];
+               oneStudySelected=(studiesSelected.count == 1);
+           }
+          BOOL oneSeriesSelected=false;
+          NSArray *seriesSelected=nil;
+          if (SeriesInstanceUIDRegexString!=nil)
           {
-              studiesSelected=[StudyInstanceUIDRegexpString componentsSeparatedByString:@"|"];
-              oneStudySelected=(studiesSelected.count == 1);
+              seriesSelected=[SeriesInstanceUIDRegexString componentsSeparatedByString:@"|"];
+              oneSeriesSelected=(seriesSelected.count < 2);
           }
-         BOOL oneSeriesSelected=false;
-         NSArray *seriesSelected=nil;
-         if (SeriesInstanceUIDRegexString!=nil)
-         {
-             seriesSelected=[SeriesInstanceUIDRegexString componentsSeparatedByString:@"|"];
-             oneSeriesSelected=(seriesSelected.count < 2);
-         }
-         NSArray *devOIDItems=[defaultManager contentsOfDirectoryAtPath:queryPath error:nil];
+          
+
+          NSArray *devOIDItems=[defaultManager contentsOfDirectoryAtPath:queryPath error:nil];
+
+          
           for (NSString *devOIDItem in devOIDItems)
           {
               if ([lanArray indexOfObject:devOIDItem]!=NSNotFound)
@@ -1139,9 +1146,9 @@ NSString * SOPCLassOfReturnableSeries(
                               [pathArray addObject:[devOIDItem stringByAppendingPathComponent:studyFolder]];
                           
                       }
-                  }
+                   }
                 }
-              }
+             }
           }
           //LOG_INFO(@"%@",[pathArray description]);
           NSString *zipPath=[[queryPath lastPathComponent] stringByAppendingPathExtension:@"zip"];
@@ -1160,7 +1167,10 @@ NSString * SOPCLassOfReturnableSeries(
          [RSDataResponse
           responseWithData:[NSData dataWithContentsOfFile:[queryPath stringByAppendingPathComponent:zipPath]]
           contentType:@"application/zip"];//application/octet-stream
+         
+         
          return nil;// [NSData dataWithContentsOfFile:[queryPath stringByAppendingPathExtension:@"zip"]]
+         */
       } break;
          
 #pragma mark osirix

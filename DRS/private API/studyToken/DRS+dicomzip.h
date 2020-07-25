@@ -4,8 +4,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DRS (dicomzip)
 
-+(void)dicomzipSql4d:(NSDictionary*)d;
-//+(RSResponse*)dicomzipChunks4dictionary:(NSDictionary*)d;
++(void)addSeriesPathFor:(NSDictionary*)d toArray:(NSMutableArray*)mutableArray;
+
++(RSResponse*)dicomzipStreamForSeriesPaths:(NSArray*)array;
 
 @end
 

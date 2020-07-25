@@ -9,6 +9,12 @@
 #import "RSFileResponse.h"
 #import "RSStreamedResponse.h"
 
+static uint32 zipLocalFileHeader=0x04034B50;
+static uint16 zipVersion=0x0A;
+static uint32 zipNameLength=0x28;
+static uint32 zipFileHeader=0x02014B50;
+static uint32 zipEndOfCentralDirectory=0x06054B50;
+
 
 enum dt {
    dt_,

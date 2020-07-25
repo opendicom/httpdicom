@@ -13,12 +13,6 @@ version="1.0"
 <string>dcm4chee218mysql</string>
 
 <!-- E select -->
-<key>EselectEP</key><!--study primary key, patient primary key-->
-<string>SELECT study.pk, study.patient_fk </string>
-<key>EselectEuiE</key><!--study instance UID, study primary key-->   
-<string>SELECT study.study_iuid, study.pk </string>
-
-    
 <key>Eselect4dt</key><!--datatables-->
 <string>SELECT \
 '', \
@@ -158,7 +152,7 @@ WHERE TRUE </string>
 </array>        
 <!-- 7. match ReadingPhysician -->
 <array>
-    <string>AND P.study_custom3 REGEXP '%@' </string>
+    <string>AND E.study_custom3 REGEXP '%@' </string>
     <string>%@ </string>
     <string>%@ </string>
     <string>%@ </string>
@@ -312,6 +306,19 @@ AND instance.sop_cuid='1.2.840.10008.5.1.4.1.1.104.2' \
 ORDER BY instance.created_time DESC \
 LIMIT 1; \
 " %@ </string>
+
+<key>file</key>
+<string>%@ "\
+SELECT \
+files.filesystem_fk, \
+files.filepath \
+FROM files \
+LEFT JOIN instance ON instance.pk=files.instance_fk
+WHERE instance.series_fk=%@ \
+LIMIT 1; \
+" %@ </string>
+
+
 </dict>
 
 </plist>

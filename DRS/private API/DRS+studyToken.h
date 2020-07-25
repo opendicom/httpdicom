@@ -34,12 +34,9 @@ enum selectType{
 };
 
 enum getType{
-   getTypeFile,
-   getTypeFolder,
    getTypeWado,
-   getTypeWadors,
-   getTypeCget,
-   getTypeCmove
+   getTypeFolderDcm4chee2,
+   getTypeFolderDcm4cheeArc
 };
 
 enum dateMatch{
@@ -104,11 +101,17 @@ NSString * SOPCLassOfReturnableSeries(
 
 
 #pragma mark - static
+//filesystemSlashPath
+static NSString *tabReturn=@"| awk -F\\t ' {print $1,  $2}'";
+
+
 // pk.pk/
 static NSString *sqlTwoPks=@"| awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\".\";} {print $1, $2} '";
 
 // item/
 static NSString *sqlsingleslash=@"| awk -F\\t ' BEGIN{ ORS=\"/\"; OFS=\"\";} {print $1} '";
+
+static NSString *sqlRecordTwoUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2}'";
 
 static NSString *sqlRecordThreeUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0A\";OFS=\"\\x1F\\x7C\";}{print $1, $2, $3}'";
 

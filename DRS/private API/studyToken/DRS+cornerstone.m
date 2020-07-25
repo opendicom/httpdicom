@@ -33,7 +33,7 @@
 
    
    //get
-   NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
+   NSUInteger getTypeIndex=[@[@"wado",@"folderDcm4chee2",@"folderDcm4cheeArc"] indexOfObject:devDict[@"get"]];
 
 
    
@@ -338,7 +338,7 @@ As seen some casuistics can be resolved before any query to the instance table, 
                         NSString *wadouriInstance=
                         [NSString
                          stringWithFormat:
-                         @"_proxyURIString_?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=_sessionString_&custodianOID=%@&arcId=%@%@",
+                         @"_proxyURIString_?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&frameNumber=%@&session=_sessionString_&custodianOID=%@&arcId=%@%@",
                          study[@"StudyInstanceUID"],
                          seriesSqlProperties[1],
                          instanceSqlProperties[2],

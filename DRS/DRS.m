@@ -377,12 +377,21 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
     return nil;
 }
 
+
+#pragma mark statics of dicomzip
+static NSFileManager *fileManager=nil;
+static NSData *ctad=nil;
+
 -(id)initWithSqls:(NSDictionary*)sqls
              pacs:(NSArray*)pacsArray
           drsport:(long long)drsport
    defaultpacsoid:(NSString*)defaultpacsoid
         tmpDir:(NSString*)tmpDir
 {
+   //statics of dicomzip
+   fileManager=[NSFileManager defaultManager];
+   ctad=[@"Content-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
+   
    _InstanceUniqueFrameSOPClass=
    @[
       @"1.2.840.10008.5.1.4.1.1.1",
@@ -563,10 +572,71 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
        
        for (pacsIndex=0; pacsIndex<[pacsArray count];pacsIndex++)
        {
-          NSDictionary *d=pacsArray[pacsIndex];
-
-          if (pacsIndex!=0)[pacsKeys appendString:@","];
+          NSMutableDictionary *d=[NSMutableDictionary dictionaryWithDictionary:pacsArray[pacsIndex]];
+          
+          //create filesystems dictionary for pacs. This dictionary shall be used when get in ["folderDcm4chee2","folderDcm4cheeArc"]
+          /*
+           [
+              {
+                 "dcmStorageID" : "",
+                 "dcmURI" : ""
+              }
+              ...
+           ]
+           */
+          NSError *error=nil;
+          NSMutableDictionary *filesystems=[NSMutableDictionary dictionary];
+          
+          NSMutableData *filesystemsJSONData=[NSMutableData data];
+          if ([d[@"get"]isEqualToString:@"folderDcm4chee2"])
+          {
+             //TODO agregar dictionary "filesystems" a d with string(pk) and dirpath
+             if (execUTF8Bash(@{d[@"sqlcredentials"]:d[@"sqlpassword"]},
+                              @"/usr/local/mysql/bin/mysql --raw --skip-column-names -u inovahistorico -h 192.168.1.38 -b pacsdb -e \"SELECT pk, dirpath FROM filesystems | awk -F\\t ' BEGIN{ print \"[{\"; ORS=\"},{\";OFS=\",\";}{print \"\\\"dcmStorageID\\\":\\\"\"$1\"\\\"\", \"\\\"dcmURI\\\":\\\"\"$2\"\\\"\"}' | tr -d '\012' | sed -e \"s/,{$/]/\"",
+                              filesystemsJSONData)
+                 !=0)
+             {
+                LOG_ERROR(@"filesystems error  in %@",d[@"sqlmap"]);
+                exit(0);
+             }
+          }
+          else if ([d[@"get"]isEqualToString:@"folderDcm4cheeArc"])
+          {
+             NSString *filesystemsURIString=
+             [
+              [
+               [d[@"dcm4cheelocaluri"]
+                stringByDeletingLastPathComponent]
+               stringByDeletingLastPathComponent]
+              stringByAppendingPathComponent:@"storage"];
              
+             filesystemsJSONData=[NSMutableData dataWithContentsOfURL:[NSURL URLWithString:filesystemsURIString] options:0 error:&error];
+             if (!filesystemsJSONData)
+             {
+                LOG_ERROR(@"filesystems error  in %@",d[@"sqlmap"]);
+                exit(0);
+             }
+
+          }
+          else filesystemsJSONData=[NSMutableData dataWithData:[@"[]" dataUsingEncoding:NSUTF8StringEncoding]];//wado or other
+          
+          //convert JSONData in dictionary dcmStorageID:dcmURI
+          NSArray *arrayOfDicts=[NSJSONSerialization JSONObjectWithData:filesystemsJSONData options:0 error:&error];
+          if (error)
+          {
+             LOG_ERROR(@"filesystems error  in %@",d[@"sqlmap"]);
+             exit(0);
+          }
+          for (NSDictionary *dict in arrayOfDicts)
+          {
+             [filesystems setValue:dict[@"dcmURI"] forKey:dict[@"dcmStorageID"]];
+          }
+          [d setObject:[NSDictionary dictionaryWithDictionary:filesystems] forKey:@"filesystems"];
+
+             
+          if (pacsIndex!=0)[pacsKeys appendString:@","];
+
+          
           if (
                 [d[@"custodianoid"] isEqualToString:(pacsArray[0])[@"custodianoid"]]
               ||[d[@"custodiantitle"] isEqualToString:(pacsArray[0])[@"custodiantitle"]]

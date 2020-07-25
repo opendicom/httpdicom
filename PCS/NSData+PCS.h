@@ -20,6 +20,9 @@
 
 //html5 form parsing
 +(void)initPCS;
++(NSData*)recordSeparatorData;
++(NSData*)unitSeparatorData;
+
 -(NSDictionary*)parseNamesValuesTypesInBodySeparatedBy:(NSData*)separator;
 
 @end

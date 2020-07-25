@@ -46,10 +46,8 @@
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
             <string id="sqlmap">dcm4chee218mysql</string>
-            
-            <key>filesystembaseuri</key>
-            <string id="filesystembaseuri"></string>
-            
+            <key>filepathprefix</key>
+            <string id="filepathprefix"></string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
             
@@ -79,14 +77,6 @@
             <string id="wadodicomzipparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
             <key>wadoosirixparameters</key>
             <string id="wadoosirixparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
-            <key>wadoisodicomzipparameters</key>
-            <string id="wadoisodicomzipparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
-            <key>wadodeflateparameters</key>
-            <string id="wadodeflateparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
-            <key>wadomaxdeflateparameters</key>
-            <string id="wadomaxdeflateparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
-            <key>wadozip64parameters</key>
-            <string id="wadozip64parameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
             <key>wadors</key>
             <string id="wadors"></string>
             <key>qido</key>

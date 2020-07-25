@@ -39,7 +39,7 @@
 
     
     //get
-    NSUInteger getTypeIndex=[@[@"file",@"folder",@"wado",@"wadors",@"cget",@"cmove"] indexOfObject:devDict[@"get"]];
+    NSUInteger getTypeIndex=[@[@"wado",@"folderDcm4chee2",@"folderDcm4cheeArc"] indexOfObject:devDict[@"get"]];
 
     
     //prepare regex level series

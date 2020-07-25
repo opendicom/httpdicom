@@ -315,6 +315,17 @@ ORDER BY instance.created_time DESC \
 LIMIT 1; \
 " %@ </string>
 
+<key>file</key>
+<string>%@ "\
+SELECT \
+files.filesystem_fk, \
+files.filepath, \
+FROM files \
+LEFT JOIN instance ON instance.pk=files.instance_fk
+WHERE instance.series_fk='%@' \
+LIMIT 1; \
+" %@ </string>
+
  
 </dict>
 

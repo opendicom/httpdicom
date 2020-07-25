@@ -172,6 +172,12 @@ static NSData *unitSeparator=nil;
 
 }
 
++(NSData*)recordSeparatorData {
+   return recordSeparator;
+}
++(NSData*)unitSeparatorData{
+   return unitSeparator;
+}
 -(NSDictionary*)parseNamesValuesTypesInBodySeparatedBy:(NSData*)separator
 {
     //return datatype is array,because a param name may be repeated

@@ -53,7 +53,6 @@
                     <li><b>sqlprolog</b> (permite conectarse al sql del device)</li>
                     <li><b>sqlstringencoding</b> (4=UTF-8, 5=latin1)</li>
                     <li><b>sqlmap</b> (enlace al diccionario que lista en lenguaje sql específico las traducciones de los queries usados)</li>
-                    <li><b>filesystembaseuri</b> (en caso de acceder directamente a los archivos de imágenes)</li>
                     <li><b>wadolocalouri</b> (uri del servicio en caso que el PACS local soporte esta funcionalidad)</li>
                     <li><b>wadouriadditionalparameters</b> (por ejemplo
                         '&amp;amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida)</li>

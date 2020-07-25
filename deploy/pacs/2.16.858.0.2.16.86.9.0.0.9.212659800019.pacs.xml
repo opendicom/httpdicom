@@ -16,7 +16,7 @@
             <key>pacsoid</key>
             <string id="pacsoid">2.16.858.2.10014131.72769.1</string><!-- .pacs.1 -->
             <key>pacsaet</key>
-            <string id="pacsaet">CUDIM</string>
+            <string id="pacsaet">BCBSU</string>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
             <key>timezoneoffsetfromutc</key>
@@ -49,9 +49,8 @@
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
             <string id="sqlmap">dcm4cheearc517mysql</string>
-            <key>filesystembaseuri</key>
-            <string id="filesystembaseuri"></string>
-            
+            <key>filepathprefix</key>
+            <string id="filepathprefix"></string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
             
@@ -81,14 +80,6 @@
             <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
             <key>wadoosirixparameters</key>
             <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
-            <key>wadoisodicomzipparameters</key>
-            <string id="wadoisodicomzipparameters">&amp;transferSyntax=*</string>            
-            <key>wadodeflateparameters</key>
-            <string id="wadodeflateparameters">&amp;transferSyntax=*</string>            
-            <key>wadomaxdeflateparameters</key>
-            <string id="wadomaxdeflateparameters">&amp;transferSyntax=*</string>            
-            <key>wadozip64parameters</key>
-            <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/DCM4CHEE/rs</string>
             <key>qido</key>

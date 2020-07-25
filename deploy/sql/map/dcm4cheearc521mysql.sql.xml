@@ -13,11 +13,7 @@
  <string>dcm4cheearc521mysql</string>
 
  <!-- E select -->
- <key>EselectEP</key><!--study primary key, patient primary key-->
- <string>SELECT study.pk, study.patient_fk </string>
- <key>EselectEuiE</key><!--study instance UID, study primary key-->
- <string>SELECT study.study_iuid, study.pk </string>
- <key>Eselect4dt</key><!--datatables-->
+  <key>Eselect4dt</key><!--datatables-->
  <string>SELECT \
 '', \
 CONCAT( '?EKey=', E.pk, '&amp;cache=_cache_&amp;institution=_institution_&amp;StudyInstanceUID=', E.study_iuid ) ,\
@@ -329,7 +325,18 @@ ORDER BY instance.created_time DESC \
 LIMIT 1; \
 " %@ </string>
 
- 
+
+<key>file</key>
+<string>%@ "\
+SELECT \
+location.storage_id, \
+location.storage_path \
+FROM location \
+LEFT JOIN instance ON instance.pk=location.instance_fk
+WHERE instance.series_fk=%@ \
+LIMIT 1; \
+" %@ </string>
+
 </dict>
 
 </plist>

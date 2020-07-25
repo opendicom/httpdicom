@@ -13,7 +13,7 @@
             <key>pacsoid</key>
             <string id="pacsoid">2.16.858.0.1.4.0.72769.217215590012.2</string>
             <key>pacsaet</key>
-            <string id="pacsaet">CUDIOM</string>
+            <string id="pacsaet">CUDIM</string>
             <key>preferredstudyidentificator</key>
             <string id="preferredstudyidentificator">StudyInstanceUID</string>
             <key>timezoneoffsetfromutc</key>
@@ -32,7 +32,7 @@
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
-            <string id="get">wado</string>
+            <string id="get">folderDcm4chee2</string>
             <key>mwl</key>
             <string id="mwl">none</string>
             
@@ -46,10 +46,8 @@
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
             <string id="sqlmap">dcm4chee2147mysql</string>
-            
-            <key>filesystembaseuri</key>
-            <string id="filesystembaseuri"></string>
-            
+            <key>filepathprefix</key>
+            <string id="filepathprefix">/Volumes/DICOM-1</string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
             
@@ -72,21 +70,14 @@
             <key>wadoadditionalparameters</key>
             <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>            
             <key>wadoweasisparameters</key>
-            <string id="wadoweasisparameters">&amp;transferSyntax=*</string>            
+            <string id="wadoweasisparameters">&amp;transferSyntax=*</string>
             <key>wadocornerstoneparameters</key>
             <string id="wadocornerstoneparameters"></string>            
             <key>wadodicomzipparameters</key>
-            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
+            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>
             <key>wadoosirixparameters</key>
-            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
-            <key>wadoisodicomzipparameters</key>
-            <string id="wadoisodicomzipparameters">&amp;transferSyntax=*</string>            
-            <key>wadodeflateparameters</key>
-            <string id="wadodeflateparameters">&amp;transferSyntax=*</string>            
-            <key>wadomaxdeflateparameters</key>
-            <string id="wadomaxdeflateparameters">&amp;transferSyntax=*</string>            
-            <key>wadozip64parameters</key>
-            <string id="wadozip64parameters">&amp;transferSyntax=*</string>            
+            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>
+            
             <key>wadors</key>
             <string id="wadors"></string>
             <key>qido</key>

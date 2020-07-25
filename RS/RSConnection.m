@@ -586,7 +586,7 @@ withCompletionBlock:(WriteDataCompletionBlock)block
          }
          if (error==0)
          {
-            LOG_DEBUG(@"%i: %lu",
+            LOG_VERBOSE(@"%i: %lu",
                       self->_socket,
                       (unsigned long)data.length
                       );

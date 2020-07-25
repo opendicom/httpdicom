@@ -46,8 +46,8 @@
                                             <xs:group ref="sqlprolog"/>
                                             <xs:group ref="sqlstringencoding"/>
                                             <xs:group ref="sqlmap"/>
-                                            <xs:group ref="filesystembaseuri"/>
-                                            
+                                            <xs:group ref="filepathprefix"/>
+
                                             <xs:group ref="sopstringencoding"/>
                                             
                                             <!--mllp-->
@@ -65,10 +65,6 @@
                                             <xs:group ref="wadocornerstoneparameters"/>
                                             <xs:group ref="wadodicomzipparameters"/>
                                             <xs:group ref="wadoosirixparameters"/>
-                                            <xs:group ref="wadoisodicomzipparameters"/>
-                                            <xs:group ref="wadodeflateparameters"/>
-                                            <xs:group ref="wadomaxdeflateparameters"/>
-                                            <xs:group ref="wadozip64parameters"/>
                                             <xs:group ref="wadors"/>
                                             <xs:group ref="qido"/>
                                             <xs:group ref="stow"/>
@@ -299,17 +295,13 @@
         </xs:sequence>
     </xs:group>
     
-    <xs:group name="filesystembaseuri">
+    <xs:group name="filepathprefix">
         <xs:sequence>
-            <xs:element name="key" fixed="filesystembaseuri">
-                <xs:annotation>
-                    <xs:documentation>acceso por sistema de archivos a los dicoms del device</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="filesystembaseuri"/>
+            <xs:element name="key" fixed="filepathprefix"/>
+            <xs:element ref="string" id="filepathprefix"/>
         </xs:sequence>
     </xs:group>
-    
+
     <xs:group name="wadouri">
         <xs:sequence>
             <xs:element name="key" fixed="wadouri">
@@ -787,7 +779,8 @@
         <xs:simpleContent>
             <xs:restriction base="idstring">
                 <!-- <xs:enumeration value="file"/> -->
-                <!-- <xs:enumeration value="folder"/> -->
+                <xs:enumeration value="folderDcm4chee2"/>
+                <xs:enumeration value="folderDcm4cheeArc"/>
                 <xs:enumeration value="wado"/>
                 <!-- <xs:enumeration value="wadors"/> -->
                 <!-- <xs:enumeration value="cget"/> -->
