@@ -341,6 +341,8 @@
                     switch (getTypeIndex)
                     {
                        case getTypeWado:
+                       case getTypeFolderDcm4chee2:
+                       case getTypeFolderDcm4cheeArc:
                        {
 NSXMLElement *InstanceElement=
                     [WeasisInstance

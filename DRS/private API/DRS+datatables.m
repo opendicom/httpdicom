@@ -380,7 +380,6 @@
        if (
               (cacheIndex!=NSNotFound)
            && (institutionIndex!=NSNotFound)
-           && (institutionIndex!=NSNotFound)
            && (EUIDIndex!=NSNotFound)
            && (EKeyIndex!=NSNotFound)
            && [[NSFileManager defaultManager]

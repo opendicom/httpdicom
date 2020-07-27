@@ -592,7 +592,7 @@ static NSData *ctad=nil;
           {
              //TODO agregar dictionary "filesystems" a d with string(pk) and dirpath
              if (execUTF8Bash(@{d[@"sqlcredentials"]:d[@"sqlpassword"]},
-                              @"/usr/local/mysql/bin/mysql --raw --skip-column-names -u inovahistorico -h 192.168.1.38 -b pacsdb -e \"SELECT pk, dirpath FROM filesystems | awk -F\\t ' BEGIN{ print \"[{\"; ORS=\"},{\";OFS=\",\";}{print \"\\\"dcmStorageID\\\":\\\"\"$1\"\\\"\", \"\\\"dcmURI\\\":\\\"\"$2\"\\\"\"}' | tr -d '\012' | sed -e \"s/,{$/]/\"",
+                              [NSString stringWithFormat:@"%@\"SELECT pk, dirpath FROM filesystem\" | awk -F\\t ' BEGIN{ print \"[{\"; ORS=\"},{\";OFS=\",\";}{print \"\\\"dcmStorageID\\\":\\\"\"$1\"\\\"\", \"\\\"dcmURI\\\":\\\"\"$2\"\\\"\"}' | tr -d '\012' | sed -e \"s/,{$/]/\"",d[@"sqlprolog"]],
                               filesystemsJSONData)
                  !=0)
              {
@@ -629,7 +629,9 @@ static NSData *ctad=nil;
           }
           for (NSDictionary *dict in arrayOfDicts)
           {
-             [filesystems setValue:dict[@"dcmURI"] forKey:dict[@"dcmStorageID"]];
+              if ([dict[@"dcmURI"]hasPrefix:@"file:"])
+                  [filesystems setValue:[dict[@"dcmURI"]substringFromIndex:5] forKey:dict[@"dcmStorageID"]];
+              else [filesystems setValue:dict[@"dcmURI"] forKey:dict[@"dcmStorageID"]];
           }
           [d setObject:[NSDictionary dictionaryWithDictionary:filesystems] forKey:@"filesystems"];
 

@@ -39,7 +39,30 @@
       NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
       NSString *sqlprolog=devDict[@"sqlprolog"];
       NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
-   
+
+#pragma mark filter by E.access_control_id
+       NSMutableString *access_control_id_filter=[NSMutableString string];
+       if (d[@"aet"] && d[@"custodiantitle"])
+       {
+       if ([d[@"aet"] isEqualToString:d[@"custodiantitle"]])
+        {
+           /*
+            [studiesWhere appendFormat:
+            @" AND E.access_control_id in %@",
+            custodianTitlesaetsStrings[q[@"custodiantitle"]]
+            ];
+            */
+        }
+        else
+        {
+            [access_control_id_filter appendFormat:
+            @" AND E.access_control_id in ('%@','%@') ",
+            d[@"aet"],
+            d[@"custodiantitle"]
+            ];
+        }
+       }
+       
       
       NSMutableData * mutableData=[NSMutableData data];
       if (d[@"StudyInstanceUIDRegexpString"])
@@ -48,10 +71,11 @@
       //six parts: prolog,select,where,and,limit&order,format
             if (execUTF8Bash(
                 sqlcredentials,
-                [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
+                [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
                  sqlprolog,
                  sqlDictionary[@"Eselect4dt"],
                  sqlDictionary[@"Ewhere"],
+                 access_control_id_filter,
                  [NSString stringWithFormat:
                   sqlDictionary[@"EmatchEui"],
                   d[@"StudyInstanceUIDRegexpString"]
@@ -71,10 +95,11 @@
             {
                if (execUTF8Bash(
                    sqlcredentials,
-                   [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
+                   [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
                      sqlprolog,
                      sqlDictionary[@"Eselect4dt"],
                      sqlDictionary[@"Ewhere"],
+                     access_control_id_filter,
                      [NSString stringWithFormat:
                         (sqlDictionary[@"EmatchEan"])[issuerNone],
                         d[@"AccessionNumberEqualString"]
@@ -90,11 +115,12 @@
             {
                if (execUTF8Bash(
                    sqlcredentials,
-                   [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
+                   [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
                      sqlprolog,
                      sqlDictionary[@"Eselect4dt"],
                      sqlDictionary[@"Ewhere"],
-                     [NSString stringWithFormat:
+                     access_control_id_filter,
+                    [NSString stringWithFormat:
                         (sqlDictionary[@"EmatchEan"])[issuerLocal],
                         d[@"AccessionNumberEqualString"],
                         d[@"issuerArray"][0]
@@ -110,10 +136,11 @@
             {
                if (execUTF8Bash(
                    sqlcredentials,
-                   [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
+                   [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
                     sqlprolog,
                     sqlDictionary[@"Eselect4dt"],
                     sqlDictionary[@"Ewhere"],
+                    access_control_id_filter,
                     [NSString stringWithFormat:
                      (sqlDictionary[@"EmatchEan"])[issuerUniversal],
                      d[@"AccessionNumberEqualString"],
@@ -132,10 +159,11 @@
             {
                if (execUTF8Bash(
                    sqlcredentials,
-                   [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
+                   [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
                     sqlprolog,
                     sqlDictionary[@"Eselect4dt"],
                     sqlDictionary[@"Ewhere"],
+                    access_control_id_filter,
                     [NSString stringWithFormat:
                      (sqlDictionary[@"EmatchEan"])[issuerDivision],
                      d[@"AccessionNumberEqualString"],
@@ -327,10 +355,11 @@
           //six parts: prolog,select,where,and,limit&order,format
           if (execUTF8Bash(
               sqlcredentials,
-              [NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
+              [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
                sqlprolog,
                sqlDictionary[@"Eselect4dt"],
                sqlDictionary[@"Ewhere"],
+               access_control_id_filter,
                filters,
                @"",
                sqlRecordTwentyNineUnits

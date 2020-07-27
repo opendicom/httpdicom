@@ -195,7 +195,7 @@ NSString * SOPCLassOfReturnableSeries(
 {
    [self
     addHandler:@"POST"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|iso.dicom.zip|deflate.dicom.zip|deflate.iso.dicom.zip|max.deflate.iso.dicom.zip|zip64.iso.dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -204,7 +204,7 @@ NSString * SOPCLassOfReturnableSeries(
 
    [self
     addHandler:@"GET"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|iso.dicom.zip|deflate.dicom.zip|deflate.iso.dicom.zip|max.deflate.iso.dicom.zip|zip64.iso.dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -253,10 +253,6 @@ NSString * SOPCLassOfReturnableSeries(
                      @"/datatables",
                      @"/datatables/studies",
                      @"/datatables/patient",
-                     @"/iso.dicom.zip",
-                     @"/deflate.iso.dicom.zip",
-                     @"/max.deflate.iso.dicom.zip",
-                     @"/zip64.iso.dicom.zip",
                      @"/wadors.dicom"
                   ]  indexOfObject:requestPath
                   ];
@@ -273,10 +269,6 @@ NSString * SOPCLassOfReturnableSeries(
                      @"datatables",
                      @"datatables/sudies",
                      @"datatables/patient",
-                     @"iso.dicom.zip",
-                     @"deflate.iso.dicom.zip",
-                     @"max.deflate.iso.dicom.zip",
-                     @"zip64.iso.dicom.zip",
                      @"wadors.dicom"
                   ]
                   indexOfObject:values[accessTypeIndex]
@@ -323,7 +315,12 @@ NSString * SOPCLassOfReturnableSeries(
     oid => wado direct from html5dicom to pacs
     orgaet.deviceaet => wado to httpdicom proxy
     */
-   
+    NSInteger custodianIndex=[names indexOfObject:@"custodiantitle"];
+    if (custodianIndex!=NSNotFound) [requestDict setObject:values[custodianIndex] forKey:@"custodiantitle"];
+    NSInteger aetIndex=[names indexOfObject:@"aet"];
+    if (aetIndex!=NSNotFound) [requestDict setObject:values[aetIndex] forKey:@"aet"];
+
+
    NSMutableArray *lanArray=[NSMutableArray array];
    NSMutableArray *wanArray=[NSMutableArray array];
    

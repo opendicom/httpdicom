@@ -104,17 +104,17 @@ WHERE E.rejection_state!=2 AND EQA.view_id='hideRejected' \
  
  <!-- match Study Instance UID -->
  <key>EmatchEui</key>
- <string>AND E.study_iuid REGEXP '%@' \</string>
+ <string>AND E.study_iuid REGEXP '%@' </string>
  
  
  <!-- match AccessionNumber -->
  <!-- [0, 1 entity_id, 2 entity_uid + type, 3 entity_uid + type + entity_id]-->
  <key>EmatchEan</key>
  <array>  
-  <string>AND E.accession_no='%@' \</string>
-  <string>AND E.accession_no='%@' AND EAI.entity_id='@%' \</string>
-  <string>AND E.accession_no='%@' AND EAI.entity_uid='@%' AND EAI.entity_uid_type='@%' \</string>
-  <string>AND E.accession_no='%@' AND EAI.entity_uid='@%' AND EAI.entity_uid_type='@%' AND EAI.entity_id='@%' \</string>
+  <string>AND E.accession_no='%@' </string>
+  <string>AND E.accession_no='%@' AND EAI.entity_id='@%' </string>
+  <string>AND E.accession_no='%@' AND EAI.entity_uid='@%' AND EAI.entity_uid_type='@%' </string>
+  <string>AND E.accession_no='%@' AND EAI.entity_uid='@%' AND EAI.entity_uid_type='@%' AND EAI.entity_id='@%' </string>
  </array>
  
  
