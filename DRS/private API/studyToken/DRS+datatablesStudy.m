@@ -349,7 +349,7 @@
 #pragma mark 9 EQA ModalitiesInStudy
          if (d[@"ModalityInStudyRegexpString"])
             {
-               [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEmo],d[@"SOPClassInStudyRegexpString"]];
+               [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEmo],d[@"ModalityInStudyRegexpString"]];
             }
 #pragma mark - execute sql
           //six parts: prolog,select,where,and,limit&order,format
