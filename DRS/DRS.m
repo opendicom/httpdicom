@@ -629,12 +629,18 @@ static NSData *ctad=nil;
           }
           for (NSDictionary *dict in arrayOfDicts)
           {
-              if ([dict[@"dcmURI"]hasPrefix:@"file:"])
-                  [filesystems setValue:[dict[@"dcmURI"]substringFromIndex:5] forKey:dict[@"dcmStorageID"]];
-              else [filesystems setValue:dict[@"dcmURI"] forKey:dict[@"dcmStorageID"]];
+              NSMutableString *remoteFilesystem=[NSMutableString stringWithString:dict[@"dcmURI"]];
+                                                 
+              if ([remoteFilesystem hasPrefix:@"file:"]) [remoteFilesystem deleteCharactersInRange:NSMakeRange(0, 5)];
+                                                 
+              if ([remoteFilesystem hasPrefix:@"/Volumes"]) [remoteFilesystem deleteCharactersInRange:NSMakeRange(0, 8)];
+
+              [remoteFilesystem insertString:d[@"filepathprefix"] atIndex:0];
+                                                 
+               [filesystems setValue:remoteFilesystem forKey:dict[@"dcmStorageID"]];
           }
           [d setObject:[NSDictionary dictionaryWithDictionary:filesystems] forKey:@"filesystems"];
-
+           LOG_VERBOSE(@"filessystems: %@",[filesystems description]);
              
           if (pacsIndex!=0)[pacsKeys appendString:@","];
 

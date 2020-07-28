@@ -150,6 +150,7 @@
 
 +(RSResponse*)dicomzipStreamForSeriesPaths:(NSArray*)array
 {
+   LOG_VERBOSE(@"%@",[array description]);
    NSFileManager *fileManager=[NSFileManager defaultManager];
 
    /**
