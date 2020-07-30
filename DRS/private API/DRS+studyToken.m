@@ -2,13 +2,25 @@
  TODO
  socket in messages
  access types other lan and wan nodes
- osirix dcmURLs
  wadors study
  wadors series
  */
 
 #import "DRS+studyToken.h"
 
+/*
+ PNConcatIndex is the index of PNDicomFormat in names and values
+ 
+ PNIndex has five values, one for each of the PN parts
+ PNLabel Array contains the 5 corresponding labels
+ 
+ cachedQueryDict contains the filters already cached
+ 
+ studyRestrictionDict and canonicalQuery are the two mutable output
+ 
+ returns nil if error
+ returns empty if no filter
+ */
 NSMutableArray *buildPNArray(
    NSMutableArray *names,
    NSMutableArray *values,
@@ -17,34 +29,56 @@ NSMutableArray *buildPNArray(
    NSArray *PNLabel,
    NSMutableDictionary *cachedQueryDict,
    NSMutableDictionary *studyRestrictionDict,
-   NSMutableString *canonicalQuery
+   NSMutableString *canonicalQuery,
+   NSInteger accessTypeNumber
 )
 {
    NSMutableArray *PNArray=[NSMutableArray array];
-   if (PNConcatIndex!=NSNotFound)
+
+   if (PNConcatIndex!=NSNotFound) //PN concatenated DICOM format
    {
-       
       [PNArray setArray:[[values[PNConcatIndex] regexQuoteEscapedString] componentsSeparatedByString:@"^"]];
       NSUInteger i=PNArray.count;
+
+      BOOL hasContents=false;
+      //analysis of the 0-i parts
       while (i > 0)
       {
          i--;
          if ([PNArray[i] length])
          {
-            if (cachedQueryDict[PNLabel[i]])
+
+            if (accessTypeNumber==accessTypeDatatablesstudies)
             {
-               if(![PNArray[i] hasPrefix:cachedQueryDict[PNLabel[i]]]) return nil;
+               if (cachedQueryDict && cachedQueryDict[PNLabel[i]])
+               {
+                  //case was already cached but with a different value returns nil -> ERROR
+                  if(![PNArray[i] hasPrefix:cachedQueryDict[PNLabel[i]]]) return nil;
+               }
+
             }
-             if ([@[@"ref",@"read"] indexOfObject:PNLabel[i]]!=NSNotFound)
-                 [studyRestrictionDict setObject:PNArray[i] forKey:PNLabel[i]];
-             else
-             {
-                 NSError *error=nil;
-                 [studyRestrictionDict setObject:[NSRegularExpression regularExpressionWithPattern:PNArray[i] options:NSRegularExpressionCaseInsensitive error:&error] forKey:PNLabel[i]];
-                 if (error) LOG_WARNING(@"%@",[error debugDescription]);
-             }
-             [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],PNArray[i]];
-         }
+            else
+            {
+               if (cachedQueryDict && cachedQueryDict[PNLabel[i]])
+               {
+                  //case was already cached but with a different value returns nil -> ERROR
+                  if(![PNArray[i] isEqualToString:cachedQueryDict[PNLabel[i]]]) return nil;
+               }
+
+            }
+            
+            hasContents=true;
+
+            NSError *error=nil;
+            NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:PNArray[i] options:NSRegularExpressionCaseInsensitive error:&error];
+            if (!regex)
+            {
+               if (error) LOG_WARNING(@"patient name regex error: %@",[error debugDescription]);
+               return nil;
+            }
+            [studyRestrictionDict setObject:regex forKey:PNLabel[i]];
+            [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],PNArray[i]];
+          }
       }
    }
    else if (  (PNIndex[0]!=NSNotFound)
@@ -52,7 +86,7 @@ NSMutableArray *buildPNArray(
             ||(PNIndex[2]!=NSNotFound)
             ||(PNIndex[3]!=NSNotFound)
             ||(PNIndex[4]!=NSNotFound)
-           )
+           ) //there is at leat one component available
    {
       for (NSUInteger i=4;i<0;i--)
       {
@@ -75,6 +109,7 @@ NSMutableArray *buildPNArray(
          else if (PNArray.count) [PNArray insertObject:@"" atIndex:0];
       }
    }
+   
    return PNArray;
 }
 
@@ -83,16 +118,31 @@ BOOL appendImmutableToCanonical(
     NSMutableDictionary *studyRestrictionDict,
     NSMutableString *canonicalQuery,
     NSString* name,
-    NSString* value
+    NSString* value,
+    NSInteger accessTypeNumber
 )
 {
-    [canonicalQuery appendFormat:@"\"%@\":\"%@\",",name,value];
-    if ((cachedQueryDict[name]) && ![value hasPrefix:cachedQueryDict[name]]) return false;
+   NSError *error=nil;
+   NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:value options:NSRegularExpressionCaseInsensitive error:&error];
+   if (!regex)
+   {
+      if (error) LOG_WARNING(@"%@",[error debugDescription]);
+      return false;
+   }
+   
+   
+   if (cachedQueryDict && cachedQueryDict[name])
+   {
+      if (![value hasPrefix:cachedQueryDict[name]])
+      {
+         if (accessTypeNumber==accessTypeDatatablesstudies) [canonicalQuery appendFormat:@"\"%@\":\"%@\",",name,cachedQueryDict[name]];//keep the  same caché and create study restriction
+         else return false;//wrong caché invoqued by "static" access
+      }
+      [studyRestrictionDict setObject:regex forKey:name];
+   }
+   else [canonicalQuery appendFormat:@"\"%@\":\"%@\",",name,value];
 
-    NSError *error=nil;
-    [studyRestrictionDict setObject:[NSRegularExpression regularExpressionWithPattern:value options:NSRegularExpressionCaseInsensitive error:&error] forKey:name];
-     if (error) LOG_WARNING(@"%@",[error debugDescription]);
-    return true;
+   return true;
 }
 
 
@@ -195,7 +245,7 @@ NSString * SOPCLassOfReturnableSeries(
 {
    [self
     addHandler:@"POST"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|weasis.xml|dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -204,7 +254,7 @@ NSString * SOPCLassOfReturnableSeries(
 
    [self
     addHandler:@"GET"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|osirix.dcmURLs|weasis.xml|dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|weasis.xml|dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -249,8 +299,6 @@ NSString * SOPCLassOfReturnableSeries(
                      @"/weasis.xml",
                      @"/cornerstone.json",
                      @"/dicom.zip",
-                     @"/osirix.dcmURLs",
-                     @"/datatables",
                      @"/datatables/studies",
                      @"/datatables/patient",
                      @"/wadors.dicom"
@@ -265,8 +313,6 @@ NSString * SOPCLassOfReturnableSeries(
                      @"weasis.xml",
                      @"cornerstone.json",
                      @"dicom.zip",
-                     @"osirix.dcmURLs",
-                     @"datatables",
                      @"datatables/sudies",
                      @"datatables/patient",
                      @"wadors.dicom"
@@ -276,7 +322,7 @@ NSString * SOPCLassOfReturnableSeries(
       if (accessTypeNumber==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
    }
 
-#pragma mark cache?
+#pragma mark cache referido en request?
    /*
     if cachedQueryDict, evalutate changes:
     case datatables/study
@@ -314,11 +360,11 @@ NSString * SOPCLassOfReturnableSeries(
    /*
     oid => wado direct from html5dicom to pacs
     orgaet.deviceaet => wado to httpdicom proxy
-    */
     NSInteger custodianIndex=[names indexOfObject:@"custodiantitle"];
     if (custodianIndex!=NSNotFound) [requestDict setObject:values[custodianIndex] forKey:@"custodiantitle"];
     NSInteger aetIndex=[names indexOfObject:@"aet"];
     if (aetIndex!=NSNotFound) [requestDict setObject:values[aetIndex] forKey:@"aet"];
+    */
 
 
    NSMutableArray *lanArray=[NSMutableArray array];
@@ -367,9 +413,14 @@ NSString * SOPCLassOfReturnableSeries(
    }
    if (![lanArray count] && ![wanArray count]) return [RSErrorResponse responseWithClientError:404 message:@"no valid pacs in the request"];
 
-#pragma mark StudyInstanceUID
-    NSString *StudyInstanceUIDRegexpString=nil;
-    NSInteger StudyInstanceUIDIndex=[names indexOfObject:@"StudyInstanceUID"];
+   NSString *StudyInstanceUIDRegexpString=nil;
+   NSInteger StudyInstanceUIDIndex=[names indexOfObject:@"StudyInstanceUID"];
+   
+   NSString *AccessionNumberEqualString=nil;
+   NSInteger AccessionNumberIndex=[names indexOfObject:@"AccessionNumber"];
+
+#pragma mark · StudyInstanceUID
+
     if (StudyInstanceUIDIndex!=NSNotFound)
     {
        if ([values[StudyInstanceUIDIndex] length])
@@ -377,39 +428,41 @@ NSString * SOPCLassOfReturnableSeries(
           if ([DICMTypes isUIPipeListString:values[StudyInstanceUIDIndex]])
           {
              StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
+             
+             
              [requestDict setObject:StudyInstanceUIDRegexpString forKey:@"StudyInstanceUIDRegexpString"];
+             
+             
               if (!appendImmutableToCanonical(
                      cachedQueryDict,
                      studyRestrictionDict,
                      canonicalQuery,
                      @"StudyInstanceUID",
-                     StudyInstanceUIDRegexpString
-                  )) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+                     StudyInstanceUIDRegexpString,
+                     accessTypeNumber
+                  )) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyInstanceUID URL"];
           }
           else return [RSErrorResponse responseWithClientError:404 message:@"studyToken param StudyInstanceUID: %@",values[StudyInstanceUIDIndex]];
        }
     }
-
-   
-#pragma mark AccessionNumber
-    NSString *AccessionNumberEqualString=nil;
-    NSInteger AccessionNumberIndex=[names indexOfObject:@"AccessionNumber"];
-    if (AccessionNumberIndex!=NSNotFound)
+    else if (AccessionNumberIndex!=NSNotFound)
     {
-        AccessionNumberEqualString=[values[AccessionNumberIndex] sqlEqualEscapedString];
+#pragma mark · AccessionNumber
+
+       AccessionNumberEqualString=[values[AccessionNumberIndex] sqlEqualEscapedString];
         [requestDict setObject:AccessionNumberEqualString forKey:@"AccessionNumberEqualString"];
         if (!appendImmutableToCanonical(
               cachedQueryDict,
               studyRestrictionDict,
               canonicalQuery,
               @"AccessionNumber",
-              AccessionNumberEqualString
-           )) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-    }
-
-
-   
-#pragma mark 1. PatientID (Pid)
+              AccessionNumberEqualString,
+              accessTypeNumber
+           )) return [RSErrorResponse responseWithClientError:404 message:@"bad AccessionNumber URL"];
+   }
+   else
+   {
+#pragma mark - · 1. PatientID (Pid)
     NSString *PatientIDLikeString=nil;
     NSInteger PatientIDIndex=[names indexOfObject:@"PatientID"];
     if (PatientIDIndex!=NSNotFound)
@@ -421,11 +474,12 @@ NSString * SOPCLassOfReturnableSeries(
               studyRestrictionDict,
               canonicalQuery,
               @"PatientID",
-              PatientIDLikeString
-           )) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+              PatientIDLikeString,
+              accessTypeNumber
+           )) return [RSErrorResponse responseWithClientError:404 message:@"bad PatientID URL"];
     }
    
-#pragma mark 2. PatientName (Ppn)
+#pragma mark · 2. PatientName (Ppn)
    
    NSUInteger patientIndex[5];
    patientIndex[0]=[names indexOfObject:@"patientFamily"];
@@ -441,13 +495,14 @@ NSString * SOPCLassOfReturnableSeries(
      @[@"patientFamily",@"patientGiven",@"patientMiddle",@"patientPrefix",@"patientSuffix"],
      cachedQueryDict,
      studyRestrictionDict,
-     canonicalQuery
+     canonicalQuery,
+     accessTypeNumber
    );
-   if (!patientArray) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+   if (!patientArray) return [RSErrorResponse responseWithClientError:404 message:@"bad patientArray URL"];
    if (patientArray.count) [requestDict setObject:patientArray forKey:@"patientArray"];
 
 
-#pragma mark 3. StudyID (Eid)
+#pragma mark · 3. StudyID (Eid)
     
     NSRegularExpression *StudyIDRestrictionRegex=nil;
     NSString *StudyIDLikeString=nil;
@@ -462,15 +517,16 @@ NSString * SOPCLassOfReturnableSeries(
              studyRestrictionDict,
              canonicalQuery,
              @"StudyID",
-             StudyIDLikeString
-          )) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+             StudyIDLikeString,
+             accessTypeNumber
+          )) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyID URL"];
        
        StudyIDRestrictionRegex=[NSRegularExpression regularExpressionWithPattern:StudyIDLikeString options:NSRegularExpressionCaseInsensitive error:&error];
 
     }
 
     
-#pragma mark 4. StudyDate (Eda)
+#pragma mark · 4. StudyDate (Eda)
 //@"%@-%@-%@|%@-%@-%@"
     
     NSArray *StudyDateArray=nil;
@@ -519,7 +575,7 @@ NSString * SOPCLassOfReturnableSeries(
     }
 
  
-#pragma mark 5. StudyDescription (Elo)
+#pragma mark · 5. StudyDescription (Elo)
    NSRegularExpression *StudyDescriptionRestrictionRegex=nil;
    NSString *StudyDescriptionRegexpString=nil;
    NSInteger StudyDescriptionIndex=[names indexOfObject:@"StudyDescription"];
@@ -533,90 +589,129 @@ NSString * SOPCLassOfReturnableSeries(
              studyRestrictionDict,
              canonicalQuery,
              @"StudyDescription",
-             StudyDescriptionRegexpString
-          )) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+             StudyDescriptionRegexpString,
+             accessTypeNumber
+          )) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyDescription URL"];
        StudyDescriptionRestrictionRegex=[NSRegularExpression regularExpressionWithPattern:StudyDescriptionRegexpString options:NSRegularExpressionCaseInsensitive error:&error];
     }
 
-    
-#pragma mark 6. ref
-
-   NSUInteger refIndex[5];
-   refIndex[0]=[names indexOfObject:@"refIDType"];
-   refIndex[1]=[names indexOfObject:@"refID"];
-   refIndex[2]=[names indexOfObject:@"refUser"];
-   refIndex[3]=[names indexOfObject:@"refService"];
-   refIndex[4]=[names indexOfObject:@"refInstitution"];
-
-   NSMutableArray *refArray=buildPNArray(
-     names,
-     values,
-     [names indexOfObject:@"ref"],
-     refIndex,
-     @[@"refInstitution",@"refService",@"refUser",@"refID",@"refIDType"],
-     cachedQueryDict,
-     studyRestrictionDict,
-     canonicalQuery
-   );
-   if (!refArray) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-   if (refArray.count) [requestDict setObject:refArray forKey:@"refArray"];
-
-
-#pragma mark 7. read
-
-    NSUInteger readIndex[5];
-    readIndex[0]=[names indexOfObject:@"readIDType"];
-    readIndex[1]=[names indexOfObject:@"readID"];
-    readIndex[2]=[names indexOfObject:@"readUser"];
-    readIndex[3]=[names indexOfObject:@"readService"];
-    readIndex[4]=[names indexOfObject:@"readInstitution"];
-
-    NSMutableArray *readArray=buildPNArray(
-      names,
-      values,
-      [names indexOfObject:@"read"],
-      readIndex,
-      @[@"readInstitution",@"readService",@"readUser",@"readID",@"readIDType"],
-      cachedQueryDict,
-      studyRestrictionDict,
-      canonicalQuery
-    );
-    if (!readArray) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-    if (readArray.count) [requestDict setObject:readArray forKey:@"readArray"];
 
     
-#pragma mark 8. SOPClassInStudyString
-    
+#pragma mark · 8. SOPClassInStudyString
+   
    NSInteger SOPClassInStudyIndex=[names indexOfObject:@"SOPClassInStudy"];
    if ((SOPClassInStudyIndex!=NSNotFound) && [DICMTypes isSingleUIString:values[SOPClassInStudyIndex]])
    {
-           [requestDict setObject:values[SOPClassInStudyIndex] forKey:@"SOPClassInStudyRegexpString"];
-           if (!appendImmutableToCanonical(
-                                      cachedQueryDict,
-                                      studyRestrictionDict,
-                                      canonicalQuery,
-                                      @"SOPClassInStudy",
-                                      values[SOPClassInStudyIndex]
-                                      )
-               ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+     [requestDict setObject:values[SOPClassInStudyIndex] forKey:@"SOPClassInStudyRegexpString"];
+     if (!appendImmutableToCanonical(
+                                cachedQueryDict,
+                                studyRestrictionDict,
+                                canonicalQuery,
+                                @"SOPClassInStudy",
+                                values[SOPClassInStudyIndex],
+                                accessTypeNumber
+                                )
+         ) return [RSErrorResponse responseWithClientError:404 message:@"bad modality URL"];
    }
-
+ 
    
-#pragma mark 9. ModalityInStudyString
+#pragma mark - 9. ModalityInStudyString
+   
+   // !!! not part of the canonical query
+   //restriction only
+   //singular (only one modality filtered)
+
    NSInteger ModalityInStudyIndex=[names indexOfObject:@"ModalityInStudy"];
    if ((ModalityInStudyIndex!=NSNotFound) && [DICMTypes isSingleCSString:values[ModalityInStudyIndex]])
    {
-      [requestDict setObject:values[ModalityInStudyIndex] forKey:@"ModalityInStudyRegexpString"];
-       if (!appendImmutableToCanonical(
-                                  cachedQueryDict,
-                                  studyRestrictionDict,
-                                  canonicalQuery,
-                                  @"ModalityInStudy",
-                                  values[ModalityInStudyIndex]
-                                  )
-           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+      NSString *pattern=[NSString stringWithFormat:@"^.*%@.*$",values[ModalityInStudyIndex]];
+      NSError *error=nil;
+      NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:&error];
+      if (regex) [studyRestrictionDict setObject:regex forKey:@"read"];
+      else
+      {
+         if (error) LOG_WARNING(@"referring institution regex error: %@",[error debugDescription]);
+         return [RSErrorResponse responseWithClientError:404 message:@"bad ModalityInStudy"];
+      }
+
+      [studyRestrictionDict setObject:values[ModalityInStudyIndex] forKey:@"ModalityInStudy"];
+
+   }
+   else return [RSErrorResponse responseWithClientError:404 message:@"bad ModalityInStudy"];
    }
 
+       
+   #pragma mark 6. ref
+   
+   /*
+    NSUInteger refIndex[5];
+    refIndex[0]=[names indexOfObject:@"refIDType"];
+    refIndex[1]=[names indexOfObject:@"refID"];
+    refIndex[2]=[names indexOfObject:@"refUser"];
+    refIndex[3]=[names indexOfObject:@"refService"];
+    refIndex[4]=[names indexOfObject:@"refInstitution"];
+    */
+   
+   //never kept in canonical nor query filters
+   //as restriction only
+   //allow access to any of the users from the institution
+   //this was index 0, but shall be index 4 in the future
+   
+   NSInteger refIndex=[names indexOfObject:@"ref"];
+   if ((refIndex!=NSNotFound) && [DICMTypes isSingleSHString:values[refIndex]])
+   {
+      NSString *institutionSH=values[refIndex];
+      NSString *institutionOID=DRS.titles[institutionSH];
+      if (institutionOID)
+      {
+         NSString *pattern=[NSString stringWithFormat:@"^(%@|%@).*$",institutionSH,institutionOID];
+         NSError *error=nil;
+         NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:&error];
+         if (regex) [studyRestrictionDict setObject:regex forKey:@"read"];
+         else
+         {
+            if (error) LOG_WARNING(@"referring institution regex error: %@",[error debugDescription]);
+            return [RSErrorResponse responseWithClientError:404 message:@"bad ref"];
+         }
+      }
+      else return [RSErrorResponse responseWithClientError:404 message:@"bad ref"];
+   }
+
+
+   #pragma mark · 7. read
+      /*
+          NSUInteger readIndex[5];
+          readIndex[0]=[names indexOfObject:@"readIDType"];
+          readIndex[1]=[names indexOfObject:@"readID"];
+          readIndex[2]=[names indexOfObject:@"readUser"];
+          readIndex[3]=[names indexOfObject:@"readService"];
+          readIndex[4]=[names indexOfObject:@"readInstitution"];
+      */
+
+      /*
+       Change in semantics!!!
+       Format until now was institution^service^user
+       Format in the future will be as described
+       In both formats user is third component
+       
+       Currently we will use this componente exclusivamente
+       and ignore the 4 others
+       */
+       NSInteger readIndex=[names indexOfObject:@"read"];
+       if ((readIndex!=NSNotFound) && [DICMTypes isSingleSHString:values[readIndex]])
+       {
+          //we keep only third component and alternative -^-^- and *
+          NSString *pattern=[NSString stringWithFormat:@"(^\\*$|^\\^\\^%@$|^-\\^-\\^-$)",values[readIndex]];
+          NSError *error=nil;
+          NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:&error];
+          if (regex) [studyRestrictionDict setObject:regex forKey:@"read"];
+          else
+          {
+             if (error) LOG_WARNING(@"reading user regex error: %@",[error debugDescription]);
+              return [RSErrorResponse responseWithClientError:404 message:@"bad read"];
+          }
+      }
+   
 #pragma mark issuer
     
    NSArray *issuerArray=nil;
@@ -628,7 +723,8 @@ NSString * SOPCLassOfReturnableSeries(
                                  studyRestrictionDict,
                                  canonicalQuery,
                                  @"issuer",
-                                 [values[issuerIndex] sqlEqualEscapedString]
+                                 [values[issuerIndex] sqlEqualEscapedString],
+                                 accessTypeNumber
                                  )
           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
        
@@ -672,7 +768,8 @@ NSString * SOPCLassOfReturnableSeries(
                                  seriesRestrictionDict,
                                  canonicalQuery,
                                  @"SeriesInstanceUID",
-                                 values[SeriesInstanceUIDIndex]
+                                 values[SeriesInstanceUIDIndex],
+                                 accessTypeNumber
                                  )
           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
@@ -687,7 +784,8 @@ NSString * SOPCLassOfReturnableSeries(
                                  seriesRestrictionDict,
                                  canonicalQuery,
                                  @"SeriesNumber",
-                                 values[SeriesNumberIndex]
+                                 values[SeriesNumberIndex],
+                                 accessTypeNumber
                                  )
           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
@@ -702,7 +800,8 @@ NSString * SOPCLassOfReturnableSeries(
                                   seriesRestrictionDict,
                                   canonicalQuery,
                                   @"SeriesDescription",
-                                  values[SeriesDescriptionIndex]
+                                  values[SeriesDescriptionIndex],
+                                  accessTypeNumber
                                   )
            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
@@ -717,7 +816,8 @@ NSString * SOPCLassOfReturnableSeries(
                                  seriesRestrictionDict,
                                  canonicalQuery,
                                  @"Modality",
-                                 values[ModalityIndex]
+                                 values[ModalityIndex],
+                                 accessTypeNumber
                                  )
           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
@@ -732,7 +832,8 @@ NSString * SOPCLassOfReturnableSeries(
                                  seriesRestrictionDict,
                                  canonicalQuery,
                                  @"SOPClass",
-                                 values[SOPClassIndex]
+                                 values[SOPClassIndex],
+                                 accessTypeNumber
                                  )
           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
@@ -747,7 +848,8 @@ NSString * SOPCLassOfReturnableSeries(
                                  seriesRestrictionDict,
                                  canonicalQuery,
                                  @"SOPClassOff",
-                                 values[SOPClassOffIndex]
+                                 values[SOPClassOffIndex],
+                                 accessTypeNumber
                                  )
           ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
    }
@@ -873,12 +975,17 @@ NSString * SOPCLassOfReturnableSeries(
              if ([d[0] length] && ([d[0] compare:row[5]]==NSOrderedDescending)) return false;
              if ([d[1] length] && [d[1] compare:[row[5] substringToIndex:10]]==NSOrderedAscending) return false;
           }
-               
+                    
           if (studyRestrictionDict[@"ModalityInStudy"] && ![studyRestrictionDict[@"ModalityInStudy"] numberOfMatchesInString:row[6] options:0 range:NSMakeRange(0,[row[6] length])]) return false;
          
           if (studyRestrictionDict[@"StudyDescription"] && ![studyRestrictionDict[@"StudyDescription"] numberOfMatchesInString:row[7] options:0 range:NSMakeRange(0,[row[7] length])]) return false;
          
           if (studyRestrictionDict[@"StudyID"] && ![studyRestrictionDict[@"StudyID"] numberOfMatchesInString:row[15] options:0 range:NSMakeRange(0,[row[15] length])]) return false;
+
+         
+          if (studyRestrictionDict[@"read"] && ![studyRestrictionDict[@"read"] numberOfMatchesInString:row[2] options:0 range:NSMakeRange(0,[row[2] length])]) return false;
+         
+          if (studyRestrictionDict[@"ref"] && ![studyRestrictionDict[@"ref"] numberOfMatchesInString:row[8] options:0 range:NSMakeRange(0,[row[8] length])]) return false;
 
           return true;
       }] forKey:@"studyPredicate"];
@@ -1170,13 +1277,7 @@ NSString * SOPCLassOfReturnableSeries(
          */
       } break;
          
-#pragma mark osirix
-      case accessTypeOsirix:
-      {
-      } break;
-
 #pragma mark datatables
-      case accessTypeDatatables:
       case accessTypeDatatablesstudies:
       case accessTypeDatatablespatient:
       {

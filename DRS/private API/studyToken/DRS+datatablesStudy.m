@@ -287,7 +287,7 @@
 #pragma mark 5 Edesc
          if (d[@"StudyDescriptionRegexpString"]) [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterElo],d[@"StudyDescriptionRegexpString"]];
          
-         
+/*
 #pragma mark 6 ERN
          if (d[@"refArray"])
          {
@@ -340,17 +340,19 @@
                }
             }
          }
-
+*/
 
 #pragma mark 8 EQA (SOPClassesInStudy)
          if (d[@"SOPClassInStudyRegexpString"]) [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEsc],d[@"SOPClassInStudyRegexpString"]];
          
-         
+/*
 #pragma mark 9 EQA ModalitiesInStudy
          if (d[@"ModalityInStudyRegexpString"])
             {
                [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEmo],d[@"ModalityInStudyRegexpString"]];
             }
+ */
+         
 #pragma mark - execute sql
           //six parts: prolog,select,where,and,limit&order,format
           if (execUTF8Bash(

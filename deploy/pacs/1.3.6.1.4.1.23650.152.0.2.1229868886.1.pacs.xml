@@ -75,8 +75,6 @@
             <string id="wadocornerstoneparameters"></string><!--&amp;contentType=application%2Fdicom&amp;transferSyntax=1.2.840.10008.1.2.1-->
             <key>wadodicomzipparameters</key>
             <string id="wadodicomzipparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
-            <key>wadoosirixparameters</key>
-            <string id="wadoosirixparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
             <key>wadors</key>
             <string id="wadors"></string>
             <key>qido</key>

@@ -71,11 +71,10 @@
             <key>wadoweasisparameters</key>
             <string id="wadoweasisparameters">&amp;transferSyntax=*</string>            
             <key>wadocornerstoneparameters</key>
-            <string id="wadocornerstoneparameters"></string>            
+            <string id="wadocornerstoneparameters"></string>
+            
             <key>wadodicomzipparameters</key>
-            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
-            <key>wadoosirixparameters</key>
-            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
+            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
             <key>qido</key>

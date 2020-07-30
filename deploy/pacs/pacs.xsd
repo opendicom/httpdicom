@@ -64,7 +64,6 @@
                                             <xs:group ref="wadoweasisparameters"/>
                                             <xs:group ref="wadocornerstoneparameters"/>
                                             <xs:group ref="wadodicomzipparameters"/>
-                                            <xs:group ref="wadoosirixparameters"/>
                                             <xs:group ref="wadors"/>
                                             <xs:group ref="qido"/>
                                             <xs:group ref="stow"/>
@@ -359,67 +358,7 @@
             <xs:element ref="string" id="wadodicomzipparameters"/>
         </xs:sequence>
     </xs:group>
-    
-    <!--osirix-->
-    <xs:group name="wadoosirixparameters">
-        <xs:sequence>
-            <xs:element name="key" fixed="wadoosirixparameters">
-                <xs:annotation>
-                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="wadoosirixparameters"/>
-        </xs:sequence>
-    </xs:group>
-    
-    <!--isodicomzip-->
-    <xs:group name="wadoisodicomzipparameters">
-        <xs:sequence>
-            <xs:element name="key" fixed="wadoisodicomzipparameters">
-                <xs:annotation>
-                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="wadoisodicomzipparameters"/>
-        </xs:sequence>
-    </xs:group>
-    
-    <!--deflate-->
-    <xs:group name="wadodeflateparameters">
-        <xs:sequence>
-            <xs:element name="key" fixed="wadodeflateparameters">
-                <xs:annotation>
-                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="wadodeflateparameters"/>
-        </xs:sequence>
-    </xs:group>
-    
-    <!--maxdeflate-->
-    <xs:group name="wadomaxdeflateparameters">
-        <xs:sequence>
-            <xs:element name="key" fixed="wadomaxdeflateparameters">
-                <xs:annotation>
-                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="wadomaxdeflateparameters"/>
-        </xs:sequence>
-    </xs:group>
-    
-    <!--zip64-->
-    <xs:group name="wadozip64parameters">
-        <xs:sequence>
-            <xs:element name="key" fixed="wadozip64parameters">
-                <xs:annotation>
-                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="wadozip64parameters"/>
-        </xs:sequence>
-    </xs:group>
-    
+        
 
     <xs:group name="mllpip">
        <xs:sequence>

@@ -75,9 +75,7 @@
             <key>wadocornerstoneparameters</key>
             <string id="wadocornerstoneparameters">&amp;contentType=application%2Fdicom&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
             <key>wadodicomzipparameters</key>
-            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
-            <key>wadoosirixparameters</key>
-            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
+            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>                     
             <key>wadors</key>
             <string id="wadors">http://192.1.1.6:8080/dcm4chee-arc/aets/FCS/rs</string>
             <key>qido</key>

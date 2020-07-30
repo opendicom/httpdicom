@@ -78,9 +78,7 @@
             <key>wadocornerstoneparameters</key>
             <string id="wadocornerstoneparameters"></string>            
             <key>wadodicomzipparameters</key>
-            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
-            <key>wadoosirixparameters</key>
-            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
+            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>                     
             <key>wadors</key>
             <string id="wadors"></string>
             <key>qido</key>

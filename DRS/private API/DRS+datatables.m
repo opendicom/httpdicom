@@ -162,23 +162,11 @@
           
        case rolReading:
        {
-           NSMutableString *readString=[NSMutableString string];
-           if ([aet isEqualToString:custodiantitle])
-           {
-              [readString setString:@"("];
-               [readString appendString:[DRS.titlesaets[custodiantitle]componentsJoinedByString:@"|"]];
-               [readString appendString:@")"];
-
-           }
-           else [readString appendString:aet];
-
-           [readString appendString:@"^^"];
-           
-           [readString appendString:values[[names indexOfObject:@"username"]]];
-
+          //never kept in canonical nor query filters
+          //as restriction only
+          //we keep only user (third component)
            [names addObject:@"read"];
-           [values addObject:readString];
-
+           [values addObject:values[[names indexOfObject:@"username"]]];
        } break;
               
               

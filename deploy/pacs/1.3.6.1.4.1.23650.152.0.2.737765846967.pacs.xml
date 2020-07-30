@@ -76,8 +76,6 @@
             <string id="wadocornerstoneparameters"></string>
             <key>wadodicomzipparameters</key>
             <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>
-            <key>wadoosirixparameters</key>
-            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
             <string id="wadors">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC/rs</string>
             <key>qido</key>
@@ -163,8 +161,6 @@
             <string id="wadocornerstoneparameters"></string>
             <key>wadodicomzipparameters</key>
             <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>
-            <key>wadoosirixparameters</key>
-            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
             <string id="wadors"></string>
             <key>qido</key>
@@ -250,8 +246,6 @@
             <string id="wadocornerstoneparameters"></string>
             <key>wadodicomzipparameters</key>
             <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>
-            <key>wadoosirixparameters</key>
-            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
             <string id="wadors">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_LASERENA/rs</string>
             <key>qido</key>
@@ -443,8 +437,6 @@
             <string id="wadocornerstoneparameters"></string>
             <key>wadodicomzipparameters</key>
             <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>
-            <key>wadoosirixparameters</key>
-            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
             <string id="wadors">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_OVALLE/rs</string>
             <key>qido</key>
@@ -635,8 +627,6 @@
             <string id="wadocornerstoneparameters"></string>
             <key>wadodicomzipparameters</key>
             <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>
-            <key>wadoosirixparameters</key>
-            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
             <string id="wadors">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/rs</string>
             <key>qido</key>

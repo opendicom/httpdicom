@@ -78,8 +78,6 @@
             <string id="wadocornerstoneparameters"></string>            
             <key>wadodicomzipparameters</key>
             <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>            
-            <key>wadoosirixparameters</key>
-            <string id="wadoosirixparameters">&amp;transferSyntax=*</string>            
             <key>wadors</key>
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/DCM4CHEE/rs</string>
             <key>qido</key>

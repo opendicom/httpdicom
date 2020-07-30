@@ -16,14 +16,8 @@ enum accessType{
    accessTypeWeasis,
    accessTypeCornerstone,
    accessTypeDicomzip,
-   accessTypeOsirix,
-   accessTypeDatatables,
    accessTypeDatatablesstudies,
    accessTypeDatatablespatient,
-   accessTypeIsoDicomZip,
-   accessTypeDeflateIsoDicomZip,
-   accessTypeMaxDeflateIsoDicomZip,
-   accessTypeZip64IsoDicomZip,
    accessTypeWadoRSDicom
 };
 
@@ -156,7 +150,7 @@ static NSString *sqlRecordTwentyNineUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0
 
 //studyToken
 /*
- ^/(osirix.dcmURLs|weasis.xml|dicom.zip|uncompressed.dicom.zip|deflate.dicom.zip|dicom.zipx|datatablesseries.json|datatablespatient.json|cornerstone.json)$
+ ^/(weasis.xml|dicom.zip|datatablesseries.json|datatablespatient.json|cornerstone.json)$
 {
  
    "proxyURI":"",
