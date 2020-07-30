@@ -69,7 +69,9 @@
 #pragma mark · Euid
       {
       //six parts: prolog,select,where,and,limit&order,format
-         LOG_VERBOSE(@"%@",
+         LOG_VERBOSE(sqlDictionary[@"EmatchEui"],
+         d[@"StudyInstanceUIDRegexpString"]);
+         /*LOG_VERBOSE(@"%@",
                      [NSString stringWithFormat:@"%@\"SELECT COUNT(*) %@%@%@\"",
                       sqlprolog,
                       sqlDictionary[@"Ewhere"],
@@ -79,7 +81,7 @@
                        d[@"StudyInstanceUIDRegexpString"]
                        ]
                      ]);
-         
+         */
             if (execUTF8Bash(
                 sqlcredentials,
                 [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
@@ -104,7 +106,9 @@
                
             case issuerNone:
             {
-               LOG_VERBOSE(@"%@",
+               LOG_VERBOSE((sqlDictionary[@"EmatchEan"])[issuerNone],
+                           d[@"AccessionNumberEqualString"]);
+               /*LOG_VERBOSE(@"%@",
                            [NSString stringWithFormat:@"%@\"SELECT COUNT(*) %@%@%@\"",
                             sqlprolog,
                             sqlDictionary[@"Ewhere"],
@@ -114,7 +118,7 @@
                                d[@"AccessionNumberEqualString"]
                             ]
                            ]);
-
+               */
                if (execUTF8Bash(
                    sqlcredentials,
                    [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
@@ -135,7 +139,10 @@
 
             case issuerLocal:
             {
-               LOG_VERBOSE(@"%@",
+               LOG_VERBOSE((sqlDictionary[@"EmatchEan"])[issuerLocal],
+               d[@"AccessionNumberEqualString"],
+               d[@"issuerArray"][0]);
+               /*LOG_VERBOSE(@"%@",
                            [NSString stringWithFormat:@"%@\"SELECT COUNT(*) %@%@%@\"",
                             sqlprolog,
                             sqlDictionary[@"Ewhere"],
@@ -146,6 +153,7 @@
                                 d[@"issuerArray"][0]
                              ]
                             ]);
+                */
                if (execUTF8Bash(
                    sqlcredentials,
                    [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
@@ -167,6 +175,11 @@
                      
             case issuerUniversal:
             {
+               LOG_VERBOSE((sqlDictionary[@"EmatchEan"])[issuerUniversal],
+               d[@"AccessionNumberEqualString"],
+               d[@"issuerArray"][1],
+               d[@"issuerArray"][2]);
+               /*
                LOG_VERBOSE(@"%@",
                            [NSString stringWithFormat:@"%@\"SELECT COUNT(*) %@%@%@\"",
                             sqlprolog,
@@ -179,6 +192,7 @@
                             d[@"issuerArray"][2]
                             ]
                             ]);
+                */
                if (execUTF8Bash(
                    sqlcredentials,
                    [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
@@ -202,6 +216,12 @@
                         
             case issuerDivision:
             {
+               LOG_VERBOSE((sqlDictionary[@"EmatchEan"])[issuerDivision],
+               d[@"AccessionNumberEqualString"],
+               d[@"issuerArray"][0],
+               d[@"issuerArray"][1],
+               d[@"issuerArray"][2]);
+               /*
                LOG_VERBOSE(@"%@",
                            [NSString stringWithFormat:@"%@\"SELECT COUNT(*) %@%@%@\"",
                             sqlprolog,
@@ -215,6 +235,7 @@
                             d[@"issuerArray"][2]
                             ]
                             ]);
+                */
                if (execUTF8Bash(
                    sqlcredentials,
                    [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
@@ -413,6 +434,8 @@
          
 #pragma mark - execute sql
           //six parts: prolog,select,where,and,limit&order,format
+         LOG_VERBOSE(@"%@",filters);
+         /*
           LOG_VERBOSE(@"%@",
                       [NSString stringWithFormat:@"%@\"SELECT COUNT(*) %@%@%@\"",
                        sqlprolog,
@@ -420,6 +443,7 @@
                        access_control_id_filter,
                        filters
                        ]);
+          */
           if (execUTF8Bash(
               sqlcredentials,
               [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
