@@ -34,13 +34,13 @@ NSMutableArray *buildPNArray(
 )
 {
    NSMutableArray *PNArray=[NSMutableArray array];
+   BOOL hasContents=false;
 
    if (PNConcatIndex!=NSNotFound) //PN concatenated DICOM format
    {
       [PNArray setArray:[[values[PNConcatIndex] regexQuoteEscapedString] componentsSeparatedByString:@"^"]];
       NSUInteger i=PNArray.count;
 
-      BOOL hasContents=false;
       //analysis of the 0-i parts
       while (i > 0)
       {
@@ -54,6 +54,19 @@ NSMutableArray *buildPNArray(
                {
                   //case was already cached but with a different value returns nil -> ERROR
                   if(![PNArray[i] hasPrefix:cachedQueryDict[PNLabel[i]]]) return nil;
+                  if(![PNArray[i] isEqualToString:cachedQueryDict[PNLabel[i]]])
+                  {
+                     //case for a studyRestriction
+                     NSError *error=nil;
+                     NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:PNArray[i] options:NSRegularExpressionCaseInsensitive error:&error];
+                     if (!regex)
+                     {
+                        if (error) LOG_WARNING(@"patient name regex error: %@",[error debugDescription]);
+                        return nil;
+                     }
+                     [studyRestrictionDict setObject:regex forKey:PNLabel[i]];
+
+                  }
                }
 
             }
@@ -69,14 +82,6 @@ NSMutableArray *buildPNArray(
             
             hasContents=true;
 
-            NSError *error=nil;
-            NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:PNArray[i] options:NSRegularExpressionCaseInsensitive error:&error];
-            if (!regex)
-            {
-               if (error) LOG_WARNING(@"patient name regex error: %@",[error debugDescription]);
-               return nil;
-            }
-            [studyRestrictionDict setObject:regex forKey:PNLabel[i]];
             [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],PNArray[i]];
           }
       }
@@ -90,27 +95,23 @@ NSMutableArray *buildPNArray(
    {
       for (NSUInteger i=4;i<0;i--)
       {
-         if (PNIndex[i]!=NSNotFound)
+         if ((PNIndex[i]!=NSNotFound) && [values[PNIndex[i]] length])
          {
-            NSString *partString=[values[i] regexQuoteEscapedString];
+            NSString *partString=[values[PNIndex[i]] regexQuoteEscapedString];
+            
             [PNArray insertObject:partString atIndex:0];
             if (cachedQueryDict[PNLabel[i]] && ![partString hasPrefix:cachedQueryDict[PNLabel[i]]]) return nil;
-            
-             if ([@[@"ref",@"read"] indexOfObject:PNLabel[i]]!=NSNotFound)
-                 [studyRestrictionDict setObject:partString forKey:PNLabel[i]];
-             else
-             {
-                 NSError *error=nil;
-                 [studyRestrictionDict setObject:[NSRegularExpression regularExpressionWithPattern:partString options:NSRegularExpressionCaseInsensitive error:&error] forKey:PNLabel[i]];
-                 if (error) LOG_WARNING(@"%@",[error debugDescription]);
-             }
+            NSError *error=nil;
+            [studyRestrictionDict setObject:[NSRegularExpression regularExpressionWithPattern:partString options:NSRegularExpressionCaseInsensitive error:&error] forKey:PNLabel[i]];
+            if (error) LOG_WARNING(@"%@",[error debugDescription]);
+
             [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],partString];
          }
          else if (PNArray.count) [PNArray insertObject:@"" atIndex:0];
       }
    }
-   
-   return PNArray;
+   if (hasContents) return PNArray;
+   return nil;
 }
 
 BOOL appendImmutableToCanonical(
@@ -627,15 +628,12 @@ NSString * SOPCLassOfReturnableSeries(
       NSString *pattern=[NSString stringWithFormat:@"^.*%@.*$",values[ModalityInStudyIndex]];
       NSError *error=nil;
       NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:&error];
-      if (regex) [studyRestrictionDict setObject:regex forKey:@"read"];
+      if (regex) [studyRestrictionDict setObject:regex forKey:@"ModalityInStudy"];
       else
       {
-         if (error) LOG_WARNING(@"referring institution regex error: %@",[error debugDescription]);
+         if (error) LOG_WARNING(@"modalityInStudy regex error: %@",[error debugDescription]);
          return [RSErrorResponse responseWithClientError:404 message:@"bad ModalityInStudy"];
       }
-
-      [studyRestrictionDict setObject:values[ModalityInStudyIndex] forKey:@"ModalityInStudy"];
-
    }
    else return [RSErrorResponse responseWithClientError:404 message:@"bad ModalityInStudy"];
    }
