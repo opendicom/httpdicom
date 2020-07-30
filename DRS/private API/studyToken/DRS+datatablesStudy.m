@@ -340,12 +340,12 @@
                }
             }
          }
-*/
+
 
 #pragma mark 8 EQA (SOPClassesInStudy)
          if (d[@"SOPClassInStudyRegexpString"]) [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEsc],d[@"SOPClassInStudyRegexpString"]];
          
-/*
+
 #pragma mark 9 EQA ModalitiesInStudy
          if (d[@"ModalityInStudyRegexpString"])
             {

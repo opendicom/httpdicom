@@ -874,8 +874,7 @@ NSString * SOPCLassOfReturnableSeries(
    }
 
 #pragma mark no cache -> create it
-   BOOL isStudyRestriction=(cachedQueryDict && cachedQueryDict.count);
-   if (! isStudyRestriction)
+   if (!cachedQueryDict || !cachedQueryDict.count)
    {
       //new
        [canonicalQuery replaceCharactersInRange:NSMakeRange(canonicalQuery.length-1, 1) withString:@"}"];
@@ -891,7 +890,7 @@ NSString * SOPCLassOfReturnableSeries(
           [defaultManager createDirectoryAtPath:queryPath withIntermediateDirectories:NO attributes:nil error:nil];
        }
     }
-    else queryPath=cachePath; //cache vigente
+   else queryPath=cachePath; //cache vigente
    
     
 #pragma mark get or create plist
@@ -904,26 +903,23 @@ NSString * SOPCLassOfReturnableSeries(
     }
 
    
-    if (!isStudyRestriction)
-    {
-        //is not a restriction of existing results
-        //loop each LAN pacs producing part
-        for (NSString *devOID in lanArray)
-        {
-           [requestDict setObject:devOID forKey:@"devOID"];
-           [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
-           NSUInteger maxCountIndex=[names indexOfObject:@"max"];
-           if (maxCountIndex!=NSNotFound)[requestDict setObject:values[maxCountIndex] forKey:@"max"];
+     //loop each LAN pacs producing part
+     for (NSString *devOID in lanArray)
+     {
+        [requestDict setObject:devOID forKey:@"devOID"];
+        [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
+        NSUInteger maxCountIndex=[names indexOfObject:@"max"];
+        if (maxCountIndex!=NSNotFound)[requestDict setObject:values[maxCountIndex] forKey:@"max"];
 
-           switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
-           {
-               case selectTypeSql:
-                 [DRS datateblesStudySql4dictionary:requestDict];
-                 break;
-           }
+        switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
+        {
+            case selectTypeSql:
+              [DRS datateblesStudySql4dictionary:requestDict];
+              break;
         }
-    }
-   else
+     }
+
+   if (studyRestrictionDict.count)
    {
       //create corresponding predicate and add it to the request dictionary
       [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
@@ -1367,7 +1363,7 @@ NSString * SOPCLassOfReturnableSeries(
          }
          
 #pragma mark isStudyRestriction
-        if (isStudyRestriction)
+        if (requestDict[@"studyPredicate"])
         {
             [resultsArray filterUsingPredicate:requestDict[@"studyPredicate"]];
          }
