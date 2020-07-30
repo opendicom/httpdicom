@@ -469,8 +469,6 @@
                         [resp setObject:count forKey:@"recordsTotal"];
                         [resp setObject:seriesArray forKey:@"data"];
 
-                        NSLog(@"%@",[resp description]);
-
                         return [RSDataResponse responseWithData:
                                 [NSJSONSerialization
                                  dataWithJSONObject:resp
