@@ -110,8 +110,7 @@ NSMutableArray *buildPNArray(
          else if (PNArray.count) [PNArray insertObject:@"" atIndex:0];
       }
    }
-   if (hasContents) return PNArray;
-   return nil;
+   return PNArray;
 }
 
 BOOL appendImmutableToCanonical(
@@ -635,7 +634,7 @@ NSString * SOPCLassOfReturnableSeries(
          return [RSErrorResponse responseWithClientError:404 message:@"bad ModalityInStudy"];
       }
    }
-   else return [RSErrorResponse responseWithClientError:404 message:@"bad ModalityInStudy"];
+
    }
 
        
@@ -992,7 +991,7 @@ NSString * SOPCLassOfReturnableSeries(
           else
               [predicateString appendFormat:@"%@:'%@' ",key,[studyRestrictionDict[key] pattern]];
       }
-      LOG_VERBOSE(@"%@",predicateString);
+       LOG_VERBOSE(@"study restrictions: %@",predicateString);
    }
 
    

@@ -211,7 +211,7 @@
             <key>sqlpassword</key>
             <string id="sqlpassword">root</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=root;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
+            <string id="sqlprolog">export MYSQL_PWD=root;/usr/local/mysql/bin/mysql --raw --skip-column-names -uroot -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
@@ -400,7 +400,7 @@
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
             <key>sqlpassword</key>
-            <string id="sqlpassword">pcs</string>
+            <string id="sqlpassword">root</string>
             <key>sqlprolog</key>
             <string id="sqlprolog">export MYSQL_PWD=root;/usr/local/mysql/bin/mysql --raw --skip-column-names -uroot -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
@@ -591,7 +591,7 @@
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
             <key>sqlpassword</key>
-            <string id="sqlpassword">pcs</string>
+            <string id="sqlpassword">root</string>
             <key>sqlprolog</key>
             <string id="sqlprolog">export MYSQL_PWD=root;/usr/local/mysql/bin/mysql --raw --skip-column-names -uroot -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
