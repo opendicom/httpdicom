@@ -253,9 +253,10 @@
        
         LOG_INFO(@"%@",[names description]);
         LOG_INFO(@"%@",[values description]);
-       //check validity of cache
        NSUInteger cacheIndex=[names indexOfObject:@"cache"];
        NSUInteger institutionIndex=[names indexOfObject:@"institution"];
+       /*
+       #pragma mark only if cache exists?
        if (
               (cacheIndex!=NSNotFound)
            && (institutionIndex!=NSNotFound)
@@ -269,17 +270,19 @@
                ]
            )
        {
-
+*/
 #pragma mark remove filters
+       
+       if (cacheIndex!=NSNotFound)
+       {
            [names removeObjectAtIndex:cacheIndex];
            [values removeObjectAtIndex:cacheIndex];
-
-           NSUInteger institutionIndex=[names indexOfObject:@"institution"];
-           if (institutionIndex!=NSNotFound)
-           {
-               [names removeObjectAtIndex:institutionIndex];
-               [values removeObjectAtIndex:institutionIndex];
-           }
+       }
+        if (institutionIndex!=NSNotFound)
+        {
+            [names removeObjectAtIndex:institutionIndex];
+            [values removeObjectAtIndex:institutionIndex];
+        }
            
 #pragma mark add filters
           if (DRS.lan.count)
@@ -296,12 +299,14 @@
           return [DRS
                 studyTokenSocket:request.socketNumber
                 requestURL:request.URL
-                requestPath:@"/datatables"
+                requestPath:@"/datatables/patient"
                 names:names
                 values:values
                 acceptsGzip:request.acceptsGzipContentEncoding
                 ];
-       }
+ /*      }
+       
+       
        return [RSDataResponse responseWithData:
                [NSJSONSerialization
                 dataWithJSONObject:
@@ -310,14 +315,14 @@
                  @"recordsFiltered":@0,
                  @"recordsTotal":@0,
                  @"data":@[],
-                 @"error":@"bad URL"
+                 @"error":@"bad patient URL"
                 }
                 options:0
                 error:nil
                ]
                contentType:@"application/dicom+json"
                ];
-
+*/
     }
 (request));}];
 }

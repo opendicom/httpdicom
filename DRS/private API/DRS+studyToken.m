@@ -300,7 +300,7 @@ NSString * SOPCLassOfReturnableSeries(
                      @"/cornerstone.json",
                      @"/dicom.zip",
                      @"/datatables/studies",
-                     @"/datatables",
+                     @"/datatables/patient",
                      @"/wadors.dicom"
                   ]  indexOfObject:requestPath
                   ];
@@ -314,7 +314,7 @@ NSString * SOPCLassOfReturnableSeries(
                      @"cornerstone.json",
                      @"dicom.zip",
                      @"datatables/studies",
-                     @"datatables",
+                     @"datatables/patient",
                      @"wadors.dicom"
                   ]
                   indexOfObject:values[accessTypeIndex]
