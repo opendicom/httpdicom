@@ -634,8 +634,7 @@ static NSData *ctad=nil;
               else [filesystems setValue:dict[@"dcmURI"] forKey:dict[@"dcmStorageID"]];
           }
           [d setObject:[NSDictionary dictionaryWithDictionary:filesystems] forKey:@"filesystems"];
-           LOG_VERBOSE(@"filessystems: %@",[filesystems description]);
-             
+           
           if (pacsIndex!=0)[pacsKeys appendString:@","];
 
           
