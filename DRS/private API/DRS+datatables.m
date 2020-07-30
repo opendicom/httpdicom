@@ -251,6 +251,8 @@
                 }
             }
        
+        LOG_INFO(@"%@",[names description]);
+        LOG_INFO(@"%@",[values description]);
        //check validity of cache
        NSUInteger cacheIndex=[names indexOfObject:@"cache"];
        NSUInteger institutionIndex=[names indexOfObject:@"institution"];
