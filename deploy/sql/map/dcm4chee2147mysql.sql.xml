@@ -46,45 +46,18 @@ E.num_instances, \
 '' \
 </string>
 
- <key>P</key><!-- patient -->
-<string>%@ "\
-SELECT \
-P.pk, \
-P.pat_id, \
-P.pat_name, \
-P.pat_id_issuer, \
-P.pat_birthdate, \
-P.pat_sex \
-FROM patient AS P \
-WHERE pk=%@ %@ " %@ </string>
- 
- <key>E</key><!-- examen -->
-<string>%@ "\
-SELECT \
-E.pk, \
-E.study_iuid, \
-E.study_desc, \
-DATE(E.study_datetime), \
-TIME(E.study_datetime), \
-E.accession_no, \
-E.study_id, \
-E.ref_physician, \
-E.study_custom3, \
-E.num_series, \
-E.mods_in_study, \
-E.study_custom1, \
-E.study_custom2, \
-E.study_custom3, \
-'', \
-'', \
-'' \
-FROM study AS E \
-WHERE pk=%@ %@ " %@ </string> 
- 
+<key>Ecount</key>
+<string>SELECT count(E.*) \</string>
+
+
+
 <key>Ewhere</key><!-- no IOCM -->
  <string>FROM study AS E \
 LEFT JOIN patient P ON E.patient_fk=P.pk \
 WHERE TRUE </string>
+
+ <key>Eaccesscontrol</key>
+ <string></string>
 
 
 
@@ -140,28 +113,7 @@ WHERE TRUE </string>
 </array>
 <!-- 5. match StudyDescription -->
 <string>AND E.study_desc REGEXP '%@' </string>
-<!-- 6. match ReferringPhysician -->
-<array>
- <string>AND E.ref_physician REGEXP '%@' </string>
- <string/>
- <string/>
- <string/>
- <string/>
- <string/>
-</array>        
-<!-- 7. match ReadingPhysician -->
-<array>
- <string>AND E.study_custom3 REGEXP '%@' </string>
- <string>%@ </string>
- <string>%@ </string>
- <string>%@ </string>
- <string>%@ </string>
- <string>%@ </string>
-</array>                
-<!-- 8. match SOPClassesInStudy -->
-<string>AND E.cuids_in_study REGEXP '%@' </string>
-<!-- 9. match ModalitiesInStudy -->
-<string>AND E.mods_in_study REGEXP '%@' </string>
+
 </array>
 
 <!-- end of E cumulative matches-->
@@ -317,6 +269,42 @@ LEFT JOIN instance ON instance.pk=files.instance_fk
 WHERE instance.series_fk=%@ \
 LIMIT 1; \
 " %@ </string>
+
+ <key>P</key><!-- patient -->
+<string>%@ "\
+SELECT \
+P.pk, \
+P.pat_id, \
+P.pat_name, \
+P.pat_id_issuer, \
+P.pat_birthdate, \
+P.pat_sex \
+FROM patient AS P \
+WHERE pk=%@ %@ " %@ </string>
+ 
+ <key>E</key><!-- examen -->
+<string>%@ "\
+SELECT \
+E.pk, \
+E.study_iuid, \
+E.study_desc, \
+DATE(E.study_datetime), \
+TIME(E.study_datetime), \
+E.accession_no, \
+E.study_id, \
+E.ref_physician, \
+E.study_custom3, \
+E.num_series, \
+E.mods_in_study, \
+E.study_custom1, \
+E.study_custom2, \
+E.study_custom3, \
+'', \
+'', \
+'' \
+FROM study AS E \
+WHERE pk=%@ %@ " %@ </string>
+ 
 
 </dict>
  

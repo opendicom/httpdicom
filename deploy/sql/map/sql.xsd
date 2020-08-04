@@ -19,13 +19,12 @@
                             
 <!-- E select -->    
                             <xs:group ref="Eselect4dt"/>
-                            
-                            <xs:group ref="P"/>
-                            <xs:group ref="E"/>
-                            
+                            <xs:group ref="Ecount"/>
                             
                             <xs:group ref="Ewhere"/><!-- rejection state -->
-<!-- E exclusive match-->                
+                            <xs:group ref="Eaccesscontrol"/>
+                            
+<!-- E exclusive match-->
                             <xs:group ref="EmatchEui"/><!-- 1. match study UID -->                                                  
                             <xs:group ref="EmatchEan"/><!-- 2. match accession number -->
 <!-- E cumulative matches-->
@@ -34,10 +33,7 @@
                             <!-- 3. match StudyID -->
                             <!-- 4. match StudyDate -->
                             <!-- 5. match StudyDescription -->
-                            <!-- 6. match ReferringPhysician -->
-                            <!-- 7. match ReadingPhysician -->
-                            <!-- 8. match SOPClassesInStudy -->
-                            <!-- 9. match ModalitiesInStudy -->                            
+                   
                             <xs:group ref="Eand"/>
                            
                             
@@ -60,6 +56,9 @@
                             <xs:group ref="RA"/>
 
                             <xs:group ref="file"/>
+<!--unused-->
+                            <xs:group ref="P"/>
+                            <xs:group ref="E"/>
 
                         </xs:sequence>
                     </xs:complexType>
@@ -87,7 +86,23 @@
         </xs:sequence>
     </xs:group>
     
+    
+    <xs:group name="Ecount">
+        <xs:sequence>
+            <xs:element name="key" fixed="Ecount"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    
+    
+    <xs:group name="Eaccesscontrol">
+        <xs:sequence>
+            <xs:element name="key" fixed="Eaccesscontrol"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
 
+    
 <!-- E exclusive match-->
 
     <!-- 1. match study UID -->
@@ -147,18 +162,6 @@
     
     <!-- properties -->
     
-    <xs:group name="P">
-        <xs:sequence>
-            <xs:element name="key" fixed="P"/>
-            <xs:element name="string"/>
-        </xs:sequence>
-    </xs:group>
-    <xs:group name="E">
-        <xs:sequence>
-            <xs:element name="key" fixed="E"/>
-            <xs:element name="string"/>
-        </xs:sequence>
-    </xs:group>
     <xs:group name="S">
         <xs:sequence>
             <xs:element name="key" fixed="S"/>
@@ -243,6 +246,20 @@
             <xs:element name="string"/>
         </xs:sequence>
     </xs:group>
+    
+    <xs:group name="P">
+        <xs:sequence>
+            <xs:element name="key" fixed="P"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+    <xs:group name="E">
+        <xs:sequence>
+            <xs:element name="key" fixed="E"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+
 
     <!-- ================================================================= -->
     

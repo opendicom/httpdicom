@@ -5,257 +5,111 @@
 
 +(void)datateblesStudySql4dictionary:(NSDictionary*)d
 {
-   long long maxCount=0;
+   long long maxCount=100;
    if ([d[@"max"] length]) maxCount=[d[@"max"] longLongValue];
 
-#pragma mark studyArray from cache?
-   BOOL doPerformSQL=true;
+   BOOL tooMuchStudies=false;
+   BOOL isStudyArrayComplete=true;
+
+   
+#pragma mark studyArray from devOIDPLIST or new
    NSMutableArray *studyArray=nil;
    
     studyArray=[NSMutableArray arrayWithContentsOfFile:d[@"devOIDPLISTPath"]];
     if (studyArray)
     {
+      //contains a number
       if (   (studyArray.count==1)
-          && [studyArray[0] isKindOfClass:[NSNumber class]]
-          && ([studyArray[0] longLongValue] < maxCount)
-         )
-          [studyArray removeObjectAtIndex:0];
-      else
+          && [studyArray[0] isKindOfClass:[NSNumber class]])
       {
-         doPerformSQL=(studyArray.count <= maxCount);
-         if (doPerformSQL)
-         {
-    #pragma mark TODO unverify it if there is no need to repeat the sql query
-         }
+          if ([studyArray[0] longLongValue] <= maxCount) [studyArray removeObjectAtIndex:0];
+          else tooMuchStudies=![d[@"new"]isEqualToString:@"true"];
+          //if new is true we can not presume how much studies there will be
       }
     }
     else studyArray=[NSMutableArray array];
 
-   if (doPerformSQL)
+    
+   if (!tooMuchStudies)
    {
+      /*
+       studyArray contains zero o more answers
+       One can query the count of responses and/or the list of results
+       
+       We apply alternative strategies depending on the filters:
+       
+       (1) StudyInstanceUID: execute list only if the studyArray.count=0
+       
+       (2) AccessionNumber: execute list
+       
+       (3) any filter:
+       
+       (3.1) studyArray.count <= 200: execute list
+       
+       (3.2) studyArray.count > 200 : count and then if different list
+       
+       */
       
-#pragma mark sql init
       NSDictionary *devDict=DRS.pacs[d[@"devOID"]];
-      NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
-      NSString *sqlprolog=devDict[@"sqlprolog"];
       NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
 
-#pragma mark filter by E.access_control_id
-       NSMutableString *access_control_id_filter=[NSMutableString string];
-       if (d[@"aet"] && d[@"custodiantitle"])
-       {
-       if ([d[@"aet"] isEqualToString:d[@"custodiantitle"]])
-        {
-           /*
-            [studiesWhere appendFormat:
-            @" AND E.access_control_id in %@",
-            custodianTitlesaetsStrings[q[@"custodiantitle"]]
-            ];
-            */
-        }
-        else
-        {
-            [access_control_id_filter appendFormat:
-            @" AND E.access_control_id in ('%@','%@') ",
-            d[@"aet"],
-            d[@"custodiantitle"]
-            ];
-        }
-       }
-       
+      NSString *Ecount=nil; //shall not be nil only in case 3.2
+      NSMutableString *Eand=[NSMutableString string];
+
       
-      NSMutableData * mutableData=[NSMutableData data];
-      if (d[@"StudyInstanceUIDRegexpString"])
-#pragma mark · Euid
+      
+#pragma mark - Euid
+      if (d[@"StudyInstanceUIDRegexpString"] && !studyArray.count)
       {
-      //six parts: prolog,select,where,and,limit&order,format
-         LOG_VERBOSE(sqlDictionary[@"EmatchEui"],
-         d[@"StudyInstanceUIDRegexpString"]);
-         /*LOG_VERBOSE(@"%@",
-                     [NSString stringWithFormat:@"%@\"SELECT COUNT(*) %@%@%@\"",
-                      sqlprolog,
-                      sqlDictionary[@"Ewhere"],
-                      access_control_id_filter,
-                      [NSString stringWithFormat:
-                       sqlDictionary[@"EmatchEui"],
-                       d[@"StudyInstanceUIDRegexpString"]
-                       ]
-                     ]);
-         */
-            if (execUTF8Bash(
-                sqlcredentials,
-                [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
-                 sqlprolog,
-                 sqlDictionary[@"Eselect4dt"],
-                 sqlDictionary[@"Ewhere"],
-                 access_control_id_filter,
-                 [NSString stringWithFormat:
-                  sqlDictionary[@"EmatchEui"],
-                  d[@"StudyInstanceUIDRegexpString"]
-                  ],
-                 @"",
-                 sqlRecordTwentyNineUnits
-                ],
-                mutableData)
-                !=0) LOG_WARNING(@"datatablesStudy StudyInstanceUID %@ db error",d[@"StudyInstanceUIDRegexpString"]);
+         //study not in cache (!studyArray.count)
+         isStudyArrayComplete=false;
+         
+         [Eand stringByAppendingFormat:
+              sqlDictionary[@"EmatchEui"],
+              d[@"StudyInstanceUIDRegexpString"]
+              ];
          }
       else if (d[@"AccessionNumberEqualString"])
-#pragma mark · EA
+#pragma mark - EA
       {
+         isStudyArrayComplete=false;
+
+         
          switch ([d[@"issuerArray"] count]) {
                
             case issuerNone:
-            {
-               LOG_VERBOSE((sqlDictionary[@"EmatchEan"])[issuerNone],
-                           d[@"AccessionNumberEqualString"]);
-               /*LOG_VERBOSE(@"%@",
-                           [NSString stringWithFormat:@"%@\"SELECT COUNT(*) %@%@%@\"",
-                            sqlprolog,
-                            sqlDictionary[@"Ewhere"],
-                            access_control_id_filter,
-                            [NSString stringWithFormat:
-                               (sqlDictionary[@"EmatchEan"])[issuerNone],
-                               d[@"AccessionNumberEqualString"]
-                            ]
-                           ]);
-               */
-               if (execUTF8Bash(
-                   sqlcredentials,
-                   [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
-                     sqlprolog,
-                     sqlDictionary[@"Eselect4dt"],
-                     sqlDictionary[@"Ewhere"],
-                     access_control_id_filter,
-                     [NSString stringWithFormat:
-                        (sqlDictionary[@"EmatchEan"])[issuerNone],
-                        d[@"AccessionNumberEqualString"]
-                     ],
-                     @"",
-                     sqlRecordTwentyNineUnits
-                     ],
-                     mutableData)
-                   !=0) LOG_WARNING(@"studyToken accessionNumber db error. AN='%@' issuer='%@'",d[@"AccessionNumberEqualString"],[d[@"issuerArray"] componentsJoinedByString:@"^"]);
-               } break;
+               [Eand stringByAppendingFormat:
+                    (sqlDictionary[@"EmatchEan"])[issuerNone],
+                    d[@"AccessionNumberEqualString"]
+                    ];
+               break;
 
             case issuerLocal:
-            {
-               LOG_VERBOSE((sqlDictionary[@"EmatchEan"])[issuerLocal],
-               d[@"AccessionNumberEqualString"],
-               d[@"issuerArray"][0]);
-               /*LOG_VERBOSE(@"%@",
-                           [NSString stringWithFormat:@"%@\"SELECT COUNT(*) %@%@%@\"",
-                            sqlprolog,
-                            sqlDictionary[@"Ewhere"],
-                            access_control_id_filter,
-                            [NSString stringWithFormat:
-                                (sqlDictionary[@"EmatchEan"])[issuerLocal],
-                                d[@"AccessionNumberEqualString"],
-                                d[@"issuerArray"][0]
-                             ]
-                            ]);
-                */
-               if (execUTF8Bash(
-                   sqlcredentials,
-                   [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
-                     sqlprolog,
-                     sqlDictionary[@"Eselect4dt"],
-                     sqlDictionary[@"Ewhere"],
-                     access_control_id_filter,
-                    [NSString stringWithFormat:
-                        (sqlDictionary[@"EmatchEan"])[issuerLocal],
-                        d[@"AccessionNumberEqualString"],
-                        d[@"issuerArray"][0]
-                     ],
-                     @"",
-                     sqlRecordTwentyNineUnits
-                    ],
-                    mutableData)
-                   !=0) LOG_WARNING(@"studyToken accessionNumber db error. AN='%@' issuer='%@'",d[@"AccessionNumberEqualString"],[d[@"issuerArray"] componentsJoinedByString:@"^"]);
-            } break;
+               [Eand stringByAppendingFormat:
+                    (sqlDictionary[@"EmatchEan"])[issuerLocal],
+                    d[@"AccessionNumberEqualString"],
+                    d[@"issuerArray"][0]
+                    ];
+               break;
                      
             case issuerUniversal:
-            {
-               LOG_VERBOSE((sqlDictionary[@"EmatchEan"])[issuerUniversal],
-               d[@"AccessionNumberEqualString"],
-               d[@"issuerArray"][1],
-               d[@"issuerArray"][2]);
-               /*
-               LOG_VERBOSE(@"%@",
-                           [NSString stringWithFormat:@"%@\"SELECT COUNT(*) %@%@%@\"",
-                            sqlprolog,
-                            sqlDictionary[@"Ewhere"],
-                            access_control_id_filter,
-                            [NSString stringWithFormat:
-                            (sqlDictionary[@"EmatchEan"])[issuerUniversal],
-                            d[@"AccessionNumberEqualString"],
-                            d[@"issuerArray"][1],
-                            d[@"issuerArray"][2]
-                            ]
-                            ]);
-                */
-               if (execUTF8Bash(
-                   sqlcredentials,
-                   [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
-                    sqlprolog,
-                    sqlDictionary[@"Eselect4dt"],
-                    sqlDictionary[@"Ewhere"],
-                    access_control_id_filter,
-                    [NSString stringWithFormat:
-                     (sqlDictionary[@"EmatchEan"])[issuerUniversal],
-                     d[@"AccessionNumberEqualString"],
-                     d[@"issuerArray"][1],
-                     d[@"issuerArray"][2]
-                     ],
-                    @"",
-                    sqlRecordTwentyNineUnits
-                    ],
-                   mutableData)
-                  !=0) LOG_WARNING(@"studyToken accessionNumber db error. AN='%@' issuer='%@'",d[@"AccessionNumberEqualString"],[d[@"issuerArray"] componentsJoinedByString:@"^"]);
-            } break;
-
+               [Eand stringByAppendingFormat:
+                    (sqlDictionary[@"EmatchEan"])[issuerUniversal],
+                    d[@"AccessionNumberEqualString"],
+                    d[@"issuerArray"][1],
+                    d[@"issuerArray"][2]
+                    ];
+               break;
                         
             case issuerDivision:
-            {
-               LOG_VERBOSE((sqlDictionary[@"EmatchEan"])[issuerDivision],
-               d[@"AccessionNumberEqualString"],
-               d[@"issuerArray"][0],
-               d[@"issuerArray"][1],
-               d[@"issuerArray"][2]);
-               /*
-               LOG_VERBOSE(@"%@",
-                           [NSString stringWithFormat:@"%@\"SELECT COUNT(*) %@%@%@\"",
-                            sqlprolog,
-                            sqlDictionary[@"Ewhere"],
-                            access_control_id_filter,
-                            [NSString stringWithFormat:
-                            (sqlDictionary[@"EmatchEan"])[issuerDivision],
-                            d[@"AccessionNumberEqualString"],
-                            d[@"issuerArray"][0],
-                            d[@"issuerArray"][1],
-                            d[@"issuerArray"][2]
-                            ]
-                            ]);
-                */
-               if (execUTF8Bash(
-                   sqlcredentials,
-                   [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
-                    sqlprolog,
-                    sqlDictionary[@"Eselect4dt"],
-                    sqlDictionary[@"Ewhere"],
-                    access_control_id_filter,
-                    [NSString stringWithFormat:
-                     (sqlDictionary[@"EmatchEan"])[issuerDivision],
-                     d[@"AccessionNumberEqualString"],
-                     d[@"issuerArray"][0],
-                     d[@"issuerArray"][1],
-                     d[@"issuerArray"][2]
-                     ],
-                    @"",
-                    sqlTwoPks
-                    ],
-                    mutableData)
-                  !=0) LOG_WARNING(@"studyToken accessionNumber db error. AN='%@' issuer='%@'",d[@"AccessionNumberEqualString"],[d[@"issuerArray"] componentsJoinedByString:@"^"]);
-            } break;
+               [Eand stringByAppendingFormat:
+                (sqlDictionary[@"EmatchEan"])[issuerDivision],
+                d[@"AccessionNumberEqualString"],
+                d[@"issuerArray"][0],
+                d[@"issuerArray"][1],
+                d[@"issuerArray"][2]
+                ];
+               break;
 
             default:
                LOG_WARNING(@"studyToken accessionNumber issuer error '%@'",[d[@"issuerArray"] componentsJoinedByString:@"^"]);
@@ -263,20 +117,23 @@
          }
       }
       else
+#pragma mark - varios EP
       {
-         NSMutableString *filters=[NSMutableString string];
-         
+         //marking the requirement to count before listing
+         if (studyArray.count > 200) Ecount=sqlDictionary[@"Ecount"];
+ 
+                  
          if (d[@"PatientIDLikeString"])
 #pragma mark 1 PI
          {
             switch ([d[@"issuerArray"] count]) {
                   
                case issuerNone:
-                  [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPid])[issuerNone],d[@"PatientIDLikeString"]];
+                  [Eand appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPid])[issuerNone],d[@"PatientIDLikeString"]];
                   break;
 
                case issuerLocal:
-                  [filters appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPid])[issuerLocal],d[@"PatientIDLikeString"],d[@"issuerArray"][0]];
+                  [Eand appendFormat:((sqlDictionary[@"Eand"])[EcumulativeFilterPid])[issuerLocal],d[@"PatientIDLikeString"],d[@"issuerArray"][0]];
                   break;
 
                default:
@@ -298,7 +155,7 @@
                     if (component.length) [jockerArray addObject:component];
                     else [jockerArray addObject:@".*"];
                 }
-                [filters appendFormat:compoundFormat,[jockerArray componentsJoinedByString:@"\\\\\\\\^"]];
+                [Eand appendFormat:compoundFormat,[jockerArray componentsJoinedByString:@"\\\\\\\\^"]];
             }
             else
             {
@@ -306,13 +163,13 @@
                NSArray *formats=(sqlDictionary[@"Eand"])[EcumulativeFilterPpn];
                for (NSUInteger i=0;i<patientArray.count;i++)
                {
-                  if (patientArray[0] && [patientArray[0] length]) [filters appendFormat:formats[i+1],patientArray[0]];
+                  if (patientArray[0] && [patientArray[0] length]) [Eand appendFormat:formats[i+1],patientArray[0]];
                }
             }
          }
          
 #pragma mark 3 Eid
-         if (d[@"StudyIDLikeString"]) [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEid],d[@"StudyIDLikeString"]];
+         if (d[@"StudyIDLikeString"]) [Eand appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEid],d[@"StudyIDLikeString"]];
 
 #pragma mark 4 Eda
          if (d[@"StudyDateArray"])
@@ -334,26 +191,26 @@
                   break;
                case dateMatchOn:
                {
-                  [filters appendFormat:Eda[dateMatchOn],
+                  [Eand appendFormat:Eda[dateMatchOn],
                    isoMatching?d[@"StudyDateArray"][0]:[DICMTypes DAStringFromDAISOString:d[@"StudyDateArray"][0]]
                    ];
                } break;
                case dateMatchSince:
                {
-                  [filters appendFormat:Eda[dateMatchSince],
+                  [Eand appendFormat:Eda[dateMatchSince],
                    isoMatching?d[@"StudyDateArray"][0]:[DICMTypes DAStringFromDAISOString:d[@"StudyDateArray"][0]]
                    ];
                } break;
                case dateMatchUntil:
                {
-                  [filters appendFormat:Eda[dateMatchUntil],
+                  [Eand appendFormat:Eda[dateMatchUntil],
                    isoMatching?d[@"StudyDateArray"][2]:[DICMTypes DAStringFromDAISOString:d[@"StudyDateArray"][2]]
                    ];
 
                } break;
                case dateMatchBetween:
                {
-                  [filters appendFormat:Eda[dateMatchBetween],
+                  [Eand appendFormat:Eda[dateMatchBetween],
                    isoMatching?(d[@"StudyDateArray"])[0]:[DICMTypes DAStringFromDAISOString:d[@"StudyDateArray"][0]],
                    isoMatching?d[@"StudyDateArray"][3]:[DICMTypes DAStringFromDAISOString:d[@"StudyDateArray"][3]]
                    ];
@@ -364,113 +221,81 @@
 
 
 #pragma mark 5 Edesc
-         if (d[@"StudyDescriptionRegexpString"]) [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterElo],d[@"StudyDescriptionRegexpString"]];
-         
-/*
-#pragma mark 6 ERN
-         if (d[@"refArray"])
-         {
-            NSArray *refArray=d[@"refArray"];
-            NSString *compoundFormat=((sqlDictionary[@"Eand"])[EcumulativeFilterRef])[pnFilterCompound];
-            if (compoundFormat.length)
-            {
-                NSMutableArray *jockerArray=[NSMutableArray array];
-                for (NSString *component in refArray)
-                {
-                    if (component.length) [jockerArray addObject:component];
-                    else [jockerArray addObject:@".*"];
-                }
-                [filters appendFormat:compoundFormat,[jockerArray componentsJoinedByString:@"\\\\\\\\^"]];
-            }
-            else
-            {
-               //DB with pn detailed fields
-               NSArray *formats=(sqlDictionary[@"Eand"])[EcumulativeFilterRef];
-               for (NSUInteger i=0;i<refArray.count;i++)
-               {
-                  if (refArray[0] && [refArray[0] length]) [filters appendFormat:formats[i+1],refArray[0]];
-               }
-            }
-         }
-         
-         
-#pragma mark 7 ED
-         if (d[@"readArray"])
-         {
-            NSArray *readArray=d[@"readArray"];
-            NSString *compoundFormat=((sqlDictionary[@"Eand"])[EcumulativeFilterRead])[pnFilterCompound];
-            if (compoundFormat.length)
-            {
-                NSMutableArray *jockerArray=[NSMutableArray array];
-                for (NSString *component in readArray)
-                {
-                    if (component.length) [jockerArray addObject:component];
-                    else [jockerArray addObject:@".*"];
-                }
-                [filters appendFormat:compoundFormat,[jockerArray componentsJoinedByString:@"\\\\\\\\^"]];
-            }
-            else
-            {
-               //DB with pn detailed fields
-               NSArray *formats=(sqlDictionary[@"Eand"])[EcumulativeFilterRead];
-               for (NSUInteger i=0;i<readArray.count;i++)
-               {
-                  if (readArray[0] && [readArray[0] length]) [filters appendFormat:formats[i+1],readArray[0]];
-               }
-            }
-         }
-
-
-#pragma mark 8 EQA (SOPClassesInStudy)
-         if (d[@"SOPClassInStudyRegexpString"]) [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEsc],d[@"SOPClassInStudyRegexpString"]];
-         
-
-#pragma mark 9 EQA ModalitiesInStudy
-         if (d[@"ModalityInStudyRegexpString"])
-            {
-               [filters appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterEmo],d[@"ModalityInStudyRegexpString"]];
-            }
- */
-         
-#pragma mark - execute sql
-          //six parts: prolog,select,where,and,limit&order,format
-         LOG_VERBOSE(@"%@",filters);
-         /*
-          LOG_VERBOSE(@"%@",
-                      [NSString stringWithFormat:@"%@\"SELECT COUNT(*) %@%@%@\"",
-                       sqlprolog,
-                       sqlDictionary[@"Ewhere"],
-                       access_control_id_filter,
-                       filters
-                       ]);
-          */
-          if (execUTF8Bash(
-              sqlcredentials,
-              [NSString stringWithFormat:@"%@\"%@%@%@%@%@\"%@",
-               sqlprolog,
-               sqlDictionary[@"Eselect4dt"],
-               sqlDictionary[@"Ewhere"],
-               access_control_id_filter,
-               filters,
-               @"",
-               sqlRecordTwentyNineUnits
-              ],
-              mutableData)
-              !=0) LOG_WARNING(@"studyToken StudyInstanceUID %@ db error",d[@"StudyInstanceUIDRegexpString"]);
-
+         if (d[@"StudyDescriptionRegexpString"]) [Eand appendFormat:(sqlDictionary[@"Eand"])[EcumulativeFilterElo],d[@"StudyDescriptionRegexpString"]];
          
        }
 
-       if ([mutableData length])
-       {
-           NSArray *dtE=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:@"replaceCacheInstitution" dictionary:@{@"_institution_":d[@"devOID"], @"_cache_":[[d[@"devOIDPLISTPath"] stringByDeletingLastPathComponent]lastPathComponent]} orderedByUnitIndex:dtPN decreasing:NO];//NSUTF8StringEncoding
+      if (!isStudyArrayComplete)
+      {
+#pragma mark - sql init
+         NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
+         NSString *sqlprolog=devDict[@"sqlprolog"];
+         NSMutableData * mutableData=[NSMutableData data];
 
-          if (dtE.count)
+         
+#pragma mark Eaccesscontrol
+         
+          [Eand stringByAppendingString:d[@"Eaccesscontrol"]];
+         
+         LOG_VERBOSE(@"%@",Eand);
+
+#pragma mark execute Ecount
+         
+         if (Ecount)
+         {
+            if (execUTF8Bash(
+                 sqlcredentials,
+                 [NSString stringWithFormat:@"%@\"%@%@%@\"%@",
+                  sqlprolog,
+                  sqlDictionary[@"Ecount"],
+                  sqlDictionary[@"Ewhere"],
+                  sqlDictionary[@"Eand"],
+                  sqlonevalue
+                  ],
+                   mutableData
+                  )
+                );
+            NSString *EcountString=[[NSString alloc]initWithData:mutableData encoding:NSASCIIStringEncoding];
+            long long Ecountll=[EcountString longLongValue];
+            if (Ecountll==studyArray.count) return;
+            if (Ecountll > maxCount)
+            {
+               NSError *error=nil;
+               if (![EcountString writeToFile:d[@"devOIDPLISTPath"] atomically:NO encoding:NSASCIIStringEncoding error:&error]) LOG_ERROR(@"can not write at %@. %@",d[@"devOIDPLISTPath"],[error description]);
+               return;
+            }
+         }
+
+#pragma mark execute list
+         
+
+         
+         //six parts: prolog,select,where,and,limit&order,format
+         NSString *bash=[NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
+                         sqlprolog,
+                         sqlDictionary[@"Eselect4dt"],
+                         sqlDictionary[@"Ewhere"],
+                         sqlDictionary[@"Eand"],
+                         @"",
+                         sqlRecordTwentyNineUnits
+                         ];
+         if (execUTF8Bash(
+              sqlcredentials,
+              bash,
+              mutableData)
+              !=0) LOG_ERROR(@"%@",bash);
+
+          if ([mutableData length])
           {
-             if (maxCount < dtE.count) [[[NSString stringWithFormat:@"[%lu]",(unsigned long)dtE.count] dataUsingEncoding:NSUTF8StringEncoding] writeToFile:d[@"devOIDPLISTPath"] atomically:YES];
-             else [dtE writeToFile:d[@"devOIDPLISTPath"] atomically:YES];
-          }
-      }
-   }//doPerformSQL
+              NSArray *dtE=[mutableData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:@"replaceCacheInstitution" dictionary:@{@"_institution_":d[@"devOID"], @"_cache_":[[d[@"devOIDPLISTPath"] stringByDeletingLastPathComponent]lastPathComponent]} orderedByUnitIndex:dtPN decreasing:NO];//NSUTF8StringEncoding
+
+             if (dtE.count)
+             {
+                if (maxCount < dtE.count) [[[NSString stringWithFormat:@"[%lu]",(unsigned long)dtE.count] dataUsingEncoding:NSUTF8StringEncoding] writeToFile:d[@"devOIDPLISTPath"] atomically:YES];
+                else [dtE writeToFile:d[@"devOIDPLISTPath"] atomically:YES];
+             }
+         }
+      }//!isStudyArrayComplete
+   }//tooMuchStudies
 }
 @end

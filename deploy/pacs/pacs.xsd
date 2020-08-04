@@ -46,6 +46,7 @@
                                             <xs:group ref="sqlprolog"/>
                                             <xs:group ref="sqlstringencoding"/>
                                             <xs:group ref="sqlmap"/>
+                                            <xs:group ref="needssqlaccesscontrol"/><!--for custodiantitle and aet -->
                                             <xs:group ref="filepathprefix"/>
 
                                             <xs:group ref="sopstringencoding"/>
@@ -291,6 +292,17 @@
                 </xs:annotation>
             </xs:element>
             <xs:element ref="string" id="sqlmap"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="needssqlaccesscontrol">
+        <xs:sequence>
+            <xs:element name="key" fixed="needssqlaccesscontrol">
+                <xs:annotation>
+                   <xs:documentation>study Eaccesscontrol for institutions which share a same pacs with others. The additional filter (which format is defined in sql)takes two parameters: institution title and aet.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:group ref="truefalse"/>
         </xs:sequence>
     </xs:group>
     

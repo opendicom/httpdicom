@@ -46,6 +46,9 @@
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
             <string id="sqlmap">dcm4chee2147mysql</string>
+            <key>needssqlaccesscontrol</key>
+            <false/>
+
             <key>filepathprefix</key>
             <string id="filepathprefix">/Volumes/DICOM-1</string>
             <key>sopstringencoding</key>

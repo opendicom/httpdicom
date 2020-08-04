@@ -47,6 +47,9 @@
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
             <string id="sqlmap">dcm4chee218mysql</string>
+            <key>needssqlaccesscontrol</key>
+            <false/>
+
             <key>filepathprefix</key>
             <string id="filepathprefix"></string>
             <key>sopstringencoding</key>

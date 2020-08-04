@@ -904,6 +904,7 @@ NSString * SOPCLassOfReturnableSeries(
      for (NSString *devOID in lanArray)
      {
         [requestDict setObject:devOID forKey:@"devOID"];
+        [requestDict setObject:(DRS.pacs[devOID])[@"Eaccesscontrol"] forKey:@"Eaccesscontrol"];
         [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
         NSUInteger maxCountIndex=[names indexOfObject:@"max"];
         if (maxCountIndex!=NSNotFound)[requestDict setObject:values[maxCountIndex] forKey:@"max"];

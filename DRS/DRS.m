@@ -452,9 +452,12 @@ static NSData *ctad=nil;
         
         NSMutableDictionary *oids=[NSMutableDictionary dictionary];
         NSMutableDictionary *titles=[NSMutableDictionary dictionary];
-        for (NSDictionary *d in pacsArray)
+       
+              
+#pragma mark loop pacsArray (oids and titles)
+        for (NSDictionary *p in pacsArray)
         {
-            NSString *newtitle=d[@"custodiantitle"];
+            NSString *newtitle=p[@"custodiantitle"];
             if (
                 !newtitle
                 || ![newtitle length]
@@ -465,7 +468,7 @@ static NSData *ctad=nil;
                 return nil;
             }
             
-            NSString *newoid=d[@"custodianoid"];
+            NSString *newoid=p[@"custodianoid"];
             if (
                 !newoid
                 || ![newoid length]
@@ -506,7 +509,9 @@ static NSData *ctad=nil;
         
         
         //pacs OID classified by custodian
-        NSMutableDictionary *oidsaeis=[NSMutableDictionary dictionary];
+       NSMutableDictionary *oidsaeis=[NSMutableDictionary dictionary];
+       
+#pragma mark loop oids
         for (NSString *oid in [oids allKeys])
         {
             NSMutableArray *oidaeis=[NSMutableArray array];
@@ -525,7 +530,9 @@ static NSData *ctad=nil;
         NSMutableDictionary *titlesaets=[NSMutableDictionary dictionary];
         NSMutableDictionary *titlestitlesaets=[NSMutableDictionary dictionary];
         NSMutableDictionary *titlesaetsStrings=[NSMutableDictionary dictionary];
-        for (NSString *title in [titles allKeys])
+
+#pragma mark loop titles
+       for (NSString *title in [titles allKeys])
         {
             NSMutableArray *titleaets=[NSMutableArray array];
             NSMutableArray *titletitleaets=[NSMutableArray array];
@@ -569,11 +576,15 @@ static NSData *ctad=nil;
        _lan=@[(pacsArray[0])[@"custodianoid"],(pacsArray[0])[@"custodiantitle"]];
        NSMutableArray *wan=[NSMutableArray array];
        NSMutableArray *dev=[NSMutableArray array];
+
        
+#pragma mark loop pacsArray (pacs, pacskeysdata, wan, dev)
        for (pacsIndex=0; pacsIndex<[pacsArray count];pacsIndex++)
        {
-          NSMutableDictionary *d=[NSMutableDictionary dictionaryWithDictionary:pacsArray[pacsIndex]];
+          NSMutableDictionary *p=[NSMutableDictionary dictionaryWithDictionary:pacsArray[pacsIndex]];
+
           
+#pragma mark · filesystems
           //create filesystems dictionary for pacs. This dictionary shall be used when get in ["folderDcm4chee2","folderDcm4cheeArc"]
           /*
            [
@@ -588,24 +599,24 @@ static NSData *ctad=nil;
           NSMutableDictionary *filesystems=[NSMutableDictionary dictionary];
           
           NSMutableData *filesystemsJSONData=[NSMutableData data];
-          if ([d[@"get"]isEqualToString:@"folderDcm4chee2"])
+          if ([p[@"get"]isEqualToString:@"folderDcm4chee2"])
           {
              //TODO agregar dictionary "filesystems" a d with string(pk) and dirpath
-             if (execUTF8Bash(@{d[@"sqlcredentials"]:d[@"sqlpassword"]},
-                              [NSString stringWithFormat:@"%@\"SELECT pk, dirpath FROM filesystem\" | awk -F\\t ' BEGIN{ print \"[{\"; ORS=\"},{\";OFS=\",\";}{print \"\\\"dcmStorageID\\\":\\\"\"$1\"\\\"\", \"\\\"dcmURI\\\":\\\"\"$2\"\\\"\"}' | tr -d '\012' | sed -e \"s/,{$/]/\"",d[@"sqlprolog"]],
+             if (execUTF8Bash(@{p[@"sqlcredentials"]:p[@"sqlpassword"]},
+                              [NSString stringWithFormat:@"%@\"SELECT pk, dirpath FROM filesystem\" | awk -F\\t ' BEGIN{ print \"[{\"; ORS=\"},{\";OFS=\",\";}{print \"\\\"dcmStorageID\\\":\\\"\"$1\"\\\"\", \"\\\"dcmURI\\\":\\\"\"$2\"\\\"\"}' | tr -d '\012' | sed -e \"s/,{$/]/\"",p[@"sqlprolog"]],
                               filesystemsJSONData)
                  !=0)
              {
-                LOG_ERROR(@"filesystems error  in %@",d[@"sqlmap"]);
+                LOG_ERROR(@"filesystems error  in %@",p[@"sqlmap"]);
                 exit(0);
              }
           }
-          else if ([d[@"get"]isEqualToString:@"folderDcm4cheeArc"])
+          else if ([p[@"get"]isEqualToString:@"folderDcm4cheeArc"])
           {
              NSString *filesystemsURIString=
              [
               [
-               [d[@"dcm4cheelocaluri"]
+               [p[@"dcm4cheelocaluri"]
                 stringByDeletingLastPathComponent]
                stringByDeletingLastPathComponent]
               stringByAppendingPathComponent:@"storage"];
@@ -613,7 +624,7 @@ static NSData *ctad=nil;
              filesystemsJSONData=[NSMutableData dataWithContentsOfURL:[NSURL URLWithString:filesystemsURIString] options:0 error:&error];
              if (!filesystemsJSONData)
              {
-                LOG_ERROR(@"filesystems error  in %@",d[@"sqlmap"]);
+                LOG_ERROR(@"filesystems error  in %@",p[@"sqlmap"]);
                 exit(0);
              }
 
@@ -624,7 +635,7 @@ static NSData *ctad=nil;
           NSArray *arrayOfDicts=[NSJSONSerialization JSONObjectWithData:filesystemsJSONData options:0 error:&error];
           if (error)
           {
-             LOG_ERROR(@"filesystems error  in %@",d[@"sqlmap"]);
+             LOG_ERROR(@"filesystems error  in %@",p[@"sqlmap"]);
              exit(0);
           }
           for (NSDictionary *dict in arrayOfDicts)
@@ -633,48 +644,66 @@ static NSData *ctad=nil;
                   [filesystems setValue:[dict[@"dcmURI"]substringFromIndex:5] forKey:dict[@"dcmStorageID"]];
               else [filesystems setValue:dict[@"dcmURI"] forKey:dict[@"dcmStorageID"]];
           }
-          [d setObject:[NSDictionary dictionaryWithDictionary:filesystems] forKey:@"filesystems"];
-           
+          [p setObject:[NSDictionary dictionaryWithDictionary:filesystems] forKey:@"filesystems"];
+
+#pragma mark ·needssqlaccesscontrol
+          if ([p[@"needssqlaccesscontrol"]boolValue])
+          {
+             NSDictionary *s=DRS.sqls[p[@"sqlmap"]];
+             [p setObject:
+                          [NSString
+                           stringWithFormat:s[@"Eaccesscontrol"],
+                           p[@"custodiantitle"],
+                           p[@"pacsaet"]
+                           ]
+                   forKey:@"Eaccesscontrol"
+              ];
+          }
+          else [p setObject:@"" forKey:@"Eaccesscontrol"];
+          
+#pragma mark ·pacsIndex
           if (pacsIndex!=0)[pacsKeys appendString:@","];
 
-          
+#pragma mark ·dev wan
           if (
-                [d[@"custodianoid"] isEqualToString:(pacsArray[0])[@"custodianoid"]]
-              ||[d[@"custodiantitle"] isEqualToString:(pacsArray[0])[@"custodiantitle"]]
+                [p[@"custodianoid"] isEqualToString:(pacsArray[0])[@"custodianoid"]]
+              ||[p[@"custodiantitle"] isEqualToString:(pacsArray[0])[@"custodiantitle"]]
               )
           {
              //dev (pacs local)
-             [dev addObject:d[@"pacsoid"]];
-             [dev addObject:[d[@"custodiantitle"] stringByAppendingPathExtension:d[@"pacsaet"]]];
+             [dev addObject:p[@"pacsoid"]];
+             [dev addObject:[p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]];
           }
           else
           {
              //wan (pacs proxied by another pcs)
-             [wan addObject:d[@"pacsoid"]];
-             if ([d[@"pacsaet"] isEqualToString:d[@"custodiantitle"]])
+             [wan addObject:p[@"pacsoid"]];
+             if ([p[@"pacsaet"] isEqualToString:p[@"custodiantitle"]])
              {
                 //another pcs
-                [wan addObject:d[@"custodiantitle"]];
+                [wan addObject:p[@"custodiantitle"]];
              }
              else
              {
                 //dev of another pcs
-                [wan addObject:[d[@"custodiantitle"] stringByAppendingPathExtension:d[@"pacsaet"]]];
+                [wan addObject:[p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]];
              }
 
           }
           
-          
-          [pacsDictionary setObject:d forKey:d[@"pacsoid"]];
+#pragma mark 3 entries for each pacs
+          [pacsDictionary setObject:p forKey:p[@"pacsoid"]];
           [pacsDictionary
-           setObject:d
-           forKey:[d[@"custodiantitle"] stringByAppendingPathExtension:d[@"pacsaet"]]
+           setObject:p
+           forKey:[p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]
              ];
-          [pacsDictionary setObject:d forKey:[NSString stringWithFormat:@"%ld",(long)pacsIndex]];
+          [pacsDictionary setObject:p forKey:[NSString stringWithFormat:@"%ld",(long)pacsIndex]];
+          
+#pragma mark pacs keys finalization
           [pacsKeys appendFormat:
            @"{\"direct\":\"%@\",\"proxied\":\"%@\"}",
-           d[@"pacsoid"],
-           [d[@"custodiantitle"] stringByAppendingPathExtension:d[@"pacsaet"]]
+           p[@"pacsoid"],
+           [p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]
            ];
         }
        [pacsKeys appendString:@"]"];
@@ -687,6 +716,7 @@ static NSData *ctad=nil;
        LOG_DEBUG(@"\r\nwan:\r\n%@",[_wan description]);
        LOG_DEBUG(@"\r\nlan:\r\n%@",[_lan description]);
        LOG_DEBUG(@"\r\ndev:\r\n%@",[_dev description]);
+       
 
 #pragma mark -
 #pragma mark handlers

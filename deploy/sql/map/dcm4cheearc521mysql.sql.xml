@@ -45,50 +45,10 @@ EQA.num_instances, \
 EAI.entity_uid, \
 EAI.entity_uid_type \
 </string>
-
  
+ <key>Ecount</key>
+ <string>SELECT count(E.*) \</string>
  
- <key>P</key><!-- patient -->
- <string>%@ "\
- SELECT \
- P.pk, \
- PI.pat_id, \
- CONCAT(IFNULL(PN.family_name,''), '^', IFNULL(PN.given_name,''), '^', IFNULL(PN.middle_name,''), '^', IFNULL(PN.name_prefix,''), '^', IFNULL(PN.name_suffix,'')), \
- PII.entity_id, \
- P.pat_birthdate, \
- P.pat_sex \
- FROM patient AS       P \
- LEFT JOIN person_name PN  ON patient.pat_name_fk=person_name.pk \
- LEFT JOIN patient_id  PI  ON patient.patient_id_fk=patient_id.pk \
- LEFT JOIN issuer      PII ON patient_id.issuer_fk=issuer.pk \
- WHERE P.pk=%@ %@ " %@ </string>
-  
- <key>E</key><!-- examen -->
- <string>%@ "\
- SELECT \
- E.pk, \
- E.study_iuid, \
- E.study_desc, \
- E.study_date, \
- E.study_time, \
- E.accession_no, \
- E.study_id, \
- CONCAT(IFNULL(ERF.family_name,''), '^', IFNULL(ERF.given_name,''), '^', IFNULL(ERF.middle_name,''), '^', IFNULL(ERF.name_prefix,''), '^', IFNULL(ERF.name_suffix,'')), \
- E.study_custom3, \
- EQA.num_series, \
- EQA.mods_in_study, \
- E.study_custom1, \
- E.study_custom2, \
- E.study_custom3, \
- EAI.entity_id, \
- EAI.entity_uid, \
- EAI.entity_uid_type \
- FROM study AS               E\
- LEFT JOIN study_query_attrs EQA ON study_query_attrs.study_fk=study.pk \
- LEFT JOIN person_name       ERN ON study.ref_phys_name_fk=person_name.pk \
- LEFT JOIN issuer            EAI ON study.accno_issuer_fk=issuer.pk \
- WHERE EQA.view_id='hideRejected' \
- AND E.pk=%@ %@ " %@ </string>
  
  <key>Ewhere</key>
  <string>FROM study AS       E \
@@ -101,6 +61,10 @@ LEFT JOIN issuer            PII ON PI.issuer_fk=PII.pk \
 LEFT JOIN person_name       PN  ON P.pat_name_fk=PN.pk \
 WHERE E.rejection_state!=2 AND EQA.view_id='hideRejected' \
 </string>
+ 
+ <key>Eaccesscontrol</key>
+ <string> AND E.access_control_id in ('%@','%@') </string>
+
  
  <!-- match Study Instance UID -->
  <key>EmatchEui</key>
@@ -151,28 +115,6 @@ WHERE E.rejection_state!=2 AND EQA.view_id='hideRejected' \
      </array>
      <!-- 5. match StudyDescription -->
      <string>AND E.study_desc REGEXP '%@' </string>
-     <!-- 6. match ReferringPhysician -->
-     <array>
-         <string></string>
-         <string>AND ERN.family_name REGEXP '%@' </string>
-         <string>AND ERN.given_name REGEXP '%@' </string>
-         <string>AND ERN.middle_name REGEXP '%@' </string>
-         <string>AND ERN.name_prefix REGEXP '%@' </string>
-         <string>AND ERN.name_suffix REGEXP '%@' </string>
-     </array>
-     <!-- 7. match ReadingPhysician -->
-     <array>
-         <string>AND E.study_custom3 REGEXP '^%@$' </string>
-         <string></string>
-         <string></string>
-         <string></string>
-         <string></string>
-         <string></string>
-     </array>
-     <!-- 8. match SOPClassesInStudy -->
-     <string>AND EQA.cuids_in_study REGEXP '%@' </string>
-     <!-- 9. match ModalitiesInStudy -->
-     <string>AND EQA.mods_in_study REGEXP '%@' </string>
  </array>
  
  
@@ -337,6 +279,49 @@ LEFT JOIN instance ON instance.pk=location.instance_fk
 WHERE instance.series_fk=%@ \
 LIMIT 1; \
 " %@ </string>
+
+
+<key>P</key><!-- patient -->
+<string>%@ "\
+SELECT \
+P.pk, \
+PI.pat_id, \
+CONCAT(IFNULL(PN.family_name,''), '^', IFNULL(PN.given_name,''), '^', IFNULL(PN.middle_name,''), '^', IFNULL(PN.name_prefix,''), '^', IFNULL(PN.name_suffix,'')), \
+PII.entity_id, \
+P.pat_birthdate, \
+P.pat_sex \
+FROM patient AS       P \
+LEFT JOIN person_name PN  ON patient.pat_name_fk=person_name.pk \
+LEFT JOIN patient_id  PI  ON patient.patient_id_fk=patient_id.pk \
+LEFT JOIN issuer      PII ON patient_id.issuer_fk=issuer.pk \
+WHERE P.pk=%@ %@ " %@ </string>
+ 
+<key>E</key><!-- examen -->
+<string>%@ "\
+SELECT \
+E.pk, \
+E.study_iuid, \
+E.study_desc, \
+E.study_date, \
+E.study_time, \
+E.accession_no, \
+E.study_id, \
+CONCAT(IFNULL(ERF.family_name,''), '^', IFNULL(ERF.given_name,''), '^', IFNULL(ERF.middle_name,''), '^', IFNULL(ERF.name_prefix,''), '^', IFNULL(ERF.name_suffix,'')), \
+E.study_custom3, \
+EQA.num_series, \
+EQA.mods_in_study, \
+E.study_custom1, \
+E.study_custom2, \
+E.study_custom3, \
+EAI.entity_id, \
+EAI.entity_uid, \
+EAI.entity_uid_type \
+FROM study AS               E\
+LEFT JOIN study_query_attrs EQA ON study_query_attrs.study_fk=study.pk \
+LEFT JOIN person_name       ERN ON study.ref_phys_name_fk=person_name.pk \
+LEFT JOIN issuer            EAI ON study.accno_issuer_fk=issuer.pk \
+WHERE E.rejection_state!=2 EQA.view_id='hideRejected' \
+AND E.pk=%@ %@ " %@ </string>
 
 </dict>
 

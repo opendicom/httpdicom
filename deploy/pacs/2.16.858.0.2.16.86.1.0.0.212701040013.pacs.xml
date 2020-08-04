@@ -50,6 +50,9 @@
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
             <string id="sqlmap">dcm4cheearc521mysql</string>
+            <key>needssqlaccesscontrol</key>
+            <false/>
+
             <key>filepathprefix</key>
             <string id="filepathprefix"></string>
             <key>sopstringencoding</key>
@@ -133,6 +136,9 @@
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
             <string id="sqlmap">dcm4cheearc521mysql</string>
+            <key>needssqlaccesscontrol</key>
+            <false/>
+
             <key>filepathprefix</key>
             <string id="filepathprefix"></string>
             <key>sopstringencoding</key>
@@ -216,6 +222,9 @@
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
             <string id="sqlmap">dcm4cheearc521mysql</string>
+            <key>needssqlaccesscontrol</key>
+            <false/>
+
             <key>filepathprefix</key>
             <string id="filepathprefix"></string>
             <key>sopstringencoding</key>

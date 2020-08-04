@@ -14,14 +14,12 @@
    @"Radiologo",
    @"Solicitante",
    @"Medico",
-   @"Autenticador"
    ];
    enum rolesEnum{
       rolPatient,
       rolReading,
       rolReferring,
       rolLocalPhysician,
-      rolAuthenticator
    };
    
    NSRegularExpression *dtstudiesRegex = [NSRegularExpression regularExpressionWithPattern:@"/datatables/studies" options:0 error:NULL];
@@ -204,10 +202,6 @@
         } break;
 
                 
-        case rolAuthenticator:
-        {
-        } break;
-
     }
     
     return [DRS
@@ -235,68 +229,46 @@
     [self addHandler:@"GET" regex:dtpatientRegex processBlock:
     ^(RSRequest* request, RSCompletionBlock completionBlock){completionBlock(^RSResponse* (RSRequest* request)
     {
-            NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/patient?"][1];
+      NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/patient?"][1];
 
-            NSMutableArray *names=[NSMutableArray array];
-            NSMutableArray *values=[NSMutableArray array];
-            NSArray *datatablesRequestItems=[datatablesQueryPart componentsSeparatedByString:@"&"];
-           
-            for (NSString *param in datatablesRequestItems)
-            {
-                NSArray *nameValue=[param componentsSeparatedByString:@"="];
-                if ([nameValue[1] length])
-                {
-                    [names addObject:nameValue[0]];
-                    [values addObject:nameValue[1]];
-                }
-            }
+      NSMutableArray *names=[NSMutableArray array];
+      NSMutableArray *values=[NSMutableArray array];
+      NSArray *datatablesRequestItems=[datatablesQueryPart componentsSeparatedByString:@"&"];
+     
+      for (NSString *param in datatablesRequestItems)
+      {
+          NSArray *nameValue=[param componentsSeparatedByString:@"="];
+          if ([nameValue[1] length])
+          {
+              [names addObject:nameValue[0]];
+              [values addObject:nameValue[1]];
+          }
+      }
        
-        LOG_INFO(@"%@",[names description]);
-        LOG_INFO(@"%@",[values description]);
-       NSUInteger cacheIndex=[names indexOfObject:@"cache"];
-       NSUInteger institutionIndex=[names indexOfObject:@"institution"];
-       /*
-       #pragma mark only if cache exists?
-       if (
-              (cacheIndex!=NSNotFound)
-           && (institutionIndex!=NSNotFound)
-           && [[NSFileManager defaultManager]
-               fileExistsAtPath:
-               [[[DRS.tokentmpDir
-                  stringByAppendingPathComponent:values[cacheIndex]]
-                 stringByAppendingPathComponent:values[institutionIndex]]
-                stringByAppendingPathExtension:@"plist"]
-               isDirectory:false
-               ]
-           )
-       {
-*/
 #pragma mark remove filters
        
+       NSUInteger cacheIndex=[names indexOfObject:@"cache"];
        if (cacheIndex!=NSNotFound)
        {
-           [names removeObjectAtIndex:cacheIndex];
-           [values removeObjectAtIndex:cacheIndex];
+         [names removeObjectAtIndex:cacheIndex];
+         [values removeObjectAtIndex:cacheIndex];
        }
-        if (institutionIndex!=NSNotFound)
-        {
-            [names removeObjectAtIndex:institutionIndex];
-            [values removeObjectAtIndex:institutionIndex];
-        }
-           
+       
+       NSUInteger institutionIndex=[names indexOfObject:@"institution"];
+       if (institutionIndex!=NSNotFound)
+       {
+         [names removeObjectAtIndex:institutionIndex];
+         [values removeObjectAtIndex:institutionIndex];
+       }
+
 #pragma mark add filters
-          if (DRS.lan.count)
-          {
-             [names addObject:@"lanPacs"];
-             [values addObject:[DRS.lan componentsJoinedByString:@"|"]];
-          }
-          if (DRS.wan.count)
-          {
-             [names addObject:@"wanPacs"];
-             [values addObject:[DRS.wan componentsJoinedByString:@"|"]];
-          }
-          
-          return [DRS
+       [names addObject:@"lanPacs"];
+       [values addObject:[DRS.lan componentsJoinedByString:@"|"]];
+       [names addObject:@"wanPacs"];
+       [values addObject:[DRS.wan componentsJoinedByString:@"|"]];
+
+       LOG_INFO(@"/datatables/patient? %@ %@",[names description],[values description]);
+       return [DRS
                 studyTokenSocket:request.socketNumber
                 requestURL:request.URL
                 requestPath:@"/datatables/patient"
