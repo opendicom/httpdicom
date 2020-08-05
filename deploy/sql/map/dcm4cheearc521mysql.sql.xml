@@ -18,7 +18,7 @@
 '', \
 CONCAT( '?EKey=', E.pk, '&amp;cache=_cache_&amp;institution=_institution_&amp;StudyInstanceUID=', E.study_iuid ) ,\
 E.study_custom3, \
-IF(PII.entity_id != 'NULL', CONCAT( '?PatientID=', PI.pat_id, '&amp;issuer=', PII.entity_id, '&amp;cache=_cache_'), CONCAT( '?PatientID=', PI.pat_id,'&amp;cache=_cache_') ), \
+IF(PII.entity_id != 'NULL', CONCAT( '?PatientID=', PI.pat_id, '&amp;issuer=', PII.entity_id, '&amp;cache=_cache_&amp;order=5&amp;dir=desc&amp;start=0&amp;length=1000'), CONCAT( '?PatientID=', PI.pat_id,'&amp;cache=_cache_&amp;order=5&amp;dir=desc&amp;start=0&amp;length=1000') ), \
 CONCAT( IFNULL( PN.family_name,'' ), '^', IFNULL( PN.given_name,'' ), '^', IFNULL( PN.middle_name,'' ), '^', IFNULL( PN.name_prefix,'' ), '^', IFNULL(PN.name_suffix,'')), \
 CONCAT( SUBSTRING(E.study_date,1,4), '-', SUBSTRING(E.study_date,5,2), '-',SUBSTRING(E.study_date,7,2), ' ', SUBSTRING(E.study_time,1,2), ':', SUBSTRING(E.study_time,3,2)), \
 EQA.mods_in_study, \

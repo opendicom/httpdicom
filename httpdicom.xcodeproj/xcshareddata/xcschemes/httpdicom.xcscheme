@@ -78,11 +78,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "VERBOSE"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "DEBUG"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "+0300"

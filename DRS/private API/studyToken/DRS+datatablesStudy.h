@@ -130,42 +130,35 @@ enum DE {
  ============
  
  @[
- 0 (0)  ""
- 1 (1-3)  "
-    datatables/series?AccessionNumber=%@
-    &IssuerOfAccessionNumber.UniversalEntityID=%@
-    &StudyInstanceUID= %@
-    &session=%@
-    [EAN][EANIssuerUID][EUID]
-    "
- 2 (4)  ERead
- 3 (5-6)  "
-    datatables?PatientID=%@
-    &IssuerOfPatientID.UniversalEntityID=%@
-    &session=%@
-    [PID][PIssuer]
-    "
- 4 (7)  PName,
- 5 (8  EDateTime,
- 6 (9  EModalities
- 7 (10 EDescription
- 8 (11 ERef
- 9 (12 ESocial
- 10 (13 PIssuer
- 11 (14 PBirthDate
- 12 (15 PSex
- 13 (16 EAN
- 14 (17 EANIssuerUID
- 15 (18 EID
- 16 (19 EUID
- 17 (20 EDateTime
- 18 (21 EInstitution
- 
- 19 (22 PKey
- 20 (23 EKey
- 21 (24 devOID
- 22 (25 cache
- 23 (26 PID
+ 0  ""
+ 1  url for series
+ 2  ERead (study_custom3)
+ 3  url for patient"
+ 4  PName,
+ 5  EDateTime,
+ 6  EModalities
+ 7  EDescription
+ 8  ERN (referring)
+ 9  ESocial (study_custom2)
+ 10 PIssuer
+ 11 PBirthDate
+ 12 PSex
+ 13 EAN
+ 14 EANIssuerUID
+ 15 EID
+ 16 EUID
+ 17 ETime
+ 18 EInstitution (study_custom1)
+ 19 PKey
+ 20 EKey
+ 21 devOID "_institution_"
+ 22 cache "_cache3_"
+ 23 PID
+ 24 Edate
+ 25 S (number of series)
+ 26 I (number of instances)
+ 27 EAI.entity_uid (uid accessionNumber)
+ 28 EAI.entity_uid_type (type accessionNumber)
  ]
  
  */

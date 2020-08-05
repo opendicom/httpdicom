@@ -18,7 +18,7 @@
 '', \
 CONCAT( '?EKey=', E.pk, '&amp;cache=_cache_&amp;institution=_institution_&amp;StudyInstanceUID=', E.study_iuid ) ,\
 E.study_custom3, \
-IF(P.pat_id_issuer != 'NULL', CONCAT( '?PatientID=', P.pat_id, '&amp;issuer=', P.pat_id_issuer, '&amp;cache=_cache_'), CONCAT( '?PatientID=', P.pat_id,'&amp;cache=_cache_') ), \
+IF(P.pat_id_issuer != 'NULL', CONCAT( '?PatientID=', P.pat_id, '&amp;issuer=', P.pat_id_issuer, '&amp;cache=_cache_&amp;order=5&amp;dir=desc&amp;start=0&amp;length=1000'), CONCAT( '?PatientID=', P.pat_id,'&amp;cache=_cache_&amp;order=5&amp;dir=desc&amp;start=0&amp;length=1000') ), \
 P.pat_name, \
 SUBSTRING(E.study_datetime,1,16), \
 E.mods_in_study, \

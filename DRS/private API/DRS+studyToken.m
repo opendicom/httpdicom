@@ -869,7 +869,7 @@ NSString * SOPCLassOfReturnableSeries(
 #pragma mark wan
    for (NSString *devOID in wanArray)
    {
-      NSLog(@"wan %@",devOID);
+      //NSLog(@"wan %@",devOID);
       //add nodes and start corresponding processes
    }
 
@@ -907,8 +907,6 @@ NSString * SOPCLassOfReturnableSeries(
      for (NSString *devOID in lanArray)
      {
         [requestDict setObject:devOID forKey:@"devOID"];
-         NSLog(@"%@",[DRS.pacs description]);
-         NSLog(@"%@",[DRS.pacs[devOID]description]);
         [requestDict setObject:(DRS.pacs[devOID])[@"Eaccesscontrol"] forKey:@"Eaccesscontrol"];
         [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
         NSUInteger maxCountIndex=[names indexOfObject:@"max"];
@@ -1392,7 +1390,24 @@ NSString * SOPCLassOfReturnableSeries(
             }
         }
           
-        //paging jsonp answer
+#pragma mark deduplication
+        NSUInteger ilast=resultsArray.count-1;
+        if (ilast > 0)
+        {
+            for (NSUInteger i=ilast;i>0;i--)
+            {
+                //Euid 16
+                if ([resultsArray[i][dtEU] isEqualToString:resultsArray[i-1][dtEU]])
+                {
+                    //S 25
+                    if ([resultsArray[i][dtEQAseries]intValue] > [resultsArray[i-1][dtEQAseries]intValue])
+                        [resultsArray removeObjectAtIndex:i-1];
+                    else  [resultsArray removeObjectAtIndex:i];
+                }
+            }
+        }
+          
+#pragma mark paging jsonp answer
                    
         long ps=[values[[names indexOfObject:@"start"]] intValue];
         long pl=[values[[names indexOfObject:@"length"]]intValue];
