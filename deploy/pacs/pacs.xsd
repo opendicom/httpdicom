@@ -54,20 +54,27 @@
                                             <!--mllp-->
                                             <xs:group ref="mllpip"/>
                                             <xs:group ref="mllpport"/>
+
                                             <!--DICM-->
                                             <xs:group ref="DICMip"/>
                                             <xs:group ref="DICMport"/>
+
                                             <!--dicomweb-->
                                             <xs:group ref="cachepolicy"/>
                                             <xs:group ref="timeoutinterval"/>
                                             <xs:group ref="wadouri"/>
-                                            <xs:group ref="wadoadditionalparameters"/>
-                                            <xs:group ref="wadoweasisparameters"/>
-                                            <xs:group ref="wadocornerstoneparameters"/>
-                                            <xs:group ref="wadodicomzipparameters"/>
+                                            <xs:group ref="wadouriproxy"/>
+                                            <xs:group ref="wadouriadditionalparameters"/>
+                                            <xs:group ref="wadouriweasisparameters"/>
+                                            <xs:group ref="wadouricornerstoneparameters"/>
+                                            <xs:group ref="wadouridicomzipparameters"/>
                                             <xs:group ref="wadors"/>
+                                            <xs:group ref="wadorsproxy"/>
                                             <xs:group ref="qido"/>
+                                            <xs:group ref="qidoproxy"/>
                                             <xs:group ref="stow"/>
+                                            <xs:group ref="stowproxy"/>
+
                                             <!--dcm4chee-arc-->
                                             <xs:group ref="dcm4cheelocaluri"/>
                                             <xs:group ref="dcm4cheeDICMproxytitle"/>
@@ -313,65 +320,8 @@
         </xs:sequence>
     </xs:group>
 
-    <xs:group name="wadouri">
-        <xs:sequence>
-            <xs:element name="key" fixed="wadouri">
-                <xs:annotation>
-                    <xs:documentation>uri del servicio en caso que el device local soporte esta funcionalidad</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="wadouri"/>
-        </xs:sequence>
-    </xs:group>
     
-    <xs:group name="wadoadditionalparameters">
-        <xs:sequence>
-            <xs:element name="key" fixed="wadoadditionalparameters">
-                <xs:annotation>
-                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="wadoadditionalparameters"/>
-        </xs:sequence>
-    </xs:group>
     
-    <!--weasis-->
-    <xs:group name="wadoweasisparameters">
-        <xs:sequence>
-            <xs:element name="key" fixed="wadoweasisparameters">
-                <xs:annotation>
-                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="wadoweasisparameters"/>
-        </xs:sequence>
-    </xs:group>
-    
-    <!--cornerstone-->
-    <xs:group name="wadocornerstoneparameters">
-        <xs:sequence>
-            <xs:element name="key" fixed="wadocornerstoneparameters">
-                <xs:annotation>
-                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="wadocornerstoneparameters"/>
-        </xs:sequence>
-    </xs:group>
-    
-    <!--dicomzip-->
-    <xs:group name="wadodicomzipparameters">
-        <xs:sequence>
-            <xs:element name="key" fixed="wadodicomzipparameters">
-                <xs:annotation>
-                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element ref="string" id="wadodicomzipparameters"/>
-        </xs:sequence>
-    </xs:group>
-        
-
     <xs:group name="mllpip">
        <xs:sequence>
           <xs:element name="key" fixed="mllpip">
@@ -421,6 +371,72 @@
 
 
 
+    <xs:group name="wadouri">
+        <xs:sequence>
+            <xs:element name="key" fixed="wadouri">
+                <xs:annotation>
+                    <xs:documentation>uri del servicio en caso que el device local soporte esta funcionalidad</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="wadouri"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="wadouriproxy">
+        <xs:sequence>
+            <xs:element name="key" fixed="wadouriproxy"/>
+            <xs:group ref="truefalse"/>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:group name="wadouriadditionalparameters">
+        <xs:sequence>
+            <xs:element name="key" fixed="wadouriadditionalparameters">
+                <xs:annotation>
+                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="wadouriadditionalparameters"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <!--weasis-->
+    <xs:group name="wadouriweasisparameters">
+        <xs:sequence>
+            <xs:element name="key" fixed="wadouriweasisparameters">
+                <xs:annotation>
+                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="wadouriweasisparameters"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <!--cornerstone-->
+    <xs:group name="wadouricornerstoneparameters">
+        <xs:sequence>
+            <xs:element name="key" fixed="wadouricornerstoneparameters">
+                <xs:annotation>
+                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="wadouricornerstoneparameters"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <!--dicomzip-->
+    <xs:group name="wadouridicomzipparameters">
+        <xs:sequence>
+            <xs:element name="key" fixed="wadouridicomzipparameters">
+                <xs:annotation>
+                    <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="wadouridicomzipparameters"/>
+        </xs:sequence>
+    </xs:group>
+        
+
     <xs:group name="cachepolicy">
         <xs:sequence>
             <xs:element name="key" fixed="cachepolicy">
@@ -455,6 +471,14 @@
         </xs:sequence>
     </xs:group>
     
+    <xs:group name="wadorsproxy">
+        <xs:sequence>
+            <xs:element name="key" fixed="wadorsproxy"/>
+            <xs:group ref="truefalse"/>
+        </xs:sequence>
+    </xs:group>
+
+    
     <xs:group name="qido">
         <xs:sequence>
             <xs:element name="key" fixed="qido">
@@ -465,7 +489,13 @@
             <xs:element ref="string" id="qido"/>
         </xs:sequence>
     </xs:group>
-    
+    <xs:group name="qidoproxy">
+        <xs:sequence>
+            <xs:element name="key" fixed="qidoproxy"/>
+            <xs:group ref="truefalse"/>
+        </xs:sequence>
+    </xs:group>
+
     
     <xs:group name="stow">
         <xs:sequence>
@@ -476,8 +506,14 @@
             </xs:element>
             <xs:element ref="string" id="stow"/>
         </xs:sequence>
-    </xs:group>    
-    
+    </xs:group>
+    <xs:group name="stowproxy">
+        <xs:sequence>
+            <xs:element name="key" fixed="stowproxy"/>
+            <xs:group ref="truefalse"/>
+        </xs:sequence>
+    </xs:group>
+
     
     <xs:group name="dcm4cheelocaluri">
         <xs:sequence>

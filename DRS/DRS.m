@@ -576,13 +576,14 @@ static NSData *ctad=nil;
        NSMutableArray *wan=[NSMutableArray array];
 
        
-#pragma mark loop pacsArray (pacs, pacskeysdata, wan)
+#pragma mark loop pacsArray
        for (pacsIndex=0; pacsIndex<[pacsArray count];pacsIndex++)
        {
           NSMutableDictionary *p=[NSMutableDictionary dictionaryWithDictionary:pacsArray[pacsIndex]];
 
           
 #pragma mark · filesystems
+
           //create filesystems dictionary for pacs. This dictionary shall be used when get in ["folderDcm4chee2","folderDcm4cheeArc"]
           /*
            [
@@ -659,37 +660,28 @@ static NSData *ctad=nil;
           }
           else [p setObject:@"" forKey:@"Eaccesscontrol"];
           
-#pragma mark ·pacsIndex
+#pragma mark ·pacsKeys
           if (pacsIndex!=0)[pacsKeys appendString:@","];
+          [pacsKeys appendFormat:
+           @"{\"direct\":\"%@\",\"proxied\":\"%@\"}",
+           p[@"pacsoid"],
+           [p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]
+           ];
 
-#pragma mark ·wan
+#pragma mark ·lan proxied, lan direct or wan
           if (
                 [p[@"custodianoid"] isEqualToString:(pacsArray[0])[@"custodianoid"]]
               ||[p[@"custodiantitle"] isEqualToString:(pacsArray[0])[@"custodiantitle"]]
               )
           {
-             //lan (pacs local)
-             [lan addObject:p[@"pacsoid"]];
-             [lan addObject:[p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]];
+             //the first pacs is always local
+             if ([p[@"wadouriproxy"]boolValue])
+                [lan addObject:p[@"pacsaet"]];
+             else [lan addObject:p[@"pacsoid"]];
           }
-          else
-          {
-             //wan (pacs proxied by another pcs)
-             [wan addObject:p[@"pacsoid"]];
-             if ([p[@"pacsaet"] isEqualToString:p[@"custodiantitle"]])
-             {
-                //another pcs
-                [wan addObject:p[@"custodiantitle"]];
-             }
-             else
-             {
-                //dev of another pcs
-                [wan addObject:[p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]];
-             }
-
-          }
+          else [wan addObject:p[@"pacsoid"]];
           
-#pragma mark 3 entries for each pacs
+#pragma mark ·3 entries for each pacs
           [pacsDictionary setObject:p forKey:p[@"pacsoid"]];
           [pacsDictionary
            setObject:p
@@ -697,13 +689,8 @@ static NSData *ctad=nil;
              ];
           [pacsDictionary setObject:p forKey:[NSString stringWithFormat:@"%ld",(long)pacsIndex]];
           
-#pragma mark pacs keys finalization
-          [pacsKeys appendFormat:
-           @"{\"direct\":\"%@\",\"proxied\":\"%@\"}",
-           p[@"pacsoid"],
-           [p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]
-           ];
         }
+#pragma mark end loop
        [pacsKeys appendString:@"]"];
        _pacs=[NSDictionary dictionaryWithDictionary:pacsDictionary];
        _pacskeysdata=[pacsKeys dataUsingEncoding:NSUTF8StringEncoding];

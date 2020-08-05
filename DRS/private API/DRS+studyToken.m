@@ -1013,7 +1013,7 @@ NSString * SOPCLassOfReturnableSeries(
             [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"xml"] forKey:@"devOIDXMLPath"];
             [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
 
-            [requestDict setObject:(DRS.pacs[devOID])[@"wadoweasisparameters"] forKey:@"wadoweasisparameters"];
+            [requestDict setObject:(DRS.pacs[devOID])[@"wadouriweasisparameters"] forKey:@"wadouriweasisparameters"];
             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
             {
                case selectTypeSql:

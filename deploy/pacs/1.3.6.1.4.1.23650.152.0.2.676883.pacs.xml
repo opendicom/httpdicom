@@ -69,22 +69,30 @@
             <string id="timeoutinterval">60</string>
             <key>wadouri</key>
             <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/wado</string>
-            <key>wadoadditionalparameters</key>
-            <string id="wadoadditionalparameters">&amp;transferSyntax=*</string>            
-            <key>wadoweasisparameters</key>
-            <string id="wadoweasisparameters">&amp;transferSyntax=*</string>            
-            <key>wadocornerstoneparameters</key>
-            <string id="wadocornerstoneparameters"></string>
+            <key>wadouriproxy</key>
+            <false/>
+            <key>wadouriadditionalparameters</key>
+            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>            
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>            
+            <key>wadouricornerstoneparameters</key>
+            <string id="wadouricornerstoneparameters"></string>
             
-            <key>wadodicomzipparameters</key>
-            <string id="wadodicomzipparameters">&amp;transferSyntax=*</string>
+            <key>wadouridicomzipparameters</key>
+            <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
 
             <key>wadors</key>
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
+            <key>wadorsproxy</key>
+            <false/>
             <key>qido</key>
             <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
+            <key>qidoproxy</key>
+            <false/>
             <key>stow</key>
             <string id="stow"></string>
+            <key>stowproxy</key>
+            <false/>
             
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS</string>

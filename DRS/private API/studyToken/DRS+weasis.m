@@ -72,7 +72,7 @@
         weasisarcId:d[@"devOID"]
         weasiswebLogin:nil
         weasisrequireOnlySOPInstanceUID:nil
-        weasisadditionnalParameters:d[@"wadoweasisparameters"]
+        weasisadditionnalParameters:d[@"wadouriweasisparameters"]
         weasisoverrideDicomTagsList:nil
         seriesFilterInstanceUID:d[@"SeriesInstanceUIDRegexString"]
         seriesFilterNumber:d[@"SeriesNumberRegexString"]

@@ -346,7 +346,7 @@ As seen some casuistics can be resolved before any query to the instance table, 
                          instanceSqlProperties[2],
                          devDict[@"custodianoid"],
                          d[@"devOID"],
-                         devDict[@"wadocornerstoneparameters"]
+                         devDict[@"wadouricornerstoneparameters"]
                         ];
                         [instanceArray addObject:
 @{

@@ -70,20 +70,28 @@
             <string id="timeoutinterval">60</string>
             <key>wadouri</key>
             <string id="wadouri">http://192.168.1.38:9728/wado</string>
-            <key>wadoadditionalparameters</key>
-            <string id="wadoadditionalparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
-            <key>wadoweasisparameters</key>
-            <string id="wadoweasisparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
-            <key>wadocornerstoneparameters</key>
-            <string id="wadocornerstoneparameters"></string><!--&amp;contentType=application%2Fdicom&amp;transferSyntax=1.2.840.10008.1.2.1-->
-            <key>wadodicomzipparameters</key>
-            <string id="wadodicomzipparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
+            <key>wadouriproxy</key>
+            <false/>
+            <key>wadouriadditionalparameters</key>
+            <string id="wadouriadditionalparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
+            <key>wadouricornerstoneparameters</key>
+            <string id="wadouricornerstoneparameters"></string><!--&amp;contentType=application%2Fdicom&amp;transferSyntax=1.2.840.10008.1.2.1-->
+            <key>wadouridicomzipparameters</key>
+            <string id="wadouridicomzipparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
             <key>wadors</key>
             <string id="wadors"></string>
+            <key>wadorsproxy</key>
+            <false/>
             <key>qido</key>
             <string id="qido"></string>
+            <key>qidoproxy</key>
+            <false/>
             <key>stow</key>
             <string id="stow"></string>
+            <key>stowproxy</key>
+            <false/>
             
             <key>dcm4cheelocaluri</key>
             <string id="dcm4cheelocaluri"></string>
