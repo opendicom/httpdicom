@@ -93,7 +93,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "~/tmp"
+            argument = "/Volumes/TMP"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

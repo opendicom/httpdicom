@@ -9,7 +9,7 @@
    if ([d[@"max"] length]) maxCount=[d[@"max"] longLongValue];
 
    BOOL tooMuchStudies=false;
-   BOOL isStudyArrayComplete=true;
+   BOOL isStudyArrayComplete=false;
 
    
 #pragma mark studyArray from devOIDPLIST or new
@@ -59,10 +59,10 @@
       
       
 #pragma mark - Euid
-      if (d[@"StudyInstanceUIDRegexpString"] && !studyArray.count)
+      if (d[@"StudyInstanceUIDRegexpString"] && studyArray.count)
       {
          //study not in cache (!studyArray.count)
-         isStudyArrayComplete=false;
+         isStudyArrayComplete=true;
          
          [Eand stringByAppendingFormat:
               sqlDictionary[@"EmatchEui"],
@@ -72,9 +72,6 @@
       else if (d[@"AccessionNumberEqualString"])
 #pragma mark - EA
       {
-         isStudyArrayComplete=false;
-
-         
          switch ([d[@"issuerArray"] count]) {
                
             case issuerNone:
@@ -228,8 +225,6 @@
       if (!isStudyArrayComplete)
       {
 #pragma mark - sql init
-         NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
-         NSString *sqlprolog=devDict[@"sqlprolog"];
          NSMutableData * mutableData=[NSMutableData data];
 
          
@@ -244,9 +239,9 @@
          if (Ecount)
          {
             if (execUTF8Bash(
-                 sqlcredentials,
+                 @{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]},
                  [NSString stringWithFormat:@"%@\"%@%@%@\"%@",
-                  sqlprolog,
+                  devDict[@"sqlprolog"],
                   sqlDictionary[@"Ecount"],
                   sqlDictionary[@"Ewhere"],
                   sqlDictionary[@"Eand"],
@@ -272,15 +267,15 @@
          
          //six parts: prolog,select,where,and,limit&order,format
          NSString *bash=[NSString stringWithFormat:@"%@\"%@%@%@%@\"%@",
-                         sqlprolog,
+                         devDict[@"sqlprolog"],
                          sqlDictionary[@"Eselect4dt"],
                          sqlDictionary[@"Ewhere"],
-                         sqlDictionary[@"Eand"],
+                         Eand,
                          @"",
                          sqlRecordTwentyNineUnits
                          ];
          if (execUTF8Bash(
-              sqlcredentials,
+              @{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]},
               bash,
               mutableData)
               !=0) LOG_ERROR(@"%@",bash);

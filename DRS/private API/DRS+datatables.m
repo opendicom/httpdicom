@@ -253,14 +253,14 @@
          [names removeObjectAtIndex:cacheIndex];
          [values removeObjectAtIndex:cacheIndex];
        }
-       
+/*
        NSUInteger institutionIndex=[names indexOfObject:@"institution"];
        if (institutionIndex!=NSNotFound)
        {
          [names removeObjectAtIndex:institutionIndex];
          [values removeObjectAtIndex:institutionIndex];
        }
-
+*/
 #pragma mark add filters
        [names addObject:@"lanPacs"];
        [values addObject:[DRS.lan componentsJoinedByString:@"|"]];

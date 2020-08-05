@@ -371,17 +371,19 @@ NSString * SOPCLassOfReturnableSeries(
    NSMutableArray *wanArray=[NSMutableArray array];
    
    NSInteger orgIndex=[names indexOfObject:@"institution"];
-   if (orgIndex==NSNotFound)
+   if (orgIndex==NSNotFound) //lanPacs wanPacs
    {
       orgIndex=[names indexOfObject:@"lanPacs"];
       if (orgIndex!=NSNotFound) [lanArray addObjectsFromArray:[values[orgIndex] componentsSeparatedByString:@"|"]];
       orgIndex=[names indexOfObject:@"wanPacs"];
       if (orgIndex!=NSNotFound) [wanArray addObjectsFromArray:[values[orgIndex] componentsSeparatedByString:@"|"]];
    }
-   else
+   else //institution
    {
       [requestDict setObject:values[orgIndex] forKey:@"institutionString"];
       NSArray *orgArray=[values[orgIndex] componentsSeparatedByString:@"|"];
+       
+       //find  lanArray and wanArray corresponding to orgArray received in "institution"
       for (NSInteger i=[orgArray count]-1;i>=0;i--)
       {
          if ([DRS.wan indexOfObject:orgArray[i]]!=NSNotFound)
@@ -389,24 +391,25 @@ NSString * SOPCLassOfReturnableSeries(
             [wanArray addObject:orgArray[i]];
             LOG_DEBUG(@"studyToken institution wan %@",orgArray[i]);
          }
-         else if ([DRS.dev indexOfObject:orgArray[i]]!=NSNotFound)
-         {
-            [lanArray addObject:orgArray[i]];
-            LOG_DEBUG(@"studyToken institution lan %@",orgArray[i]);
-         }
          else if ([DRS.lan indexOfObject:orgArray[i]]!=NSNotFound)
          {
-            //find all dev of local custodian
+            //case the institution is generic custodian
             if (DRS.oidsaeis[orgArray[i]])
             {
                [lanArray addObjectsFromArray:DRS.oidsaeis[orgArray[i]]];
                LOG_VERBOSE(@"studyToken institution for lan %@:\r\n%@",orgArray[i],[DRS.oidsaeis[orgArray[i]]description]);
             }
-            else
+            else if (DRS.titlestitlesaets[orgArray[i]])
             {
                [lanArray addObjectsFromArray:DRS.titlestitlesaets[orgArray[i]]];
-               LOG_VERBOSE(@"studyToken institution for lan %@:\r\n%@",orgArray[i],[DRS.titlestitlesaets[orgArray[i]]description]);
+               LOG_VERBOSE(@"studyToken institution lan %@:\r\n%@",orgArray[i],[DRS.titlestitlesaets[orgArray[i]]description]);
             }
+            else //pacs local
+            {
+                [lanArray addObject:orgArray[i]];
+                LOG_VERBOSE(@"studyToken institution for lan %@",orgArray[i]);
+            }
+             
          }
          else LOG_WARNING(@"studyToken institution '%@' not registered",orgArray[i]);
       }
@@ -904,6 +907,8 @@ NSString * SOPCLassOfReturnableSeries(
      for (NSString *devOID in lanArray)
      {
         [requestDict setObject:devOID forKey:@"devOID"];
+         NSLog(@"%@",[DRS.pacs description]);
+         NSLog(@"%@",[DRS.pacs[devOID]description]);
         [requestDict setObject:(DRS.pacs[devOID])[@"Eaccesscontrol"] forKey:@"Eaccesscontrol"];
         [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
         NSUInteger maxCountIndex=[names indexOfObject:@"max"];

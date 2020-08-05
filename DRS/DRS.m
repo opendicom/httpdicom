@@ -274,7 +274,6 @@ static NSData              *_pacskeysdata=nil;
 
 static NSArray             *_wan=nil;
 static NSArray             *_lan=nil;
-static NSArray             *_dev=nil;
 
 static NSArray             *_InstanceUniqueFrameSOPClass=nil;
 static NSArray             *_InstanceMultiFrameSOPClass=nil;
@@ -573,12 +572,11 @@ static NSData *ctad=nil;
        NSMutableString *pacsKeys=[NSMutableString stringWithString:@"["];
  
        
-       _lan=@[(pacsArray[0])[@"custodianoid"],(pacsArray[0])[@"custodiantitle"]];
+       NSMutableArray *lan=[NSMutableArray array];
        NSMutableArray *wan=[NSMutableArray array];
-       NSMutableArray *dev=[NSMutableArray array];
 
        
-#pragma mark loop pacsArray (pacs, pacskeysdata, wan, dev)
+#pragma mark loop pacsArray (pacs, pacskeysdata, wan)
        for (pacsIndex=0; pacsIndex<[pacsArray count];pacsIndex++)
        {
           NSMutableDictionary *p=[NSMutableDictionary dictionaryWithDictionary:pacsArray[pacsIndex]];
@@ -664,15 +662,15 @@ static NSData *ctad=nil;
 #pragma mark ·pacsIndex
           if (pacsIndex!=0)[pacsKeys appendString:@","];
 
-#pragma mark ·dev wan
+#pragma mark ·wan
           if (
                 [p[@"custodianoid"] isEqualToString:(pacsArray[0])[@"custodianoid"]]
               ||[p[@"custodiantitle"] isEqualToString:(pacsArray[0])[@"custodiantitle"]]
               )
           {
-             //dev (pacs local)
-             [dev addObject:p[@"pacsoid"]];
-             [dev addObject:[p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]];
+             //lan (pacs local)
+             [lan addObject:p[@"pacsoid"]];
+             [lan addObject:[p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]];
           }
           else
           {
@@ -707,15 +705,13 @@ static NSData *ctad=nil;
            ];
         }
        [pacsKeys appendString:@"]"];
-       LOG_DEBUG(@"\r\nlan:\r\n%@",[_lan description]);
        _pacs=[NSDictionary dictionaryWithDictionary:pacsDictionary];
        _pacskeysdata=[pacsKeys dataUsingEncoding:NSUTF8StringEncoding];
 
        _wan=[NSArray arrayWithArray:wan];
-       _dev=[NSArray arrayWithArray:dev];
+       _lan=[NSArray arrayWithArray:lan];
        LOG_DEBUG(@"\r\nwan:\r\n%@",[_wan description]);
        LOG_DEBUG(@"\r\nlan:\r\n%@",[_lan description]);
-       LOG_DEBUG(@"\r\ndev:\r\n%@",[_dev description]);
        
 
 #pragma mark -
@@ -812,7 +808,6 @@ static NSData *ctad=nil;
 
 +(NSArray*)wan                       { return _wan;}
 +(NSArray*)lan                       { return _lan;}
-+(NSArray*)dev                       { return _dev;}
 
 +(NSArray*)InstanceUniqueFrameSOPClass { return _InstanceUniqueFrameSOPClass;}
 +(NSArray*)InstanceMultiFrameSOPClass { return _InstanceMultiFrameSOPClass;}
