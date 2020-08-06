@@ -23,7 +23,8 @@
                             
                             <xs:group ref="Ewhere"/><!-- rejection state -->
                             <xs:group ref="Eaccesscontrol"/>
-                            
+                            <xs:group ref="Eorderdesc"/>
+
 <!-- E exclusive match-->
                             <xs:group ref="EmatchEui"/><!-- 1. match study UID -->                                                  
                             <xs:group ref="EmatchEan"/><!-- 2. match accession number -->
@@ -101,8 +102,16 @@
             <xs:element name="string"/>
         </xs:sequence>
     </xs:group>
-
     
+    
+    <xs:group name="Eorderdesc">
+        <xs:sequence>
+            <xs:element name="key" fixed="Eorderdesc"/>
+            <xs:element name="string"/>
+        </xs:sequence>
+    </xs:group>
+
+
 <!-- E exclusive match-->
 
     <!-- 1. match study UID -->

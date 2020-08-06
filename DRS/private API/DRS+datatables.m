@@ -266,6 +266,10 @@
        [values addObject:[DRS.lan componentsJoinedByString:@"|"]];
        [names addObject:@"wanPacs"];
        [values addObject:[DRS.wan componentsJoinedByString:@"|"]];
+       [names addObject:@"start"];
+       [values addObject:@"0"];
+       [names addObject:@"length"];
+       [values addObject:@"1000"];
 
        LOG_INFO(@"/datatables/patient? %@ %@",[names description],[values description]);
        return [DRS

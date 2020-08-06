@@ -18,7 +18,7 @@ version="1.0"
 '', \
 CONCAT( '?EKey=', E.pk, '&amp;cache=_cache_&amp;institution=_institution_&amp;StudyInstanceUID=', E.study_iuid ) ,\
 E.study_custom3, \
-IF(P.pat_id_issuer != 'NULL', CONCAT( '?PatientID=', P.pat_id, '&amp;issuer=', P.pat_id_issuer, '&amp;cache=_cache_&amp;order=5&amp;dir=desc&amp;start=0&amp;length=1000'), CONCAT( '?PatientID=', P.pat_id,'&amp;cache=_cache_&amp;order=5&amp;dir=desc&amp;start=0&amp;length=1000') ), \
+IF(P.pat_id_issuer != 'NULL', CONCAT( '?PatientID=', P.pat_id, '&amp;issuer=', P.pat_id_issuer, '&amp;cache=_cache_'), CONCAT( '?PatientID=', P.pat_id,'&amp;cache=_cache_') ), \
 P.pat_name, \
 E.study_datetime, \
 E.mods_in_study, \
@@ -58,7 +58,9 @@ WHERE TRUE </string>
 
  <key>Eaccesscontrol</key>
  <string></string>
-
+ 
+ <key>Eorderdesc</key>
+ <string> ORDER BY E.pk DESC </string>
 
 
 <!-- E exclusive match-->
