@@ -47,7 +47,7 @@ E.num_instances, \
 </string>
 
 <key>Ecount</key>
-<string>SELECT count(E.*) \</string>
+<string>SELECT count(E.*) \ </string>
 
 
 

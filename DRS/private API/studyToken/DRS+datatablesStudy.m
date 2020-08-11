@@ -244,7 +244,7 @@
                   devDict[@"sqlprolog"],
                   sqlDictionary[@"Ecount"],
                   sqlDictionary[@"Ewhere"],
-                  sqlDictionary[@"Eand"],
+                  Eand,
                   sqlonevalue
                   ],
                    mutableData
