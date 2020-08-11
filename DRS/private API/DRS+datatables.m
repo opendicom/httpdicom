@@ -116,19 +116,97 @@
 
 
 #pragma mark +institution?
-    NSString *custodiantitle=values[[names indexOfObject:@"custodiantitle"]];
-    NSString *aet=values[[names indexOfObject:@"aet"]];
+    /*
+     input:
+     - (generic eventually multivalued) institution
+     - (datatables study monovalued) custodiantitle aet
+     
+     for all of them check if we keep aet or oid (depending on direct or indirect wado access)
+     */
 
-    NSString *institutionOID=nil;
+    NSString *institutionString=nil;
     NSUInteger institutionIndex=[names indexOfObject:@"institution"];
     if (institutionIndex!=NSNotFound)
-        institutionOID=values[institutionIndex];
+    {
+       //loop each part to construct institutionString
+       NSMutableSet *iSet=[NSMutableSet set];
+       for (NSString *i in values[institutionIndex])
+       {
+          NSDictionary *p=DRS.pacs[i];
+          if (p) [iSet addObject:p[@"org"]];
+          else
+          {
+             LOG_WARNING(@"bad institution %@",i);
+             return [RSDataResponse responseWithData:
+                     [NSJSONSerialization
+                      dataWithJSONObject:
+                      @{
+                       @"draw":values[[names indexOfObject:@"draw"]],
+                       @"recordsFiltered":@0,
+                       @"recordsTotal":@0,
+                       @"data":@[],
+                       @"error":@"bad institution"
+                      }
+                      options:0
+                      error:nil
+                     ]
+                     contentType:@"application/dicom+json"
+                     ];
+          }
+       }
+       institutionString=[[iSet allObjects] componentsJoinedByString:@"|"];
+    }
     else
     {
-       [names addObject:@"institution"];
-       institutionOID=(DRS.pacs[[custodiantitle stringByAppendingPathExtension:aet]])[@"pacsoid"];
-       [values addObject:institutionOID];
+       NSString *custodiantitle=values[[names indexOfObject:@"custodiantitle"]];
+       NSString *aet=values[[names indexOfObject:@"aet"]];
+       if (!custodiantitle || !aet)
+       {
+          LOG_WARNING(@"bad custodiantitle '%@' and/or aet '%@'",custodiantitle,aet);
+          return [RSDataResponse responseWithData:
+                  [NSJSONSerialization
+                   dataWithJSONObject:
+                   @{
+                    @"draw":values[[names indexOfObject:@"draw"]],
+                    @"recordsFiltered":@0,
+                    @"recordsTotal":@0,
+                    @"data":@[],
+                    @"error":@"bad custodiantitle and/or aet"
+                   }
+                   options:0
+                   error:nil
+                  ]
+                  contentType:@"application/dicom+json"
+                  ];
+       }
+
+       NSDictionary *p=DRS.pacs[[custodiantitle stringByAppendingPathExtension:aet]];
+       if (p)
+       {
+          institutionString=p[@"org"];
+       }
+       else
+       {
+          LOG_WARNING(@"bad custodiantitle %@.%@'",custodiantitle,aet);
+          return [RSDataResponse responseWithData:
+                  [NSJSONSerialization
+                   dataWithJSONObject:
+                   @{
+                    @"draw":values[[names indexOfObject:@"draw"]],
+                    @"recordsFiltered":@0,
+                    @"recordsTotal":@0,
+                    @"data":@[],
+                    @"error":@"bad custodiantitle.aet"
+                   }
+                   options:0
+                   error:nil
+                  ]
+                  contentType:@"application/dicom+json"
+                  ];
+       }
     }
+    [values addObject:institutionString];
+    [names addObject:@"institution"];
 
     
 #pragma mark +modalityInStudy?
@@ -170,10 +248,10 @@
               
        case rolReferring:
        {
-          if (institutionOID.length)
+          if (institutionString.length)
           {
              [names addObject:@"refInstitution"];
-             [values addObject:institutionOID];
+             [values addObject:institutionString];
           }
 /*
           if (modality.length)
@@ -263,9 +341,9 @@
 */
 #pragma mark add filters
        [names addObject:@"lanPacs"];
-       [values addObject:[DRS.lan componentsJoinedByString:@"|"]];
+       [values addObject:[[DRS.lanDeduplicated allObjects] componentsJoinedByString:@"|"]];
        [names addObject:@"wanPacs"];
-       [values addObject:[DRS.wan componentsJoinedByString:@"|"]];
+       [values addObject:[[DRS.wan allObjects] componentsJoinedByString:@"|"]];
        [names addObject:@"start"];
        [values addObject:@"0"];
        [names addObject:@"length"];

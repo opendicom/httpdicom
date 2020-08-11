@@ -356,10 +356,20 @@ NSString * SOPCLassOfReturnableSeries(
 
 
 #pragma mark institution
-#pragma mark TODO revise oid vs orgaet.deviceaet
+
    /*
-    oid => wado direct from html5dicom to pacs
-    orgaet.deviceaet => wado to httpdicom proxy
+    study
+    =====
+    oid                => wado direct from html5dicom to lan pacs
+    aet                => wado to httpdicom as lan proxy
+    custodiantitle.aet => wado to httpdicom as wan proxy
+    
+    
+    patient
+    =======
+    lanPacs
+    wanPacs
+    
     NSInteger custodianIndex=[names indexOfObject:@"custodiantitle"];
     if (custodianIndex!=NSNotFound) [requestDict setObject:values[custodianIndex] forKey:@"custodiantitle"];
     NSInteger aetIndex=[names indexOfObject:@"aet"];
@@ -367,54 +377,37 @@ NSString * SOPCLassOfReturnableSeries(
     */
 
 
-   NSMutableArray *lanArray=[NSMutableArray array];
-   NSMutableArray *wanArray=[NSMutableArray array];
+   NSMutableSet *lanSet=[NSMutableSet set];
+   NSMutableSet *wanSet=[NSMutableSet set];
    
-   NSInteger orgIndex=[names indexOfObject:@"institution"];
-   if (orgIndex==NSNotFound) //lanPacs wanPacs
+   NSInteger lanPacsIndex=[names indexOfObject:@"lanPacs"];
+   NSInteger institutionIndex=[names indexOfObject:@"institution"];
+   if (lanPacsIndex!=NSNotFound)
    {
-      orgIndex=[names indexOfObject:@"lanPacs"];
-      if (orgIndex!=NSNotFound) [lanArray addObjectsFromArray:[values[orgIndex] componentsSeparatedByString:@"|"]];
-      orgIndex=[names indexOfObject:@"wanPacs"];
-      if (orgIndex!=NSNotFound) [wanArray addObjectsFromArray:[values[orgIndex] componentsSeparatedByString:@"|"]];
+      //from datatables
+      [lanSet addObjectsFromArray:[values[lanPacsIndex] componentsSeparatedByString:@"|"]];
+      NSInteger wanPacsIndex=[names indexOfObject:@"wanPacs"];
+      if (wanPacsIndex!=NSNotFound) [wanSet addObjectsFromArray:[values[wanPacsIndex] componentsSeparatedByString:@"|"]];
    }
    else //institution
    {
-      [requestDict setObject:values[orgIndex] forKey:@"institutionString"];
-      NSArray *orgArray=[values[orgIndex] componentsSeparatedByString:@"|"];
-       
-       //find  lanArray and wanArray corresponding to orgArray received in "institution"
-      for (NSInteger i=[orgArray count]-1;i>=0;i--)
+       //find  lanSet and wanSet corresponding to orgArray received in "institution"
+      for (NSString *org in [values[institutionIndex] componentsSeparatedByString:@"|"])
       {
-         if ([DRS.wan indexOfObject:orgArray[i]]!=NSNotFound)
+         if ([DRS.wan containsObject:org]) [wanSet addObject:org];
+         else if ([DRS.lan containsObject:org]) [lanSet addObject:org];
+         else //adjust the name of the pacs/custodian
          {
-            [wanArray addObject:orgArray[i]];
-            LOG_DEBUG(@"studyToken institution wan %@",orgArray[i]);
+            NSDictionary *p=DRS.pacs[org];
+            if ([DRS.lan containsObject:p[@"pacsaet"]]) [lanSet addObject:p[@"pacsaet"]];
+            else if ([DRS.lan containsObject:p[@"pacsoid"]]) [lanSet addObject:p[@"pacsoid"]];
          }
-         else if ([DRS.lan indexOfObject:orgArray[i]]!=NSNotFound)
-         {
-            //case the institution is generic custodian
-            if (DRS.oidsaeis[orgArray[i]])
-            {
-               [lanArray addObjectsFromArray:DRS.oidsaeis[orgArray[i]]];
-               LOG_VERBOSE(@"studyToken institution for lan %@:\r\n%@",orgArray[i],[DRS.oidsaeis[orgArray[i]]description]);
-            }
-            else if (DRS.titlestitlesaets[orgArray[i]])
-            {
-               [lanArray addObjectsFromArray:DRS.titlestitlesaets[orgArray[i]]];
-               LOG_VERBOSE(@"studyToken institution lan %@:\r\n%@",orgArray[i],[DRS.titlestitlesaets[orgArray[i]]description]);
-            }
-            else //pacs local
-            {
-                [lanArray addObject:orgArray[i]];
-                LOG_VERBOSE(@"studyToken institution for lan %@",orgArray[i]);
-            }
-             
-         }
-         else LOG_WARNING(@"studyToken institution '%@' not registered",orgArray[i]);
       }
+      
+      [canonicalQuery appendFormat:@"\"institution\":\"%@\",",values[institutionIndex]];
+      //[requestDict setObject:values[institutionIndex] forKey:@"institutionString"];
    }
-   if (![lanArray count] && ![wanArray count]) return [RSErrorResponse responseWithClientError:404 message:@"no valid pacs in the request"];
+   if (![lanSet count] && ![wanSet count]) return [RSErrorResponse responseWithClientError:404 message:@"no valid pacs in the request"];
 
    NSString *StudyInstanceUIDRegexpString=nil;
    NSInteger StudyInstanceUIDIndex=[names indexOfObject:@"StudyInstanceUID"];
@@ -867,7 +860,7 @@ NSString * SOPCLassOfReturnableSeries(
 
    
 #pragma mark wan
-   for (NSString *devOID in wanArray)
+   for (NSString *wan in wanSet)
    {
       //NSLog(@"wan %@",devOID);
       //add nodes and start corresponding processes
@@ -904,7 +897,7 @@ NSString * SOPCLassOfReturnableSeries(
 
    
      //loop each LAN pacs producing part
-     for (NSString *devOID in lanArray)
+     for (NSString *devOID in lanSet)
      {
         [requestDict setObject:devOID forKey:@"devOID"];
         [requestDict setObject:(DRS.pacs[devOID])[@"Eaccesscontrol"] forKey:@"Eaccesscontrol"];
@@ -1005,7 +998,7 @@ NSString * SOPCLassOfReturnableSeries(
       case accessTypeWeasis:
       {
 //loop each LAN pacs producing part
-         for (NSString *devOID in lanArray)
+         for (NSString *devOID in lanSet)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
             [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"xml"] forKey:@"devOIDXMLPath"];
@@ -1025,7 +1018,7 @@ NSString * SOPCLassOfReturnableSeries(
          {
              if ([[resultFile pathExtension] isEqualToString:@"xml"])
              {
-                 if ([lanArray indexOfObject:[resultFile stringByDeletingPathExtension]]!=NSNotFound)
+                 if ([lanSet containsObject:[resultFile stringByDeletingPathExtension]])
                  {
                  
                    [resultString appendString:
@@ -1090,7 +1083,7 @@ NSString * SOPCLassOfReturnableSeries(
       case accessTypeCornerstone:
       {
 //loop each LAN pacs producing part
-         for (NSString *devOID in lanArray)
+         for (NSString *devOID in lanSet)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
             [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"json"]forKey:@"devOIDJSONPath"];
@@ -1109,7 +1102,7 @@ NSString * SOPCLassOfReturnableSeries(
          {
              if ([[resultFile pathExtension] isEqualToString:@"json"])
              {
-                 if ([lanArray indexOfObject:[resultFile stringByDeletingPathExtension]]!=NSNotFound)
+                 if ([lanSet containsObject:[resultFile stringByDeletingPathExtension]])
                 {
                    [resultString appendString:
                     [NSString
@@ -1159,7 +1152,7 @@ NSString * SOPCLassOfReturnableSeries(
       case accessTypeDicomzip:
       {
          NSMutableArray *seriesPaths=[NSMutableArray array];
-         for (NSString *devOID in lanArray)
+         for (NSString *devOID in lanSet)
          {
             [requestDict setObject:devOID forKey:@"devOID"];
             [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
@@ -1202,7 +1195,7 @@ NSString * SOPCLassOfReturnableSeries(
           
           for (NSString *devOIDItem in devOIDItems)
           {
-              if ([lanArray indexOfObject:devOIDItem]!=NSNotFound)
+              if ([lanSet indexOfObject:devOIDItem]!=NSNotFound)
               {
               NSString *devOIDPath=[queryPath stringByAppendingPathComponent:devOIDItem];
               NSArray *studyFolders=[defaultManager contentsOfDirectoryAtPath:devOIDPath error:nil];
@@ -1292,7 +1285,7 @@ NSString * SOPCLassOfReturnableSeries(
          {
             if ([[resultFile pathExtension] isEqualToString:@"plist"])
             {
-                if ([lanArray indexOfObject:[resultFile stringByDeletingPathExtension]]!=NSNotFound)
+                if ([lanSet containsObject:[resultFile stringByDeletingPathExtension]])
                 {
                    NSArray *partialArray=[NSArray arrayWithContentsOfFile:[queryPath stringByAppendingPathComponent:resultFile]];
                    if ((partialArray.count==1) && [partialArray[0] isKindOfClass:[NSNumber class]])

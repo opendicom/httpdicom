@@ -254,29 +254,28 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType)
 
 @implementation DRS
 
-static NSDictionary        *_sqls=nil;
-static long long           _drsport;
-static NSString            *_defaultpacsoid;
-static NSString            *_tmpDir;
-static NSString            *_tokentmpDir;
+static NSDictionary *_sqls=nil;
+static long long     _drsport;
+static NSString     *_defaultpacsoid;
+static NSString     *_tmpDir;
+static NSString     *_tokentmpDir;
 
-static NSDictionary        *_oids=nil;
-static NSDictionary        *_titles=nil;
-static NSData              *_oidsdata=nil;
-static NSData              *_titlesdata=nil;
-static NSDictionary        *_oidsaeis=nil;
-static NSDictionary        *_titlesaets=nil;
-static NSDictionary        *_titlestitlesaets=nil;
-static NSDictionary        *_titlesaetsstrings=nil;
+static NSDictionary *_oids=nil;
+static NSDictionary *_titles=nil;
+static NSData       *_oidsdata=nil;
+static NSData       *_titlesdata=nil;
+static NSDictionary *_oidsaeis=nil;
+static NSDictionary *_titlesaets=nil;
 
-static NSDictionary        *_pacs=nil;//pacsDictionary
-static NSData              *_pacskeysdata=nil;
+static NSDictionary *_pacs=nil;//pacsDictionary
+static NSData       *_pacskeysdata=nil;
 
-static NSArray             *_wan=nil;
-static NSArray             *_lan=nil;
+static NSSet        *_wan=nil;
+static NSSet        *_lan=nil;
+static NSSet        *_lanDeduplicated=nil;
 
-static NSArray             *_InstanceUniqueFrameSOPClass=nil;
-static NSArray             *_InstanceMultiFrameSOPClass=nil;
+static NSArray      *_InstanceUniqueFrameSOPClass=nil;
+static NSArray      *_InstanceMultiFrameSOPClass=nil;
 
 
 
@@ -527,8 +526,6 @@ static NSData *ctad=nil;
         
         //pacs titles grouped on custodian
         NSMutableDictionary *titlesaets=[NSMutableDictionary dictionary];
-        NSMutableDictionary *titlestitlesaets=[NSMutableDictionary dictionary];
-        NSMutableDictionary *titlesaetsStrings=[NSMutableDictionary dictionary];
 
 #pragma mark loop titles
        for (NSString *title in [titles allKeys])
@@ -550,9 +547,7 @@ static NSData *ctad=nil;
                 }
             }
             [titlesaets setObject:titleaets forKey:title];
-            [titlestitlesaets setObject:titletitleaets forKey:title];
             [s appendString:@")"];
-            [titlesaetsStrings setObject:s forKey:title];
         }
         LOG_DEBUG(@"\r\nknown pacs aet classified by corresponding custodian title:\r\n%@",[titlesaets description]);
        
@@ -560,8 +555,6 @@ static NSData *ctad=nil;
        _titles=[NSDictionary dictionaryWithDictionary:titles];
        _oidsaeis=[NSDictionary dictionaryWithDictionary:oidsaeis];
        _titlesaets=[NSDictionary dictionaryWithDictionary:titlesaets];
-       _titlestitlesaets=[NSDictionary dictionaryWithDictionary:titlestitlesaets];
-       _titlesaetsstrings=[NSDictionary dictionaryWithDictionary:titlesaetsStrings];
 
        
 //_pacs receives two entries for each dev:
@@ -572,10 +565,13 @@ static NSData *ctad=nil;
        NSMutableString *pacsKeys=[NSMutableString stringWithString:@"["];
  
        
-       NSMutableArray *lan=[NSMutableArray array];
-       NSMutableArray *wan=[NSMutableArray array];
+       NSMutableSet *lan=[NSMutableSet set];
+       NSMutableSet *lanDeduplicated=[NSMutableSet set];
+       NSMutableSet *wan=[NSMutableSet set];
+       NSString *p0wadouriComplete=(pacsArray[0])[@"wadouri"];
+       NSString *withoutProtocol=[p0wadouriComplete componentsSeparatedByString:@"//"].lastObject;
+       NSString *p0wadouriIpPort=[withoutProtocol componentsSeparatedByString:@"/"].firstObject;
 
-       
 #pragma mark loop pacsArray
        for (pacsIndex=0; pacsIndex<[pacsArray count];pacsIndex++)
        {
@@ -658,7 +654,10 @@ static NSData *ctad=nil;
                    forKey:@"Eaccesscontrol"
               ];
           }
-          else [p setObject:@"" forKey:@"Eaccesscontrol"];
+          else
+          {
+             [p setObject:@"" forKey:@"Eaccesscontrol"];
+          }
           
 #pragma mark ·pacsKeys
           if (pacsIndex!=0)[pacsKeys appendString:@","];
@@ -668,26 +667,55 @@ static NSData *ctad=nil;
            [p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]
            ];
 
-#pragma mark ·lan proxied, lan direct or wan
+#pragma mark ·p[org] lan wan
           if (
                 [p[@"custodianoid"] isEqualToString:(pacsArray[0])[@"custodianoid"]]
               ||[p[@"custodiantitle"] isEqualToString:(pacsArray[0])[@"custodiantitle"]]
               )
           {
-             //the first pacs is always local
+             //pacsArray[0])[@"custodianoid"]
+             //the first pacs is always of local custodian
+             
              if ([p[@"wadouriproxy"]boolValue])
+             {
+                //lan aet
                 [lan addObject:p[@"pacsaet"]];
-             else [lan addObject:p[@"pacsoid"]];
+                [p setObject:p[@"pacsaet"] forKey:@"org"];
+                if (
+                      (pacsIndex==0)
+                    ||([p[@"wadouri"] componentsSeparatedByString:p0wadouriIpPort].count==1)
+                    )
+                   [lanDeduplicated addObject:p[@"pacsaet"]];
+                [pacsDictionary setObject:p forKey:p[@"pacsaet"]];
+
+             }
+             else
+             {
+                //lan oid
+                [lan addObject:p[@"pacsoid"]];//direct wado
+                [p setObject:p[@"pacsoid"] forKey:@"org"];
+                if (
+                      (pacsIndex==0)
+                    ||([p[@"wadouri"] componentsSeparatedByString:p0wadouriIpPort].count==1)
+                    )
+                   [lanDeduplicated addObject:p[@"pacsoid"]];
+             }
           }
-          else [wan addObject:p[@"pacsoid"]];
+          else
+          {
+             //wan custodian.aet
+             [wan addObject:[p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]];
+             [p setObject:[p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]] forKey:@"org"];
+
+          }
           
-#pragma mark ·3 entries for each pacs
+#pragma mark ·2 entries for each pacs (for lan there is one more entry aet)
           [pacsDictionary setObject:p forKey:p[@"pacsoid"]];
           [pacsDictionary
            setObject:p
            forKey:[p[@"custodiantitle"] stringByAppendingPathExtension:p[@"pacsaet"]]
              ];
-          [pacsDictionary setObject:p forKey:[NSString stringWithFormat:@"%ld",(long)pacsIndex]];
+          //[pacsDictionary setObject:p forKey:[NSString stringWithFormat:@"%ld",(long)pacsIndex]];
           
         }
 #pragma mark end loop
@@ -695,11 +723,13 @@ static NSData *ctad=nil;
        _pacs=[NSDictionary dictionaryWithDictionary:pacsDictionary];
        _pacskeysdata=[pacsKeys dataUsingEncoding:NSUTF8StringEncoding];
 
-       _wan=[NSArray arrayWithArray:wan];
-       _lan=[NSArray arrayWithArray:lan];
+       _wan=[NSSet setWithSet:wan];
+       _lan=[NSSet setWithSet:lan];
+       _lanDeduplicated=[NSSet setWithSet:lan];
        LOG_DEBUG(@"\r\nwan:\r\n%@",[_wan description]);
        LOG_DEBUG(@"\r\nlan:\r\n%@",[_lan description]);
-       
+       LOG_DEBUG(@"\r\nlanDeduplicated:\r\n%@",[_lanDeduplicated description]);
+
 
 #pragma mark -
 #pragma mark handlers
@@ -787,14 +817,13 @@ static NSData *ctad=nil;
 +(NSData*)titlesdata                 { return _titlesdata;}
 +(NSDictionary*)oidsaeis             { return _oidsaeis;}
 +(NSDictionary*)titlesaets           { return _titlesaets;}
-+(NSDictionary*)titlestitlesaets     { return _titlestitlesaets;}
-+(NSDictionary*)titlesaetsstrings    { return _titlesaetsstrings;}
 
 +(NSDictionary*)pacs                 { return _pacs;}
 +(NSData*)pacskeysdata               { return _pacskeysdata;}
 
-+(NSArray*)wan                       { return _wan;}
-+(NSArray*)lan                       { return _lan;}
++(NSSet*)wan                       { return _wan;}
++(NSSet*)lan                       { return _lan;}
++(NSSet*)lanDeduplicated             { return _lanDeduplicated;}
 
 +(NSArray*)InstanceUniqueFrameSOPClass { return _InstanceUniqueFrameSOPClass;}
 +(NSArray*)InstanceMultiFrameSOPClass { return _InstanceMultiFrameSOPClass;}

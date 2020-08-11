@@ -13,7 +13,6 @@
 
 +(void)addSeriesPathFor:(NSDictionary*)d toArray:(NSMutableArray*)mutableArray;
 {
-   NSFileManager *defaultManager=[NSFileManager defaultManager];
    NSDictionary *devDict=DRS.pacs[d[@"devOID"]];
       
    //sql

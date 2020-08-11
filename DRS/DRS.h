@@ -91,23 +91,23 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType);
 @property (class, nonatomic, readonly) NSString          *tmpDir;
 @property (class, nonatomic, readonly) NSString          *tokentmpDir;
 
+//for /custodina and /pacs service
 @property (class, nonatomic, readonly) NSDictionary      *oids;
 @property (class, nonatomic, readonly) NSDictionary      *titles;
 @property (class, nonatomic, readonly) NSData            *oidsdata;
 @property (class, nonatomic, readonly) NSData            *titlesdata;
 @property (class, nonatomic, readonly) NSDictionary      *oidsaeis;
-@property (class, nonatomic, readonly) NSDictionary      *titlesaets;
-@property (class, nonatomic, readonly) NSDictionary      *titlestitlesaets;
-@property (class, nonatomic, readonly) NSDictionary      *titlesaetsstrings;
-
+@property (class, nonatomic, readonly) NSDictionary      *titlesaets;//aets 4 title
 //triple key oid, custodianAet.aet, index
-
 @property (class, nonatomic, readonly) NSDictionary      *pacs;
 @property (class, nonatomic, readonly) NSData            *pacskeysdata;
 
-@property (class, nonatomic, readonly) NSArray           *wan;//proxying to pcs
-@property (class, nonatomic, readonly) NSArray           *lan;//every local
 
+@property (class, nonatomic, readonly) NSSet           *wan;//proxying to pcs
+@property (class, nonatomic, readonly) NSSet           *lan;//custodian or pacs local (if needsaccesscontrol is false)
+@property (class, nonatomic, readonly) NSSet           *lanDeduplicated;//when custodinatitle=aet in the first item of the list, this pacs sums up all the other local pacs which start with the same url
+
+//multiframe sop classes
 @property (class, nonatomic, readonly) NSArray           *InstanceUniqueFrameSOPClass;
 @property (class, nonatomic, readonly) NSArray           *InstanceMultiFrameSOPClass;
 

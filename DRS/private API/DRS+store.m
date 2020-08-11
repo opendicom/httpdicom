@@ -29,7 +29,7 @@ enum stowContentType{
       NSString *pacsOID=[urlComponents.path componentsSeparatedByString:@"/"][2];
       
       
-      if ([DRS.wan indexOfObject:pacsOID] != NSNotFound)
+      if ([DRS.wan containsObject:pacsOID])
       {
           return [RSErrorResponse responseWithClientError:404 message:@"%@ [{pacs} needs to be forwarded]",pacsOID];
       }
