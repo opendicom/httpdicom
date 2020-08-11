@@ -48,7 +48,7 @@ EAI.entity_uid_type \
 
 
 <key>Ecount</key>
-<string>SELECT count(E.*) \ </string>
+<string>SELECT count(*) </string>
 
         
 <key>Ewhere</key><!-- no IOCM -->

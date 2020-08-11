@@ -230,8 +230,8 @@
          
 #pragma mark Eaccesscontrol
          
-          [Eand stringByAppendingString:d[@"Eaccesscontrol"]];
-         
+          [Eand appendString:d[@"Eaccesscontrol"]];
+
          LOG_VERBOSE(@"%@",Eand);
 
 #pragma mark execute Ecount
