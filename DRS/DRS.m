@@ -725,7 +725,7 @@ static NSData *ctad=nil;
 
        _wan=[NSSet setWithSet:wan];
        _lan=[NSSet setWithSet:lan];
-       _lanDeduplicated=[NSSet setWithSet:lan];
+       _lanDeduplicated=[NSSet setWithSet:lanDeduplicated];
        LOG_DEBUG(@"\r\nwan:\r\n%@",[_wan description]);
        LOG_DEBUG(@"\r\nlan:\r\n%@",[_lan description]);
        LOG_DEBUG(@"\r\nlanDeduplicated:\r\n%@",[_lanDeduplicated description]);
