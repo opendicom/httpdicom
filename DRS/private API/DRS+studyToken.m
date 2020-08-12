@@ -425,18 +425,42 @@ NSString * SOPCLassOfReturnableSeries(
           {
              StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
              
-             
-             [requestDict setObject:StudyInstanceUIDRegexpString forKey:@"StudyInstanceUIDRegexpString"];
-             
-             
-              if (!appendImmutableToCanonical(
-                     cachedQueryDict,
-                     studyRestrictionDict,
-                     canonicalQuery,
-                     @"StudyInstanceUID",
-                     StudyInstanceUIDRegexpString,
-                     accessTypeNumber
-                  )) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyInstanceUID URL"];
+             /*
+              if cache exists, StudyInstanceUID is a restriction to be applied immediately
+              else a new request
+              */
+              NSString *orgID=values[institutionIndex];
+              if (   cachePath
+                  && [cachedQueryDict[@"institution"]isEqualToString:orgID]
+                  && [defaultManager fileExistsAtPath:[[cachePath stringByAppendingPathComponent:orgID]stringByAppendingPathExtension:@"plist"]]
+                  )
+              {
+                  [requestDict setObject:orgID  forKey:@"devOID"];
+
+                  [requestDict setObject:[[cachePath stringByAppendingPathComponent:orgID]stringByAppendingPathExtension:@"plist"]  forKey:@"devOIDPLISTPath"];
+                  
+                  NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:StudyInstanceUIDRegexpString options:NSRegularExpressionCaseInsensitive error:&error];
+                  if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyInstanceUID URL"];
+                  else
+                  {
+                      [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
+                      {
+                         if (![regex numberOfMatchesInString:row[16] options:0 range:NSMakeRange(0,[row[16] length])]) return false;
+                         return true;
+                      }] forKey:@"studyPredicate"];
+                      
+                      
+                       [requestDict setObject:(DRS.pacs[orgID])[@"filesystems"] forKey:@"mountPoints"];
+                       NSMutableArray *seriesPaths=[NSMutableArray array];
+                       [DRS addSeriesPathFor:requestDict toArray:seriesPaths];
+                      return [DRS dicomzipStreamForSeriesPaths:seriesPaths];
+                  }
+              }
+              else
+              {
+                  [requestDict setObject:StudyInstanceUIDRegexpString forKey:@"StudyInstanceUIDRegexpString"];
+                  [canonicalQuery appendFormat:@"\"%@\":\"%@\",",@"StudyInstanceUID",StudyInstanceUIDRegexpString];
+              }
           }
           else return [RSErrorResponse responseWithClientError:404 message:@"studyToken param StudyInstanceUID: %@",values[StudyInstanceUIDIndex]];
        }
@@ -918,6 +942,9 @@ NSString * SOPCLassOfReturnableSeries(
       //create corresponding predicate and add it to the request dictionary
       [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
       {
+          //StudyInstanceUID
+          if (studyRestrictionDict[@"StudyInstanceUIDRegexpString"] && ![studyRestrictionDict[@"StudyInstanceUIDRegexpString"] numberOfMatchesInString:row[16] options:0 range:NSMakeRange(0,[row[16] length])]) return false;
+          
           //AccessionNumber
           if (studyRestrictionDict[@"AccessionNumber"] && ![studyRestrictionDict[@"AccessionNumber"] numberOfMatchesInString:row[13] options:0 range:NSMakeRange(0,[row[13] length])]) return false;
           
@@ -979,7 +1006,7 @@ NSString * SOPCLassOfReturnableSeries(
 
           return true;
       }] forKey:@"studyPredicate"];
-       
+/*
       NSMutableString *predicateString=[NSMutableString string];
       for (NSString *key in [studyRestrictionDict allKeys])
       {
@@ -989,6 +1016,7 @@ NSString * SOPCLassOfReturnableSeries(
               [predicateString appendFormat:@"%@:'%@' ",key,[studyRestrictionDict[key] pattern]];
       }
        LOG_VERBOSE(@"study restrictions: %@",predicateString);
+ */
    }
 
    

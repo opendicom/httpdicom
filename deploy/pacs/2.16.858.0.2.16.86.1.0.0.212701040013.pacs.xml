@@ -36,7 +36,7 @@
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
-            <string id="get">wado</string>
+            <string id="get">folderDcm4cheeArc</string>
             <key>mwl</key>
             <string id="mwl">none</string>
             
@@ -54,7 +54,7 @@
             <false/>
 
             <key>filepathprefix</key>
-            <string id="filepathprefix"></string>
+            <string id="filepathprefix">/var/local/dcm4chee-arc</string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
             
@@ -98,7 +98,7 @@
             <false/>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri"></string>
+            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
@@ -130,7 +130,7 @@
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
-            <string id="get">wado</string>
+            <string id="get">folderDcm4cheeArc</string>
             <key>mwl</key>
             <string id="mwl">none</string>
             
@@ -148,7 +148,7 @@
             <false/>
 
             <key>filepathprefix</key>
-            <string id="filepathprefix"></string>
+            <string id="filepathprefix">/var/local/dcm4chee-arc</string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
             
@@ -192,7 +192,7 @@
             <false/>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri"></string>
+            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
@@ -224,7 +224,7 @@
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
-            <string id="get">wado</string>
+            <string id="get">folderDcm4cheeArc</string>
             <key>mwl</key>
             <string id="mwl">none</string>
             
@@ -242,7 +242,7 @@
             <false/>
 
             <key>filepathprefix</key>
-            <string id="filepathprefix"></string>
+            <string id="filepathprefix">/var/local/dcm4chee-arc</string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
             
@@ -286,7 +286,7 @@
             <false/>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri"></string>
+            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>

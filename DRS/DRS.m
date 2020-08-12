@@ -609,13 +609,8 @@ static NSData *ctad=nil;
           else if ([p[@"get"]isEqualToString:@"folderDcm4cheeArc"])
           {
              NSString *filesystemsURIString=
-             [
-              [
-               [p[@"dcm4cheelocaluri"]
-                stringByDeletingLastPathComponent]
-               stringByDeletingLastPathComponent]
-              stringByAppendingPathComponent:@"storage"];
-             
+              [NSString stringWithFormat:@"%@/storage",p[@"dcm4cheelocaluri"]];
+              NSLog(@"%@",filesystemsURIString);
              filesystemsJSONData=[NSMutableData dataWithContentsOfURL:[NSURL URLWithString:filesystemsURIString] options:0 error:&error];
              if (!filesystemsJSONData)
              {
@@ -636,8 +631,9 @@ static NSData *ctad=nil;
           for (NSDictionary *dict in arrayOfDicts)
           {
               if ([dict[@"dcmURI"]hasPrefix:@"file:"])
-                  [filesystems setValue:[dict[@"dcmURI"]substringFromIndex:5] forKey:dict[@"dcmStorageID"]];
-              else [filesystems setValue:dict[@"dcmURI"] forKey:dict[@"dcmStorageID"]];
+                  [filesystems setValue:
+                   [p[@"filepathprefix"] stringByAppendingPathComponent:[dict[@"dcmURI"]substringFromIndex:7]] forKey:dict[@"dcmStorageID"]];
+              else [filesystems setValue:[p[@"filepathprefix"] stringByAppendingPathComponent:dict[@"dcmURI"]] forKey:dict[@"dcmStorageID"]];
           }
           [p setObject:[NSDictionary dictionaryWithDictionary:filesystems] forKey:@"filesystems"];
 

@@ -59,8 +59,8 @@
 
    
 #pragma mark E from datatables plist
-   NSArray *studyPlist=[NSArray arrayWithContentsOfFile:d[@"devOIDPLISTPath"]];
-
+   NSMutableArray *studyPlist=[NSMutableArray arrayWithContentsOfFile:d[@"devOIDPLISTPath"]];
+    if (d[@"studyPredicate"])[studyPlist filterUsingPredicate:d[@"studyPredicate"]];
     for (NSArray *study in studyPlist)
     {
 #pragma mark loop E
