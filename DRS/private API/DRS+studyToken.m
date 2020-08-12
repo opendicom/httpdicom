@@ -410,60 +410,51 @@ NSString * SOPCLassOfReturnableSeries(
              StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
              
              //if cache exists, StudyInstanceUID is a restriction to be applied immediately for weasis, cornerstone and zip
-             BOOL directToStudyRestriction=true;
              if ( cachedQueryDict && accessTypeNumber < 3)
              {
-                 for (NSString *key in [cachedQueryDict allKeys])
+                 NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:StudyInstanceUIDRegexpString options:NSRegularExpressionCaseInsensitive error:&error];
+                 if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyInstanceUID URL"];
+                 else
                  {
-                    NSInteger keyIndex=[names indexOfObject:key];
-                    if ((keyIndex==NSNotFound)||![cachedQueryDict[key] isEqualToString:values[keyIndex]]) directToStudyRestriction=false;
-                 }
-                 if (directToStudyRestriction)
-                 {
-                     NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:StudyInstanceUIDRegexpString options:NSRegularExpressionCaseInsensitive error:&error];
-                     if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyInstanceUID URL"];
-                     else
-                     {
-                        switch (accessTypeNumber) {
-                           case accessTypeDicomzip:
+                    switch (accessTypeNumber) {
+                       case accessTypeDicomzip:
+                       {
+                           NSMutableArray *seriesPaths=[NSMutableArray array];
+                           NSError *error=nil;
+                           for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
                            {
-                               NSMutableArray *seriesPaths=[NSMutableArray array];
-                               NSError *error=nil;
-                               for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
-                               {
-                                  if ([orgidFile hasSuffix:@".plist"])
-                                  {
-                                     [requestDict addEntriesFromDictionary:
-                                      @{
-                                         @"orgid":[orgidFile substringToIndex:orgidFile.length-7],
-                                         @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile],
-                                         @"studyPredicate":[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
-                                         {
-                                           if (![regex numberOfMatchesInString:row[16] options:0 range:NSMakeRange(0,[row[16] length])]) return false;
-                                           return true;
-                                         }]
-                                       }
-                                      ];
-                                      [DRS addSeriesPathFor:requestDict toArray:seriesPaths];
-                                    }
+                              if ([orgidFile hasSuffix:@".plist"])
+                              {
+                                 [requestDict addEntriesFromDictionary:
+                                  @{
+                                     @"orgid":[orgidFile stringByDeletingPathExtension],
+                                     @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile],
+                                     @"studyPredicate":[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
+                                     {
+                                       if (![regex numberOfMatchesInString:row[16] options:0 range:NSMakeRange(0,[row[16] length])]) return false;
+                                       return true;
+                                     }]
+                                   }
+                                  ];
+                                  [DRS addSeriesPathFor:requestDict toArray:seriesPaths];
                                 }
-                               return [DRS dicomzipStreamForSeriesPaths:seriesPaths];
-                           }break;
+                            }
+                           return [DRS dicomzipStreamForSeriesPaths:seriesPaths];
+                       }break;
 
-                           case accessTypeWeasis:
-                           {
-#pragma mark TODO
+                       case accessTypeWeasis:
+                       {
+    #pragma mark TODO
 
-                           }break;
-                              
-                           case accessTypeCornerstone:
-                           {
-#pragma mark TODO
-                            
-                           }break;
-                        }
+                       }break;
+                          
+                       case accessTypeCornerstone:
+                       {
+    #pragma mark TODO
+                        
+                       }break;
+                    }
 
-                     }
                   }
               }
               else
