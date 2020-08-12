@@ -11,14 +11,26 @@
 
 @implementation DRS (dicomzip)
 
+/*
+ necesary:
+ cachePath
+ studyPredicate
+ 
+ requestDict[@"orgid"] -> to get sql
+ requestDict[@"orgidPath"] -> datatables/study source
+ requestDict[@"studyPredicate"] -> find the subset
+
+ */
+
 +(void)addSeriesPathFor:(NSDictionary*)d toArray:(NSMutableArray*)mutableArray;
 {
-   NSDictionary *devDict=DRS.pacs[d[@"devOID"]];
-      
+   NSDictionary *orgDict=DRS.pacs[d[@"orgid"]];
+   NSDictionary *mountPoints=orgDict[@"filesystems"];
+
    //sql
-   NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
-   NSString *sqlprolog=devDict[@"sqlprolog"];
-   NSDictionary *sqlDictionary=DRS.sqls[devDict[@"sqlmap"]];
+   NSDictionary *sqlcredentials=@{orgDict[@"sqlcredentials"]:orgDict[@"sqlpassword"]};
+   NSString *sqlprolog=orgDict[@"sqlprolog"];
+   NSDictionary *sqlDictionary=DRS.sqls[orgDict[@"sqlmap"]];
 
    //sql instance inits
    NSString *instanceANDSOPClass=nil;
@@ -59,7 +71,7 @@
 
    
 #pragma mark E from datatables plist
-   NSMutableArray *studyPlist=[NSMutableArray arrayWithContentsOfFile:d[@"devOIDPLISTPath"]];
+   NSMutableArray *studyPlist=[NSMutableArray arrayWithContentsOfFile:d[@"orgidPath"]];
     if (d[@"studyPredicate"])[studyPlist filterUsingPredicate:d[@"studyPredicate"]];
     for (NSArray *study in studyPlist)
     {
@@ -135,10 +147,14 @@
             if (originalFilePath)
             {
                 NSArray *parts=[[originalFilePath substringToIndex:originalFilePath.length -1]componentsSeparatedByString:@"\t"];
-                NSString *mountPoint=(d[@"mountPoints"])[parts[0]];
                 
-               [mutableArray addObject:
-                   [mountPoint stringByAppendingPathComponent:[parts[1] stringByDeletingLastPathComponent]]
+                [mutableArray addObject:
+                   [
+                    [
+                     mountPoints[parts[0]] stringByAppendingPathComponent:parts[1]
+                     ]
+                    stringByDeletingLastPathComponent
+                   ]
                 ];
             }
          }//end if SOPClass

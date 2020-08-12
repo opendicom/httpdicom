@@ -245,7 +245,7 @@ NSString * SOPCLassOfReturnableSeries(
 {
    [self
     addHandler:@"POST"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|weasis.xml|dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|weasis.xml|dicom.zip|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -254,7 +254,7 @@ NSString * SOPCLassOfReturnableSeries(
 
    [self
     addHandler:@"GET"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|weasis.xml|dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|weasis.xml|dicom.zip|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -301,7 +301,6 @@ NSString * SOPCLassOfReturnableSeries(
                      @"/dicom.zip",
                      @"/datatables/studies",
                      @"/datatables/patient",
-                     @"/wadors.dicom"
                   ]  indexOfObject:requestPath
                   ];
    else
@@ -315,29 +314,19 @@ NSString * SOPCLassOfReturnableSeries(
                      @"dicom.zip",
                      @"datatables/studies",
                      @"datatables/patient",
-                     @"wadors.dicom"
                   ]
                   indexOfObject:values[accessTypeIndex]
                   ];
       if (accessTypeNumber==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
    }
 
-#pragma mark cache referido en request?
-   /*
-    if cachedQueryDict, evalutate changes:
-    case datatables/study
-    -> evaluate if it is a restriction and if so, filter already existing results
-    case dicomzip,cornerstone,weasis, etc
-    -> should declare bad url
-    */
-    NSString *queryPath=nil;
-    NSUInteger cacheIndex=[names indexOfObject:@"cache"];
-    NSString *cachePath=nil;
    
+#pragma mark cache in request?
+
+    NSString *cachePath=nil;
     NSMutableDictionary *cachedQueryDict=nil;
-    if (   (cacheIndex!=NSNotFound)
-        && ([values[cacheIndex] length])
-       )
+    NSUInteger cacheIndex=[names indexOfObject:@"cache"];
+    if ((cacheIndex!=NSNotFound) && ([values[cacheIndex] length]))
     {
         cachePath=[DRS.tokentmpDir stringByAppendingPathComponent:values[cacheIndex]];
         NSData *cacheData=[NSData dataWithContentsOfFile:[cachePath stringByAppendingPathExtension:@"json"]];
@@ -358,24 +347,17 @@ NSString * SOPCLassOfReturnableSeries(
 #pragma mark institution
 
    /*
-    study
-    =====
+    institution semantics (for study)
+    =================================
     oid                => wado direct from html5dicom to lan pacs
     aet                => wado to httpdicom as lan proxy
     custodiantitle.aet => wado to httpdicom as wan proxy
     
-    
-    patient
-    =======
+    datatables/patient input (preemptive in relation to institution)
+    ================================================================
     lanPacs
     wanPacs
-    
-    NSInteger custodianIndex=[names indexOfObject:@"custodiantitle"];
-    if (custodianIndex!=NSNotFound) [requestDict setObject:values[custodianIndex] forKey:@"custodiantitle"];
-    NSInteger aetIndex=[names indexOfObject:@"aet"];
-    if (aetIndex!=NSNotFound) [requestDict setObject:values[aetIndex] forKey:@"aet"];
     */
-
 
    NSMutableSet *lanSet=[NSMutableSet set];
    NSMutableSet *wanSet=[NSMutableSet set];
@@ -384,7 +366,7 @@ NSString * SOPCLassOfReturnableSeries(
    NSInteger institutionIndex=[names indexOfObject:@"institution"];
    if (lanPacsIndex!=NSNotFound)
    {
-      //from datatables
+      //from datatables/study
       [lanSet addObjectsFromArray:[values[lanPacsIndex] componentsSeparatedByString:@"|"]];
       NSInteger wanPacsIndex=[names indexOfObject:@"wanPacs"];
       if (wanPacsIndex!=NSNotFound) [wanSet addObjectsFromArray:[values[wanPacsIndex] componentsSeparatedByString:@"|"]];
@@ -409,6 +391,8 @@ NSString * SOPCLassOfReturnableSeries(
    }
    if (![lanSet count] && ![wanSet count]) return [RSErrorResponse responseWithClientError:404 message:@"no valid pacs in the request"];
 
+   
+   
    NSString *StudyInstanceUIDRegexpString=nil;
    NSInteger StudyInstanceUIDIndex=[names indexOfObject:@"StudyInstanceUID"];
    
@@ -425,35 +409,61 @@ NSString * SOPCLassOfReturnableSeries(
           {
              StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
              
-             /*
-              if cache exists, StudyInstanceUID is a restriction to be applied immediately
-              else a new request
-              */
-              NSString *orgID=values[institutionIndex];
-              if (   cachePath
-                  && [cachedQueryDict[@"institution"]isEqualToString:orgID]
-                  && [defaultManager fileExistsAtPath:[[cachePath stringByAppendingPathComponent:orgID]stringByAppendingPathExtension:@"plist"]]
-                  )
-              {
-                  [requestDict setObject:orgID  forKey:@"devOID"];
+             //if cache exists, StudyInstanceUID is a restriction to be applied immediately for weasis, cornerstone and zip
+             BOOL directToStudyRestriction=true;
+             if ( cachedQueryDict && accessTypeNumber < 3)
+             {
+                 for (NSString *key in [cachedQueryDict allKeys])
+                 {
+                    NSInteger keyIndex=[names indexOfObject:key];
+                    if ((keyIndex==NSNotFound)||![cachedQueryDict[key] isEqualToString:values[keyIndex]]) directToStudyRestriction=false;
+                 }
+                 if (directToStudyRestriction)
+                 {
+                     NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:StudyInstanceUIDRegexpString options:NSRegularExpressionCaseInsensitive error:&error];
+                     if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyInstanceUID URL"];
+                     else
+                     {
+                        switch (accessTypeNumber) {
+                           case accessTypeDicomzip:
+                           {
+                               NSMutableArray *seriesPaths=[NSMutableArray array];
+                               NSError *error=nil;
+                               for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
+                               {
+                                  if ([orgidFile hasSuffix:@".plist"])
+                                  {
+                                     [requestDict addEntriesFromDictionary:
+                                      @{
+                                         @"orgid":[orgidFile substringToIndex:orgidFile.length-7],
+                                         @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile],
+                                         @"studyPredicate":[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
+                                         {
+                                           if (![regex numberOfMatchesInString:row[16] options:0 range:NSMakeRange(0,[row[16] length])]) return false;
+                                           return true;
+                                         }]
+                                       }
+                                      ];
+                                      [DRS addSeriesPathFor:requestDict toArray:seriesPaths];
+                                    }
+                                }
+                               return [DRS dicomzipStreamForSeriesPaths:seriesPaths];
+                           }break;
 
-                  [requestDict setObject:[[cachePath stringByAppendingPathComponent:orgID]stringByAppendingPathExtension:@"plist"]  forKey:@"devOIDPLISTPath"];
-                  
-                  NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:StudyInstanceUIDRegexpString options:NSRegularExpressionCaseInsensitive error:&error];
-                  if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyInstanceUID URL"];
-                  else
-                  {
-                      [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
-                      {
-                         if (![regex numberOfMatchesInString:row[16] options:0 range:NSMakeRange(0,[row[16] length])]) return false;
-                         return true;
-                      }] forKey:@"studyPredicate"];
-                      
-                      
-                       [requestDict setObject:(DRS.pacs[orgID])[@"filesystems"] forKey:@"mountPoints"];
-                       NSMutableArray *seriesPaths=[NSMutableArray array];
-                       [DRS addSeriesPathFor:requestDict toArray:seriesPaths];
-                      return [DRS dicomzipStreamForSeriesPaths:seriesPaths];
+                           case accessTypeWeasis:
+                           {
+#pragma mark TODO
+
+                           }break;
+                              
+                           case accessTypeCornerstone:
+                           {
+#pragma mark TODO
+                            
+                           }break;
+                        }
+
+                     }
                   }
               }
               else
@@ -890,7 +900,8 @@ NSString * SOPCLassOfReturnableSeries(
       //add nodes and start corresponding processes
    }
 
-#pragma mark no cache -> create it
+#pragma mark no cache -> create queryPath
+   NSString *queryPath=nil;
    if (!cachedQueryDict || !cachedQueryDict.count)
    {
       //new
