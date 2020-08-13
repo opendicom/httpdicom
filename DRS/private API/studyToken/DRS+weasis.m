@@ -70,10 +70,10 @@
 #pragma mark xml init
    NSXMLElement *arcQueryElement=
    [WeasisArcQuery
-    weasisarcId:d[@"devOID"]
+    weasisarcId:d[@"orgid"]
     weasiswebLogin:nil
     weasisrequireOnlySOPInstanceUID:nil
-    weasisadditionnalParameters:d[@"wadouriweasisparameters"]
+    weasisadditionnalParameters:orgDict[@"wadouriweasisparameters"]
     weasisoverrideDicomTagsList:nil
     seriesFilterInstanceUID:d[@"SeriesInstanceUIDRegexString"]
     seriesFilterNumber:d[@"SeriesNumberRegexString"]

@@ -12,7 +12,7 @@
 @implementation DRS (dicomzip)
 
 
-+(void)addSeriesPathForRefinedRequest:(NSDictionary*)d toArray:(NSMutableArray*)mutableArray;
++(void)addSeriesPathsForRefinedRequest:(NSDictionary*)d toArray:(NSMutableArray*)mutableArray;
 {
    NSDictionary *orgDict=DRS.pacs[d[@"orgid"]];
    NSDictionary *mountPoints=orgDict[@"filesystems"];
