@@ -11,18 +11,8 @@
 
 @implementation DRS (dicomzip)
 
-/*
- necesary:
- cachePath
- studyPredicate
- 
- requestDict[@"orgid"] -> to get sql
- requestDict[@"orgidPath"] -> datatables/study source
- requestDict[@"studyPredicate"] -> find the subset
 
- */
-
-+(void)addSeriesPathFor:(NSDictionary*)d toArray:(NSMutableArray*)mutableArray;
++(void)addSeriesPathForRefinedRequest:(NSDictionary*)d toArray:(NSMutableArray*)mutableArray;
 {
    NSDictionary *orgDict=DRS.pacs[d[@"orgid"]];
    NSDictionary *mountPoints=orgDict[@"filesystems"];

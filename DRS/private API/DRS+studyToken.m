@@ -416,6 +416,14 @@ NSString * SOPCLassOfReturnableSeries(
                  if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyInstanceUID URL"];
                  else
                  {
+                    [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
+                       {
+                         if (![regex numberOfMatchesInString:row[16] options:0 range:NSMakeRange(0,[row[16] length])]) return false;
+                         return true;
+                       }]
+                       forKey:@"studyPredicate"
+                    ];
+                    
                     switch (accessTypeNumber) {
                        case accessTypeDicomzip:
                        {
@@ -428,15 +436,10 @@ NSString * SOPCLassOfReturnableSeries(
                                  [requestDict addEntriesFromDictionary:
                                   @{
                                      @"orgid":[orgidFile stringByDeletingPathExtension],
-                                     @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile],
-                                     @"studyPredicate":[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
-                                     {
-                                       if (![regex numberOfMatchesInString:row[16] options:0 range:NSMakeRange(0,[row[16] length])]) return false;
-                                       return true;
-                                     }]
+                                     @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
                                    }
                                   ];
-                                  [DRS addSeriesPathFor:requestDict toArray:seriesPaths];
+                                  [DRS addSeriesPathsForRefinedRequest:requestDict toArray:seriesPaths];
                                 }
                             }
                            return [DRS dicomzipStreamForSeriesPaths:seriesPaths];
@@ -444,7 +447,20 @@ NSString * SOPCLassOfReturnableSeries(
 
                        case accessTypeWeasis:
                        {
-    #pragma mark TODO
+                          NSMutableString *manifest=[NSMutableString stringWithString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><manifest xmlns=\"http://www.weasis.org/xsd/2.5\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"];
+                          NSError *error=nil;
+                          for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
+                          {
+                            [requestDict addEntriesFromDictionary:
+                             @{
+                                @"orgid":[orgidFile stringByDeletingPathExtension],
+                                @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
+                              }
+                             ];
+                             [manifest appendString:[DRS weasisArcQueryForRefinedRequest:requestDict]];
+                          }
+                          [manifest appendString:@"</manifest>"];
+                          return [DRS weasisManifest:manifest session:values[[names indexOfObject:@"session"]] proxyURI:values[[names indexOfObject:@"proxyURI"]] acceptsGzip:acceptsGzip];
 
                        }break;
                           
@@ -1193,7 +1209,7 @@ NSString * SOPCLassOfReturnableSeries(
                 case selectTypeSql:
                   [DRS datateblesStudySql4dictionary:requestDict];
                   //[seriesPaths addObjectsFromArray:[DRS dicomzipSql4d:requestDict]];
-                  [DRS addSeriesPathFor:requestDict toArray:seriesPaths];
+                  [DRS addSeriesPathsForRefinedRequest:requestDict toArray:seriesPaths];
                   break;
             }
          }

@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DRS (dicomzip)
 
-+(void)addSeriesPathFor:(NSDictionary*)d toArray:(NSMutableArray*)mutableArray;
++(void)addSeriesPathsForRefinedRequest:(NSDictionary*)d toArray:(NSMutableArray*)mutableArray;
 
 +(RSResponse*)dicomzipStreamForSeriesPaths:(NSArray*)array;
 
