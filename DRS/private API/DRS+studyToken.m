@@ -466,8 +466,22 @@ NSString * SOPCLassOfReturnableSeries(
                           
                        case accessTypeCornerstone:
                        {
-    #pragma mark TODO
-                        
+                          NSMutableString *manifest=[NSMutableString stringWithString:@"["];
+                          NSError *error=nil;
+                          for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
+                          {
+                             [requestDict addEntriesFromDictionary:
+                              @{
+                                 @"orgid":[orgidFile stringByDeletingPathExtension],
+                                 @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
+                               }
+                              ];
+                              [manifest appendString:[DRS cornerstoneForRefinedRequest:requestDict]];
+                             [manifest appendString:@","];
+                           }
+                          [manifest replaceCharactersInRange:NSMakeRange(manifest.length - 1, 1) withString:@"]"];
+                           return [DRS cornerstoneManifest:manifest session:values[[names indexOfObject:@"session"]] proxyURI:values[[names indexOfObject:@"proxyURI"]] acceptsGzip:acceptsGzip];
+
                        }break;
                     }
 
