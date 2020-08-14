@@ -299,9 +299,9 @@
                             study[@"StudyInstanceUID"],
                             seriesSqlProperties[1],
                             instanceSqlProperties[2],
-                            devDict[@"custodianoid"],
-                            d[@"devOID"],
-                            devDict[@"wadouricornerstoneparameters"]
+                            orgDict[@"custodianoid"],
+                            d[@"orgid"],
+                            orgDict[@"wadouricornerstoneparameters"]
                            ];
                            [instanceArray addObject:
    @{
@@ -345,7 +345,7 @@
    
    return
    [RSDataResponse
-    responseWithData:[resultString dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
+    responseWithData:[manifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
 }
 
 
