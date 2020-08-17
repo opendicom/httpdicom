@@ -72,6 +72,8 @@
             <string id="wadouri">http://192.168.1.38:9728/wado</string>
             <key>wadouriproxy</key>
             <false/>
+            <key>wadouricornerstoneprefix</key>
+            <string id="wadouricornerstoneprefix"></string>
             <key>wadouriadditionalparameters</key>
             <string id="wadouriadditionalparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
             <key>wadouriweasisparameters</key>

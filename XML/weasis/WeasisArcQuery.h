@@ -40,10 +40,12 @@
 @interface WeasisArcQuery : NSXMLElement
 
 +(NSXMLElement*)weasisarcId:(NSString*)weasisarcId
+weasisbaseUrl:(NSString*)weasisbaseUrl
 weasiswebLogin:(NSString*)weasiswebLogin
 weasisrequireOnlySOPInstanceUID:(NSString*)weasisrequireOnlySOPInstanceUID
 weasisadditionnalParameters:(NSString*)weasisadditionnalParameters
 weasisoverrideDicomTagsList:(NSString*)weasisoverrideDicomTagsList
+session:(NSString*)session
 seriesFilterInstanceUID:(NSString*)seriesInstanceUIDRegexString
 seriesFilterNumber:(NSString*)seriesNumberRegexString
 seriesFilterDescription:(NSString*)seriesDescriptionRegexString

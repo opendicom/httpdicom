@@ -11,7 +11,7 @@
 
 @implementation DRS (weasis)
 
-+(NSString*)weasisArcQueryForRefinedRequest:(NSDictionary*)d
++(NSData*)weasisArcQueryForRefinedRequest:(NSDictionary*)refinedRequest
 {
    /*
    necesary:
@@ -21,7 +21,7 @@
    requestDict[@"studyPredicate"] -> find the subset
 
    */
-   NSDictionary *orgDict=DRS.pacs[d[@"orgid"]];
+   NSDictionary *orgDict=DRS.pacs[refinedRequest[@"orgid"]];
       
    //sql
    NSDictionary *sqlcredentials=@{orgDict[@"sqlcredentials"]:orgDict[@"sqlpassword"]};
@@ -30,18 +30,18 @@
 
    //sql instance inits
    NSString *instanceANDSOPClass=nil;
-   if (d[@"SOPClassRegexString"]) instanceANDSOPClass=
+   if (refinedRequest[@"SOPClassRegexString"]) instanceANDSOPClass=
    [NSString stringWithFormat:
     sqlDictionary[@"ANDinstanceSOPClass"],
-    d[@"SOPClassRegexString"]
+    refinedRequest[@"SOPClassRegexString"]
    ];
    else instanceANDSOPClass=@"";
 
    NSString *instanceANDSOPClassOff=nil;
-   if (d[@"SOPClassOffRegexString"]) instanceANDSOPClassOff=
+   if (refinedRequest[@"SOPClassOffRegexString"]) instanceANDSOPClassOff=
    [NSString stringWithFormat:
     sqlDictionary[@"ANDinstanceSOPClassOff"],
-    d[@"SOPClassOffRegexString"]
+    refinedRequest[@"SOPClassOffRegexString"]
    ];
    else instanceANDSOPClassOff=@"";
 
@@ -57,38 +57,40 @@
    NSRegularExpression *ModalityRegex = nil;
    NSRegularExpression *SOPClassRegex = nil;
    NSRegularExpression *SOPClassOffRegex = nil;
-   if (d[@"hasSeriesFilter"])
+   if (refinedRequest[@"hasSeriesFilter"])
    {
-      if (d[@"SeriesInstanceUIDRegexString"]) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
-      if (d[@"SeriesNumberRegexString"]) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesNumberRegexString"] options:0 error:NULL];
-      if (d[@"SeriesDescriptionRegexString"]) SeriesDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesDescriptionRegexString"] options:0  error:NULL];
-      if (d[@"ModalityRegexString"]) ModalityRegex=[NSRegularExpression regularExpressionWithPattern:d[@"ModalityRegexString"] options:0 error:NULL];
-      if (d[@"SOPClassRegexString"]) SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SOPClassRegexString"] options:0 error:NULL];
-      if (d[@"SOPClassOffRegexString"]) SOPClassOffRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SOPClassOffRegexString"] options:0 error:NULL];
+      if (refinedRequest[@"SeriesInstanceUIDRegexString"]) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
+      if (refinedRequest[@"SeriesNumberRegexString"]) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesNumberRegexString"] options:0 error:NULL];
+      if (refinedRequest[@"SeriesDescriptionRegexString"]) SeriesDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesDescriptionRegexString"] options:0  error:NULL];
+      if (refinedRequest[@"ModalityRegexString"]) ModalityRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"ModalityRegexString"] options:0 error:NULL];
+      if (refinedRequest[@"SOPClassRegexString"]) SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SOPClassRegexString"] options:0 error:NULL];
+      if (refinedRequest[@"SOPClassOffRegexString"]) SOPClassOffRegex = [NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SOPClassOffRegexString"] options:0 error:NULL];
    }
     
 #pragma mark xml init
    NSXMLElement *arcQueryElement=
    [WeasisArcQuery
-    weasisarcId:d[@"orgid"]
+    weasisarcId:refinedRequest[@"orgid"]
+    weasisbaseUrl:refinedRequest[@"proxyURI"]
     weasiswebLogin:nil
     weasisrequireOnlySOPInstanceUID:nil
     weasisadditionnalParameters:orgDict[@"wadouriweasisparameters"]
     weasisoverrideDicomTagsList:nil
-    seriesFilterInstanceUID:d[@"SeriesInstanceUIDRegexString"]
-    seriesFilterNumber:d[@"SeriesNumberRegexString"]
-    seriesFilterDescription:d[@"SeriesDescriptionRegexString"]
-    seriesFilterModality:d[@"ModalityRegexString"]
-    seriesFilterSOPClass:d[@"SOPClassRegexString"]
-    seriesFilterSOPClassOff:d[@"SOPClassOffRegexString"]
+    session:refinedRequest[@"session"]
+    seriesFilterInstanceUID:refinedRequest[@"SeriesInstanceUIDRegexString"]
+    seriesFilterNumber:refinedRequest[@"SeriesNumberRegexString"]
+    seriesFilterDescription:refinedRequest[@"SeriesDescriptionRegexString"]
+    seriesFilterModality:refinedRequest[@"ModalityRegexString"]
+    seriesFilterSOPClass:refinedRequest[@"SOPClassRegexString"]
+    seriesFilterSOPClassOff:refinedRequest[@"SOPClassOffRegexString"]
    ];
        
        
 #pragma mark plist init
    NSArray *studiesSelected=
    [
-    [NSArray arrayWithContentsOfFile:d[@"orgidPath"]]
-    filteredArrayUsingPredicate:d[@"studyPredicate"]
+    [NSArray arrayWithContentsOfFile:refinedRequest[@"orgidPath"]]
+    filteredArrayUsingPredicate:refinedRequest[@"studyPredicate"]
     ];
           
       
@@ -312,51 +314,13 @@
                Eindex=[studiesSelected nextIndexOfE4P:P startingAtIndex:Eindex + 1];
             }//end while Eindex != NSNotFound
          }//end for each P
-   return [arcQueryElement XMLString];
-}
-
-+(RSResponse*)weasisManifest:(NSMutableString*)manifest session:(NSString*)session proxyURI:(NSString*)proxyURI acceptsGzip:(BOOL)acceptsGzip
-{
-   //insert session
-   [manifest
-    replaceOccurrencesOfString:@"_sessionString_"
-    withString:session
-    options:0
-    range:NSMakeRange(0, manifest.length)
-    ];
-
-   //insert proxyURI
-   [manifest
-    replaceOccurrencesOfString:@"_proxyURIString_"
-    withString:proxyURI
-    options:0
-    range:NSMakeRange(0, manifest.length)
-    ];
-    
-   //weasis base64 dicom:get -i does not work
-   /*
-   RSDataResponse *response=[RSDataResponse responseWithData:[[[LFCGzipUtility gzipData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
-   [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
-   return response;
-
-   //xml dicom:get -iw works also, like with gzip
-   return [RSDataResponse
-   responseWithData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]
-   contentType:@"text/xml"];
-   */
-    
-   if (acceptsGzip)
-      return [RSDataResponse
-    responseWithData:[[manifest dataUsingEncoding:NSUTF8StringEncoding] gzip]
-    contentType:@"application/x-gzip"];
-   else return [RSDataResponse
-   responseWithData:[manifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/xml"];
+   return [[arcQueryElement XMLString] dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 
-+(void)weasisSql4dictionary:(NSDictionary*)d
++(void)weasisSql4dictionary:(NSDictionary*)refinedRequest
 {
-   NSDictionary *devDict=DRS.pacs[d[@"devOID"]];
+   NSDictionary *devDict=DRS.pacs[refinedRequest[@"devOID"]];
    
 #pragma mark sql inits
    NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
@@ -365,18 +329,18 @@
 
     //sql instance inits
     NSString *instanceANDSOPClass=nil;
-    if (d[@"SOPClassRegexString"]) instanceANDSOPClass=
+    if (refinedRequest[@"SOPClassRegexString"]) instanceANDSOPClass=
     [NSString stringWithFormat:
      sqlDictionary[@"ANDinstanceSOPClass"],
-     d[@"SOPClassRegexString"]
+     refinedRequest[@"SOPClassRegexString"]
     ];
     else instanceANDSOPClass=@"";
 
     NSString *instanceANDSOPClassOff=nil;
-    if (d[@"SOPClassOffRegexString"]) instanceANDSOPClassOff=
+    if (refinedRequest[@"SOPClassOffRegexString"]) instanceANDSOPClassOff=
     [NSString stringWithFormat:
      sqlDictionary[@"ANDinstanceSOPClassOff"],
-     d[@"SOPClassOffRegexString"]
+     refinedRequest[@"SOPClassOffRegexString"]
     ];
     else instanceANDSOPClassOff=@"";
 
@@ -392,37 +356,39 @@
      NSRegularExpression *ModalityRegex = nil;
      NSRegularExpression *SOPClassRegex = nil;
      NSRegularExpression *SOPClassOffRegex = nil;
-     if (d[@"hasSeriesFilter"])
+     if (refinedRequest[@"hasSeriesFilter"])
      {
-         if (d[@"SeriesInstanceUIDRegexString"]) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
-         if (d[@"SeriesNumberRegexString"]) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesNumberRegexString"] options:0 error:NULL];
-         if (d[@"SeriesDescriptionRegexString"]) SeriesDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesDescriptionRegexString"] options:0  error:NULL];
-         if (d[@"ModalityRegexString"]) ModalityRegex=[NSRegularExpression regularExpressionWithPattern:d[@"ModalityRegexString"] options:0 error:NULL];
-         if (d[@"SOPClassRegexString"]) SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SOPClassRegexString"] options:0 error:NULL];
-         if (d[@"SOPClassOffRegexString"]) SOPClassOffRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SOPClassOffRegexString"] options:0 error:NULL];
+         if (refinedRequest[@"SeriesInstanceUIDRegexString"]) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
+         if (refinedRequest[@"SeriesNumberRegexString"]) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesNumberRegexString"] options:0 error:NULL];
+         if (refinedRequest[@"SeriesDescriptionRegexString"]) SeriesDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesDescriptionRegexString"] options:0  error:NULL];
+         if (refinedRequest[@"ModalityRegexString"]) ModalityRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"ModalityRegexString"] options:0 error:NULL];
+         if (refinedRequest[@"SOPClassRegexString"]) SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SOPClassRegexString"] options:0 error:NULL];
+         if (refinedRequest[@"SOPClassOffRegexString"]) SOPClassOffRegex = [NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SOPClassOffRegexString"] options:0 error:NULL];
      }
  
 #pragma mark xml init
     NSError  *error=nil;
     NSXMLElement *arcQueryElement=nil;
-    NSString *XMLString=[NSString stringWithContentsOfFile:d[@"devOIDXMLPath"] encoding:NSUTF8StringEncoding error:nil];
+    NSString *XMLString=[NSString stringWithContentsOfFile:refinedRequest[@"devOIDXMLPath"] encoding:NSUTF8StringEncoding error:nil];
     if (XMLString) arcQueryElement=[[NSXMLElement alloc]initWithXMLString:XMLString error:&error];
     if (!arcQueryElement)
     {
-       if (error) [[NSFileManager defaultManager] moveItemAtPath:d[@"devOIDXMLPath"] toPath:[d[@"devOIDXMLPath"] stringByAppendingPathExtension:@"badxml"] error:nil];
+       if (error) [[NSFileManager defaultManager] moveItemAtPath:refinedRequest[@"devOIDXMLPath"] toPath:[refinedRequest[@"devOIDXMLPath"] stringByAppendingPathExtension:@"badxml"] error:nil];
        arcQueryElement=
        [WeasisArcQuery
-        weasisarcId:d[@"devOID"]
+        weasisarcId:refinedRequest[@"devOID"]
+        weasisbaseUrl:refinedRequest[@"proxyURI"]
         weasiswebLogin:nil
         weasisrequireOnlySOPInstanceUID:nil
-        weasisadditionnalParameters:d[@"wadouriweasisparameters"]
+        weasisadditionnalParameters:refinedRequest[@"wadouriweasisparameters"]
         weasisoverrideDicomTagsList:nil
-        seriesFilterInstanceUID:d[@"SeriesInstanceUIDRegexString"]
-        seriesFilterNumber:d[@"SeriesNumberRegexString"]
-        seriesFilterDescription:d[@"SeriesDescriptionRegexString"]
-        seriesFilterModality:d[@"ModalityRegexString"]
-        seriesFilterSOPClass:d[@"SOPClassRegexString"]
-        seriesFilterSOPClassOff:d[@"SOPClassOffRegexString"]
+        session:refinedRequest[@"session"]
+        seriesFilterInstanceUID:refinedRequest[@"SeriesInstanceUIDRegexString"]
+        seriesFilterNumber:refinedRequest[@"SeriesNumberRegexString"]
+        seriesFilterDescription:refinedRequest[@"SeriesDescriptionRegexString"]
+        seriesFilterModality:refinedRequest[@"ModalityRegexString"]
+        seriesFilterSOPClass:refinedRequest[@"SOPClassRegexString"]
+        seriesFilterSOPClassOff:refinedRequest[@"SOPClassOffRegexString"]
        ];
     }
     NSArray *patientArray=[arcQueryElement elementsForName:@"Patient"];
@@ -435,16 +401,16 @@
     
     
 #pragma mark plist init
-    NSArray *studyPlist=[NSArray arrayWithContentsOfFile:d[@"devOIDPLISTPath"]];
+    NSArray *studyPlist=[NSArray arrayWithContentsOfFile:refinedRequest[@"devOIDPLISTPath"]];
     NSArray *studiesSelected=nil;
-    if (d[@"StudyInstanceUIDRegexpString"])
+    if (refinedRequest[@"StudyInstanceUIDRegexpString"])
     {
-        NSPredicate *studyPredicate = [NSPredicate predicateWithFormat:@"SELF[16] == %@", d[@"StudyInstanceUIDRegexpString"]];
+        NSPredicate *studyPredicate = [NSPredicate predicateWithFormat:@"SELF[16] == %@", refinedRequest[@"StudyInstanceUIDRegexpString"]];
         studiesSelected=[studyPlist filteredArrayUsingPredicate:studyPredicate];
     }
-    else if (d[@"studyPredicate"])
+    else if (refinedRequest[@"studyPredicate"])
     {
-        studiesSelected=[studyPlist filteredArrayUsingPredicate:d[@"studyPredicate"]];
+        studiesSelected=[studyPlist filteredArrayUsingPredicate:refinedRequest[@"studyPredicate"]];
     }
     else studiesSelected=studyPlist;
    
@@ -714,7 +680,7 @@ NSXMLElement *InstanceElement=
    //doc.characterEncoding=@"UTF-8";
    //doc.standalone=true;
    NSData *docData=[doc XMLData];
-   [docData writeToFile:d[@"devOIDXMLPath"] atomically:YES];
+   [docData writeToFile:refinedRequest[@"devOIDXMLPath"] atomically:YES];
 }
 
 

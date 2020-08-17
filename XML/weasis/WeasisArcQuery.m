@@ -21,10 +21,12 @@
 @implementation WeasisArcQuery
 
 +(NSXMLElement*)weasisarcId:(NSString*)weasisarcId
+weasisbaseUrl:(NSString*)weasisbaseUrl
 weasiswebLogin:(NSString*)weasiswebLogin
 weasisrequireOnlySOPInstanceUID:(NSString*)weasisrequireOnlySOPInstanceUID
 weasisadditionnalParameters:(NSString*)weasisadditionnalParameters
 weasisoverrideDicomTagsList:(NSString*)weasisoverrideDicomTagsList
+session:(NSString*)session
 seriesFilterInstanceUID:(NSString*)seriesInstanceUIDRegexString
 seriesFilterNumber:(NSString*)seriesNumberRegexString
 seriesFilterDescription:(NSString*)seriesDescriptionRegexString
@@ -43,8 +45,8 @@ seriesFilterSOPClassOff:(NSString*)SOPClassOffRegexString
    
    
    [arcQuery addAttribute:[NSXMLNode attributeWithName:@"arcId" stringValue:weasisarcId]];
-   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"additionnalParameters" stringValue:[NSString stringWithFormat:@"&session=_sessionString_&arcId=%@",weasisarcId]]];//arcQueryId injected with session number just before sending the response
-   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"baseUrl" stringValue:@"_proxyURIString_"]];
+   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"additionnalParameters" stringValue:[NSString stringWithFormat:@"&session=%@&arcId=%@",session,weasisarcId]]];
+   [arcQuery addAttribute:[NSXMLNode attributeWithName:@"baseUrl" stringValue:weasisbaseUrl]];
 
    // optional attributes
    if (weasiswebLogin) [arcQuery addAttribute:[NSXMLNode attributeWithName:@"webLogin" stringValue:weasiswebLogin]];

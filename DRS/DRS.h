@@ -111,6 +111,20 @@ id urlChunkedProxy(NSString *urlString,NSString *contentType);
 @property (class, nonatomic, readonly) NSArray           *InstanceUniqueFrameSOPClass;
 @property (class, nonatomic, readonly) NSArray           *InstanceMultiFrameSOPClass;
 
+enum accessTypeEnum {
+   accessTypeDatatablesStudy,
+   accessTypeDatatablesPatient,
+   accessTypeWeasis,
+   accessTypeCornerstone,
+   accessTypeDicomzip,
+   accessTypeMultipartDicom
+};
+
+@property (class, nonatomic, readonly) NSArray *accessType;
+@property (class, nonatomic, readonly) NSArray *accessTypeStarter;
+@property (class, nonatomic, readonly) NSArray *accessTypeSeparator;
+@property (class, nonatomic, readonly) NSArray *accessTypeFinisher;
+
 -(id)initWithSqls:(NSDictionary*)sqls
              pacs:(NSArray*)pacs
           drsport:(long long)drsport

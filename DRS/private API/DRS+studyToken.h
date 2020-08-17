@@ -12,14 +12,6 @@
 
 #pragma mark enums
 
-enum accessType{
-   accessTypeWeasis,
-   accessTypeCornerstone,
-   accessTypeDicomzip,
-   accessTypeDatatablesstudies,
-   accessTypeDatatablespatient,
-   accessTypeWadoRSDicom
-};
 
 enum selectType{
    selectTypeSql,

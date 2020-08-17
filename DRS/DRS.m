@@ -277,7 +277,10 @@ static NSSet        *_lanDeduplicated=nil;
 static NSArray      *_InstanceUniqueFrameSOPClass=nil;
 static NSArray      *_InstanceMultiFrameSOPClass=nil;
 
-
+static NSArray      *_accessType=nil;
+static NSArray      *_accessTypeStarter=nil;
+static NSArray      *_accessTypeSeparator=nil;
+static NSArray      *_accessTypeFinisher=nil;
 
 int execUTF8Bash(NSDictionary *environment, NSString *writeString, NSMutableData *readData)
 {
@@ -726,6 +729,51 @@ static NSData *ctad=nil;
        LOG_DEBUG(@"\r\nlan:\r\n%@",[_lan description]);
        LOG_DEBUG(@"\r\nlanDeduplicated:\r\n%@",[_lanDeduplicated description]);
 
+#pragma mark _accessType, _accessTypeStarter, _accessTypeSeparator, _accessTypeFinisher
+       _accessType=@[
+                     @"datatables/studies",
+                     @"datatables/patient",
+                     @"weasis.xml",
+                     @"cornerstone.json",
+                     @"dicom.zip",
+                     @"multipart.dicom"
+       ];
+       NSData *starterWeasis=[@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><manifest xmlns=\"http://www.weasis.org/xsd/2.5\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" dataUsingEncoding:NSUTF8StringEncoding];
+       NSData *starterCornerstone=[@"[" dataUsingEncoding:NSUTF8StringEncoding];
+       NSData *starterSeriesPlist=[@"" dataUsingEncoding:NSUTF8StringEncoding];
+       NSData *starterMultipart=[@"" dataUsingEncoding:NSUTF8StringEncoding];
+       _accessTypeStarter=@[
+          [NSData data],
+          [NSData data],
+          starterWeasis,
+          starterCornerstone,
+          starterSeriesPlist,
+          starterMultipart
+       ];
+       
+       NSData *separatorCornerstone=[@"," dataUsingEncoding:NSUTF8StringEncoding];
+       NSData *separatorMultipart=[@"" dataUsingEncoding:NSUTF8StringEncoding];
+       _accessTypeSeparator=@[
+          [NSData data],
+          [NSData data],
+          [NSData data],
+          separatorCornerstone,
+          [NSData data],
+          separatorMultipart
+       ];
+       
+       NSData *finisherWeasis=[@"</manifest>" dataUsingEncoding:NSUTF8StringEncoding];
+       NSData *finisherCornerstone=[@"]" dataUsingEncoding:NSUTF8StringEncoding];
+       NSData *finisherSeriesPlist=[@"" dataUsingEncoding:NSUTF8StringEncoding];
+       NSData *finisherMultipart=[@"" dataUsingEncoding:NSUTF8StringEncoding];
+       _accessTypeFinisher=@[
+          [NSData data],
+          [NSData data],
+          finisherWeasis,
+          finisherCornerstone,
+          finisherSeriesPlist,
+          finisherMultipart
+       ];
 
 #pragma mark -
 #pragma mark handlers
@@ -823,5 +871,10 @@ static NSData *ctad=nil;
 
 +(NSArray*)InstanceUniqueFrameSOPClass { return _InstanceUniqueFrameSOPClass;}
 +(NSArray*)InstanceMultiFrameSOPClass { return _InstanceMultiFrameSOPClass;}
++(NSArray*)accessType { return _accessType;}
++(NSArray*)accessTypeStarter { return _accessTypeStarter;}
++(NSArray*)accessTypeSeparator { return _accessTypeSeparator;}
++(NSArray*)accessTypeFinisher { return _accessTypeFinisher;}
+
 
 @end

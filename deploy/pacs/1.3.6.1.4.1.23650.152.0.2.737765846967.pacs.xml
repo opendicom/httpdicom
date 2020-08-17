@@ -72,6 +72,8 @@
             <string id="wadouri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC/wado</string>
             <key>wadouriproxy</key>
             <false/>
+            <key>wadouricornerstoneprefix</key>
+            <string id="wadouricornerstoneprefix"></string>
             <key>wadouriadditionalparameters</key>
             <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
             <key>wadouriweasisparameters</key>
@@ -168,6 +170,8 @@
             <string id="wadouri">http://192.168.4.14:8080/wado</string>
             <key>wadouriproxy</key>
             <false/>
+            <key>wadouricornerstoneprefix</key>
+            <string id="wadouricornerstoneprefix"></string>
             <key>wadouriadditionalparameters</key>
             <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
             <key>wadouriweasisparameters</key>
@@ -264,6 +268,8 @@
             <string id="wadouri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_LASERENA/wado</string>
             <key>wadouriproxy</key>
             <false/>
+            <key>wadouricornerstoneprefix</key>
+            <string id="wadouricornerstoneprefix"></string>
             <key>wadouriadditionalparameters</key>
             <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
             <key>wadouriweasisparameters</key>
@@ -466,6 +472,8 @@
             <string id="wadouri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_OVALLE/wado</string>
             <key>wadouriproxy</key>
             <false/>
+            <key>wadouricornerstoneprefix</key>
+            <string id="wadouricornerstoneprefix"></string>
             <key>wadouriadditionalparameters</key>
             <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
             <key>wadouriweasisparameters</key>
@@ -667,6 +675,8 @@
             <string id="wadouri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/wado</string>
             <key>wadouriproxy</key>
             <false/>
+            <key>wadouricornerstoneprefix</key>
+            <string id="wadouricornerstoneprefix"></string>
             <key>wadouriadditionalparameters</key>
             <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
             <key>wadouriweasisparameters</key>

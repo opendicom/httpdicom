@@ -48,7 +48,7 @@ NSMutableArray *buildPNArray(
          if ([PNArray[i] length])
          {
 
-            if (accessTypeNumber==accessTypeDatatablesstudies)
+            if (accessTypeNumber==accessTypeDatatablesStudy)
             {
                if (cachedQueryDict && cachedQueryDict[PNLabel[i]])
                {
@@ -135,7 +135,7 @@ BOOL appendImmutableToCanonical(
    {
       if (![value hasPrefix:cachedQueryDict[name]])
       {
-         if (accessTypeNumber==accessTypeDatatablesstudies) [canonicalQuery appendFormat:@"\"%@\":\"%@\",",name,cachedQueryDict[name]];//keep the  same caché and create study restriction
+         if (accessTypeNumber==accessTypeDatatablesStudy) [canonicalQuery appendFormat:@"\"%@\":\"%@\",",name,cachedQueryDict[name]];//keep the  same caché and create study restriction
          else return false;//wrong caché invoqued by "static" access
       }
       [studyRestrictionDict setObject:regex forKey:name];
@@ -254,7 +254,7 @@ NSString * SOPCLassOfReturnableSeries(
 
    [self
     addHandler:@"GET"
-    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|weasis.xml|dicom.zip|cornerstone.json)$" options:0 error:NULL]
+    regex:[NSRegularExpression regularExpressionWithPattern:@"^/(studyToken|weasis.xml|dicom.zip|wadors.dicom|cornerstone.json)$" options:0 error:NULL]
     processBlock:^(RSRequest* request,RSCompletionBlock completionBlock)
     {
        completionBlock(^RSResponse* (RSRequest* request) {return [DRS studyToken:request];}(request));
@@ -288,8 +288,28 @@ NSString * SOPCLassOfReturnableSeries(
 {
    NSFileManager *defaultManager=[NSFileManager defaultManager];
    NSError *error=nil;
+   
+   
+#pragma mark requestDict requester
+   
+   NSMutableDictionary *requestDict=[NSMutableDictionary dictionary];
+   
+   NSInteger maxIndex=[names indexOfObject:@"max"];
+   if (maxIndex!=NSNotFound) [requestDict setValue:[NSNumber numberWithLongLong:[values[maxIndex] longLongValue]] forKey:@"max"];
+   else [requestDict setValue:@1000 forKey:@"max"];
+   
+   NSInteger sessionIndex=[names indexOfObject:@"session"];
+   if (sessionIndex!=NSNotFound) [requestDict setValue:values[sessionIndex] forKey:@"session"];
+   
+   NSInteger proxyURIIndex=[names indexOfObject:@"proxyURI"];
+   if (proxyURIIndex!=NSNotFound) [requestDict setValue:values[proxyURIIndex] forKey:@"proxyURI"];
 
+   NSInteger tokenIndex=[names indexOfObject:@"token"];
+   if (tokenIndex!=NSNotFound) [requestDict setObject:values[tokenIndex] forKey:@"tokenString"];
+   
+   [requestDict setValue:[NSNumber numberWithBool:acceptsGzip] forKey:@"acceptsGzip"];
 
+   
 #pragma mark accessType
 
    NSInteger accessTypeNumber=NSNotFound;
@@ -323,24 +343,24 @@ NSString * SOPCLassOfReturnableSeries(
    
 #pragma mark cache in request?
 
+    NSString *cacheid=nil;
     NSString *cachePath=nil;
     NSMutableDictionary *cachedQueryDict=nil;
     NSUInteger cacheIndex=[names indexOfObject:@"cache"];
     if ((cacheIndex!=NSNotFound) && ([values[cacheIndex] length]))
     {
-        cachePath=[DRS.tokentmpDir stringByAppendingPathComponent:values[cacheIndex]];
-        NSData *cacheData=[NSData dataWithContentsOfFile:[cachePath stringByAppendingPathExtension:@"json"]];
-        if (cacheData) cachedQueryDict=[NSJSONSerialization JSONObjectWithData:cacheData options:NSJSONReadingMutableContainers error:nil];
-     }
+       cacheid=values[cacheIndex];
+       cachePath=[DRS.tokentmpDir stringByAppendingPathComponent:cacheid];
+
+
+       NSData *cacheData=[NSData dataWithContentsOfFile:[cachePath stringByAppendingPathExtension:@"json"]];
+       if (cacheData) cachedQueryDict=[NSJSONSerialization JSONObjectWithData:cacheData options:NSJSONReadingMutableContainers error:nil];
+    }
     
     NSMutableString *canonicalQuery=[NSMutableString stringWithString:@"{"];
     
-    NSMutableDictionary *requestDict=[NSMutableDictionary dictionaryWithObject:@"1000" forKey:@"max"];
     NSMutableDictionary *studyRestrictionDict=[NSMutableDictionary dictionary];
     NSMutableDictionary *seriesRestrictionDict=[NSMutableDictionary dictionary];
-
-    NSInteger tokenIndex=[names indexOfObject:@"token"];
-    if (tokenIndex!=NSNotFound) [requestDict setObject:values[tokenIndex] forKey:@"tokenString"];
 
 
 
@@ -447,40 +467,67 @@ NSString * SOPCLassOfReturnableSeries(
 
                        case accessTypeWeasis:
                        {
-                          NSMutableString *manifest=[NSMutableString stringWithString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><manifest xmlns=\"http://www.weasis.org/xsd/2.5\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"];
+                          NSMutableData *manifest=[NSMutableData dataWithData:DRS.accessTypeStarter[accessTypeWeasis]];//stringWithString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><manifest xmlns=\"http://www.weasis.org/xsd/2.5\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"];
                           NSError *error=nil;
+                          BOOL first=true;
                           for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
                           {
-                            [requestDict addEntriesFromDictionary:
-                             @{
-                                @"orgid":[orgidFile stringByDeletingPathExtension],
-                                @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
-                              }
-                             ];
-                             [manifest appendString:[DRS weasisArcQueryForRefinedRequest:requestDict]];
+                             if ([orgidFile hasSuffix:@"plist"])
+                             {
+                                if (first) first=false;
+                                else [manifest appendData:DRS.accessTypeSeparator[accessTypeWeasis]];
+                               [requestDict addEntriesFromDictionary:
+                                @{
+                                   @"orgid":[orgidFile stringByDeletingPathExtension],
+                                   @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
+                                 }
+                                ];
+                                [manifest appendData:[DRS weasisArcQueryForRefinedRequest:requestDict]];
+                             }
                           }
-                          [manifest appendString:@"</manifest>"];
-                          return [DRS weasisManifest:manifest session:values[[names indexOfObject:@"session"]] proxyURI:values[[names indexOfObject:@"proxyURI"]] acceptsGzip:acceptsGzip];
+                          [manifest appendData:DRS.accessTypeFinisher[accessTypeWeasis]];
+                          //weasis base64 dicom:get -i does not work
+                          /*
+                          RSDataResponse *response=[RSDataResponse responseWithData:[[[LFCGzipUtility gzipData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
+                          [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
+                          return response;
+
+                          //xml dicom:get -iw works also, like with gzip
+                          return [RSDataResponse
+                          responseWithData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]
+                          contentType:@"text/xml"];
+                          */
+                           
+                          if (acceptsGzip) return [RSDataResponse responseWithData:[manifest gzip] contentType:@"application/x-gzip"];
+                          else return [RSDataResponse responseWithData:manifest contentType:@"text/xml"];
 
                        }break;
                           
                        case accessTypeCornerstone:
                        {
-                          NSMutableString *manifest=[NSMutableString stringWithString:@"["];
+                          NSMutableData *manifest=[NSMutableData dataWithData:DRS.accessTypeStarter[accessTypeCornerstone]];
                           NSError *error=nil;
+                          BOOL first=true;
                           for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
                           {
-                             [requestDict addEntriesFromDictionary:
-                              @{
-                                 @"orgid":[orgidFile stringByDeletingPathExtension],
-                                 @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
-                               }
-                              ];
-                              [manifest appendString:[DRS cornerstoneForRefinedRequest:requestDict]];
-                             [manifest appendString:@","];
+                             if ([orgidFile hasSuffix:@"plist"])
+                             {
+                                if (first) first=false;
+                                else [manifest appendData:DRS.accessTypeSeparator[accessTypeCornerstone]];
+                                
+                                [requestDict addEntriesFromDictionary:
+                                 @{
+                                    @"orgid":[orgidFile stringByDeletingPathExtension],
+                                    @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
+                                 }
+                                 ];
+                                [manifest appendData:[DRS cornerstoneForRefinedRequest:requestDict]];
+                             }
                            }
-                          [manifest replaceCharactersInRange:NSMakeRange(manifest.length - 1, 1) withString:@"]"];
-                           return [DRS cornerstoneManifest:manifest session:values[[names indexOfObject:@"session"]] proxyURI:values[[names indexOfObject:@"proxyURI"]] acceptsGzip:acceptsGzip];
+                          [manifest appendData:DRS.accessTypeFinisher[accessTypeCornerstone]];                          
+
+                          if (acceptsGzip) return [RSDataResponse responseWithData:[manifest gzip] contentType:@"application/x-gzip"];
+                          else return [RSDataResponse responseWithData:manifest contentType:@"text/xml"];
 
                        }break;
                     }
@@ -1328,8 +1375,8 @@ NSString * SOPCLassOfReturnableSeries(
       } break;
          
 #pragma mark datatables
-      case accessTypeDatatablesstudies:
-      case accessTypeDatatablespatient:
+      case accessTypeDatatablesStudy:
+      case accessTypeDatatablesPatient:
       {
 
 #pragma mark resultsArray

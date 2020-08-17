@@ -64,6 +64,7 @@
                                             <xs:group ref="timeoutinterval"/>
                                             <xs:group ref="wadouri"/>
                                             <xs:group ref="wadouriproxy"/>
+                                            <xs:group ref="wadouricornerstoneprefix"/>
                                             <xs:group ref="wadouriadditionalparameters"/>
                                             <xs:group ref="wadouriweasisparameters"/>
                                             <xs:group ref="wadouricornerstoneparameters"/>
@@ -386,6 +387,17 @@
         <xs:sequence>
             <xs:element name="key" fixed="wadouriproxy"/>
             <xs:group ref="truefalse"/>
+        </xs:sequence>
+    </xs:group>
+    
+    <xs:group name="wadouricornerstoneprefix">
+        <xs:sequence>
+            <xs:element name="key" fixed="wadouricornerstoneprefix">
+                <xs:annotation>
+                   <xs:documentation>"wadouri:" for dicom</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element ref="string" id="wadouriadditionalparameters"/>
         </xs:sequence>
     </xs:group>
 

@@ -4,7 +4,7 @@
 
 @implementation DRS (cornerstone)
 
-+(NSString*)cornerstoneForRefinedRequest:(NSDictionary*)d
++(NSData*)cornerstoneForRefinedRequest:(NSDictionary*)d
 {
    /*
    necesary:
@@ -295,7 +295,8 @@
                            NSString *wadouriInstance=
                            [NSString
                             stringWithFormat:
-                            @"_proxyURIString_?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=_sessionString_&custodianOID=%@&arcId=%@%@",
+                            @"%@_proxyURIString_?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=_sessionString_&custodianOID=%@&arcId=%@%@",
+                            orgDict[@"wadouricornerstoneprefix"],
                             study[@"StudyInstanceUID"],
                             seriesSqlProperties[1],
                             instanceSqlProperties[2],
@@ -321,31 +322,7 @@
             Eindex=[studiesSelected nextIndexOfE4P:P startingAtIndex:Eindex + 1];
          }//end while Eindex != NSNotFound
       }//end for each P
-   return [[NSString alloc] initWithData: [NSJSONSerialization dataWithJSONObject:arc options:0 error:nil]encoding:NSUTF8StringEncoding];
-}
-
-+(RSResponse*)cornerstoneManifest:(NSMutableString*)manifest session:(NSString*)session proxyURI:(NSString*)proxyURI acceptsGzip:(BOOL)acceptsGzip
-{
-   //insert session
-   [manifest
-    replaceOccurrencesOfString:@"_sessionString_"
-    withString:session
-    options:0
-    range:NSMakeRange(0, manifest.length)
-    ];
-
-   //insert proxyURI
-   [manifest
-    replaceOccurrencesOfString:@"_proxyURIString_"
-    withString:proxyURI
-    options:0
-    range:NSMakeRange(0, manifest.length)
-    ];
-
-   
-   return
-   [RSDataResponse
-    responseWithData:[manifest dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/json"];
+   return [NSJSONSerialization dataWithJSONObject:arc options:0 error:nil];
 }
 
 
