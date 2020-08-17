@@ -316,11 +316,11 @@ NSString * SOPCLassOfReturnableSeries(
    if (![requestPath isEqualToString:@"/studyToken"])
       accessTypeNumber=[
                   @[
-                     @"/weasis.xml",
-                     @"/cornerstone.json",
-                     @"/dicom.zip",
                      @"/datatables/studies",
                      @"/datatables/patient",
+                     @"/weasis.xml",
+                     @"/cornerstone.json",
+                     @"/dicom.zip"
                   ]  indexOfObject:requestPath
                   ];
    else
@@ -329,11 +329,11 @@ NSString * SOPCLassOfReturnableSeries(
       if (accessTypeIndex==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType required in request"];
       accessTypeNumber=[
                   @[
-                     @"weasis.xml",
-                     @"cornerstone.json",
-                     @"dicom.zip",
                      @"datatables/studies",
                      @"datatables/patient",
+                     @"weasis.xml",
+                     @"cornerstone.json",
+                     @"dicom.zip"
                   ]
                   indexOfObject:values[accessTypeIndex]
                   ];
@@ -430,7 +430,7 @@ NSString * SOPCLassOfReturnableSeries(
              StudyInstanceUIDRegexpString=[values[StudyInstanceUIDIndex] regexQuoteEscapedString];
              
              //if cache exists, StudyInstanceUID is a restriction to be applied immediately for weasis, cornerstone and zip
-             if ( cachedQueryDict && accessTypeNumber < 3)
+             if ( cachedQueryDict && accessTypeNumber > 1)
              {
                  NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:StudyInstanceUIDRegexpString options:NSRegularExpressionCaseInsensitive error:&error];
                  if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyInstanceUID URL"];
@@ -526,8 +526,12 @@ NSString * SOPCLassOfReturnableSeries(
                            }
                           [manifest appendData:DRS.accessTypeFinisher[accessTypeCornerstone]];                          
 
-                          if (acceptsGzip) return [RSDataResponse responseWithData:[manifest gzip] contentType:@"application/x-gzip"];
-                          else return [RSDataResponse responseWithData:manifest contentType:@"text/xml"];
+                           [manifest writeToFile:[cachePath stringByAppendingPathExtension:@"cornerstone"] atomically:false];
+                           
+                           //gzip not accepted
+                          //if (acceptsGzip) return [RSDataResponse responseWithData:[manifest gzip] contentType:@"application/x-gzip"];
+                          //else
+                              return [RSDataResponse responseWithData:manifest contentType:@"application/json"];
 
                        }break;
                     }

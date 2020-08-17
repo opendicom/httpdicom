@@ -4,7 +4,7 @@
 
 @implementation DRS (cornerstone)
 
-+(NSData*)cornerstoneForRefinedRequest:(NSDictionary*)d
++(NSData*)cornerstoneForRefinedRequest:(NSDictionary*)refinedRequest
 {
    /*
    necesary:
@@ -14,25 +14,25 @@
    requestDict[@"studyPredicate"] -> find the subset
 
    */
-   NSDictionary *orgDict=DRS.pacs[d[@"orgid"]];
+   NSDictionary *orgDict=DRS.pacs[refinedRequest[@"orgid"]];
    NSDictionary *sqlcredentials=@{orgDict[@"sqlcredentials"]:orgDict[@"sqlpassword"]};
    NSString *sqlprolog=orgDict[@"sqlprolog"];
    NSDictionary *sqlDictionary=DRS.sqls[orgDict[@"sqlmap"]];
 
    //filter inits
    NSString *instanceANDSOPClass=nil;
-   if (d[@"SOPClassRegexString"]) instanceANDSOPClass=
+   if (refinedRequest[@"SOPClassRegexString"]) instanceANDSOPClass=
    [NSString stringWithFormat:
     sqlDictionary[@"ANDinstanceSOPClass"],
-    d[@"SOPClassRegexString"]
+    refinedRequest[@"SOPClassRegexString"]
    ];
    else instanceANDSOPClass=@"";
 
    NSString *instanceANDSOPClassOff=nil;
-   if (d[@"SOPClassOffRegexString"]) instanceANDSOPClassOff=
+   if (refinedRequest[@"SOPClassOffRegexString"]) instanceANDSOPClassOff=
    [NSString stringWithFormat:
     sqlDictionary[@"ANDinstanceSOPClassOff"],
-    d[@"SOPClassOffRegexString"]
+    refinedRequest[@"SOPClassOffRegexString"]
    ];
    else instanceANDSOPClassOff=@"";
 
@@ -49,28 +49,28 @@
     NSRegularExpression *ModalityRegex = nil;
     NSRegularExpression *SOPClassRegex = nil;
     NSRegularExpression *SOPClassOffRegex = nil;
-    if (d[@"hasSeriesFilter"])
+    if (refinedRequest[@"hasSeriesFilter"])
     {
-        if (d[@"SeriesInstanceUIDRegexString"]) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
-        if (d[@"SeriesNumberRegexString"]) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesNumberRegexString"] options:0 error:NULL];
-        if (d[@"SeriesDescriptionRegexString"]) SeriesDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesDescriptionRegexString"] options:0  error:NULL];
-        if (d[@"ModalityRegexString"]) ModalityRegex=[NSRegularExpression regularExpressionWithPattern:d[@"ModalityRegexString"] options:0 error:NULL];
-        if (d[@"SOPClassRegexString"]) SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SOPClassRegexString"] options:0 error:NULL];
-        if (d[@"SOPClassOffRegexString"]) SOPClassOffRegex = [NSRegularExpression regularExpressionWithPattern:d[@"SOPClassOffRegexString"] options:0 error:NULL];
+        if (refinedRequest[@"SeriesInstanceUIDRegexString"]) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
+        if (refinedRequest[@"SeriesNumberRegexString"]) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesNumberRegexString"] options:0 error:NULL];
+        if (refinedRequest[@"SeriesDescriptionRegexString"]) SeriesDescriptionRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesDescriptionRegexString"] options:0  error:NULL];
+        if (refinedRequest[@"ModalityRegexString"]) ModalityRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"ModalityRegexString"] options:0 error:NULL];
+        if (refinedRequest[@"SOPClassRegexString"]) SOPClassRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SOPClassRegexString"] options:0 error:NULL];
+        if (refinedRequest[@"SOPClassOffRegexString"]) SOPClassOffRegex = [NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SOPClassOffRegexString"] options:0 error:NULL];
     }
 
    #pragma mark JSON root
 
    NSMutableDictionary *arc=[NSMutableDictionary dictionaryWithObjectsAndKeys:
-      d[@"orgid"], @"arcId",
+      refinedRequest[@"orgid"], @"arcId",
       @"_proxyURIString_",@"baseUrl",
       nil];
 
 #pragma mark plist init
    NSArray *studiesSelected=
    [
-    [NSArray arrayWithContentsOfFile:d[@"orgidPath"]]
-    filteredArrayUsingPredicate:d[@"studyPredicate"]
+    [NSArray arrayWithContentsOfFile:refinedRequest[@"orgidPath"]]
+    filteredArrayUsingPredicate:refinedRequest[@"studyPredicate"]
     ];
    
    //patients key from datalist
@@ -295,13 +295,15 @@
                            NSString *wadouriInstance=
                            [NSString
                             stringWithFormat:
-                            @"%@_proxyURIString_?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=_sessionString_&custodianOID=%@&arcId=%@%@",
+                            @"%@%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&arcId=%@%@",
                             orgDict[@"wadouricornerstoneprefix"],
+                            refinedRequest[@"proxyURI"],
                             study[@"StudyInstanceUID"],
                             seriesSqlProperties[1],
                             instanceSqlProperties[2],
+                            refinedRequest[@"session"],
                             orgDict[@"custodianoid"],
-                            d[@"orgid"],
+                            refinedRequest[@"orgid"],
                             orgDict[@"wadouricornerstoneparameters"]
                            ];
                            [instanceArray addObject:
