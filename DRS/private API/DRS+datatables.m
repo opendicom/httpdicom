@@ -342,8 +342,12 @@
 #pragma mark add filters
        [names addObject:@"lanPacs"];
        [values addObject:[[DRS.lanDeduplicated allObjects] componentsJoinedByString:@"|"]];
-       [names addObject:@"wanPacs"];
-       [values addObject:[[DRS.wan allObjects] componentsJoinedByString:@"|"]];
+        
+       if (DRS.wan.count)
+       {
+           [names addObject:@"wanPacs"];
+           [values addObject:[[DRS.wan allObjects] componentsJoinedByString:@"|"]];
+       }
        [names addObject:@"start"];
        [values addObject:@"0"];
        [names addObject:@"length"];

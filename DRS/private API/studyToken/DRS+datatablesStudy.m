@@ -6,7 +6,7 @@
 +(void)datateblesStudySql4dictionary:(NSDictionary*)d
 {
    long long maxCount=100;
-   if ([d[@"max"] length]) maxCount=[d[@"max"] longLongValue];
+   if (d[@"max"]) maxCount=[d[@"max"] longLongValue];
 
    BOOL tooMuchStudies=false;
    BOOL isStudyArrayComplete=false;
