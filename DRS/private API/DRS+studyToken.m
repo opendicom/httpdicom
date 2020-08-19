@@ -431,153 +431,146 @@ NSString * SOPCLassOfReturnableSeries(
       else return [RSErrorResponse responseWithClientError:404 message:@"studyToken param StudyInstanceUID: %@",values[StudyInstanceUIDIndex]];
       
       //for refined request
-      regex=[NSRegularExpression regularExpressionWithPattern:StudyInstanceUIDRegexpString options:NSRegularExpressionCaseInsensitive error:&error];
-      if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyInstanceUID URL"];
-      
-      [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
-         {
-           if (![regex numberOfMatchesInString:row[dtEU] options:0 range:NSMakeRange(0,[row[dtEU] length])]) return false;//16
-           return true;
-         }]
-         forKey:@"studyPredicate"
-      ];
+      if (cachedQueryDict)
+      {
+         regex=[NSRegularExpression regularExpressionWithPattern:StudyInstanceUIDRegexpString options:NSRegularExpressionCaseInsensitive error:&error];
+         if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyInstanceUID URL"];
+         
+         [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
+            {
+              if (![regex numberOfMatchesInString:row[dtEU] options:0 range:NSMakeRange(0,[row[dtEU] length])]) return false;//16
+              return true;
+            }]
+            forKey:@"studyPredicate"
+         ];
+      }
+      else
+      {
+         [requestDict setObject:StudyInstanceUIDRegexpString forKey:@"StudyInstanceUIDRegexpString"];
+         [canonicalQuery appendFormat:@"\"%@\":\"%@\",",@"StudyInstanceUID",StudyInstanceUIDRegexpString];
+      }
    }
    
    if (AccessionNumberIndex!=NSNotFound)
    {
       AccessionNumberEqualString=[values[AccessionNumberIndex] sqlEqualEscapedString];
- 
-      //for refined request
-      regex=[NSRegularExpression regularExpressionWithPattern:AccessionNumberEqualString options:NSRegularExpressionCaseInsensitive error:&error];
-      if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad AccessionNumber URL"];
-      
-      [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
-         {
-           if (![regex numberOfMatchesInString:row[dtEA] options:0 range:NSMakeRange(0,[row[dtEA] length])]) return false;//16
-           return true;
-         }]
-         forKey:@"studyPredicate"
-      ];
 
-      
-      /*
-       [requestDict setObject:AccessionNumberEqualString forKey:@"AccessionNumberEqualString"];
-       if (!appendImmutableToCanonical(
-             cachedQueryDict,
-             studyRestrictionDict,
-             canonicalQuery,
-             @"AccessionNumber",
-             AccessionNumberEqualString,
-             accessTypeNumber
-          )) return [RSErrorResponse responseWithClientError:404 message:@"bad AccessionNumber URL"];
-       */
+      if (cachedQueryDict)
+      {
+         //for refined request
+         regex=[NSRegularExpression regularExpressionWithPattern:AccessionNumberEqualString options:NSRegularExpressionCaseInsensitive error:&error];
+         if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad AccessionNumber URL"];
+         
+         [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
+            {
+              if (![regex numberOfMatchesInString:row[dtEA] options:0 range:NSMakeRange(0,[row[dtEA] length])]) return false;//16
+              return true;
+            }]
+            forKey:@"studyPredicate"
+         ];
+      }
+      else
+      {
+         [requestDict setObject:AccessionNumberEqualString forKey:@"AccessionNumberEqualString"];
+         [canonicalQuery appendFormat:@"\"%@\":\"%@\",",@"AccessionNumber",AccessionNumberEqualString];
+      }
    }
 
 
    
-   if (StudyInstanceUIDRegexpString || AccessionNumberEqualString)
+   if (cachedQueryDict && accessTypeNumber > 1 && (StudyInstanceUIDRegexpString || AccessionNumberEqualString))
    {
        //if cache exists, StudyInstanceUID is a restriction to be applied immediately for weasis, cornerstone and zip
-       if ( cachedQueryDict && accessTypeNumber > 1) // other than datatables
-       {
-              switch (accessTypeNumber) {
-                 case accessTypeDicomzip:
-                 {
-                     NSMutableArray *seriesPaths=[NSMutableArray array];
-                     NSError *error=nil;
-                     for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
-                     {
-                        if ([orgidFile hasSuffix:@".plist"])
-                        {
-                           [requestDict addEntriesFromDictionary:
-                            @{
-                               @"orgid":[orgidFile stringByDeletingPathExtension],
-                               @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
-                             }
-                            ];
-                            [DRS addSeriesPathsForRefinedRequest:requestDict toArray:seriesPaths];
-                          }
-                      }
-                     return [DRS dicomzipStreamForSeriesPaths:seriesPaths];
-                 }break;
-
-                 case accessTypeWeasis:
-                 {
-                    NSMutableData *manifest=[NSMutableData dataWithData:DRS.accessTypeStarter[accessTypeWeasis]];//stringWithString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><manifest xmlns=\"http://www.weasis.org/xsd/2.5\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"];
-                    NSError *error=nil;
-                    BOOL first=true;
-                    for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
-                    {
-                       if ([orgidFile hasSuffix:@"plist"])
-                       {
-                          if (first) first=false;
-                          else [manifest appendData:DRS.accessTypeSeparator[accessTypeWeasis]];
-                         [requestDict addEntriesFromDictionary:
-                          @{
-                             @"orgid":[orgidFile stringByDeletingPathExtension],
-                             @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
-                           }
-                          ];
-                          [manifest appendData:[DRS weasisArcQueryForRefinedRequest:requestDict]];
+       switch (accessTypeNumber) {
+           case accessTypeDicomzip:
+           {
+               NSMutableArray *seriesPaths=[NSMutableArray array];
+               NSError *error=nil;
+               for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
+               {
+                  if ([orgidFile hasSuffix:@".plist"])
+                  {
+                     [requestDict addEntriesFromDictionary:
+                      @{
+                         @"orgid":[orgidFile stringByDeletingPathExtension],
+                         @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
                        }
+                      ];
+                      [DRS addSeriesPathsForRefinedRequest:requestDict toArray:seriesPaths];
                     }
-                    [manifest appendData:DRS.accessTypeFinisher[accessTypeWeasis]];
-                    //weasis base64 dicom:get -i does not work
-                    /*
-                    RSDataResponse *response=[RSDataResponse responseWithData:[[[LFCGzipUtility gzipData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
-                    [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
-                    return response;
+                }
+               return [DRS dicomzipStreamForSeriesPaths:seriesPaths];
+           }break;
 
-                    //xml dicom:get -iw works also, like with gzip
-                    return [RSDataResponse
-                    responseWithData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]
-                    contentType:@"text/xml"];
-                    */
-                     
-                    if (acceptsGzip) return [RSDataResponse responseWithData:[manifest gzip] contentType:@"application/x-gzip"];
-                    else return [RSDataResponse responseWithData:manifest contentType:@"text/xml"];
-
-                 }break;
-                    
-                 case accessTypeCornerstone:
+           case accessTypeWeasis:
+           {
+              NSMutableData *manifest=[NSMutableData dataWithData:DRS.accessTypeStarter[accessTypeWeasis]];//stringWithString:@"<?xml version=\"1.0\" encoding=\"UTF-8\"?><manifest xmlns=\"http://www.weasis.org/xsd/2.5\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"];
+              NSError *error=nil;
+              BOOL first=true;
+              for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
+              {
+                 if ([orgidFile hasSuffix:@"plist"])
                  {
-                    NSMutableData *manifest=[NSMutableData dataWithData:DRS.accessTypeStarter[accessTypeCornerstone]];
-                    NSError *error=nil;
-                    BOOL first=true;
-                    for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
-                    {
-                       if ([orgidFile hasSuffix:@"plist"])
-                       {
-                          if (first) first=false;
-                          else [manifest appendData:DRS.accessTypeSeparator[accessTypeCornerstone]];
-                          
-                          [requestDict addEntriesFromDictionary:
-                           @{
-                              @"orgid":[orgidFile stringByDeletingPathExtension],
-                              @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
-                           }
-                           ];
-                          [manifest appendData:[DRS cornerstoneForRefinedRequest:requestDict]];
-                       }
+                    if (first) first=false;
+                    else [manifest appendData:DRS.accessTypeSeparator[accessTypeWeasis]];
+                   [requestDict addEntriesFromDictionary:
+                    @{
+                       @"orgid":[orgidFile stringByDeletingPathExtension],
+                       @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
                      }
-                    [manifest appendData:DRS.accessTypeFinisher[accessTypeCornerstone]];
-
-                     [manifest writeToFile:[cachePath stringByAppendingPathExtension:@"cornerstone"] atomically:false];
-                     
-                     //gzip not accepted
-                    //if (acceptsGzip) return [RSDataResponse responseWithData:[manifest gzip] contentType:@"application/x-gzip"];
-                    //else
-                        return [RSDataResponse responseWithData:manifest contentType:@"application/json"];
-
-                 }break;
+                    ];
+                    [manifest appendData:[DRS weasisArcQueryForRefinedRequest:requestDict]];
+                 }
               }
+              [manifest appendData:DRS.accessTypeFinisher[accessTypeWeasis]];
+              //weasis base64 dicom:get -i does not work
+              /*
+              RSDataResponse *response=[RSDataResponse responseWithData:[[[LFCGzipUtility gzipData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]] base64EncodedStringWithOptions:0]dataUsingEncoding:NSUTF8StringEncoding] contentType:@"application/x-gzip"];
+              [response setValue:@"Base64" forAdditionalHeader:@"Content-Transfer-Encoding"];//https://tools.ietf.org/html/rfc2045
+              return response;
 
-            
-        }
-        else
-        {
-            [requestDict setObject:StudyInstanceUIDRegexpString forKey:@"StudyInstanceUIDRegexpString"];
-            [canonicalQuery appendFormat:@"\"%@\":\"%@\",",@"StudyInstanceUID",StudyInstanceUIDRegexpString];
+              //xml dicom:get -iw works also, like with gzip
+              return [RSDataResponse
+              responseWithData:[xmlweasismanifest dataUsingEncoding:NSUTF8StringEncoding]
+              contentType:@"text/xml"];
+              */
+               
+              if (acceptsGzip) return [RSDataResponse responseWithData:[manifest gzip] contentType:@"application/x-gzip"];
+              else return [RSDataResponse responseWithData:manifest contentType:@"text/xml"];
+
+           }break;
+              
+           case accessTypeCornerstone:
+           {
+              NSMutableData *manifest=[NSMutableData dataWithData:DRS.accessTypeStarter[accessTypeCornerstone]];
+              NSError *error=nil;
+              BOOL first=true;
+              for (NSString *orgidFile in [defaultManager contentsOfDirectoryAtPath:cachePath error:&error])
+              {
+                 if ([orgidFile hasSuffix:@"plist"])
+                 {
+                    if (first) first=false;
+                    else [manifest appendData:DRS.accessTypeSeparator[accessTypeCornerstone]];
+                    
+                    [requestDict addEntriesFromDictionary:
+                     @{
+                        @"orgid":[orgidFile stringByDeletingPathExtension],
+                        @"orgidPath":[cachePath stringByAppendingPathComponent:orgidFile]
+                     }
+                     ];
+                    [manifest appendData:[DRS cornerstoneForRefinedRequest:requestDict]];
+                 }
+               }
+              [manifest appendData:DRS.accessTypeFinisher[accessTypeCornerstone]];
+
+               [manifest writeToFile:[cachePath stringByAppendingPathExtension:@"cornerstone"] atomically:false];
+               
+               //gzip not accepted
+              //if (acceptsGzip) return [RSDataResponse responseWithData:[manifest gzip] contentType:@"application/x-gzip"];
+              //else
+                  return [RSDataResponse responseWithData:manifest contentType:@"application/json"];
+
+           }break;
         }
     }
    else
