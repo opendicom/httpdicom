@@ -613,7 +613,6 @@ static NSData *ctad=nil;
           {
              NSString *filesystemsURIString=
               [NSString stringWithFormat:@"%@/storage",p[@"dcm4cheelocaluri"]];
-              NSLog(@"%@",filesystemsURIString);
              filesystemsJSONData=[NSMutableData dataWithContentsOfURL:[NSURL URLWithString:filesystemsURIString] options:0 error:&error];
              if (!filesystemsJSONData)
              {

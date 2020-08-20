@@ -18,11 +18,12 @@
     studyArray=[NSMutableArray arrayWithContentsOfFile:d[@"devOIDPLISTPath"]];
     if (studyArray)
     {
-      //contains a number
+      //an answer already exists
       if (   (studyArray.count==1)
           && [studyArray[0] isKindOfClass:[NSNumber class]])
       {
-          if ([studyArray[0] longLongValue] <= maxCount) [studyArray removeObjectAtIndex:0];
+          //contains a number
+          if ([studyArray[0] longLongValue] <= maxCount) [studyArray removeObjectAtIndex:0];//remove the count
           else tooMuchStudies=![d[@"new"]isEqualToString:@"true"];
           //if new is true we can not presume how much studies there will be
       }
@@ -46,7 +47,7 @@
        
        (3.1) studyArray.count <= 200: execute list
        
-       (3.2) studyArray.count > 200 : count and then if different list
+       (3.2) studyArray.count > 200 : count and then if different execute list
        
        */
       
