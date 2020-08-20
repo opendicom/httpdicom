@@ -320,7 +320,7 @@
 
 +(void)weasisSql4dictionary:(NSDictionary*)refinedRequest
 {
-   NSDictionary *devDict=DRS.pacs[refinedRequest[@"devOID"]];
+   NSDictionary *devDict=DRS.pacs[refinedRequest[@"orgid"]];
    
 #pragma mark sql inits
    NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
@@ -376,7 +376,7 @@
        if (error) [[NSFileManager defaultManager] moveItemAtPath:refinedRequest[@"devOIDXMLPath"] toPath:[refinedRequest[@"devOIDXMLPath"] stringByAppendingPathExtension:@"badxml"] error:nil];
        arcQueryElement=
        [WeasisArcQuery
-        weasisarcId:refinedRequest[@"devOID"]
+        weasisarcId:refinedRequest[@"orgid"]
         weasisbaseUrl:refinedRequest[@"proxyURI"]
         weasiswebLogin:nil
         weasisrequireOnlySOPInstanceUID:nil
@@ -401,7 +401,7 @@
     
     
 #pragma mark plist init
-    NSArray *studyPlist=[NSArray arrayWithContentsOfFile:refinedRequest[@"devOIDPLISTPath"]];
+    NSArray *studyPlist=[NSArray arrayWithContentsOfFile:refinedRequest[@"orgidPLISTPath"]];
     NSArray *studiesSelected=nil;
     if (refinedRequest[@"StudyInstanceUIDRegexpString"])
     {

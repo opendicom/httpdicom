@@ -182,15 +182,3 @@ static NSString *sqlRecordTwentyNineUnits=@"| awk -F\\t ' BEGIN{ ORS=\"\\x0D\\x0
  
  The calls can be a wado where study=transaction series=custodian instance=paquetID
 */
-
-/*
- cache
- =====
- 
- /sha512canonical.json (query)
- /sha512canonical/accessType/devOID/EP.sql audit.txt proxy.url data.xml data.json data.jsonp
- EP.sql = query performed for study patient (includes number of series and number of instances)
- audit.txt = cr separated isoDatetime=proxy
- proxy.url = current proxy.url
- data result of the query
- */

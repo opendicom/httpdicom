@@ -331,7 +331,7 @@
 
 +(void)cornerstoneSql4dictionary:(NSDictionary*)d
 {
-   NSDictionary *devDict=DRS.pacs[d[@"devOID"]];
+   NSDictionary *devDict=DRS.pacs[d[@"orgid"]];
    
 #pragma mark sql inits
    NSDictionary *sqlcredentials=@{devDict[@"sqlcredentials"]:devDict[@"sqlpassword"]};
@@ -386,14 +386,14 @@
    if (!arc)
    {
       arc=[NSMutableDictionary dictionaryWithObjectsAndKeys:
-      d[@"devOID"], @"arcId",
+      d[@"orgid"], @"arcId",
       @"_proxyURIString_",@"baseUrl",
       nil];
    }
 
        
 #pragma mark plist init
-    NSArray *studyPlist=[NSArray arrayWithContentsOfFile:d[@"devOIDPLISTPath"]];
+    NSArray *studyPlist=[NSArray arrayWithContentsOfFile:d[@"orgidPLISTPath"]];
     NSArray *studiesSelected=nil;
     if (d[@"StudyInstanceUIDRegexpString"])
     {
@@ -671,7 +671,7 @@ As seen some casuistics can be resolved before any query to the instance table, 
                          seriesSqlProperties[1],
                          instanceSqlProperties[2],
                          devDict[@"custodianoid"],
-                         d[@"devOID"],
+                         d[@"orgid"],
                          devDict[@"wadouricornerstoneparameters"]
                         ];
                         [instanceArray addObject:

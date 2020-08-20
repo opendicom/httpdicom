@@ -977,11 +977,11 @@ NSString * SOPCLassOfReturnableSeries(
 
    
 #pragma mark wan
+   /*
    for (NSString *wan in wanSet)
    {
-      //NSLog(@"wan %@",devOID);
-      //add nodes and start corresponding processes
    }
+    */
 
 #pragma mark no cache -> create queryPath
    NSString *queryPath=nil;
@@ -1015,15 +1015,15 @@ NSString * SOPCLassOfReturnableSeries(
 
    
      //loop each LAN pacs producing part
-     for (NSString *devOID in lanSet)
+     for (NSString *orgid in lanSet)
      {
-        [requestDict setObject:devOID forKey:@"devOID"];
-        [requestDict setObject:(DRS.pacs[devOID])[@"Eaccesscontrol"] forKey:@"Eaccesscontrol"];
-        [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
+        [requestDict setObject:orgid forKey:@"orgid"];
+        [requestDict setObject:(DRS.pacs[orgid])[@"Eaccesscontrol"] forKey:@"Eaccesscontrol"];
+        [requestDict setObject:[[queryPath stringByAppendingPathComponent:orgid]stringByAppendingPathExtension:@"plist"] forKey:@"orgidPLISTPath"];
         NSUInteger maxCountIndex=[names indexOfObject:@"max"];
         if (maxCountIndex!=NSNotFound)[requestDict setObject:values[maxCountIndex] forKey:@"max"];
 
-        switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
+        switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[orgid])[@"select"]])
         {
             case selectTypeSql:
               [DRS datateblesStudySql4dictionary:requestDict];
@@ -1120,14 +1120,14 @@ NSString * SOPCLassOfReturnableSeries(
       case accessTypeWeasis:
       {
 //loop each LAN pacs producing part
-         for (NSString *devOID in lanSet)
+         for (NSString *orgid in lanSet)
          {
-            [requestDict setObject:devOID forKey:@"devOID"];
-            [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"xml"] forKey:@"devOIDXMLPath"];
-            [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
+            [requestDict setObject:orgid forKey:@"orgid"];
+            [requestDict setObject:[[queryPath stringByAppendingPathComponent:orgid]stringByAppendingPathExtension:@"xml"] forKey:@"devOIDXMLPath"];
+            [requestDict setObject:[[queryPath stringByAppendingPathComponent:orgid]stringByAppendingPathExtension:@"plist"] forKey:@"orgidPLISTPath"];
 
-            [requestDict setObject:(DRS.pacs[devOID])[@"wadouriweasisparameters"] forKey:@"wadouriweasisparameters"];
-            switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
+            [requestDict setObject:(DRS.pacs[orgid])[@"wadouriweasisparameters"] forKey:@"wadouriweasisparameters"];
+            switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[orgid])[@"select"]])
             {
                case selectTypeSql:
                   [DRS weasisSql4dictionary:requestDict];
@@ -1205,13 +1205,13 @@ NSString * SOPCLassOfReturnableSeries(
       case accessTypeCornerstone:
       {
 //loop each LAN pacs producing part
-         for (NSString *devOID in lanSet)
+         for (NSString *orgid in lanSet)
          {
-            [requestDict setObject:devOID forKey:@"devOID"];
-            [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"json"]forKey:@"devOIDJSONPath"];
-            [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
+            [requestDict setObject:orgid forKey:@"orgid"];
+            [requestDict setObject:[[queryPath stringByAppendingPathComponent:orgid]stringByAppendingPathExtension:@"json"]forKey:@"devOIDJSONPath"];
+            [requestDict setObject:[[queryPath stringByAppendingPathComponent:orgid]stringByAppendingPathExtension:@"plist"] forKey:@"orgidPLISTPath"];
 
-             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
+             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[orgid])[@"select"]])
             {
                 case selectTypeSql:
                   [DRS cornerstoneSql4dictionary:requestDict];
@@ -1274,13 +1274,13 @@ NSString * SOPCLassOfReturnableSeries(
       case accessTypeDicomzip:
       {
          NSMutableArray *seriesPaths=[NSMutableArray array];
-         for (NSString *devOID in lanSet)
+         for (NSString *orgid in lanSet)
          {
-            [requestDict setObject:devOID forKey:@"devOID"];
-            [requestDict setObject:[[queryPath stringByAppendingPathComponent:devOID]stringByAppendingPathExtension:@"plist"] forKey:@"devOIDPLISTPath"];
-             [requestDict setObject:(DRS.pacs[devOID])[@"filesystems"] forKey:@"mountPoints"];
+            [requestDict setObject:orgid forKey:@"orgid"];
+            [requestDict setObject:[[queryPath stringByAppendingPathComponent:orgid]stringByAppendingPathExtension:@"plist"] forKey:@"orgidPLISTPath"];
+             [requestDict setObject:(DRS.pacs[orgid])[@"filesystems"] forKey:@"mountPoints"];
 
-            switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[devOID])[@"select"]])
+            switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[orgid])[@"select"]])
             {
                 case selectTypeSql:
                   [DRS datateblesStudySql4dictionary:requestDict];
@@ -1292,101 +1292,6 @@ NSString * SOPCLassOfReturnableSeries(
 
          //return [DRS dicomzipStreamForQueryPath:queryPath];
          return [DRS dicomzipStreamForSeriesPaths:seriesPaths];
-
-         /*
-           
-          NSMutableArray *pathArray=[NSMutableArray array];
-           NSArray *studiesSelected=nil;
-           BOOL oneStudySelected=false;
-           if (StudyInstanceUIDRegexpString)
-           {
-               studiesSelected=[StudyInstanceUIDRegexpString componentsSeparatedByString:@"|"];
-               oneStudySelected=(studiesSelected.count == 1);
-           }
-          BOOL oneSeriesSelected=false;
-          NSArray *seriesSelected=nil;
-          if (SeriesInstanceUIDRegexString!=nil)
-          {
-              seriesSelected=[SeriesInstanceUIDRegexString componentsSeparatedByString:@"|"];
-              oneSeriesSelected=(seriesSelected.count < 2);
-          }
-          
-
-          NSArray *devOIDItems=[defaultManager contentsOfDirectoryAtPath:queryPath error:nil];
-
-          
-          for (NSString *devOIDItem in devOIDItems)
-          {
-              if ([lanSet indexOfObject:devOIDItem]!=NSNotFound)
-              {
-              NSString *devOIDPath=[queryPath stringByAppendingPathComponent:devOIDItem];
-              NSArray *studyFolders=[defaultManager contentsOfDirectoryAtPath:devOIDPath error:nil];
-              if (studyFolders && studyFolders.count)
-              {
-                  if (!studiesSelected)
-                  {
-                      //every studies
-                      for (NSString *studyFolder in studyFolders)
-                      {
-                           [pathArray addObject:[devOIDItem stringByAppendingPathComponent:studyFolder]];
-                      }
-                  }
-                  else if (oneStudySelected)
-                  {
-                      //there is/are studies for this devOID
-                      if ([studyFolders indexOfObject:StudyInstanceUIDRegexpString]!=NSNotFound)
-                      {
-                          //study found
-                          if (seriesSelected)
-                          {
-                              NSString *studyPath=[devOIDPath stringByAppendingPathComponent:StudyInstanceUIDRegexpString];
-                              NSArray *seriesFolders=[defaultManager contentsOfDirectoryAtPath:studyPath error:nil];
-                              for (NSString *seriesFolder in seriesFolders)
-                              {
-                                  if ([seriesSelected indexOfObject:seriesFolder]!=NSNotFound)
-                                  [pathArray addObject:[[devOIDItem stringByAppendingPathComponent:StudyInstanceUIDRegexpString] stringByAppendingPathComponent:seriesFolder]];
-                              }
-                          }
-                          else //complete study
-                          {
-                              [pathArray addObject:[devOIDItem stringByAppendingPathComponent:StudyInstanceUIDRegexpString]];
-                          }
-                      }
-                  }
-                  else //multiple studies
-                  {
-                      //more than one study selected
-                      for (NSString *studyFolder in studyFolders)
-                      {
-                          if ([studiesSelected indexOfObject:studyFolder]!=NSNotFound)
-                              [pathArray addObject:[devOIDItem stringByAppendingPathComponent:studyFolder]];
-                          
-                      }
-                   }
-                }
-             }
-          }
-          //LOG_INFO(@"%@",[pathArray description]);
-          NSString *zipPath=[[queryPath lastPathComponent] stringByAppendingPathExtension:@"zip"];
-          NSMutableString *zipCommand=
-          [NSMutableString
-           stringWithFormat:@"cd %@;rm -f %@;/usr/bin/zip -r %@ %@",
-           queryPath,
-           zipPath,
-           zipPath,
-           [pathArray componentsJoinedByString:@" "]
-           ];
-          NSMutableData *zipstdout=[NSMutableData data];
-          if (execUTF8Bash(@{},zipCommand,zipstdout)!=0) LOG_ERROR(@"zip error");
-          NSLog(@"%@",[queryPath stringByAppendingPathExtension:@"zip"]);
-         return
-         [RSDataResponse
-          responseWithData:[NSData dataWithContentsOfFile:[queryPath stringByAppendingPathComponent:zipPath]]
-          contentType:@"application/zip"];//application/octet-stream
-         
-         
-         return nil;// [NSData dataWithContentsOfFile:[queryPath stringByAppendingPathExtension:@"zip"]]
-         */
       } break;
          
 #pragma mark datatables
@@ -1395,11 +1300,6 @@ NSString * SOPCLassOfReturnableSeries(
       {
 
 #pragma mark resultsArray
-          /*
-         NSData *_institution_=[@"_institution_" dataUsingEncoding:NSUTF8StringEncoding];
-         NSData *_cache_=[@"_cache_" dataUsingEncoding:NSUTF8StringEncoding];
-         NSData *_cache_replace=[[queryPath lastPathComponent] dataUsingEncoding:NSUTF8StringEncoding];
-           */
          NSMutableArray *resultsArray=[NSMutableArray array];
           
          NSArray *resultsDirectory=[defaultManager contentsOfDirectoryAtPath:queryPath error:nil];

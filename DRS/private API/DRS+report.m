@@ -49,7 +49,7 @@
 
 
 
-#pragma mark devOID
+#pragma mark orgid
     NSUInteger institutionIndex=[names indexOfObject:@"institution"];
     if (institutionIndex==NSNotFound)
        return [RSErrorResponse responseWithClientError:404 message:@"bad URL, no institution"];
