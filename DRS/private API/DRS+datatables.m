@@ -32,14 +32,20 @@
 
 #pragma mark url parsing
      NSString *datatablesQueryPart=[request.URL.absoluteString componentsSeparatedByString:@"/datatables/studies?"][1];
+     LOG_VERBOSE(@"%@",datatablesQueryPart);
      NSArray *datatablesRequestItems=[datatablesQueryPart componentsSeparatedByString:@"&"];
      for (NSString *param in datatablesRequestItems)
      {
          NSArray *nameValue=[param componentsSeparatedByString:@"="];
-         if ([nameValue[1] length])
+         if ([nameValue[1] length] > inputStringMinLength)
          {
              [names addObject:nameValue[0]];
              [values addObject:nameValue[1]];
+         }
+         else
+         {
+            [names addObject:nameValue[0]];
+            [values addObject:[NSString stringWithFormat:@"%@%lu",nameValue[1],(unsigned long)[nameValue[1] length]]];
          }
      }
 

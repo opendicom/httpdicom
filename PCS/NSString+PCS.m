@@ -422,7 +422,7 @@
    
    if (escapesPerformed>0) LOG_DEBUG(@"|%@| -> |%@|", self, escapedString);
    if ((self.length - escapesPerformed > 4) || (escapesPerformed == 0))
-   return [NSString stringWithString:escapedString];
+      return [NSString stringWithFormat:@"%%%@%%",escapedString];
    return nil;
 }
 
