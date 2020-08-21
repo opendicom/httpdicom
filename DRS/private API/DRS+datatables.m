@@ -4,6 +4,9 @@
 
 @implementation DRS (datatables)
 
+
+const NSUInteger inputStringMinLength=5;
+
 -(void)addDatatablesStudiesHandler
 {
 #pragma mark init
@@ -34,8 +37,28 @@
      for (NSString *param in datatablesRequestItems)
      {
          NSArray *nameValue=[param componentsSeparatedByString:@"="];
-         [names addObject:nameValue[0]];
-         [values addObject:nameValue[1]];
+         if (
+               (
+                   [nameValue[1] isEqualToString:@"PatientID"]
+                 ||[nameValue[1] isEqualToString:@"PatientName"]
+                 ||[nameValue[1] isEqualToString:@"StudyDescription"]
+                 ||[nameValue[1] isEqualToString:@"StudyID"]
+                 ||[nameValue[1] isEqualToString:@"AccessionNumber"]
+                )
+              &&(
+                   [nameValue[1] length] < inputStringMinLength
+                )
+             )
+         {
+             [names addObject:nameValue[0]];
+             [values addObject:[NSString stringWithFormat:@"%@%lu",nameValue[1],(unsigned long)[nameValue[1] length]]];
+             LOG_WARNING(@"%@:%@",[names lastObject],[values lastObject]);
+         }
+         else
+         {
+             [names addObject:nameValue[0]];
+             [values addObject:nameValue[1]];
+         }
      }
      LOG_DEBUG(@"%@",datatablesQueryPart);
      LOG_INFO(@"datatables %@-%@ [%@] %@ '%@'",
