@@ -289,6 +289,10 @@ NSString * SOPCLassOfReturnableSeries(
    NSFileManager *defaultManager=[NSFileManager defaultManager];
    NSError *error=nil;
    
+   NSMutableString *canonicalQuery=[NSMutableString stringWithString:@"{"];
+   NSMutableDictionary *studyRestrictionDict=[NSMutableDictionary dictionary];
+   NSMutableDictionary *seriesRestrictionDict=[NSMutableDictionary dictionary];
+
    
 #pragma mark requestDict requester
    
@@ -340,28 +344,6 @@ NSString * SOPCLassOfReturnableSeries(
       if (accessTypeNumber==NSNotFound) return [RSErrorResponse responseWithClientError:404 message:@"studyToken accessType %@ unknown",values[accessTypeIndex]];
    }
 
-   
-#pragma mark cache in request?
-
-    NSString *cacheid=nil;
-    NSString *cachePath=nil;
-    NSMutableDictionary *cachedQueryDict=nil;
-    NSUInteger cacheIndex=[names indexOfObject:@"cache"];
-    if ((cacheIndex!=NSNotFound) && ([values[cacheIndex] length]))
-    {
-       cacheid=values[cacheIndex];
-       cachePath=[DRS.tokentmpDir stringByAppendingPathComponent:cacheid];
-
-
-       NSData *cacheData=[NSData dataWithContentsOfFile:[cachePath stringByAppendingPathExtension:@"json"]];
-       if (cacheData) cachedQueryDict=[NSJSONSerialization JSONObjectWithData:cacheData options:NSJSONReadingMutableContainers error:nil];
-    }
-    
-    NSMutableString *canonicalQuery=[NSMutableString stringWithString:@"{"];
-    
-    NSMutableDictionary *studyRestrictionDict=[NSMutableDictionary dictionary];
-    NSMutableDictionary *seriesRestrictionDict=[NSMutableDictionary dictionary];
-
 
 
 #pragma mark institution
@@ -411,8 +393,148 @@ NSString * SOPCLassOfReturnableSeries(
    }
    if (![lanSet count] && ![wanSet count]) return [RSErrorResponse responseWithClientError:404 message:@"no valid pacs in the request"];
 
+
+      
+#pragma mark - cache in request?
+NSString *cacheid=nil;
+NSString *cachePath=nil;
+NSMutableDictionary *cachedQueryDict=nil;
+/*
+    NSUInteger cacheIndex=[names indexOfObject:@"cache"];
+    if ((cacheIndex!=NSNotFound) && ([values[cacheIndex] length]))
+    {
+       cacheid=values[cacheIndex];
+       cachePath=[DRS.tokentmpDir stringByAppendingPathComponent:cacheid];
+
+
+       NSData *cacheData=[NSData dataWithContentsOfFile:[cachePath stringByAppendingPathExtension:@"json"]];
+       if (cacheData) cachedQueryDict=[NSJSONSerialization JSONObjectWithData:cacheData options:NSJSONReadingMutableContainers error:nil];
+    }
+
+   BOOL isRestriction=false;
+
+   if (cachedQueryDict)
+   {
+#pragma mark query equal or restriction?
+      
+      /evaluate each of the parts cached
+      isRestriction=true;
+      for (NSString *key in [cachedQueryDict allKeys])
+      {
+         NSInteger keyIndex=[names indexOfObject:key];
+         if (keyIndex==NSNotFound)
+         {
+            if (accessTypeNumber > 1)
+            {
+               //hascache notdatatables queryItem not found
+               LOG_WARNING(@"request with dubious cache reference.\r\n%@\r\n%@",[[NSDictionary dictionaryWithObjects:values forKeys:names]description],[cachedQueryDict description]);
+               return [RSErrorResponse responseWithClientError:404 message:@"bad URL:"];
+            }
+            else isRestriction=false;
+         }
+         else if ([key isEqualToString:@"StudyDate"])
+         {
+            NSString *StudyDateString=values[keyIndex];
+            NSArray *StudyDateComponents=[StudyDateString componentsSeparatedByString:@"|"];
+            //cache restriction
+            if (![StudyDateString isEqualToString:cachedQueryDict[@"StudyDate"]])
+            {
+                NSArray *cacheComponents=[cachedQueryDict[@"StudyDate"] componentsSeparatedByString:@"|"];
+                if (cacheComponents.count==1) //on
+                {
+                    if ((StudyDateComponents.count==2) || ![cacheComponents[0] isEqualToString:StudyDateString])
+                    {
+                       isRestriction=false;
+                       break;
+                    }
+                }
+                else
+                {
+                    //check start
+                    if ([cacheComponents[0] length] && ([StudyDateComponents[0] compare:cacheComponents[0]]==NSOrderedAscending))
+                       {
+                          isRestriction=false;
+                          break;
+                       }
+                    
+                    //check end
+                    if ([cacheComponents[1] length] && ([StudyDateComponents.lastObject compare:cacheComponents[1]]==NSOrderedDescending))
+                       {
+                          isRestriction=false;
+                          break;
+                       }
+                   //add restriction
+                    if (cachedQueryDict.count)
+                    {
+                       if ([cacheComponents[1] length]) [studyRestrictionDict setObject:[StudyDateString stringByAppendingString:@" 23:59"] forKey:@"StudyDate"];
+                        else [studyRestrictionDict setObject:StudyDateString forKey:@"StudyDate"];
+                    }
+                }
+            
+             }
+         }
+         else  if (
+                     [key isEqualToString:@"PatientID"]
+                   ||[key isEqualToString:@"StudyID"]
+                   ||[key isEqualToString:@"SOPClassInStudy"]
+                   )
+         {
+            NSString *sqlEqualEscaped=[values[keyIndex] sqlEqualEscapedString];
+            if (![sqlEqualEscaped hasPrefix:cachedQueryDict[key]])
+            {
+               isRestriction=false;
+               break;
+            }
+            else if (![sqlEqualEscaped isEqualToString:cachedQueryDict[key]])
+            {
+               [studyRestrictionDict setObject:sqlEqualEscaped forKey:key];
+            }
+         }
+         else  if ([key isEqualToString:@"StudyDescription"])
+         {
+            NSString *sqlEqualEscaped=[values[keyIndex] regexQuoteEscapedString];
+            if (![sqlEqualEscaped hasPrefix:cachedQueryDict[key]])
+            {
+               isRestriction=false;
+               break;
+            }
+            else if (![sqlEqualEscaped isEqualToString:cachedQueryDict[key]])
+            {
+               [studyRestrictionDict setObject:sqlEqualEscaped forKey:key];
+            }
+         }
+         else  if ([key isEqualToString:@"PatientName"])
+         {
+#pragma mark TODO
+            isRestriction=false;
+            break;
+         }
+         else
+         {
+            LOG_WARNING(@"should not be here");
+         }
+      }
+   }
    
-   
+   BOOL bypassPACSQuery=false;
+#pragma mark YES is restriction
+   if (isRestriction)
+   {
+      NSError *error;
+      NSArray *cachesAvailable=[defaultManager contentsOfDirectoryAtPath:cachePath error:&error];
+      if (cachesAvailable && cachesAvailable.count)
+      {
+         if ([names indexOfObject:@"StudyInstanceUID"]!=NSNotFound)
+            bypassPACSQuery=true;
+         else
+         {
+            //check if results are old
+#pragma mark TODO
+         }
+      }
+   }
+   */
+
    NSString *StudyInstanceUIDRegexpString=nil;
    NSInteger StudyInstanceUIDIndex=[names indexOfObject:@"StudyInstanceUID"];
    
@@ -582,6 +704,7 @@ NSString * SOPCLassOfReturnableSeries(
     {
        PatientIDLikeString=[values[PatientIDIndex] sqlLikeEscapedString];
        [requestDict setObject:PatientIDLikeString forKey:@"PatientIDLikeString"];
+       
        if (!appendImmutableToCanonical(
               cachedQueryDict,
               studyRestrictionDict,
@@ -590,6 +713,7 @@ NSString * SOPCLassOfReturnableSeries(
               PatientIDLikeString,
               accessTypeNumber
            )) return [RSErrorResponse responseWithClientError:404 message:@"bad PatientID URL"];
+
     }
    
 #pragma mark · 2. PatientName (Ppn)
@@ -696,7 +820,7 @@ NSString * SOPCLassOfReturnableSeries(
    {
        StudyDescriptionRegexpString=[values[StudyDescriptionIndex] regexQuoteEscapedString];
        [requestDict setObject:StudyDescriptionRegexpString forKey:@"StudyDescriptionRegexpString"];
-       
+
        if (!appendImmutableToCanonical(
              cachedQueryDict,
              studyRestrictionDict,
@@ -728,8 +852,10 @@ NSString * SOPCLassOfReturnableSeries(
    }
  
    
-#pragma mark - 9. ModalityInStudyString
-   
+#pragma mark -
+   //restrictions  exclusivamente
+      
+#pragma mark ·9. ModalityInStudyString
    // !!! not part of the canonical query
    //restriction only
    //singular (only one modality filtered)
@@ -749,9 +875,8 @@ NSString * SOPCLassOfReturnableSeries(
    }
 
    }
-
        
-   #pragma mark 6. ref
+   #pragma mark ·6. ref
    
    /*
     NSUInteger refIndex[5];
@@ -788,7 +913,7 @@ NSString * SOPCLassOfReturnableSeries(
    }
 
 
-   #pragma mark · 7. read
+#pragma mark ·7. read
       /*
           NSUInteger readIndex[5];
           readIndex[0]=[names indexOfObject:@"readIDType"];
@@ -863,7 +988,9 @@ NSString * SOPCLassOfReturnableSeries(
       [requestDict setObject:issuerArray forKey:@"issuerArray"];
    }
 
-
+   
+#pragma mark -
+   
 #pragma mark series restrictions
 
 // SeriesInstanceUID
@@ -1000,7 +1127,7 @@ NSString * SOPCLassOfReturnableSeries(
           //path is the folder containing a file for each of the pacs consulted
           [defaultManager createDirectoryAtPath:queryPath withIntermediateDirectories:NO attributes:nil error:nil];
        }
-    }
+   }
    else queryPath=cachePath; //cache vigente
    
     
@@ -1014,14 +1141,12 @@ NSString * SOPCLassOfReturnableSeries(
     }
 
    
-     //loop each LAN pacs producing part
-     for (NSString *orgid in lanSet)
-     {
+    //loop each LAN pacs producing part
+    for (NSString *orgid in lanSet)
+    {
         [requestDict setObject:orgid forKey:@"orgid"];
         [requestDict setObject:(DRS.pacs[orgid])[@"Eaccesscontrol"] forKey:@"Eaccesscontrol"];
         [requestDict setObject:[[queryPath stringByAppendingPathComponent:orgid]stringByAppendingPathExtension:@"plist"] forKey:@"orgidPLISTPath"];
-        NSUInteger maxCountIndex=[names indexOfObject:@"max"];
-        if (maxCountIndex!=NSNotFound)[requestDict setObject:values[maxCountIndex] forKey:@"max"];
 
         switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[orgid])[@"select"]])
         {
@@ -1031,8 +1156,8 @@ NSString * SOPCLassOfReturnableSeries(
         }
      }
 
-   if (studyRestrictionDict.count)
-   {
+    if (studyRestrictionDict.count)
+    {
       //create corresponding predicate and add it to the request dictionary
       [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
       {
@@ -1283,8 +1408,6 @@ NSString * SOPCLassOfReturnableSeries(
             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[orgid])[@"select"]])
             {
                 case selectTypeSql:
-                  [DRS datateblesStudySql4dictionary:requestDict];
-                  //[seriesPaths addObjectsFromArray:[DRS dicomzipSql4d:requestDict]];
                   [DRS addSeriesPathsForRefinedRequest:requestDict toArray:seriesPaths];
                   break;
             }
