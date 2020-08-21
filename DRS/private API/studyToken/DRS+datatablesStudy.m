@@ -115,7 +115,7 @@
       if (d[@"patientArray"])
       {
          NSArray *patientArray=d[@"patientArray"];
-         NSString *compoundFormat=((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterCompound];
+         NSString *compoundFormat=((sqlDictionary[@"Eand"])[EcumulativeFilterPpn])[pnFilterCompound];//[2][0]
          if (compoundFormat.length)
          {
              NSMutableArray *jockerArray=[NSMutableArray array];

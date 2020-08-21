@@ -68,7 +68,19 @@ NSMutableArray *buildPNArray(
 
                   }
                }
+                else
+                {
+                    //case for a studyRestriction
+                    NSError *error=nil;
+                    NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:PNArray[i] options:NSRegularExpressionCaseInsensitive error:&error];
+                    if (!regex)
+                    {
+                       if (error) LOG_WARNING(@"patient name regex error: %@",[error debugDescription]);
+                       return nil;
+                    }
+                    [studyRestrictionDict setObject:regex forKey:PNLabel[i]];
 
+                }
             }
             else
             {
@@ -435,7 +447,7 @@ NSString * SOPCLassOfReturnableSeries(
       {
          regex=[NSRegularExpression regularExpressionWithPattern:StudyInstanceUIDRegexpString options:NSRegularExpressionCaseInsensitive error:&error];
          if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad StudyInstanceUID URL"];
-         
+         [studyRestrictionDict setObject:regex forKey:@"StudyInstanceUID"];
          [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
             {
               if (![regex numberOfMatchesInString:row[dtEU] options:0 range:NSMakeRange(0,[row[dtEU] length])]) return false;//16
@@ -460,7 +472,8 @@ NSString * SOPCLassOfReturnableSeries(
          //for refined request
          regex=[NSRegularExpression regularExpressionWithPattern:AccessionNumberEqualString options:NSRegularExpressionCaseInsensitive error:&error];
          if (!regex) return [RSErrorResponse responseWithClientError:404 message:@"bad AccessionNumber URL"];
-         
+
+         [studyRestrictionDict setObject:regex forKey:@"AccessionNumber"];
          [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
             {
               if (![regex numberOfMatchesInString:row[dtEA] options:0 range:NSMakeRange(0,[row[dtEA] length])]) return false;//16
