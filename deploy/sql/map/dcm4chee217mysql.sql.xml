@@ -260,10 +260,10 @@ LIMIT 1; \
 <string>%@ "\
 SELECT \
 files.filesystem_fk, \
-files.filepath, \
+files.filepath \
 FROM files \
 LEFT JOIN instance ON instance.pk=files.instance_fk
-WHERE instance.series_fk='%@' \
+WHERE instance.series_fk=%@ \
 LIMIT 1; \
 " %@ </string>
 

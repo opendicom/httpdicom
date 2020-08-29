@@ -206,7 +206,7 @@
    LOG_VERBOSE(@"%@",Eand);
 
 #pragma mark are there more studies than cached?
-   
+
    if (studyArray.count > 200)
    {
       if (execUTF8Bash(

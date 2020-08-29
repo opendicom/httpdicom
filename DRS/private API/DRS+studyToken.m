@@ -1419,7 +1419,8 @@ NSString * SOPCLassOfReturnableSeries(
         }
           
 #pragma mark deduplication
-        NSUInteger ilast=resultsArray.count-1;
+          
+        NSInteger ilast=resultsArray.count-1;
         if (ilast > 0)
         {
             for (NSUInteger i=ilast;i>0;i--)
