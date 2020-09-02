@@ -31,35 +31,35 @@
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
-            <string id="get">wado</string>
+            <string id="get">folderDcm4cheeArc</string>
             <key>mwl</key>
             <string id="mwl">mllp</string>
             
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
             <key>sqlpassword</key>
-            <string id="sqlpassword">pcs</string>
+            <string id="sqlpassword">pacspass</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e </string>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsuser -h 127.0.0.1 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dal55mysql</string>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>needssqlaccesscontrol</key>
             <false/>
 
             <key>filepathprefix</key>
-            <string id="filepathprefix"></string>
+            <string id="filepathprefix">/Volumes/DICOM</string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
             
             <key>mllpip</key>
-            <string id="mllpip">127.0.0.1</string>
+            <string id="mllpip">172.74.73.16</string>
             <key>mllpport</key>
             <string id="mllpport">2575</string>
 
             <key>DICMip</key>
-            <string id="DICMip">127.0.0.1</string>
+            <string id="DICMip">172.74.73.16</string>
             <key>DICMport</key>
             <string id="DICMport">11113</string>
             
@@ -68,7 +68,7 @@
             <key>timeoutinterval</key>
             <string id="timeoutinterval">60</string>
             <key>wadouri</key>
-            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/wado</string>
+            <string id="wadouri">http://172.74.73.16:8080/dcm4chee-arc/aets/CDS/wado</string>
             <key>wadouriproxy</key>
             <false/>
             <key>wadouricornerstoneprefix</key>
@@ -84,11 +84,11 @@
             <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
 
             <key>wadors</key>
-            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
+            <string id="wadors">http://172.74.73.16:8080/dcm4chee-arc/aets/CDS/rs</string>
             <key>wadorsproxy</key>
             <false/>
             <key>qido</key>
-            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
+            <string id="qido">http://172.74.73.16:8080/dcm4chee-arc/aets/CDS/rs</string>
             <key>qidoproxy</key>
             <false/>
             <key>stow</key>
@@ -97,11 +97,11 @@
             <false/>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS</string>
+            <string id="dcm4cheelocaluri">http://172.74.73.16:8080/dcm4chee-arc/aets/CDS</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+            <string id="html5dicomuserserviceuri">http://172.74.73.16/accounts/api/user</string>
             <key>html5dicomuseractive</key>
             <false/>
             
@@ -116,7 +116,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://172.74.73.16/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -133,7 +133,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://172.74.73.16/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -150,7 +150,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://172.74.73.16/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -167,7 +167,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://172.74.73.16/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -184,7 +184,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://172.74.73.16/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -201,7 +201,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://172.74.73.16/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -218,7 +218,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://172.74.73.16accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
@@ -235,7 +235,7 @@
                     <key>location</key>
                     <string id="location"></string>
                     <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
+                    <string id="html5dicomuserserviceuri">http://172.74.73.16/accounts/api/user</string>
                     <key>html5dicomuseractive</key>
                     <false/>
                     <key>aetitles</key>
