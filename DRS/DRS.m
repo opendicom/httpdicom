@@ -612,11 +612,7 @@ static NSData *ctad=nil;
           else if ([p[@"get"]isEqualToString:@"folderDcm4cheeArc"])
           {
               NSString *filesystemsURIString=
-              [
-               [
                 [p[@"dcm4cheelocaluri"]
-                 stringByDeletingLastPathComponent]
-                stringByDeletingLastPathComponent]
                stringByAppendingPathComponent:@"storage"];
               //[NSString stringWithFormat:@"%@/storage",p[@"dcm4cheelocaluri"]];
              filesystemsJSONData=[NSMutableData dataWithContentsOfURL:[NSURL URLWithString:filesystemsURIString] options:0 error:&error];

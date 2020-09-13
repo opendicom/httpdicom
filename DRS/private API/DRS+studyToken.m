@@ -676,7 +676,7 @@ NSString * SOPCLassOfReturnableSeries(
         [requestDict setObject:StudyDateArray forKey:@"StudyDateArray"];
 
 //cache restriction
-        if (![StudyDateString isEqualToString:cachedQueryDict[@"StudyDate"]])
+        if (cachedQueryDict[@"StudyDate"] && ![StudyDateString isEqualToString:cachedQueryDict[@"StudyDate"]])
         {
             NSArray *cacheComponents=[cachedQueryDict[@"StudyDate"] componentsSeparatedByString:@"|"];
             if (cacheComponents.count==1) //on
@@ -692,8 +692,8 @@ NSString * SOPCLassOfReturnableSeries(
                 if ([cacheComponents[1] length] && ([StudyDateComponents.lastObject compare:cacheComponents[1]]==NSOrderedDescending)) [cachedQueryDict removeAllObjects];
                 if (cachedQueryDict.count)
                 {
-                   if ([cacheComponents[1] length]) [studyRestrictionDict setObject:[StudyDateString stringByAppendingString:@" 23:59"] forKey:@"StudyDate"];
-                    else [studyRestrictionDict setObject:StudyDateString forKey:@"StudyDate"];
+                   if ((StudyDateComponents.count==2)&&[cacheComponents[1] length]) [studyRestrictionDict setObject:[StudyDateString stringByAppendingString:@" 23:59"] forKey:@"StudyDate"];
+                   else [studyRestrictionDict setObject:StudyDateString forKey:@"StudyDate"];
                 }
             }
         
@@ -1026,7 +1026,8 @@ NSString * SOPCLassOfReturnableSeries(
       [defaultManager createDirectoryAtPath:requestPath  withIntermediateDirectories:NO attributes:nil error:nil];
     }
 
-   
+    if (!studyRestrictionDict.count)
+    {
      //loop each LAN pacs producing part
      for (NSString *orgid in lanSet)
      {
@@ -1043,8 +1044,8 @@ NSString * SOPCLassOfReturnableSeries(
               break;
         }
      }
-
-   if (studyRestrictionDict.count)
+    }
+    else
    {
       //create corresponding predicate and add it to the request dictionary
       [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
@@ -1094,10 +1095,12 @@ NSString * SOPCLassOfReturnableSeries(
           {
              //@"%@-%@-%@|%@-%@-%@"
              NSArray *d=[studyRestrictionDict[@"StudyDate"] componentsSeparatedByString:@"|"];
-             if ((d.count==1) && ![row[5] hasPrefix:d[0]]) return false;
-             //two parts
-             if ([d[0] length] && ([d[0] compare:row[5]]==NSOrderedDescending)) return false;
-             if ([d[1] length] && [d[1] compare:[row[5] substringToIndex:10]]==NSOrderedAscending) return false;
+             if (d.count==1)
+             {
+                 if (![row[5] hasPrefix:d[0]]) return false;
+             }
+             else if ([d[0] length] && ([d[0] compare:row[5]]==NSOrderedDescending)) return false;
+             else if ([d[1] length] && [d[1] compare:[row[5] substringToIndex:10]]==NSOrderedAscending) return false;
           }
                     
           if (studyRestrictionDict[@"ModalityInStudy"] && ![studyRestrictionDict[@"ModalityInStudy"] numberOfMatchesInString:row[6] options:0 range:NSMakeRange(0,[row[6] length])]) return false;
