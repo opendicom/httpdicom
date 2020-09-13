@@ -1020,13 +1020,15 @@ NSString * SOPCLassOfReturnableSeries(
 #pragma mark get or create plist
     
     NSUInteger newIndex=[names indexOfObject:@"new"];
+    BOOL newSearch=false;
     if ((newIndex!=NSNotFound) && [values[newIndex] isEqualToString:@"true"])
     {
-      [defaultManager removeItemAtPath:requestPath error:nil];
-      [defaultManager createDirectoryAtPath:requestPath  withIntermediateDirectories:NO attributes:nil error:nil];
+        newSearch=true;
+      [defaultManager removeItemAtPath:queryPath error:nil];
+      [defaultManager createDirectoryAtPath:queryPath  withIntermediateDirectories:NO attributes:nil error:nil];
     }
 
-    if (!studyRestrictionDict.count)
+    if (newSearch || !studyRestrictionDict.count)
     {
      //loop each LAN pacs producing part
      for (NSString *orgid in lanSet)
