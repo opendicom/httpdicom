@@ -136,18 +136,14 @@
 
 
 -(void)addGETPacsHandler
-//pacs/{pacsoid}/services
-//pacs/{pacsoid}/services/{service}
-//pacs/{pacsoid}/procedures?{textSearch} -> procedure Key:title dictionary
-//pacs/{pacsoid}/procedures/{key}
-//pacs/{pacsoid}/properties
-//pacs/{pacsoid}/properties/{property}
+// the segment /properties/ is not necesary (shall be deprecated)
+// /pacs/{pacsoid}(/properties)
+// /pacs/{pacsoid}(/properties)/{property}
 {
-   NSRegularExpression *pacsRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs((\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*)\\/(\\/.*)?)?" options:NSRegularExpressionCaseInsensitive error:NULL];
+   NSRegularExpression *pacsRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\/pacs((\\/[1-2](\\d)*(\\.0|\\.[1-9](\\d)*)*)\\/(properties\\/)(\\/.*)?)?" options:NSRegularExpressionCaseInsensitive error:NULL];
    [self addHandler:@"GET" regex:pacsRegex processBlock:
     ^(RSRequest* request, RSCompletionBlock completionBlock)
     {completionBlock(^RSResponse* (RSRequest* request){
-      
       //using NSURLComponents instead of RSRequest
       NSURLComponents *urlComponents=[NSURLComponents componentsWithURL:request.URL resolvingAgainstBaseURL:NO];
       
@@ -158,40 +154,35 @@
       //  /pacs
       if (pathCount==1) return [RSDataResponse responseWithData:DRS.pacskeysdata contentType:@"application/json"];
       
-      if (pathCount==2) return [RSErrorResponse responseWithClientError:404 message:@"%@ [no handler]",urlComponents.path];
-
-      
      NSDictionary *pacsproperties=DRS.pacs[pathComponents[2]];
      if (!pacsproperties) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown pacs]",pathComponents[2]];
      
-     if (pathCount==3) return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:pacsproperties options:0 error:nil] contentType:@"application/json"];
-
-
-     //pacs/{key}/{property}
-     id pacsproperty=pacsproperties[pathComponents[3]];
-     if (!pacsproperty) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown property]",pathComponents[3]];
-     
-     if (pathCount==4)
+     if (![pathComponents.lastObject isEqualToString:@"components"])
      {
-        if ([pacsproperty isKindOfClass:[NSString class]])
-           return [RSDataResponse responseWithData:[pacsproperty dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
-        
-        if ([pacsproperty isKindOfClass:[NSNumber class]])
-        {
-           if ([pacsproperty boolValue]==true)
-              return [RSDataResponse responseWithData:[@"true" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
-           return [RSDataResponse responseWithData:[@"false" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
-        }
-        
-        if ([pacsproperty isKindOfClass:[NSDictionary class]])
-        {
-           return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:pacsproperty options:0 error:nil] contentType:@"application/json"];
-        }
-     }
-  
+         id pacsproperty=pacsproperties[pathComponents.lastObject];
+         if (!pacsproperty) return [RSErrorResponse responseWithClientError:404 message:@"%@ [unknown property]",pathComponents[3]];
+         
+         if ([pacsproperty isKindOfClass:[NSString class]])
+         {
+             //LOG_INFO(@"%@: %@",pathComponents.lastObject,pacsproperty);
 
-      return [RSErrorResponse responseWithClientError:404 message:@"%@ [no handler]",urlComponents.path];
-      
+             return [RSDataResponse responseWithData:[pacsproperty dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+         }
+         
+         if ([pacsproperty isKindOfClass:[NSNumber class]])
+         {
+             if ([pacsproperty boolValue]==true)
+             return [RSDataResponse responseWithData:[@"true" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+             return [RSDataResponse responseWithData:[@"false" dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
+         }
+         
+         if ([pacsproperty isKindOfClass:[NSDictionary class]])
+         {
+             return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:pacsproperty options:0 error:nil] contentType:@"application/json"];
+         }
+
+     }
+     return [RSDataResponse responseWithData:[NSJSONSerialization dataWithJSONObject:pacsproperties options:0 error:nil] contentType:@"application/json"];
    }(request));}];
 }
 

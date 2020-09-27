@@ -1242,7 +1242,7 @@ NSString * SOPCLassOfReturnableSeries(
          {
              if ([[resultFile pathExtension] isEqualToString:@"json"])
              {
-                 if ([lanSet containsObject:[resultFile stringByDeletingPathExtension]])
+                if ([lanSet containsObject:[resultFile stringByDeletingPathExtension]])
                 {
                    [resultString appendString:
                     [NSString

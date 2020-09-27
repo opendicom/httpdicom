@@ -36,23 +36,27 @@
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
             <key>sqlpassword</key>
-            <string id="sqlpassword">pcs</string>
+            <string id="sqlpassword">pacspass</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e </string>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsuser -h 127.0.0.1 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
-            <string id="sqlmap">dal55mysql</string>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>needssqlaccesscontrol</key>
             <false/>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
             <key>filesystemmapping</key>
             <dict>
+                <key>file:///Volumes/Archive/CDS/DICOM/</key>
+                <string>/Volumes/Archive/CDS/DICOM/</string>
+                <key>file:///Volumes/Archive/fs1/DICOM/</key>
+                <string>/Volumes/Archive/fs1/DICOM/</string>
             </dict>
             
             <key>DICMip</key>
-            <string id="DICMip">127.0.0.1</string>
+            <string id="DICMip">192.168.0.21</string>
             <key>DICMport</key>
             <string id="DICMport">11113</string>
             
@@ -61,7 +65,7 @@
             <key>timeoutinterval</key>
             <string id="timeoutinterval">60</string>
             <key>wadouri</key>
-            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/wado</string>
+            <string id="wadouri">http://192.168.0.21:8080/dcm4chee-arc/aets/CDS/wado</string>
             <key>wadouriproxy</key>
             <false/>
             <key>wadouricornerstoneprefix</key>
@@ -77,11 +81,11 @@
             <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
 
             <key>wadors</key>
-            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
+            <string id="wadors">http://192.168.0.21:8080/dcm4chee-arc/aets/CDS/rs</string>
             <key>wadorsproxy</key>
             <false/>
             <key>qido</key>
-            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
+            <string id="qido">http://192.168.0.21:8080/dcm4chee-arc/aets/CDS/rs</string>
             <key>qidoproxy</key>
             <false/>
             <key>stow</key>
@@ -90,7 +94,7 @@
             <false/>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS</string>
+            <string id="dcm4cheelocaluri">http://192.168.0.21:8080/dcm4chee-arc/</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             
