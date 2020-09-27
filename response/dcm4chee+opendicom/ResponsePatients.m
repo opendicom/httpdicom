@@ -64,9 +64,30 @@
    return @"";
 }
 
+
 //returns nil if the request could not be performed
 //returns @"" when the patient was registered
 //returns @"error message" if the server responded with an error
+/*
+ Url : http://ip:puerto/accounts/api/user
+ found in services1dict html5dicomuserserviceuri
+ 
+ Content-Type : application/json
+ 
+ Body
+ {
+ "institution": “IRP",
+ "username": "15993195-1",
+ "password": "clave",
+ "first_name": "Claudio Anibal",
+ "last_name": "Baeza Gonzalez",
+ "is_active": “False"
+ }
+ 
+ Para la MWL “is_active" debe ser False
+ Para el informe “is_active” debe ser True
+ */
+/*
 +(NSString*)postHtml5dicomuserForPacs:(NSDictionary*)pacs
                           institution:(NSString*)institution
                              username:(NSString*)username
@@ -75,25 +96,6 @@
                              lastname:(NSString*)lastname
                              isactive:(BOOL)isactive
 {
-   /*
-    Url : http://ip:puerto/accounts/api/user
-    found in services1dict html5dicomuserserviceuri
-    
-    Content-Type : application/json
-    
-    Body
-    {
-    "institution": “IRP",
-    "username": "15993195-1",
-    "password": "clave",
-    "first_name": "Claudio Anibal",
-    "last_name": "Baeza Gonzalez",
-    "is_active": “False"
-    }
-    
-    Para la MWL “is_active" debe ser False
-    Para el informe “is_active” debe ser True
-    */
    
    if (!password || ![password length])
    {
@@ -129,5 +131,5 @@
    LOG_WARNING(@"%@",responseString);
    return responseString;
 }
-
+*/
 @end

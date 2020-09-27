@@ -4,6 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RequestPatients : NSObject
 
+
 +(NSMutableURLRequest*)getFromPacs:(NSDictionary*)pacs
                              patID:(NSString*)patID
                             issuer:(NSString*)issuer
@@ -22,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
                      contentType:(NSString*)contentType
 ;
 
-+(NSMutableURLRequest*)postHtml5dicomuserForPacs:(NSDictionary*)pacs
++(NSMutableURLRequest*):(NSDictionary*)pacs
                                      institution:(NSString*)institution
                                         username:(NSString*)username
                                         password:(NSString*)password
@@ -31,6 +32,18 @@ NS_ASSUME_NONNULL_BEGIN
                                         isactive:(BOOL)isactive
 ;
 
+/*
+ +(NSMutableURLRequest*)postHtml5dicomuserForPacs:(NSDictionary*)pacs
+                                      institution:(NSString*)institution
+                                         username:(NSString*)username
+                                         password:(NSString*)password
+                                        firstname:(NSString*)firstname
+                                         lastname:(NSString*)lastname
+                                         isactive:(BOOL)isactive
+ ;
+
+
+ */
 @end
 
 NS_ASSUME_NONNULL_END

@@ -37,8 +37,6 @@
             <string id="select">sql</string>
             <key>get</key>
             <string id="get">folderDcm4cheeArc</string>
-            <key>mwl</key>
-            <string id="mwl">none</string>
             
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
@@ -52,17 +50,16 @@
             <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>needssqlaccesscontrol</key>
             <false/>
-
-            <key>filepathprefix</key>
-            <string id="filepathprefix">/var/local/dcm4chee-arc</string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
-            
-            <key>mllpip</key>
-            <string id="mllpip"></string>
-            <key>mllpport</key>
-            <string id="mllpport">2575</string>
+            <!--/var/local/dcm4chee-arc-->
+            <key>filesystemmapping</key>
+            <dict>
+                <key>file:///storage/fs1/</key>
+                <string>/var/local/dcm4chee-arc/storage/fs1/</string>
+            </dict>
 
+            
             <key>DICMip</key>
             <string id="DICMip">127.0.0.1</string>
             <key>DICMport</key>
@@ -79,11 +76,11 @@
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix"></string>
             <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>            
+            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
             <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>            
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouricornerstoneparameters</key>
-            <string id="wadouricornerstoneparameters"></string>            
+            <string id="wadouricornerstoneparameters"></string>
             <key>wadouridicomzipparameters</key>
             <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
@@ -103,10 +100,7 @@
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
-            <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
-            <key>html5dicomuseractive</key>
-            <false/>            
+           
          </dict>
 
         <dict><!-- CEN -->
@@ -133,8 +127,6 @@
             <string id="select">sql</string>
             <key>get</key>
             <string id="get">folderDcm4cheeArc</string>
-            <key>mwl</key>
-            <string id="mwl">none</string>
             
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
@@ -148,16 +140,14 @@
             <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>needssqlaccesscontrol</key>
             <false/>
-
-            <key>filepathprefix</key>
-            <string id="filepathprefix">/var/local/dcm4chee-arc</string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
-            
-            <key>mllpip</key>
-            <string id="mllpip"></string>
-            <key>mllpport</key>
-            <string id="mllpport">2575</string>
+            <!--/var/local/dcm4chee-arc-->
+            <key>filesystemmapping</key>
+            <dict>
+                <key>file:///storage/fs1/</key>
+                <string>/var/local/dcm4chee-arc/storage/fs1/</string>
+            </dict>
 
             <key>DICMip</key>
             <string id="DICMip">127.0.0.1</string>
@@ -199,11 +189,8 @@
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
-            <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
-            <key>html5dicomuseractive</key>
-            <false/>
-         </dict>
+            
+        </dict>
 
         <dict><!-- CADI -->
             <key>pacsoid</key>
@@ -229,8 +216,6 @@
             <string id="select">sql</string>
             <key>get</key>
             <string id="get">folderDcm4cheeArc</string>
-            <key>mwl</key>
-            <string id="mwl">none</string>
             
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
@@ -244,17 +229,15 @@
             <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>needssqlaccesscontrol</key>
             <false/>
-
-            <key>filepathprefix</key>
-            <string id="filepathprefix">/var/local/dcm4chee-arc</string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
+            <!--/var/local/dcm4chee-arc-->
+            <key>filesystemmapping</key>
+            <dict>
+                <key>file:///storage/fs1/</key>
+                <string>/var/local/dcm4chee-arc/storage/fs1/</string>
+            </dict>
             
-            <key>mllpip</key>
-            <string id="mllpip"></string>
-            <key>mllpport</key>
-            <string id="mllpport">2575</string>
-
             <key>DICMip</key>
             <string id="DICMip">127.0.0.1</string>
             <key>DICMport</key>
@@ -295,11 +278,8 @@
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
-            <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
-            <key>html5dicomuseractive</key>
-            <false/>
-         </dict>
+            
+        </dict>
 
     </array>
 </plist>

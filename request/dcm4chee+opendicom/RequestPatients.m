@@ -78,6 +78,7 @@
    return nil;
 }
 
+/*
 +(NSMutableURLRequest*)postHtml5dicomuserForPacs:(NSDictionary*)pacs
                                      institution:(NSString*)institution
                                         username:(NSString*)username
@@ -108,5 +109,5 @@
            bodyData:[json dataUsingEncoding:NSUTF8StringEncoding]
            ];
 }
-
+*/
 @end

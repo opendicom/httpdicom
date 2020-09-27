@@ -32,9 +32,7 @@
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
-            <string id="get">wado</string>
-            <key>mwl</key>
-            <string id="mwl">none</string>
+            <string id="get">folderDcm4chee2</string>
             
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
@@ -48,17 +46,12 @@
             <string id="sqlmap">dcm4chee218mysql</string>
             <key>needssqlaccesscontrol</key>
             <false/>
-
-            <key>filepathprefix</key>
-            <string id="filepathprefix"></string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
+            <key>filesystemmapping</key>
+            <dict>
+            </dict>
             
-            <key>mllpip</key>
-            <string id="mllpip"></string>
-            <key>mllpport</key>
-            <string id="mllpport">2575</string>
-
             <key>DICMip</key>
             <string id="DICMip">192.168.1.38</string>
             <key>DICMport</key>
@@ -75,13 +68,13 @@
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix"></string>
             <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
+            <string id="wadouriadditionalparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>
             <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
+            <string id="wadouriweasisparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>
             <key>wadouricornerstoneparameters</key>
             <string id="wadouricornerstoneparameters"></string><!--&amp;contentType=application%2Fdicom&amp;transferSyntax=1.2.840.10008.1.2.1-->
             <key>wadouridicomzipparameters</key>
-            <string id="wadouridicomzipparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>            
+            <string id="wadouridicomzipparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>
             <key>wadors</key>
             <string id="wadors"></string>
             <key>wadorsproxy</key>
@@ -99,10 +92,8 @@
             <string id="dcm4cheelocaluri"></string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
-            <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
-            <key>html5dicomuseractive</key>
-            <false/>            
-         </dict>
+            
+        </dict>
     </array>
 </plist>
+

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xs:schema 
+<xs:schema
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     targetNamespace="http://www.opendicom.com/xsd/plist/pacs.xsd"
-    xmlns="http://www.opendicom.com/xsd/plist/pacs.xsd" 
+    xmlns="http://www.opendicom.com/xsd/plist/pacs.xsd"
     elementFormDefault="qualified"
-    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" 
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
     vc:minVersion="1.1"
     >
 
@@ -30,31 +30,26 @@
                                         <xs:group ref="timezoneoffsetfromutc"/>
                                         <xs:group ref="custodiantitle"/>
                                         <xs:group ref="custodianoid"/>
-                                        <xs:group ref="custodianglobaluri"/>                        
+                                        <xs:group ref="custodianglobaluri"/>
                                         <xs:group ref="countrycode"/>
-                                        <xs:group ref="principallanguage"/>                        
+                                        <xs:group ref="principallanguage"/>
                                         
                                         <!-- ================================== -->
                                         <!-- mandatory if local -->
                                         <xs:sequence minOccurs="0">
                                             <xs:group ref="select"/>
                                             <xs:group ref="get"/>
-                                            <xs:group ref="mwl"/>
+                                            
                                             <!--sql/files-->
                                             <xs:group ref="sqlcredentials"/>
                                             <xs:group ref="sqlpassword"/>
                                             <xs:group ref="sqlprolog"/>
                                             <xs:group ref="sqlstringencoding"/>
                                             <xs:group ref="sqlmap"/>
-                                            <xs:group ref="needssqlaccesscontrol"/><!--for custodiantitle and aet -->
-                                            <xs:group ref="filepathprefix"/>
-
+                                            <xs:group ref="needssqlaccesscontrol"/>
                                             <xs:group ref="sopstringencoding"/>
+                                            <xs:group ref="filesystemmapping"/>
                                             
-                                            <!--mllp-->
-                                            <xs:group ref="mllpip"/>
-                                            <xs:group ref="mllpport"/>
-
                                             <!--DICM-->
                                             <xs:group ref="DICMip"/>
                                             <xs:group ref="DICMport"/>
@@ -79,11 +74,8 @@
                                             <!--dcm4chee-arc-->
                                             <xs:group ref="dcm4cheelocaluri"/>
                                             <xs:group ref="dcm4cheeDICMproxytitle"/>
-                                            <xs:group ref="html5dicomuserserviceuri"/>
-                                            <xs:group ref="html5dicomuseractive"/>
-                                            <!--modality and aet lists-->
-                                            <xs:group ref="services" minOccurs="0"/>
-                                        </xs:sequence>                                        
+                                            
+                                         </xs:sequence>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
@@ -93,7 +85,7 @@
             </xs:sequence>
             <xs:attribute name="version" fixed="1.0"/>
         </xs:complexType>
-    </xs:element>    
+    </xs:element>
 
 
 
@@ -314,39 +306,7 @@
         </xs:sequence>
     </xs:group>
     
-    <xs:group name="filepathprefix">
-        <xs:sequence>
-            <xs:element name="key" fixed="filepathprefix"/>
-            <xs:element ref="string" id="filepathprefix"/>
-        </xs:sequence>
-    </xs:group>
-
-    
-    
-    <xs:group name="mllpip">
-       <xs:sequence>
-          <xs:element name="key" fixed="mllpip">
-             <xs:annotation>
-                <xs:documentation></xs:documentation>
-             </xs:annotation>
-          </xs:element>
-          <xs:element ref="string" id="mllpip"/>
-       </xs:sequence>
-    </xs:group>
-    
-    
-    <xs:group name="mllpport">
-       <xs:sequence>
-          <xs:element name="key" fixed="mllpport">
-             <xs:annotation>
-                <xs:documentation></xs:documentation>
-             </xs:annotation>
-          </xs:element>
-          <xs:element ref="string" id="mllpport"/>
-       </xs:sequence>
-    </xs:group>
-
-    
+   
     <xs:group name="DICMip">
         <xs:sequence>
             <xs:element name="key" fixed="DICMip">
@@ -397,7 +357,7 @@
                    <xs:documentation>"wadouri:" for dicom</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="wadouriadditionalparameters"/>
+            <xs:element ref="string"/>
         </xs:sequence>
     </xs:group>
 
@@ -408,7 +368,7 @@
                     <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="wadouriadditionalparameters"/>
+            <xs:element ref="string"/>
         </xs:sequence>
     </xs:group>
     
@@ -420,7 +380,7 @@
                     <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="wadouriweasisparameters"/>
+            <xs:element ref="string"/>
         </xs:sequence>
     </xs:group>
     
@@ -432,7 +392,7 @@
                     <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="wadouricornerstoneparameters"/>
+            <xs:element ref="string"/>
         </xs:sequence>
     </xs:group>
     
@@ -444,7 +404,7 @@
                     <xs:documentation>por ejemplo '&amp;amp;transferSyntax=1.2.840.10008.1.2.4.90' para pedir las imágenes con compresión JPEG2000 sin pérdida</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="wadouridicomzipparameters"/>
+            <xs:element ref="string"/>
         </xs:sequence>
     </xs:group>
         
@@ -546,32 +506,20 @@
                     <xs:documentation>nombre corto (máx 16 chars) del PCS custodian</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="string" id="dcm4cheeDICMproxytitle"/>            
+            <xs:element ref="string" id="dcm4cheeDICMproxytitle"/>
         </xs:sequence>
     </xs:group>
     
-    
-    <xs:group name="services">
+    <!-- filesystemmapping-->
+    <xs:group name="filesystemmapping">
         <xs:sequence>
-            <xs:element name="key" fixed="services"/>
+            <xs:element name="key" fixed="filesystemmapping"/>
             <xs:element name="dict">
                 <xs:complexType>
-                    <xs:sequence maxOccurs="unbounded">
+                    <xs:sequence minOccurs="0" maxOccurs="unbounded">
                         <xs:element name="key"/>
-                        <xs:element name="dict">
-                            <xs:complexType>
-                                <xs:sequence>
-                                    <xs:group ref="shortname"/>
-                                    <xs:group ref="description"/>
-                                    <xs:group ref="location"/>
-                                    <xs:group ref="html5dicomuserserviceuri"/>
-                                    <xs:group ref="html5dicomuseractive"/>
-                                    <xs:group ref="aetitles"/>
-                                    <xs:group ref="modalities"/>
-                                </xs:sequence>
-                            </xs:complexType>
-                        </xs:element>
-                    </xs:sequence>
+                        <xs:element name="string"/>
+                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
@@ -696,7 +644,7 @@
     <xs:complexType name="idstring">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute name="id" use="required"/>                
+                <xs:attribute name="id" use="required"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -895,3 +843,4 @@
     
     
 </xs:schema>
+

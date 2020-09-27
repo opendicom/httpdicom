@@ -4,17 +4,11 @@
 
 #import "DRS+wadouri.h"
 #import "DRS+pacs.h"
-//#import "DRS+qido.h"
-//#import "DRS+wadors.h"
-
-#import "DRS+mwlitem.h"
-//#import "DRS+pdf.h"
-//#import "DRS+encapsulated.h"
 #import "DRS+studyToken.h"
-//#import "DRS+store.h"
-
 #import "DRS+datatables.h"
 #import "DRS+report.h"
+
+
 //RSRequest properties:      NSMutableURLRequest
 //- NSString* method          -> HTTPMethod
 //- NSURL* URL                -> URL
@@ -575,6 +569,8 @@ static NSData *ctad=nil;
        NSString *withoutProtocol=[p0wadouriComplete componentsSeparatedByString:@"//"].lastObject;
        NSString *p0wadouriIpPort=[withoutProtocol componentsSeparatedByString:@"/"].firstObject;
 
+        
+        
 #pragma mark loop pacsArray
        for (pacsIndex=0; pacsIndex<[pacsArray count];pacsIndex++)
        {
@@ -633,26 +629,44 @@ static NSData *ctad=nil;
              exit(0);
           }
  
+          NSDictionary *filesystemmapping=p[@"filesystemmapping"];
           for (NSDictionary *dict in arrayOfDicts)
           {
+              NSString *mapping=filesystemmapping[dict[@"dcmURI"]];
+              if (!mapping)
+              {
+                  LOG_ERROR(@"add filesystem mapping to the configuration of pacs %@ / %@ for URI %@",
+                            p[@"custodianoid"],
+                            p[@"pacsaet"],
+                            dict[@"dcmURI"]
+                            );
+                  exit(0);
+              }
+              
+              //check if mapping is accesible
+              NSMutableData *lsData=[NSMutableData data];
+              int lsResult=execUTF8Bash(@{}, [NSString stringWithFormat:@"ls %@",mapping], lsData);
+              LOG_INFO(@"%@ \"ls %@\": (%d) %@",p[@"pacsaet"],mapping,lsResult,[[NSString alloc]initWithData:lsData encoding:NSUTF8StringEncoding]);
+              
+              [filesystems setValue:mapping forKey:dict[@"dcmStorageID"]];
+              /*
               if ([dict[@"dcmURI"]hasPrefix:@"file:"])
               {
                   //dcm4chee-arc
-                  /*
-                   IMATEC: local. No need to map mount points
-                   */
+                  //IMATEC: local. No need to map mount points
+                   
                   [filesystems setValue:[dict[@"dcmURI"]substringFromIndex:5] forKey:dict[@"dcmStorageID"]];//[p[@"filepathprefix"] stringByAppendingPathComponent:[dict[@"dcmURI"]substringFromIndex:7]] forKey:dict[@"dcmStorageID"]];
               }
               else
               {
                   //dcm4chee2
-                  /*
-                   IMATEC: remote, pacs_server smb mounted.
-                   archive                        /Volumes/Archive-1
-                   /Volumes/Archive_1/Archive     /Volumes/Archive_1/archive
+                  //
+                  // IMATEC: remote, pacs_server smb mounted.
+                  // archive                        /Volumes/Archive-1
+                  // /Volumes/Archive_1/Archive     /Volumes/Archive_1/archive
 
-                   should be improved with mapping in pacs prefs
-                   */
+                  // should be improved with mapping in pacs prefs
+                   
                   if ([dict[@"dcmURI"] isEqualToString:@"archive"])
                       [filesystems setValue:@"/Volumes/Archive-1" forKey:dict[@"dcmStorageID"]];
                   else if ([dict[@"dcmURI"] isEqualToString:@"/Volumes/Archive_1/Archive"])
@@ -660,6 +674,8 @@ static NSData *ctad=nil;
                   else
                       [filesystems setValue:dict[@"dcmURI"] forKey:dict[@"dcmStorageID"]];//[p[@"filepathprefix"] stringByAppendingPathComponent:dict[@"dcmURI"]] forKey:dict[@"dcmStorageID"]];
               }
+          */
+              
           }
           [p setObject:[NSDictionary dictionaryWithDictionary:filesystems] forKey:@"filesystems"];
 
@@ -816,29 +832,29 @@ static NSData *ctad=nil;
 
         LOG_DEBUG(@"added handler GET /echo");
        
-#pragma mark /(custodians|pacs/titles|pacs/oids)
+#pragma mark /custodians /pacs /sqls
         [self addGETCustodiansHandler];//
         [self addGETPacsHandler];//
-       [self addGETSqlsHandler];//
+        [self addGETSqlsHandler];//
         LOG_DEBUG(@"added handler GET /custodians and /pacs /sqls");
 
-#pragma mark /store
+#pragma mark /store (deprecated) -> storestow
         //[self addPOSTstudiesHandler];
         //LOG_DEBUG(@"added handler POST /stowstore");
 
-#pragma mark /qido
+#pragma mark /qido (deprecated)
        //[self addMWLHandler];
        //LOG_DEBUG(@"added handler /mwlitem");
 
-#pragma mark /wado-rs
+#pragma mark /wado-rs (deprecated)
        //[self addWadorsHandler];//
        //LOG_DEBUG(@"added handler GET wadors");
 
-#pragma mark /mwlitem
-        [self addMwlitemHandler];
-        LOG_DEBUG(@"added handler POST /mwlitem");
+#pragma mark /mwlitem (deprecated) -> mirth
+        //[self addMwlitemHandler];
+        //LOG_DEBUG(@"added handler POST /mwlitem");
 
-#pragma mark /encapsulated
+#pragma mark /encapsulated (deprecated)
 //        [self GETencapsulated];
 //        [self POSTencapsulated];
 //        LOG_DEBUG(@"added handlers GETencapsulated and POSTencapsulated");

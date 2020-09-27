@@ -33,8 +33,6 @@
             <string id="select">sql</string>
             <key>get</key>
             <string id="get">folderDcm4cheeArc</string>
-            <key>mwl</key>
-            <string id="mwl">mllp</string>
             
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
@@ -48,17 +46,15 @@
             <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>needssqlaccesscontrol</key>
             <false/>
-
-            <key>filepathprefix</key>
-            <string id="filepathprefix">/Volumes/Archive/DICOM/IMATEC</string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
-            
-            <key>mllpip</key>
-            <string id="mllpip">192.168.4.15</string>
-            <key>mllpport</key>
-            <string id="mllpport">2575</string>
-            
+            <!--/Volumes/Archive/DICOM/IMATEC-->
+            <key>filesystemmapping</key>
+            <dict>
+                <key>file://</key>
+                <string></string>
+            </dict>
+                        
             <key>DICMip</key>
             <string id="DICMip">192.168.4.15</string>
             <key>DICMport</key>
@@ -99,10 +95,7 @@
             <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
-            <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-            <key>html5dicomuseractive</key>
-            <false/>
+            
         </dict>
         
         <!-- historico -->
@@ -130,8 +123,6 @@
             <string id="select">sql</string>
             <key>get</key>
             <string id="get">folderDcm4chee2</string>
-            <key>mwl</key>
-            <string id="mwl">mllp</string>
             
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
@@ -145,18 +136,17 @@
             <string id="sqlmap">dcm4chee217mysql</string>
             <key>needssqlaccesscontrol</key>
             <false/>
-
-            <key>filepathprefix</key>
-            <string id="filepathprefix">/Volumes/Archive-1</string>
-            
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
-            
-            <key>mllpip</key>
-            <string id="mllpip">192.168.4.15</string>
-            <key>mllpport</key>
-            <string id="mllpport">2575</string>
-            
+            <!--remote, pacs_server smb mounted-->
+            <key>filesystemmapping</key>
+            <dict>
+                <key>archive</key>
+                <string>/Volumes/Archive-1</string>
+                <key>/Volumes/Archive_1/Archive</key>
+                <string>/Volumes/Archive_1/archive</string>
+            </dict>
+
             <key>DICMip</key>
             <string id="DICMip">192.168.4.14</string>
             <key>DICMport</key>
@@ -197,10 +187,7 @@
             <string id="dcm4cheelocaluri"></string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
-            <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-            <key>html5dicomuseractive</key>
-            <false/>
+
         </dict>
         
         <!-- La Serena -->
@@ -228,8 +215,6 @@
             <string id="select">sql</string>
             <key>get</key>
             <string id="get">folderDcm4cheeArc</string>
-            <key>mwl</key>
-            <string id="mwl">mllp</string>
             
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
@@ -243,18 +228,13 @@
             <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>needssqlaccesscontrol</key>
             <true/>
-
-            <key>filepathprefix</key>
-            <string id="filepathprefix">/Volumes/Archive/DICOM/IMATEC</string>
-            
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
-            
-            <key>mllpip</key>
-            <string id="mllpip">192.168.4.15</string>
-            <key>mllpport</key>
-            <string id="mllpport">2575</string>
-            
+            <!--/Volumes/Archive/DICOM/IMATEC-->
+            <key>filesystemmapping</key>
+            <dict>
+            </dict>
+                        
             <key>DICMip</key>
             <string id="DICMip">192.168.4.15</string>
             <key>DICMport</key>
@@ -295,116 +275,7 @@
             <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_LASERENA</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
-            <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-            <key>html5dicomuseractive</key>
-            <false/>
             
-            <key>services</key>
-            <dict>
-                <key>MR</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">MR</string>
-                </dict>
-                <key>CT</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">CT</string>
-                </dict>
-                <key>US</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">US</string>
-                </dict>
-                <key>MG</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">MG</string>
-                </dict>
-                <key>DX</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">DX</string>
-                </dict>
-                <key>CR</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">CR</string>
-                </dict>
-            </dict>
         </dict>
         
         <!-- Ovalle -->
@@ -432,8 +303,6 @@
             <string id="select">sql</string>
             <key>get</key>
             <string id="get">folderDcm4cheeArc</string>
-            <key>mwl</key>
-            <string id="mwl">mllp</string>
             
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
@@ -447,17 +316,12 @@
             <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>needssqlaccesscontrol</key>
             <true/>
-
-            <key>filepathprefix</key>
-            <string id="filepathprefix">/Volumes/Archive/DICOM/IMATEC</string>
-            
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
-            
-            <key>mllpip</key>
-            <string id="mllpip">192.168.4.15</string>
-            <key>mllpport</key>
-            <string id="mllpport">2575</string>
+            <!--/Volumes/Archive/DICOM/IMATEC-->
+            <key>filesystemmapping</key>
+            <dict>
+            </dict>
             
             <key>DICMip</key>
             <string id="DICMip">192.168.4.15</string>
@@ -499,116 +363,7 @@
             <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_OVALLE</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
-            <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-            <key>html5dicomuseractive</key>
-            <false/>
             
-            <key>services</key>
-            <dict>
-                <key>MR</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">MR</string>
-                </dict>
-                <key>CT</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">CT</string>
-                </dict>
-                <key>US</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">US</string>
-                </dict>
-                <key>MG</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">MG</string>
-                </dict>
-                <key>DX</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">DX</string>
-                </dict>
-                <key>CR</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">CR</string>
-                </dict>
-            </dict>
         </dict>
         
         <!-- Vallenar -->
@@ -636,8 +391,6 @@
             <string id="select">sql</string>
             <key>get</key>
             <string id="get">folderDcm4cheeArc</string>
-            <key>mwl</key>
-            <string id="mwl">mllp</string>
             
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
@@ -651,16 +404,12 @@
             <string id="sqlmap">dcm4cheearc521mysql</string>
             <key>needssqlaccesscontrol</key>
             <true/>
-
-            <key>filepathprefix</key>
-            <string id="filepathprefix">/Volumes/Archive/DICOM/IMATEC</string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
-            
-            <key>mllpip</key>
-            <string id="mllpip">192.168.4.15</string>
-            <key>mllpport</key>
-            <string id="mllpport">2575</string>
+            <!--/Volumes/Archive/DICOM/IMATEC-->
+            <key>filesystemmapping</key>
+            <dict>
+            </dict>
             
             <key>DICMip</key>
             <string id="DICMip">192.168.4.15</string>
@@ -702,117 +451,9 @@
             <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_VALLENAR</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
-            <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-            <key>html5dicomuseractive</key>
-            <false/>
             
-            <key>services</key>
-            <dict>
-                <key>MR</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">MR</string>
-                </dict>
-                <key>CT</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">CT</string>
-                </dict>
-                <key>US</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">US</string>
-                </dict>
-                <key>MG</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">MG</string>
-                </dict>
-                <key>DX</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">DX</string>
-                </dict>
-                <key>CR</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname"></string>
-                    <key>description</key>
-                    <string id="description"></string>
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://192.168.4.15/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">CR</string>
-                </dict>
-            </dict>
         </dict>
     </array>
 </plist>
+
 

@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
           contentType:(NSString*)contentType
 ;
 
+/*
 +(NSString*)postHtml5dicomuserForPacs:(NSDictionary*)pacs
                           institution:(NSString*)institution
                              username:(NSString*)username
@@ -34,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
                              lastname:(NSString*)lastname
                              isactive:(BOOL)isactive
 ;
+*/
 
 @end
 

@@ -35,9 +35,7 @@
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
-            <string id="get">wado</string>
-            <key>mwl</key>
-            <string id="mwl">mllp</string>
+            <string id="get">folderDcm4cheeArc</string>
             
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
@@ -51,17 +49,12 @@
             <string id="sqlmap">dcm4cheearc517mysql</string>
             <key>needssqlaccesscontrol</key>
             <false/>
-
-            <key>filepathprefix</key>
-            <string id="filepathprefix"></string>
             <key>sopstringencoding</key>
             <string id="sopstringencoding">4</string>
+            <key>filesystemmapping</key>
+            <dict>
+            </dict>
             
-            <key>mllpip</key>
-            <string id="mllpip">127.0.0.1</string>
-            <key>mllpport</key>
-            <string id="mllpport">2575</string>
-
             <key>DICMip</key>
             <string id="DICMip">127.0.0.1</string>
             <key>DICMport</key>
@@ -78,13 +71,13 @@
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix"></string>
             <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>            
+            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
             <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>            
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouricornerstoneparameters</key>
-            <string id="wadouricornerstoneparameters"></string>            
+            <string id="wadouricornerstoneparameters"></string>
             <key>wadouridicomzipparameters</key>
-            <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>            
+            <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
             <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/DCM4CHEE/rs</string>
             <key>wadorsproxy</key>
@@ -102,48 +95,7 @@
             <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/DCM4CHEE</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
-            <key>html5dicomuserserviceuri</key>
-            <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
-            <key>html5dicomuseractive</key>
-            <false/>
             
-            <key>services</key>
-            <dict>
-                <key>PE-CR</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname">PO-CR</string>
-                    <key>description</key>
-                    <string id="description">Rayos X en Punta del Este</string>				
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">CR</string>
-                </dict>
-                <key>PO-CR</key>
-                <dict>
-                    <key>shortname</key>
-                    <string id="shortname">PO-CR</string>
-                    <key>description</key>
-                    <string id="description">Rayos X en Pocitos</string>				
-                    <key>location</key>
-                    <string id="location"></string>
-                    <key>html5dicomuserserviceuri</key>
-                    <string id="html5dicomuserserviceuri">http://127.0.0.1/accounts/api/user</string>
-                    <key>html5dicomuseractive</key>
-                    <false/>
-                    <key>aetitles</key>
-                    <string id="aetitles"></string>
-                    <key>modalities</key>
-                    <string id="modalities">CT</string>
-                </dict>
-            </dict>
         </dict>
     </array>
 </plist>
