@@ -37,9 +37,9 @@
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
             <key>sqlpassword</key>
-            <string id="sqlpassword">root</string>
+            <string id="sqlpassword">pacspass</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=root;/usr/local/mysql/bin/mysql --raw --skip-column-names -uroot -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsuser -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
@@ -51,8 +51,16 @@
             <!--/Volumes/Archive/DICOM/IMATEC-->
             <key>filesystemmapping</key>
             <dict>
-                <key>file://</key>
-                <string></string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</string>
+                <key>file:/Volumes/Archive/DICOM/DCM4CHEE</key>
+                <string>/Volumes/Archive/DICOM/DCM4CHEE</string>
             </dict>
                         
             <key>DICMip</key>
@@ -92,7 +100,7 @@
             <false/>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC</string>
+            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             
@@ -184,7 +192,7 @@
             <false/>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri"></string>
+            <string id="dcm4cheelocaluri">http://192.168.4.14:8080</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
 
@@ -219,9 +227,9 @@
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
             <key>sqlpassword</key>
-            <string id="sqlpassword">root</string>
+            <string id="sqlpassword">pacspass</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=root;/usr/local/mysql/bin/mysql --raw --skip-column-names -uroot -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsuser -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
@@ -233,6 +241,16 @@
             <!--/Volumes/Archive/DICOM/IMATEC-->
             <key>filesystemmapping</key>
             <dict>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</string>
+                <key>file:/Volumes/Archive/DICOM/DCM4CHEE</key>
+                <string>/Volumes/Archive/DICOM/DCM4CHEE</string>
             </dict>
                         
             <key>DICMip</key>
@@ -272,7 +290,7 @@
             <false/>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_LASERENA</string>
+            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             
@@ -307,9 +325,9 @@
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
             <key>sqlpassword</key>
-            <string id="sqlpassword">root</string>
+            <string id="sqlpassword">pacspass</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=root;/usr/local/mysql/bin/mysql --raw --skip-column-names -uroot -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsuser -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
@@ -321,6 +339,16 @@
             <!--/Volumes/Archive/DICOM/IMATEC-->
             <key>filesystemmapping</key>
             <dict>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</string>
+                <key>file:/Volumes/Archive/DICOM/DCM4CHEE</key>
+                <string>/Volumes/Archive/DICOM/DCM4CHEE</string>
             </dict>
             
             <key>DICMip</key>
@@ -360,7 +388,7 @@
             <false/>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_OVALLE</string>
+            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             
@@ -395,9 +423,9 @@
             <key>sqlcredentials</key>
             <string id="sqlcredentials">MYSQL_PWD</string>
             <key>sqlpassword</key>
-            <string id="sqlpassword">root</string>
+            <string id="sqlpassword">pacspass</string>
             <key>sqlprolog</key>
-            <string id="sqlprolog">export MYSQL_PWD=root;/usr/local/mysql/bin/mysql --raw --skip-column-names -uroot -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsuser -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
             <key>sqlstringencoding</key>
             <string id="sqlstringencoding">5</string>
             <key>sqlmap</key>
@@ -409,6 +437,16 @@
             <!--/Volumes/Archive/DICOM/IMATEC-->
             <key>filesystemmapping</key>
             <dict>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</string>
+                <key>file:/Volumes/Archive/DICOM/DCM4CHEE</key>
+                <string>/Volumes/Archive/DICOM/DCM4CHEE</string>
             </dict>
             
             <key>DICMip</key>
@@ -448,7 +486,7 @@
             <false/>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_VALLENAR</string>
+            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             
