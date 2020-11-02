@@ -763,7 +763,50 @@ NSString * SOPCLassOfReturnableSeries(
 
    }
 
-       
+    
+#pragma mark issuer
+    
+    NSArray *issuerArray=nil;
+    NSInteger issuerIndex=[names indexOfObject:@"issuer"];
+    if (issuerIndex!=NSNotFound)
+    {
+        if (!appendImmutableToCanonical(
+                                        cachedQueryDict,
+                                        studyRestrictionDict,
+                                        canonicalQuery,
+                                        @"issuer",
+                                        [values[issuerIndex] sqlEqualEscapedString],
+                                        accessTypeNumber
+                                        )
+            ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
+        
+        NSArray *array=[[values[issuerIndex] sqlEqualEscapedString] componentsSeparatedByString:@"^"];
+        switch (array.count) {
+            case 1:
+            {
+                if ([array[0] length]==0) issuerArray=@[];
+                else if ([array[0] length]<65) issuerArray=[NSArray arrayWithArray:array];
+                else return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad param issuer: '%@'",values[issuerIndex]];
+            } break;
+            case 3:
+            {
+                if ([array[1] length] && ([@[@"DNS",@"EUI64",@"ISO",@"URI",@"UUID",@"X400",@"X500"] indexOfObject:array[2]]!=NSNotFound))
+                {
+                    if (![array[0] length]) issuerArray=[NSArray arrayWithArray:array];
+                    else if ([array[0] length]<17) issuerArray=[array arrayByAddingObject:array[0]];
+                    else return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad param issuer: '%@'",values[issuerIndex]];
+                }
+            } break;
+            default:
+            {
+                return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad param issuer: '%@'",values[issuerIndex]];
+            } break;
+        }
+        [requestDict setObject:issuerArray forKey:@"issuerArray"];
+    }
+
+   BOOL studyRestrictionTRUE=studyRestrictionDict.count;
+
    #pragma mark 6. ref
    
    /*
@@ -800,7 +843,6 @@ NSString * SOPCLassOfReturnableSeries(
       else return [RSErrorResponse responseWithClientError:404 message:@"bad ref"];
    }
 
-
    #pragma mark · 7. read
       /*
           NSUInteger readIndex[5];
@@ -824,7 +866,7 @@ NSString * SOPCLassOfReturnableSeries(
        if ((readIndex!=NSNotFound) && [DICMTypes isSingleSHString:values[readIndex]])
        {
           //we keep only third component and alternative -^-^- and *
-          NSString *pattern=[NSString stringWithFormat:@"(^\\*$|^\\^\\^%@$|^-\\^-\\^-$)",values[readIndex]];
+          NSString *pattern=[NSString stringWithFormat:@"(^\\*^$)|%@|(^-\\^-\\^-$|NULL)",values[readIndex]];
           NSError *error=nil;
           NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:&error];
           if (regex) [studyRestrictionDict setObject:regex forKey:@"read"];
@@ -834,47 +876,6 @@ NSString * SOPCLassOfReturnableSeries(
               return [RSErrorResponse responseWithClientError:404 message:@"bad read"];
           }
       }
-   
-#pragma mark issuer
-    
-   NSArray *issuerArray=nil;
-   NSInteger issuerIndex=[names indexOfObject:@"issuer"];
-   if (issuerIndex!=NSNotFound)
-   {
-      if (!appendImmutableToCanonical(
-                                 cachedQueryDict,
-                                 studyRestrictionDict,
-                                 canonicalQuery,
-                                 @"issuer",
-                                 [values[issuerIndex] sqlEqualEscapedString],
-                                 accessTypeNumber
-                                 )
-          ) return [RSErrorResponse responseWithClientError:404 message:@"bad URL"];
-       
-      NSArray *array=[[values[issuerIndex] sqlEqualEscapedString] componentsSeparatedByString:@"^"];
-      switch (array.count) {
-         case 1:
-         {
-            if ([array[0] length]==0) issuerArray=@[];
-            else if ([array[0] length]<65) issuerArray=[NSArray arrayWithArray:array];
-            else return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad param issuer: '%@'",values[issuerIndex]];
-         } break;
-         case 3:
-         {
-            if ([array[1] length] && ([@[@"DNS",@"EUI64",@"ISO",@"URI",@"UUID",@"X400",@"X500"] indexOfObject:array[2]]!=NSNotFound))
-            {
-               if (![array[0] length]) issuerArray=[NSArray arrayWithArray:array];
-               else if ([array[0] length]<17) issuerArray=[array arrayByAddingObject:array[0]];
-               else return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad param issuer: '%@'",values[issuerIndex]];
-            }
-         } break;
-         default:
-         {
-            return [RSErrorResponse responseWithClientError:404 message:@"studyToken bad param issuer: '%@'",values[issuerIndex]];
-         } break;
-      }
-      [requestDict setObject:issuerArray forKey:@"issuerArray"];
-   }
 
 
 #pragma mark series restrictions
@@ -1028,7 +1029,7 @@ NSString * SOPCLassOfReturnableSeries(
       [defaultManager createDirectoryAtPath:queryPath  withIntermediateDirectories:NO attributes:nil error:nil];
     }
 
-    if (newSearch || !studyRestrictionDict.count)
+    if (newSearch || !studyRestrictionTRUE)
     {
      //loop each LAN pacs producing part
      for (NSString *orgid in lanSet)
@@ -1047,7 +1048,7 @@ NSString * SOPCLassOfReturnableSeries(
         }
      }
     }
-    else
+    if (studyRestrictionDict.count)
    {
       //create corresponding predicate and add it to the request dictionary
       [requestDict setObject:[NSPredicate predicateWithBlock:^BOOL(NSArray *row, NSDictionary *bindings)
@@ -1399,6 +1400,7 @@ NSString * SOPCLassOfReturnableSeries(
 #pragma mark isStudyRestriction
         if (requestDict[@"studyPredicate"])
         {
+            LOG_INFO(@"%@",[studyRestrictionDict description]);
             [resultsArray filterUsingPredicate:requestDict[@"studyPredicate"]];
          }
          

@@ -356,6 +356,13 @@ const NSUInteger inputStringMinLength=5;
          [names removeObjectAtIndex:cacheIndex];
          [values removeObjectAtIndex:cacheIndex];
        }
+        
+        NSUInteger issuerIndex=[names indexOfObject:@"issuer"];
+        if (issuerIndex!=NSNotFound)
+        {
+            [names removeObjectAtIndex:issuerIndex];
+            [values removeObjectAtIndex:issuerIndex];
+        }
 /*
        NSUInteger institutionIndex=[names indexOfObject:@"institution"];
        if (institutionIndex!=NSNotFound)
