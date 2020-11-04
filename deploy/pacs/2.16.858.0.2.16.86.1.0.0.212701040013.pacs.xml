@@ -32,7 +32,11 @@
             <string id="countrycode">uy</string>
             <key>principallanguage</key>
             <string id="principallanguage">es</string>
-            
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
@@ -75,12 +79,10 @@
             <false/>
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix"></string>
-            <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
-            <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouricornerstoneparameters</key>
             <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouridicomzipparameters</key>
             <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
@@ -122,7 +124,11 @@
             <string id="countrycode">uy</string>
             <key>principallanguage</key>
             <string id="principallanguage">es</string>
-            
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
@@ -164,12 +170,10 @@
             <false/>
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix"></string>
-            <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
-            <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouricornerstoneparameters</key>
             <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouridicomzipparameters</key>
             <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
@@ -211,7 +215,11 @@
             <string id="countrycode">uy</string>
             <key>principallanguage</key>
             <string id="principallanguage">es</string>
-            
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
@@ -237,7 +245,7 @@
                 <key>file:///storage/fs1/</key>
                 <string>/var/local/dcm4chee-arc/storage/fs1/</string>
             </dict>
-            
+
             <key>DICMip</key>
             <string id="DICMip">127.0.0.1</string>
             <key>DICMport</key>
@@ -253,12 +261,10 @@
             <false/>
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix">wadouri:</string>
-            <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
-            <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouricornerstoneparameters</key>
             <string id="wadouricornerstoneparameters">&amp;contentType=application%2Fdicom&amp;transferSyntax=1.2.840.10008.1.2.1</string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouridicomzipparameters</key>
             <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
            <key>wadors</key>

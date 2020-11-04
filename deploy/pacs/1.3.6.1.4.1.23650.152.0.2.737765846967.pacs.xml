@@ -28,7 +28,11 @@
             <string id="countrycode">cl</string>
             <key>principallanguage</key>
             <string id="principallanguage">es</string>
-            
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
@@ -62,7 +66,7 @@
                 <key>file:/Volumes/Archive/DICOM/DCM4CHEE</key>
                 <string>/Volumes/Archive/DICOM/DCM4CHEE</string>
             </dict>
-                        
+            
             <key>DICMip</key>
             <string id="DICMip">192.168.4.15</string>
             <key>DICMport</key>
@@ -78,12 +82,10 @@
             <false/>
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix"></string>
-            <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
-            <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouricornerstoneparameters</key>
             <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouridicomzipparameters</key>
             <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
@@ -126,7 +128,11 @@
             <string id="countrycode">cl</string>
             <key>principallanguage</key>
             <string id="principallanguage">es</string>
-            
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
@@ -154,7 +160,7 @@
                 <key>/Volumes/Archive_1/Archive</key>
                 <string>/Volumes/Archive_1/archive</string>
             </dict>
-
+            
             <key>DICMip</key>
             <string id="DICMip">192.168.4.14</string>
             <key>DICMport</key>
@@ -170,12 +176,10 @@
             <false/>
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix"></string>
-            <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
-            <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouricornerstoneparameters</key>
             <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouridicomzipparameters</key>
             <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
@@ -218,7 +222,11 @@
             <string id="countrycode">cl</string>
             <key>principallanguage</key>
             <string id="principallanguage">es</string>
-            
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
@@ -268,12 +276,10 @@
             <false/>
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix"></string>
-            <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
-            <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouricornerstoneparameters</key>
             <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouridicomzipparameters</key>
             <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
@@ -316,7 +322,11 @@
             <string id="countrycode">cl</string>
             <key>principallanguage</key>
             <string id="principallanguage">es</string>
-            
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
@@ -366,12 +376,10 @@
             <false/>
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix"></string>
-            <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
-            <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouricornerstoneparameters</key>
             <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouridicomzipparameters</key>
             <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
@@ -414,7 +422,11 @@
             <string id="countrycode">cl</string>
             <key>principallanguage</key>
             <string id="principallanguage">es</string>
-            
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
@@ -464,12 +476,10 @@
             <false/>
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix"></string>
-            <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
-            <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouricornerstoneparameters</key>
             <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouridicomzipparameters</key>
             <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>

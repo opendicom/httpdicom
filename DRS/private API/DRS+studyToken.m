@@ -861,6 +861,18 @@ NSString * SOPCLassOfReturnableSeries(
        
        Currently we will use this componente exclusivamente
        and ignore the 4 others
+       
+       added to the request in datatables call processing:
+       (NSString*)includeReadingAny
+       (NSString*)includeReadingUnknown
+       with default value which can be overwritten it in the original query
+       
+       defines the selection pattern for reading in relation to the use cases of studies opened to any radiologist reporting and studies which entered without information about reading
+       
+       
+       ^\\*$ records * (meaning that there were no recorded value
+       ^-\\^-\\^-$
+
        */
        NSInteger readIndex=[names indexOfObject:@"read"];
        if ((readIndex!=NSNotFound) && [DICMTypes isSingleSHString:values[readIndex]])

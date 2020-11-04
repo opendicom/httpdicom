@@ -28,7 +28,11 @@
             <string id="countrycode">ar</string>
             <key>principallanguage</key>
             <string id="principallanguage">es</string>
-            
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
@@ -51,7 +55,7 @@
             <key>filesystemmapping</key>
             <dict>
             </dict>
-            
+
             <key>DICMip</key>
             <string id="DICMip">192.168.1.38</string>
             <key>DICMport</key>
@@ -67,12 +71,10 @@
             <false/>
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix"></string>
-            <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>
-            <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>
             <key>wadouricornerstoneparameters</key>
             <string id="wadouricornerstoneparameters"></string><!--&amp;contentType=application%2Fdicom&amp;transferSyntax=1.2.840.10008.1.2.1-->
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>
             <key>wadouridicomzipparameters</key>
             <string id="wadouridicomzipparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>
             <key>wadors</key>

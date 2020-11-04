@@ -31,7 +31,11 @@
             <string id="countrycode">uy</string>
             <key>principallanguage</key>
             <string id="principallanguage">es</string>
-            
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
             <key>select</key>
             <string id="select">sql</string>
             <key>get</key>
@@ -54,7 +58,7 @@
             <key>filesystemmapping</key>
             <dict>
             </dict>
-            
+
             <key>DICMip</key>
             <string id="DICMip">127.0.0.1</string>
             <key>DICMport</key>
@@ -70,12 +74,10 @@
             <false/>
             <key>wadouricornerstoneprefix</key>
             <string id="wadouricornerstoneprefix"></string>
-            <key>wadouriadditionalparameters</key>
-            <string id="wadouriadditionalparameters">&amp;transferSyntax=*</string>
-            <key>wadouriweasisparameters</key>
-            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouricornerstoneparameters</key>
             <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
             <key>wadouridicomzipparameters</key>
             <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
             <key>wadors</key>
