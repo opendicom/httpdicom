@@ -601,8 +601,8 @@ static NSData *ctad=nil;
                               filesystemsJSONData)
                  !=0)
              {
-                LOG_ERROR(@"filesystems error  in %@",p[@"sqlmap"]);
-                exit(0);
+                LOG_ERROR(@"filesystems check error for folderDcm4chee2 in %@.%@",p[@"custodiantitle"],p[@"pacsaet"]);
+                //exit(0);
              }
           }
           else if ([p[@"get"]isEqualToString:@"folderDcm4cheeArc"])
@@ -614,8 +614,8 @@ static NSData *ctad=nil;
              filesystemsJSONData=[NSMutableData dataWithContentsOfURL:[NSURL URLWithString:filesystemsURIString] options:0 error:&error];
              if (!filesystemsJSONData)
              {
-                LOG_ERROR(@"filesystems error  in %@",p[@"sqlmap"]);
-                exit(0);
+                LOG_ERROR(@"filesystems error  for folderDcm4cheeArc in %@.%@",p[@"custodiantitle"],p[@"pacsaet"]);
+                //exit(0);
              }
           }
           else filesystemsJSONData=[NSMutableData dataWithData:[@"[]" dataUsingEncoding:NSUTF8StringEncoding]];//wado or other
@@ -625,13 +625,15 @@ static NSData *ctad=nil;
            if (filesystemsJSONData && filesystemsJSONData.length) arrayOfDicts=[NSJSONSerialization JSONObjectWithData:filesystemsJSONData options:0 error:&error];
           if (error)
           {
-             LOG_ERROR(@"filesystems error  in %@",p[@"sqlmap"]);
-             exit(0);
+              LOG_ERROR(@"filesystems error in data returned from %@.%@: %@",p[@"custodiantitle"],p[@"pacsaet"], filesystemsJSONData.description);
+             //exit(0);
           }
  
           NSDictionary *filesystemmapping=p[@"filesystemmapping"];
+          NSMutableSet *pacsStorageSet=[NSMutableSet set];
           for (NSDictionary *dict in arrayOfDicts)
           {
+              [pacsStorageSet addObject:dict[@"dcmURI"]];
               NSString *mapping=filesystemmapping[dict[@"dcmURI"]];
               if (!mapping)
               {
@@ -640,44 +642,41 @@ static NSData *ctad=nil;
                             p[@"pacsaet"],
                             dict[@"dcmURI"]
                             );
-                  exit(0);
-              }
-              
-              //check if mapping is accesible
-              NSMutableData *lsData=[NSMutableData data];
-              int lsResult=execUTF8Bash(@{}, [NSString stringWithFormat:@"ls %@",mapping], lsData);
-              LOG_INFO(@"%@ \"ls %@\": (%d) %@",p[@"pacsaet"],mapping,lsResult,[[NSString alloc]initWithData:lsData encoding:NSUTF8StringEncoding]);
-              
-              [filesystems setValue:mapping forKey:dict[@"dcmStorageID"]];
-              /*
-              if ([dict[@"dcmURI"]hasPrefix:@"file:"])
-              {
-                  //dcm4chee-arc
-                  //IMATEC: local. No need to map mount points
-                   
-                  [filesystems setValue:[dict[@"dcmURI"]substringFromIndex:5] forKey:dict[@"dcmStorageID"]];//[p[@"filepathprefix"] stringByAppendingPathComponent:[dict[@"dcmURI"]substringFromIndex:7]] forKey:dict[@"dcmStorageID"]];
+                  //exit(0);
               }
               else
               {
-                  //dcm4chee2
-                  //
-                  // IMATEC: remote, pacs_server smb mounted.
-                  // archive                        /Volumes/Archive-1
-                  // /Volumes/Archive_1/Archive     /Volumes/Archive_1/archive
-
-                  // should be improved with mapping in pacs prefs
-                   
-                  if ([dict[@"dcmURI"] isEqualToString:@"archive"])
-                      [filesystems setValue:@"/Volumes/Archive-1" forKey:dict[@"dcmStorageID"]];
-                  else if ([dict[@"dcmURI"] isEqualToString:@"/Volumes/Archive_1/Archive"])
-                      [filesystems setValue:@"/Volumes/Archive_1/archive" forKey:dict[@"dcmStorageID"]];
+                  //check if mapping is accesible
+                  NSMutableData *lsData=[NSMutableData data];
+                  int lsResult=execUTF8Bash(@{}, [NSString stringWithFormat:@"ls %@",mapping], lsData);
+                  if (lsData.length)
+                  {
+                      LOG_VERBOSE(@"%@ \"ls %@\": (%d) %@",p[@"pacsaet"],mapping,lsResult,[[NSString alloc]initWithData:lsData encoding:NSUTF8StringEncoding]);
+                  }
                   else
-                      [filesystems setValue:dict[@"dcmURI"] forKey:dict[@"dcmStorageID"]];//[p[@"filepathprefix"] stringByAppendingPathComponent:dict[@"dcmURI"]] forKey:dict[@"dcmStorageID"]];
-              }
-          */
+                  {
+                      LOG_ERROR(@"%@ \"ls %@\": (%d) empty",p[@"pacsaet"],mapping,lsResult);
+                  }
               
+                  [filesystems setValue:mapping forKey:dict[@"dcmStorageID"]];
+              }
+              
+              //List incoherence between pacs obtained and httpdicom registered storage lists
+              NSSet *httpdicomStorageSet=[NSSet setWithArray:[filesystemmapping allKeys]];
+              if (![httpdicomStorageSet isEqualToSet:pacsStorageSet])
+              {
+                  LOG_ERROR(@"%@.%@ httpdicom known filesystems:%@ | pacs discoverd filesystems: %@",p[@"custodiantitle"],p[@"pacsaet"],[httpdicomStorageSet description], [pacsStorageSet description]);
+              }
           }
-          [p setObject:[NSDictionary dictionaryWithDictionary:filesystems] forKey:@"filesystems"];
+        
+           
+          //dcm4chee2
+          //
+          // IMATEC: remote, pacs_server smb mounted.
+          // archive                        /Volumes/Archive-1
+          // /Volumes/Archive_1/Archive     /Volumes/Archive_1/archive
+
+           [p setObject:[NSDictionary dictionaryWithDictionary:filesystems] forKey:@"filesystems"];
 
 #pragma mark ·needssqlaccesscontrol
           if ([p[@"needssqlaccesscontrol"]boolValue])

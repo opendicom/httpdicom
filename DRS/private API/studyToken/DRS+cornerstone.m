@@ -127,7 +127,25 @@
             nil];
             
             [studyArray addObject:study];
-            
+             NSString *wadouriformat=[NSString stringWithFormat:
+             @"%@%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&arcId=%@%@",
+                                      @"%@",
+                                      refinedRequest[@"proxyURI"],
+                                      study[@"StudyInstanceUID"],
+                                      @"%@",
+                                      @"%@",
+                                      refinedRequest[@"session"],
+                                      orgDict[@"custodianoid"],
+                                      refinedRequest[@"orgid"],
+                                      @"%@"];
+             /*
+             NSString *proxyUIR=refinedRequest[@"proxyURI"];
+             NSString *StudyIUID=study[@"StudyInstanceUID"];
+             NSString *session=refinedRequest[@"session"];
+             NSString *custodianoid=orgDict[@"custodianoid"];
+             NSString *orgid=refinedRequest[@"orgid"];
+              */
+             
 #pragma mark series loop
             NSMutableData *seriesData=[NSMutableData data];
             if (execUTF8Bash(sqlcredentials,
@@ -219,6 +237,10 @@
    */
 
                   NSMutableData *instanceData=[NSMutableData data];
+                  NSArray *instanceSqlPropertiesArray=nil;
+                  NSString *wadouricornerstoneprefix=nil;
+                  NSString *wadouricornerstoneparameters=nil;
+                   
                   if ([DRS.InstanceUniqueFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)//I1
                   {
                      if (execUTF8Bash(sqlcredentials,
@@ -237,6 +259,9 @@
                         LOG_ERROR(@"studyToken study db error");
                         continue;
                      }
+                     instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:nil dictionary:nil orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+                     wadouricornerstoneprefix=@"";
+                     wadouricornerstoneparameters=@"";
                   }
                   else if ([DRS.InstanceMultiFrameSOPClass indexOfObject:SOPClass]!=NSNotFound)//I
                   {
@@ -259,6 +284,9 @@
                         LOG_ERROR(@"studyToken study db error");
                         continue;
                      }
+                      instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:sqlDictionary[@"IpostprocessingTitleMain"] dictionary:nil orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+                      wadouricornerstoneprefix=orgDict[@"wadouricornerstoneprefix"];
+                      wadouricornerstoneparameters=orgDict[@"wadouricornerstoneparameters"];
                   }
                   else //I0
                   {
@@ -278,9 +306,10 @@
                         LOG_ERROR(@"studyToken study db error");
                         continue;
                      }
+                      instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:nil dictionary:nil orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
+                      wadouricornerstoneprefix=@"";
+                      wadouricornerstoneparameters=@"";
                   }
-                   NSArray *instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:sqlDictionary[@"IpostprocessingTitleMain"] dictionary:nil orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
-
                               
                            
    #pragma mark instance loop
@@ -292,11 +321,21 @@
                         case getTypeFolderDcm4chee2:
                         case getTypeFolderDcm4cheeArc:
                         {
+                            
+                            NSString *wadouriInstance=
+                            [NSString
+                             stringWithFormat:wadouriformat,
+                             wadouricornerstoneprefix,
+                             seriesSqlProperties[1],
+                             instanceSqlProperties[2],
+                             wadouricornerstoneparameters
+                            ];
+/*
                            NSString *wadouriInstance=
                            [NSString
                             stringWithFormat:
                             @"%@%@?requestType=WADO&studyUID=%@&seriesUID=%@&objectUID=%@&session=%@&custodianOID=%@&arcId=%@%@",
-                            orgDict[@"wadouricornerstoneprefix"],
+                            wadouricornerstoneprefix,
                             refinedRequest[@"proxyURI"],
                             study[@"StudyInstanceUID"],
                             seriesSqlProperties[1],
@@ -304,8 +343,9 @@
                             refinedRequest[@"session"],
                             orgDict[@"custodianoid"],
                             refinedRequest[@"orgid"],
-                            orgDict[@"wadouricornerstoneparameters"]
+                            wadouricornerstoneparameters
                            ];
+                             */
                            [instanceArray addObject:
    @{
     @"key":[NSNumber numberWithLongLong: [instanceSqlProperties[0] longLongValue]],
