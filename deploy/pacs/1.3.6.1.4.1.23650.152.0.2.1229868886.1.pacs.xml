@@ -54,6 +54,28 @@
             <string id="sopstringencoding">4</string>
             <key>filesystemmapping</key>
             <dict>
+                <key>/home/backup2015</key>
+                <string>2</string>
+                <key>/home/backup</key>
+                <string>5</string>
+                <key>/home/backup/archive</key>
+                <string>6</string>
+                <key>/home/pacs/dcm4chee-2.18.0-mysql/server/default/archive/2018</key>
+                <string>7</string>
+                <key>/home/pacsstorage/imagenes/</key>
+                <string>8</string>
+                <key>/home/imagenes</key>
+                <string>11</string>
+                <key>/home/storageibmonlineVol2/nas2/HISTORICO</key>
+                <string>12</string>
+                <key>/home/storageibm</key>
+                <string>13</string>
+                <key>/home/storageibmonlineVol2</key>
+                <string>14</string>
+                <key>/home/1storageibmonlineVol2</key>
+                <string>15</string>
+                <key>/home/volumen4</key>
+                <string>16</string>
             </dict>
 
             <key>DICMip</key>
@@ -70,9 +92,9 @@
             <key>wadouriproxy</key>
             <false/>
             <key>wadouricornerstoneprefix</key>
-            <string id="wadouricornerstoneprefix"></string>
+            <string id="wadouricornerstoneprefix">wadouri:</string>
             <key>wadouricornerstoneparameters</key>
-            <string id="wadouricornerstoneparameters"></string><!--&amp;contentType=application%2Fdicom&amp;transferSyntax=1.2.840.10008.1.2.1-->
+            <string id="wadouricornerstoneparameters">&amp;contentType=application%2Fdicom&amp;transferSyntax=*</string><!--1.2.840.10008.1.2.4.90  1.2.840.10008.1.2.1-->
             <key>wadouriweasisparameters</key>
             <string id="wadouriweasisparameters">&amp;transferSyntax=1.2.840.10008.1.2.1</string>
             <key>wadouridicomzipparameters</key>
@@ -91,7 +113,7 @@
             <false/>
             
             <key>dcm4cheelocaluri</key>
-            <string id="dcm4cheelocaluri"></string>
+            <string id="dcm4cheelocaluri">http://192.168.1.38:9728/</string>
             <key>dcm4cheeDICMproxytitle</key>
             <string id="dcm4cheeDICMproxytitle"></string>
             
