@@ -15,7 +15,7 @@
 +(void)addSeriesPathsForRefinedRequest:(NSDictionary*)d toArray:(NSMutableArray*)mutableArray;
 {
    NSDictionary *orgDict=DRS.pacs[d[@"orgid"]];
-   NSDictionary *mountPoints=orgDict[@"filesystems"];
+   NSDictionary *mountPoints=orgDict[@"filesystemmapping"];
 
    //sql
    NSDictionary *sqlcredentials=@{orgDict[@"sqlcredentials"]:orgDict[@"sqlpassword"]};

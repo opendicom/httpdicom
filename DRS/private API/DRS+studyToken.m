@@ -1309,7 +1309,7 @@ NSString * SOPCLassOfReturnableSeries(
          {
             [requestDict setObject:orgid forKey:@"orgid"];
             [requestDict setObject:[[queryPath stringByAppendingPathComponent:orgid]stringByAppendingPathExtension:@"plist"] forKey:@"orgidPLISTPath"];
-             [requestDict setObject:(DRS.pacs[orgid])[@"filesystems"] forKey:@"mountPoints"];
+             [requestDict setObject:(DRS.pacs[orgid])[@"filesystemmapping"] forKey:@"mountPoints"];
 
             switch ([@[@"sql",@"qido",@"cfind"] indexOfObject:(DRS.pacs[orgid])[@"select"]])
             {

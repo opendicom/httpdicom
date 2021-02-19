@@ -87,7 +87,6 @@ NSString * SOPCLassOfReturnableSeries(
 
 
 #pragma mark - static
-//filesystemSlashPath
 
 static NSString *sqlonevalue=@"| awk -F\\t '{print $1}'";
 
