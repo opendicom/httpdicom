@@ -1,6 +1,6 @@
 #import "ResponseStow.h"
 #import "RequestStow.h"
-#import "ODLog.h"
+
 
 #import "NSDictionary+DICM.h"
 #import "NSMutableDictionary+DICM.h"
@@ -120,10 +120,10 @@
          //200 - OK (successfully stored all the instances)
          
          
-         LOG_ERROR(@"stow error: %@\r\n response body: %@",[error description], responseString);
+         NSLog(@"stow error: %@\r\n response body: %@",[error description], responseString);
          return [NSString stringWithFormat:@"can not POST CDA. Error: %@ Response body:%@",[error description], responseString];
       }
-      LOG_VERBOSE(@"stow <- %ld",response.statusCode);
+      NSLog(@"stow <- %ld",response.statusCode);//verbose
       return @"";
    }
    

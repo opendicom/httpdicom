@@ -1,7 +1,6 @@
 #import "NSMutableString+DSCD.h"
 #import "DICMTypes.h"
 #import "NSUUID+DICM.h"
-#import "K.h"
 
 @implementation NSMutableString (DSCD)
 -(void)appendDSCDprefix
@@ -184,7 +183,7 @@
 }
 
 
-
+/*
 -(void)appendCDADocumentationOfNotCoded:(NSString*)procedure
 {
     if ([procedure length]) [self appendFormat:@"<documentationOf><serviceEvent><code><originalText>%@</originalText></code></serviceEvent></documentationOf>",procedure];
@@ -200,7 +199,7 @@
     [procedure componentsJoinedByString:@"^"]
     ];
 }
-
+*/
 
 -(void)appendCDAComponentOfEncompassingEncounterEffectiveTime:(NSString*)DT
 {

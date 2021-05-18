@@ -1,5 +1,5 @@
 #import "ResponseWadouri.h"
-#import "ODLog.h"
+
 #import "NSArray+PCS.h"
 
 @implementation ResponseWadouri
@@ -31,8 +31,8 @@
    if (response.statusCode==200) return responseData;
 
    //unexpected
-   LOG_WARNING(@"<-%ld (object not found for study:%@ series:%@, sopInstance:%@)", response.statusCode,euid,suid,iuid );
-   if (error) LOG_ERROR(@"%@",[error description]);
+   NSLog(@"<-%ld (object not found for study:%@ series:%@, sopInstance:%@)", response.statusCode,euid,suid,iuid );//warning
+   if (error) NSLog(@"%@",[error description]);//error
    
    return nil;
 
@@ -78,8 +78,8 @@
    if (response.statusCode==200) return responseData;
 
    //unexpected
-   LOG_WARNING(@"<-%ld (object not found for study:%@ series:%@, sopInstance:%@)", response.statusCode,euid,suid,iuid );
-   if (error) LOG_ERROR(@"%@",[error description]);
+   NSLog(@"<-%ld (object not found for study:%@ series:%@, sopInstance:%@)", response.statusCode,euid,suid,iuid );//warning
+   if (error) NSLog(@"%@",[error description]);//error
    
    return nil;
 }

@@ -15,8 +15,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "K.h" //constants
-#import "ODLog.h" //log level init
+ //log level init
 
 #import "DRS.h"
 
@@ -41,7 +40,7 @@ NSString *deploypath=[args[5] stringByExpandingTildeInPath];
 BOOL isDirectory=FALSE;
 if (![defaultManager fileExistsAtPath:deploypath isDirectory:&isDirectory] || !isDirectory)
 {
-    LOG_ERROR(@"deploy folder does not exist");
+    NSLog(@"deploy folder does not exist");
     return 1;
 }
 
@@ -65,7 +64,6 @@ if (llindex==NSNotFound)
     NSLog(@"ODLogLevel (arg 1) should be one of [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION ]");
     return 1;
 }
-ODLogLevel=(int)llindex;
 
  
 
@@ -79,64 +77,6 @@ if (![TZRegex numberOfMatchesInString:args[4] options:0 range:NSMakeRange(0,[arg
     NSLog(@"defaultTimezone (arg 4)format should be ^[+-][0-2][0-9][0-5][0-9]$");
     return 1;
 }
-else [K setDefaultTimezone:args[4]];
-
-        
-
-// /voc/scheme
-NSDictionary *scheme=[NSDictionary dictionaryWithContentsOfFile:[deploypath stringByAppendingPathComponent:@"voc/scheme.xml"]];
-if (!scheme) [K loadScheme:@{}];
-else [K loadScheme:scheme];
-
-        
-// /voc/code
-NSArray *codes=[[NSFileManager defaultManager]contentsOfDirectoryAtPath:[deploypath stringByAppendingPathComponent:@"voc/code/"] error:nil];
-if (!codes) LOG_WARNING(@"no folder voc/code into deploy");
-else if (![codes count]) LOG_WARNING(@"no code file registered");
-else
-{
-     for (NSString *code in codes)
-    {
-        if ([code hasPrefix:@"."]) continue;
-        [K loadCode:[NSDictionary dictionaryWithContentsOfFile:[[deploypath stringByAppendingPathComponent:@"voc/code"] stringByAppendingPathComponent:code]] forKey:[[code stringByDeletingPathExtension]stringByDeletingPathExtension]];
-    }
-    
-}
-        
-// /voc/procedure
-NSArray *procedures=[[NSFileManager defaultManager]contentsOfDirectoryAtPath:[deploypath stringByAppendingPathComponent:@"voc/procedure/"] error:nil];
-if (!procedures) LOG_WARNING(@"no folder voc/procedure into deploy");
-else if (![procedures count]) LOG_WARNING(@"no procedure file registered");
-else
-{
-    for (NSString *procedure in procedures)
-    {
-        if ([procedure hasPrefix:@"."]) continue;
-        [K loadProcedure:[NSDictionary dictionaryWithContentsOfFile:[[deploypath stringByAppendingPathComponent:@"voc/procedure"]stringByAppendingPathComponent:procedure]] forKey:[[procedure stringByDeletingPathExtension] stringByDeletingPathExtension]];
-
-    }
-}
-
-        
-// /voc/country (iso3166)
-NSArray *iso3166ByCountry=[NSArray arrayWithContentsOfFile:[deploypath stringByAppendingPathComponent:@"voc/country.plist"]];
-if (!iso3166ByCountry)
-{
-    LOG_ERROR(@"no folder voc/country.plist into deploy");
-    return 1;
-}
-else [K loadIso3166ByCountry:iso3166ByCountry];
-
-        
-
-// /voc/personIDType (ica)
-NSDictionary *personIDTypes=[NSDictionary dictionaryWithContentsOfFile:[deploypath stringByAppendingPathComponent:@"voc/personIDType.plist"]];
-if (!personIDTypes)
-{
-    LOG_ERROR(@"no folder voc/personIDType.plist into deploy");
-    return 1;
-}
-else [K loadPersonIDTypes:personIDTypes];
 
 
         
@@ -175,7 +115,7 @@ for (NSString *sqlname in sqlset)
     NSDictionary *sqlDict=[[NSDictionary alloc] initWithContentsOfFile:sqlpath];
     if (!sqlDict)
     {
-        LOG_ERROR(@"%@ unavailable",sqlname);
+       NSLog(@"%@ unavailable",sqlname);
         return 1;
     }
     
@@ -188,7 +128,7 @@ for (NSString *sqlname in sqlset)
 
        if (![defaultManager fileExistsAtPath:tmppath isDirectory:&isDirectory] || !isDirectory)
        {
-           LOG_ERROR(@"tmp folder does not exist");
+          NSLog(@"tmp folder does not exist");
            return 1;
        }
        

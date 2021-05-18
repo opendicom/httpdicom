@@ -37,37 +37,21 @@
             
              if (!(requestType && contentType && studyUID && seriesUID && objectUID))
              {
-                 if (contentType==false) LOG_WARNING(@"wado 'contentType' parameter not found");
-                 if (studyUID==false)    LOG_WARNING(@"wado 'studyUID parameter not found");
-                 if (seriesUID==false)   LOG_WARNING(@"wado 'seriesUID parameter not found");
-                 if (objectUID==false)   LOG_WARNING(@"wado 'objectUID parameter not found");
+                 if (contentType==false) NSLog(@"wado 'contentType' parameter not found");//warning
+                 if (studyUID==false)    NSLog(@"wado 'studyUID parameter not found");//warning
+                 if (seriesUID==false)   NSLog(@"wado 'seriesUID parameter not found");//warning
+                 if (objectUID==false)   NSLog(@"wado 'objectUID parameter not found");//warning
 
-                 LOG_DEBUG(@"wado Path: %@",urlComponents.path);
-                 LOG_DEBUG(@"wado Query: %@",urlComponents.query);
-                 LOG_DEBUG(@"wado Content-Type:\"%@\"",request.contentType);
+                NSLog(@"wado Path: %@",urlComponents.path);//debug
+                NSLog(@"wado Query: %@",urlComponents.query);//debug
+                NSLog(@"wado Content-Type:\"%@\"",request.contentType);//debug
                 return [RSErrorResponse responseWithClientError:404 message:@"bad wado: %@",[request.URL absoluteString]];
              }
              
              
              //additional routing parameter pacs
              NSString *pacsUID=[urlComponents firstQueryItemNamed:@"pacs"];
-/*
-             if (!pacsUID)
-             {
-#pragma mark ningún pacs especificado
-                 // TODO reemplazar la lógica con qidos para encontrar el pacs, tanto local como remotamente. Se podría ordenar los qido por proximidad.... sql,qido,custodian
 
-                 LOG_VERBOSE(@"[wado] no param named \"pacs\" in: %@",urlComponents.query);
-                 
-                 //Find wado in any of the local device (recursive)
-                 for (NSString *oid in local oids)
-                 {
-                     NSData *wadoResp=[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://127.0.0.1:%lld/%@?%@&pacs=%@", DRS.drsport, urlComponents.path, urlComponents.query, oid]]];
-                     if (wadoResp && [wadoResp length] > 512) return [RSDataResponse responseWithData:wadoResp contentType:@"application/dicom"];
-                 }
-                 return [RSErrorResponse responseWithClientError:404 message:@"[wado] not found locally: %@",urlComponents.query];
-             }
-*/
 #pragma mark existing pacs?
              NSDictionary *pacs=DRS.pacs[pacsUID];
              if (!pacs) return [RSErrorResponse responseWithClientError:404 message:@"pacs %@ not known]",pacsUID];
@@ -89,7 +73,7 @@
                                       pacs[@"wadouri"],
                                       [urlComponents queryWithoutItemNamed:@"pacs"]
                                       ];
-                 LOG_VERBOSE(@"wado proxying localmente to:\r\n%@",uriString);
+                NSLog(@"wado proxying localmente to:\r\n%@",uriString);//verbose
                  
                  
                  NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:uriString]];
@@ -122,7 +106,7 @@
                              if (__chunks)
                              {
                                  completionBlock([NSData data], nil);
-                                 LOG_DEBUG(@"urlProxy: %lu chunk in %fs for:\r\n%@",__chunks,[[NSDate date] timeIntervalSinceDate:__date],[__response description]);
+                                 NSLog(@"urlProxy: %lu chunk in %fs for:\r\n%@",__chunks,[[NSDate date] timeIntervalSinceDate:__date],[__response description]);//debug
                              }
                              else
                              {
@@ -146,7 +130,7 @@
                                       pacs[@"custodianglobaluri"],
                                       [urlComponents query]
                                       ];
-                 LOG_VERBOSE(@"[wado] proxying to another custodian:\r\n%@",uriString);
+                NSLog(@"[wado] proxying to another custodian:\r\n%@",uriString);//verbose
                  NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:uriString]];
                  [request setValue:@"application/dicom" forHTTPHeaderField:@"Accept"];
                  //application/dicom+json not accepted !!!!!
@@ -177,7 +161,7 @@
                              if (__chunks)
                              {
                                  completionBlock([NSData data], nil);
-                                 LOG_DEBUG(@"urlProxy: %lu chunk in %fs for:\r\n%@",__chunks,[[NSDate date] timeIntervalSinceDate:__date],[__response description]);
+                                 NSLog(@"urlProxy: %lu chunk in %fs for:\r\n%@",__chunks,[[NSDate date] timeIntervalSinceDate:__date],[__response description]);//NSLog
                              }
                              else
                              {
@@ -190,7 +174,7 @@
              
              
              //(g) not available
-             LOG_DEBUG(@"%@",[[urlComponents queryItems]description]);
+            NSLog(@"%@",[[urlComponents queryItems]description]);//debug
              return [RSErrorResponse responseWithClientError:404 message:@"[wado] pacs %@ not available",pacsUID];
              
          }(request));}];

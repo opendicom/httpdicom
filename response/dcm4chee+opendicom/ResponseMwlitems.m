@@ -1,7 +1,7 @@
 #import "ResponseMwlitems.h"
 #import "RequestMwlitems.h"
 #import "NSArray+PCS.h"
-#import "ODLog.h"
+
 
 @implementation ResponseMwlitems
 
@@ -19,8 +19,8 @@
    //expected
    if (response.statusCode==200) return [NSArray arrayWithJsonData:responseData];
    //unexpected
-   LOG_WARNING(@"%@\r\n%ld ResponseMwlitems getFromPacs:accessionNumber:%@ ",pacs, response.statusCode,an );
-   if (error) LOG_ERROR(@"%@",[error description]);
+   NSLog(@"%@\r\n%ld ResponseMwlitems getFromPacs:accessionNumber:%@ ",pacs, response.statusCode,an );//warning
+   if (error) NSLog(@"%@",[error description]);//error
    return nil;
 }
 

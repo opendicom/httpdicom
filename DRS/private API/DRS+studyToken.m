@@ -61,7 +61,7 @@ NSMutableArray *buildPNArray(
                      NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:PNArray[i] options:NSRegularExpressionCaseInsensitive error:&error];
                      if (!regex)
                      {
-                        if (error) LOG_WARNING(@"patient name regex error: %@",[error debugDescription]);
+                        if (error) NSLog(@"patient name regex error: %@",[error debugDescription]);//warning
                         return nil;
                      }
                      [studyRestrictionDict setObject:regex forKey:PNLabel[i]];
@@ -75,7 +75,7 @@ NSMutableArray *buildPNArray(
                     NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:PNArray[i] options:NSRegularExpressionCaseInsensitive error:&error];
                     if (!regex)
                     {
-                       if (error) LOG_WARNING(@"patient name regex error: %@",[error debugDescription]);
+                       if (error) NSLog(@"patient name regex error: %@",[error debugDescription]);//warning
                        return nil;
                     }
                     [studyRestrictionDict setObject:regex forKey:PNLabel[i]];
@@ -115,7 +115,7 @@ NSMutableArray *buildPNArray(
             if (cachedQueryDict[PNLabel[i]] && ![partString hasPrefix:cachedQueryDict[PNLabel[i]]]) return nil;
             NSError *error=nil;
             [studyRestrictionDict setObject:[NSRegularExpression regularExpressionWithPattern:partString options:NSRegularExpressionCaseInsensitive error:&error] forKey:PNLabel[i]];
-            if (error) LOG_WARNING(@"%@",[error debugDescription]);
+            if (error) NSLog(@"%@",[error debugDescription]);//warning
 
             [canonicalQuery appendFormat:@"\"%@\":\"%@\",",PNLabel[i],partString];
          }
@@ -138,7 +138,7 @@ BOOL appendImmutableToCanonical(
    NSRegularExpression *regex=[NSRegularExpression regularExpressionWithPattern:value options:NSRegularExpressionCaseInsensitive error:&error];
    if (!regex)
    {
-      if (error) LOG_WARNING(@"%@",[error debugDescription]);
+      if (error) NSLog(@"%@",[error debugDescription]);//warning
       return false;
    }
    
@@ -187,19 +187,11 @@ NSString * SOPCLassOfReturnableSeries(
                      SOPClassData)
        !=0)
    {
-      LOG_ERROR(@"studyToken SOPClassData");
+      NSLog(@"studyToken SOPClassData");
       return nil;
    }
    if (!SOPClassData.length) return nil;
    NSString *SOPClassString=[[NSString alloc] initWithData:SOPClassData  encoding:NSUTF8StringEncoding];
-   /*
-    //dicom cda
-   if ([(IPropertiesFirstRecord[0])[3] isEqualToString:@"1.2.840.10008.5.1.4.1.1.104.2"]) continue;
-   //SR
-   if ([(IPropertiesFirstRecord[0])[3] hasPrefix:@"1.2.840.10008.5.1.4.1.1.88"])continue;
-    
-    //replaced by SOPClassOff
-   */
 
    if (
           (    SeriesInstanceUIDRegex
@@ -756,7 +748,7 @@ NSString * SOPCLassOfReturnableSeries(
       if (regex) [studyRestrictionDict setObject:regex forKey:@"ModalityInStudy"];
       else
       {
-         if (error) LOG_WARNING(@"modalityInStudy regex error: %@",[error debugDescription]);
+         if (error) NSLog(@"modalityInStudy regex error: %@",[error debugDescription]);//warning
          return [RSErrorResponse responseWithClientError:404 message:@"bad ModalityInStudy"];
       }
    }
@@ -836,7 +828,7 @@ NSString * SOPCLassOfReturnableSeries(
          if (regex) [studyRestrictionDict setObject:regex forKey:@"read"];
          else
          {
-            if (error) LOG_WARNING(@"referring institution regex error: %@",[error debugDescription]);
+            if (error) NSLog(@"referring institution regex error: %@",[error debugDescription]);//warning
             return [RSErrorResponse responseWithClientError:404 message:@"bad ref"];
          }
       }
@@ -884,7 +876,7 @@ NSString * SOPCLassOfReturnableSeries(
           if (regex) [studyRestrictionDict setObject:regex forKey:@"read"];
           else
           {
-             if (error) LOG_WARNING(@"reading user regex error: %@",[error debugDescription]);
+             if (error) NSLog(@"reading user regex error: %@",[error debugDescription]);//warning
               return [RSErrorResponse responseWithClientError:404 message:@"bad read"];
           }
       }
@@ -1131,17 +1123,7 @@ NSString * SOPCLassOfReturnableSeries(
 
           return true;
       }] forKey:@"studyPredicate"];
-/*
-      NSMutableString *predicateString=[NSMutableString string];
-      for (NSString *key in [studyRestrictionDict allKeys])
-      {
-          if ([key isEqualToString:@"StudyDate"])
-              [predicateString appendFormat:@"%@:'%@' ",key,studyRestrictionDict[key]];
-          else
-              [predicateString appendFormat:@"%@:'%@' ",key,[studyRestrictionDict[key] pattern]];
-      }
-       LOG_VERBOSE(@"study restrictions: %@",predicateString);
- */
+
    }
 
    
@@ -1343,7 +1325,7 @@ NSString * SOPCLassOfReturnableSeries(
                    NSArray *partialArray=[NSArray arrayWithContentsOfFile:[queryPath stringByAppendingPathComponent:resultFile]];
                    if ((partialArray.count==1) && [partialArray[0] isKindOfClass:[NSNumber class]])
                    {
-                       LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"queryPath"]);
+                      NSLog(@"datatables filter not sufficiently selective for path %@",requestDict[@"queryPath"]);//warning
                        return [RSDataResponse responseWithData:
                                [NSJSONSerialization
                                 dataWithJSONObject:
@@ -1392,7 +1374,7 @@ NSString * SOPCLassOfReturnableSeries(
               && ([requestDict[@"max"] longLongValue] < resultsArray.count)
              )
          {
-            LOG_WARNING(@"datatables filter not sufficiently selective for path %@",requestDict[@"queryPath"]);
+            NSLog(@"datatables filter not sufficiently selective for path %@",requestDict[@"queryPath"]);//warning
              [dict setObject:[NSNumber numberWithLongLong:resultsArray.count] forKey:@"recordsFiltered"];
             [dict setObject:[NSNumber numberWithLongLong:resultsArray.count] forKey:@"recordsTotal"];
              [dict setObject:@[] forKey:@"data"];
@@ -1412,7 +1394,7 @@ NSString * SOPCLassOfReturnableSeries(
 #pragma mark isStudyRestriction
         if (requestDict[@"studyPredicate"])
         {
-            LOG_INFO(@"%@",[studyRestrictionDict description]);
+           NSLog(@"%@",[studyRestrictionDict description]);//info
             [resultsArray filterUsingPredicate:requestDict[@"studyPredicate"]];
          }
          
@@ -1459,11 +1441,11 @@ NSString * SOPCLassOfReturnableSeries(
                    
         long ps=[values[[names indexOfObject:@"start"]] intValue];
         long pl=[values[[names indexOfObject:@"length"]]intValue];
-        //LOG_INFO(@"paging desired (start=[%ld],filas=[%ld],last=[%lu])",ps,pl,recordsFiltered-1);
+        //NSLog(@"paging desired (start=[%ld],filas=[%ld],last=[%lu])",ps,pl,recordsFiltered-1);
         if (ps < 0) ps=0;
         if (ps > resultsArray.count - 1) ps=0;
         if (ps+pl+1 > resultsArray.count) pl=resultsArray.count-ps;
-        //LOG_INFO(@"paging applied (start=[%ld],filas=[%ld],last=[%lu])",ps,pl,recordsFiltered-1);
+        //NSLog(@"paging applied (start=[%ld],filas=[%ld],last=[%lu])",ps,pl,recordsFiltered-1);
         NSArray *page=[resultsArray subarrayWithRange:NSMakeRange(ps,pl)];
         if (!page)page=@[];
  

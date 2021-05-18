@@ -157,7 +157,7 @@
                               seriesData)
                   !=0)
             {
-               LOG_ERROR(@"studyToken study db error");
+               NSLog(@"studyToken study db error");
                continue;
             }
             NSArray *seriesSqlPropertiesArray=[seriesData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
@@ -237,7 +237,7 @@
                                         instanceData)
                            !=0)
                        {
-                          LOG_ERROR(@"studyToken study db error");
+                          NSLog(@"studyToken study db error");
                           continue;
                        }
                     }
@@ -259,7 +259,7 @@
                                         instanceData)
                            !=0)
                        {
-                          LOG_ERROR(@"studyToken study db error");
+                          NSLog(@"studyToken study db error");
                           continue;
                        }
                     }
@@ -278,7 +278,7 @@
                                         instanceData)
                            !=0)
                        {
-                          LOG_ERROR(@"studyToken study db error");
+                          NSLog(@"studyToken study db error");
                           continue;
                        }
                     }
@@ -502,7 +502,7 @@
                              seriesData)
                !=0)
            {
-              LOG_ERROR(@"studyToken study db error");
+              NSLog(@"studyToken study db error");
               continue;
            }
            NSArray *seriesSqlPropertiesArray=[seriesData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
@@ -595,7 +595,7 @@
                                      instanceData)
                         !=0)
                     {
-                       LOG_ERROR(@"studyToken study db error");
+                       NSLog(@"studyToken study db error");
                        continue;
                     }
                  }
@@ -617,7 +617,7 @@
                                      instanceData)
                         !=0)
                     {
-                       LOG_ERROR(@"studyToken study db error");
+                       NSLog(@"studyToken study db error");
                        continue;
                     }
                  }
@@ -636,7 +636,7 @@
                                      instanceData)
                         !=0)
                     {
-                       LOG_ERROR(@"studyToken study db error");
+                       NSLog(@"studyToken study db error");
                        continue;
                     }
                  }

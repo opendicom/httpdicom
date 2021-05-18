@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist
+    xmlns="http://www.opendicom.com/xsd/plist/pacs.xsd"
+    
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opendicom.com/xsd/plist/pacs.xsd pacs.xsd"
+    
+    version="1.0"
+    >
+    <array><!-- IMATEC -->
+        <!-- todos los centros -->
+        <dict>
+            <key>pacsoid</key>
+            <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">IMATEC</string>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc"></string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">IMATEC</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri"></string>
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
+            <key>select</key>
+            <string id="select">sql</string>
+            <key>get</key>
+            <string id="get">folderDcm4cheeArc</string>
+            
+            <key>sqlcredentials</key>
+            <string id="sqlcredentials">MYSQL_PWD</string>
+            <key>sqlpassword</key>
+            <string id="sqlpassword">pacspass</string>
+            <key>sqlprolog</key>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsuser -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
+            <key>needssqlaccesscontrol</key>
+            <false/>
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            <!--/Volumes/Archive/DICOM/IMATEC-->
+            <key>filesystemmapping</key>
+            <dict>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</string>
+                <key>file:/Volumes/Archive/DICOM/DCM4CHEE</key>
+                <string>/Volumes/Archive/DICOM/DCM4CHEE</string>
+            </dict>
+            
+            <key>DICMip</key>
+            <string id="DICMip">192.168.4.15</string>
+            <key>DICMport</key>
+            <string id="DICMport">11113</string>
+            
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">30</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC/wado</string>
+            <key>wadouriproxy</key>
+            <false/>
+            <key>wadouricornerstoneprefix</key>
+            <string id="wadouricornerstoneprefix"></string>
+            <key>wadouricornerstoneparameters</key>
+            <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
+            <key>wadouridicomzipparameters</key>
+            <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
+            <key>wadors</key>
+            <string id="wadors">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC/rs</string>
+            <key>wadorsproxy</key>
+            <false/>
+            <key>qido</key>
+            <string id="qido">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC/rs</string>
+            <key>qidoproxy</key>
+            <false/>
+            <key>stow</key>
+            <string id="stow"></string>
+            <key>stowproxy</key>
+            <false/>
+            
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc</string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
+            
+        </dict>
+        
+        <!-- historico -->
+        <dict>
+            <key>pacsoid</key>
+            <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.737765846967.4</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">IMATEC_HISTORICO</string>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc"></string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">IMATEC</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri"></string>
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
+            <key>select</key>
+            <string id="select">sql</string>
+            <key>get</key>
+            <string id="get">folderDcm4chee2</string>
+            
+            <key>sqlcredentials</key>
+            <string id="sqlcredentials">MYSQL_PWD</string>
+            <key>sqlpassword</key>
+            <string id="sqlpassword">pcs</string>
+            <key>sqlprolog</key>
+            <string id="sqlprolog">export MYSQL_PWD=pacsweb;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsweb -h 192.168.4.14 -b pacsdb -e </string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dcm4chee217mysql</string>
+            <key>needssqlaccesscontrol</key>
+            <false/>
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            <!--remote, pacs_server smb mounted-->
+            <key>filesystemmapping</key>
+            <dict>
+                <key>archive</key>
+                <string>/Volumes/Archive-1</string>
+                <key>/Volumes/Archive_1/Archive</key>
+                <string>/Volumes/Archive_1/archive</string>
+            </dict>
+            
+            <key>DICMip</key>
+            <string id="DICMip">192.168.4.14</string>
+            <key>DICMport</key>
+            <string id="DICMport">11112</string>
+            
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">30</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://192.168.4.14:8080/wado</string>
+            <key>wadouriproxy</key>
+            <false/>
+            <key>wadouricornerstoneprefix</key>
+            <string id="wadouricornerstoneprefix"></string>
+            <key>wadouricornerstoneparameters</key>
+            <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
+            <key>wadouridicomzipparameters</key>
+            <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
+            <key>wadors</key>
+            <string id="wadors"></string>
+            <key>wadorsproxy</key>
+            <false/>
+            <key>qido</key>
+            <string id="qido"></string>
+            <key>qidoproxy</key>
+            <false/>
+            <key>stow</key>
+            <string id="stow"></string>
+            <key>stowproxy</key>
+            <false/>
+            
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri">http://192.168.4.14:8080</string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
+
+        </dict>
+        
+        <!-- La Serena -->
+        <dict>
+            <key>pacsoid</key>
+            <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.737765846967.1</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">IMATEC_LASERENA</string>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc"></string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">IMATEC</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri"></string>
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
+            <key>select</key>
+            <string id="select">sql</string>
+            <key>get</key>
+            <string id="get">folderDcm4cheeArc</string>
+            
+            <key>sqlcredentials</key>
+            <string id="sqlcredentials">MYSQL_PWD</string>
+            <key>sqlpassword</key>
+            <string id="sqlpassword">pacspass</string>
+            <key>sqlprolog</key>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsuser -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
+            <key>needssqlaccesscontrol</key>
+            <true/>
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            <!--/Volumes/Archive/DICOM/IMATEC-->
+            <key>filesystemmapping</key>
+            <dict>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</string>
+                <key>file:/Volumes/Archive/DICOM/DCM4CHEE</key>
+                <string>/Volumes/Archive/DICOM/DCM4CHEE</string>
+            </dict>
+                        
+            <key>DICMip</key>
+            <string id="DICMip">192.168.4.15</string>
+            <key>DICMport</key>
+            <string id="DICMport">11113</string>
+            
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">30</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_LASERENA/wado</string>
+            <key>wadouriproxy</key>
+            <false/>
+            <key>wadouricornerstoneprefix</key>
+            <string id="wadouricornerstoneprefix"></string>
+            <key>wadouricornerstoneparameters</key>
+            <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
+            <key>wadouridicomzipparameters</key>
+            <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
+            <key>wadors</key>
+            <string id="wadors">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_LASERENA/rs</string>
+            <key>wadorsproxy</key>
+            <false/>
+            <key>qido</key>
+            <string id="qido">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_LASERENA/rs</string>
+            <key>qidoproxy</key>
+            <false/>
+            <key>stow</key>
+            <string id="stow"></string>
+            <key>stowproxy</key>
+            <false/>
+            
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc</string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
+            
+        </dict>
+        
+        <!-- Ovalle -->
+        <dict>
+            <key>pacsoid</key>
+            <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.737765846967.2</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">IMATEC_OVALLE</string>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc"></string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">IMATEC</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri"></string>
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
+            <key>select</key>
+            <string id="select">sql</string>
+            <key>get</key>
+            <string id="get">folderDcm4cheeArc</string>
+            
+            <key>sqlcredentials</key>
+            <string id="sqlcredentials">MYSQL_PWD</string>
+            <key>sqlpassword</key>
+            <string id="sqlpassword">pacspass</string>
+            <key>sqlprolog</key>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsuser -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
+            <key>needssqlaccesscontrol</key>
+            <true/>
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            <!--/Volumes/Archive/DICOM/IMATEC-->
+            <key>filesystemmapping</key>
+            <dict>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</string>
+                <key>file:/Volumes/Archive/DICOM/DCM4CHEE</key>
+                <string>/Volumes/Archive/DICOM/DCM4CHEE</string>
+            </dict>
+            
+            <key>DICMip</key>
+            <string id="DICMip">192.168.4.15</string>
+            <key>DICMport</key>
+            <string id="DICMport">11113</string>
+            
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">30</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_OVALLE/wado</string>
+            <key>wadouriproxy</key>
+            <false/>
+            <key>wadouricornerstoneprefix</key>
+            <string id="wadouricornerstoneprefix"></string>
+            <key>wadouricornerstoneparameters</key>
+            <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
+            <key>wadouridicomzipparameters</key>
+            <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
+            <key>wadors</key>
+            <string id="wadors">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_OVALLE/rs</string>
+            <key>wadorsproxy</key>
+            <false/>
+            <key>qido</key>
+            <string id="qido">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_OVALLE/rs</string>
+            <key>qidoproxy</key>
+            <false/>
+            <key>stow</key>
+            <string id="stow"></string>
+            <key>stowproxy</key>
+            <false/>
+            
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc</string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
+            
+        </dict>
+        
+        <!-- Vallenar -->
+        <dict>
+            <key>pacsoid</key>
+            <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.737765846967.3</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">IMATEC_VALLENAR</string>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc"></string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">IMATEC</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.737765846967</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri"></string>
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
+            <key>select</key>
+            <string id="select">sql</string>
+            <key>get</key>
+            <string id="get">folderDcm4cheeArc</string>
+            
+            <key>sqlcredentials</key>
+            <string id="sqlcredentials">MYSQL_PWD</string>
+            <key>sqlpassword</key>
+            <string id="sqlpassword">pacspass</string>
+            <key>sqlprolog</key>
+            <string id="sqlprolog">/usr/local/mysql/bin/mysql --raw --skip-column-names -upacsuser -h 127.0.0.1 -P 13306 -b pacsdb -e </string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dcm4cheearc521mysql</string>
+            <key>needssqlaccesscontrol</key>
+            <true/>
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            <!--/Volumes/Archive/DICOM/IMATEC-->
+            <key>filesystemmapping</key>
+            <dict>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_LASERENA</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_OVALLE</string>
+                <key>file:/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</key>
+                <string>/Volumes/Archive/DICOM/IMATEC/IMATEC_VALLENAR</string>
+                <key>file:/Volumes/Archive/DICOM/DCM4CHEE</key>
+                <string>/Volumes/Archive/DICOM/DCM4CHEE</string>
+            </dict>
+            
+            <key>DICMip</key>
+            <string id="DICMip">192.168.4.15</string>
+            <key>DICMport</key>
+            <string id="DICMport">11113</string>
+            
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">30</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/wado</string>
+            <key>wadouriproxy</key>
+            <false/>
+            <key>wadouricornerstoneprefix</key>
+            <string id="wadouricornerstoneprefix"></string>
+            <key>wadouricornerstoneparameters</key>
+            <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
+            <key>wadouridicomzipparameters</key>
+            <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
+            <key>wadors</key>
+            <string id="wadors">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/rs</string>
+            <key>wadorsproxy</key>
+            <false/>
+            <key>qido</key>
+            <string id="qido">http://192.168.4.15:8080/dcm4chee-arc/aets/IMATEC_VALLENAR/rs</string>
+            <key>qidoproxy</key>
+            <false/>
+            <key>stow</key>
+            <string id="stow"></string>
+            <key>stowproxy</key>
+            <false/>
+            
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri">http://192.168.4.15:8080/dcm4chee-arc</string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
+            
+        </dict>
+    </array>
+</plist>
+
+

@@ -1,6 +1,5 @@
 #import <Foundation/Foundation.h>
-#import "ODLog.h"
-#import "K.h"
+
 #import "DICMTypes.h"
 
 #import "RS.h"
@@ -77,10 +76,6 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
 //charset
 NSMutableArray *jsonMutableArray(NSString *scriptString, NSStringEncoding encoding);
 
-//proxy
-id qidoUrlProxy(NSString *qidoString,NSString *queryString, NSString *httpdicomString);
-
-id urlChunkedProxy(NSString *urlString,NSString *contentType);
 
 
 @interface DRS : RS

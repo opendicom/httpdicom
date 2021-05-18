@@ -1,5 +1,4 @@
 #import "DRS+pacs.h"
-#import "K.h"
 #import "DICMTypes.h"
 
 
@@ -164,7 +163,6 @@
          
          if ([pacsproperty isKindOfClass:[NSString class]])
          {
-             //LOG_INFO(@"%@: %@",pathComponents.lastObject,pacsproperty);
 
              return [RSDataResponse responseWithData:[pacsproperty dataUsingEncoding:NSUTF8StringEncoding] contentType:@"text/plain"];
          }

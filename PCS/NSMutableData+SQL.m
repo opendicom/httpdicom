@@ -7,7 +7,7 @@
 //
 
 #import "NSMutableData+SQL.h"
-#import "ODLog.h"
+
 
 @implementation NSMutableData (SQL)
 
@@ -15,7 +15,7 @@
 {
     if (!string || ![string length])
     {
-        LOG_ERROR(@"[SQL] parameters of countTask (null or empty string");
+       NSLog(@"[SQL] parameters of countTask (null or empty string");
         return nil;
     }
     
@@ -34,7 +34,7 @@
     NSError *error=nil;
     if (![task launchAndReturnError:&error])
     {
-        LOG_ERROR(@"[SQL] cannot launch countTask. Error: %@",[error description]);
+       NSLog(@"[SQL] cannot launch countTask. Error: %@",[error description]);
         return nil;
     };
     
@@ -49,7 +49,7 @@
         [resultData appendData:dataPiped];
     }
     [task waitUntilExit];
-    LOG_DEBUG(@"[SQL] ERROR countTask terminationStatus: %d",[task terminationStatus]);
+    NSLog(@"[SQL] ERROR countTask terminationStatus: %d",[task terminationStatus]);//debug
     
     return resultData;
 }
@@ -58,11 +58,11 @@
 {
     if (!string || ![string length] || !encoding)
     {
-        LOG_ERROR(@"[SQL] parameters of jsonTask (null or empty string or no sql charset");
+       NSLog(@"[SQL] parameters of jsonTask (null or empty string or no sql charset");
         return nil;
     }
     
-    LOG_DEBUG(@"[SQL] encoding: [%lu] jsonTask: %@ ",(unsigned long)encoding, string);
+   NSLog(@"[SQL] encoding: [%lu] jsonTask: %@ ",(unsigned long)encoding, string);//debug
     
     NSTask *task=[[NSTask alloc]init];
     [task setLaunchPath:@"/bin/bash"];
@@ -79,7 +79,7 @@
     NSError *error=nil;
     if (![task launchAndReturnError:&error])
     {
-        LOG_ERROR(@"cannot launch jsonTask. Error: %@",[error description]);
+       NSLog(@"cannot launch jsonTask. Error: %@",[error description]);
         return nil;
     };
     
@@ -94,55 +94,7 @@
         [resultData appendData:dataPiped];
     }
     [task waitUntilExit];
-    LOG_DEBUG(@"ERROR jsontask terminationStatus: %d",[task terminationStatus]);
-    
-    
-    
-    /*
-     //execute sql select
-     NSMutableData *mutableData=[NSMutableData countTask:sqlCount ];
-     if (!mutableData) [RSErrorResponse responseWithClientError:404 message:@"[qido] %@ did not answer to sql count",oid];
-     
-     //sqlCharset:(NSStringEncoding)loopDevice[@"sqlstringencoding"]
-     //response can be almost empty
-     //in this case we remove lost ']'
-     if ([mutableData length]<10) return [RSDataResponse responseWithData:emptymatchRoot contentType:@"application/json"];
-     
-     //db response may be in latin1
-     NSStringEncoding charset=(NSStringEncoding)[loopDevice[@"sqlstringencoding"] longLongValue ];
-     if (charset!=4 && charset!=5) return [RSErrorResponse responseWithClientError:404 message:@"unknown sql charset : %lu",(unsigned long)charset];
-     
-     if (charset==5) //latin1
-     {
-     NSString *latin1String=[[NSString alloc]initWithData:mutableData encoding:NSISOLatin1StringEncoding];
-     [mutableData setData:[latin1String dataUsingEncoding:NSUTF8StringEncoding]];
-     }
-     
-     NSError *error=nil;
-     NSMutableArray *arrayOfDicts=[NSJSONSerialization JSONObjectWithData:mutableData options:0 error:&error];
-     if (error) return [RSErrorResponse responseWithClientError:404 message:@"bad qido sql result : %@",[error description]];
-     
-     //formato JSON qido
-     NSMutableArray *qidoResponseArray=[NSMutableArray array];
-     for (NSDictionary *dict in arrayOfDicts)
-     {
-     NSMutableDictionary *object=[NSMutableDictionary dictionary];
-     for (NSString *key in dict)
-     {
-     NSDictionary *attrDesc=qidokey[key];
-     NSMutableDictionary *attrInst=[NSMutableDictionary dictionary];
-     if ([attrDesc[@"vr"] isEqualToString:@"PN"])
-     [attrInst setObject:@[@{@"Alphabetic":dict[key]}] forKey:@"Value"];
-     else if ([attrDesc[@"vr"] isEqualToString:@"DA"]) [attrInst setObject:@[[dict[key] dcmDaFromDate]] forKey:@"Value"];
-     else [attrInst setObject:@[dict[key]] forKey:@"Value"];
-     //TODO add other cases, like TM, DT, etc...
-     
-     [attrInst setObject:attrDesc[@"vr"] forKey:@"vr"];
-     [object setObject:attrInst forKey:attrDesc[@"tag"]];
-     }
-     [qidoResponseArray addObject:object];
-     }
-*/
+   NSLog(@"ERROR jsontask terminationStatus: %d",[task terminationStatus]);//debug
     
     return resultData;
 }

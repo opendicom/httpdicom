@@ -50,8 +50,10 @@
 
 -(void)appendCDAInFulfillmentOfOrder:(NSString*)AccessionNumber1 issuerOID:(NSString*)issuerOID;
 
+/*
 -(void)appendCDADocumentationOfNotCoded:(NSString*)procedure;
 -(void)appendCDADocumentationOf:(NSArray*)procedure;
+*/
 
 -(void)appendCDAComponentOfEncompassingEncounterEffectiveTime:(NSString*)DT;
 

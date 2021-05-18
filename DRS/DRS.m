@@ -73,12 +73,12 @@ NSString * parseRequestParams(RSRequest       *  request,
    else return [NSString stringWithFormat:@"ERROR Content-Type:\"%@\" not accepted",request.contentType];
    
    
-   LOG_INFO(@"%@ %@ content-type: %@ %@",
+   NSLog(@"%@ %@ content-type: %@ %@",
             request.method,
             [request.URL absoluteString],
             request.contentType,
             [request.headers description]
-            );
+            );//info
    
    for (NSString * key in [request.headers allKeys])
    {
@@ -101,14 +101,14 @@ NSDictionary * pacsParam(NSMutableArray  *  names,
       
       [pacsOID appendString:values[pacsIndex]];
       if (![DICMTypes.UIRegex numberOfMatchesInString:pacsOID options:0 range:NSMakeRange(0,[pacsOID length])]){
-         LOG_WARNING(@"<-404:  pacsUID '%@' should be an OID",pacsOID);
+         NSLog(@"<-404:  pacsUID '%@' should be an OID",pacsOID);//warning
          *errorString=[NSString stringWithFormat:@" pacsUID '%@' should be an OID",pacsOID];
          return nil;
       }
       
       
       if (!DRS.pacs[pacsOID]){
-         LOG_WARNING(@"<-404:  pacs '%@' not known",pacsOID);
+         NSLog(@"<-404:  pacs '%@' not known",pacsOID);//warning
          *errorString=[NSString stringWithFormat:@" pacsUID '%@' not known",pacsOID];
          return nil;
       }
@@ -125,9 +125,9 @@ NSDictionary * pacsParam(NSMutableArray  *  names,
 
 NSMutableArray *jsonMutableArray(NSString *scriptString, NSStringEncoding encoding)
 {
-   if      (encoding==4) LOG_DEBUG(@"utf8\r\n%@",scriptString);
-   else if (encoding==5) LOG_DEBUG(@"latin1\r\n%@",scriptString);
-   else                  LOG_DEBUG(@"encoding:%lu\r\n%@",(unsigned long)encoding,scriptString);
+   if      (encoding==4) NSLog(@"utf8\r\n%@",scriptString);//DEBUG
+   else if (encoding==5) NSLog(@"latin1\r\n%@",scriptString);//debug
+   else                  NSLog(@"encoding:%lu\r\n%@",(unsigned long)encoding,scriptString);//debug
    
    NSMutableData *mutableData=[NSMutableData data];
    if (!task(@"/bin/bash",@[@"-s"],[scriptString dataUsingEncoding:NSUTF8StringEncoding],mutableData))
@@ -139,111 +139,11 @@ NSMutableArray *jsonMutableArray(NSString *scriptString, NSStringEncoding encodi
    NSMutableArray *mutableArray=[NSJSONSerialization JSONObjectWithData:utf8Data options:NSJSONReadingMutableContainers error:&e];
    if (e)
    {
-      LOG_DEBUG(@"%@",[e description]);
+      NSLog(@"%@",[e description]);//debug
       return nil;
    }
    return mutableArray;
 }
-
-
-id qidoUrlProxy(NSString *qidoString,NSString *queryString, NSString *httpdicomString)
-{
-   __block dispatch_semaphore_t __urlProxySemaphore = dispatch_semaphore_create(0);
-   __block NSMutableData *__data;
-   __block NSURLResponse *__response;
-   __block NSError *__error;
-   __block NSDate *__date;
-   __block unsigned long __chunks=0;
-   
-   NSString *urlString;
-   if (queryString) urlString=[NSString stringWithFormat:@"%@?%@",qidoString,queryString];
-   else urlString=qidoString;
-   
-   NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-   [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];//application/dicom+json not accepted !!!!!
-   
-   NSURLSessionDataTask * const dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
-                                            {
-                                               __data=[NSMutableData dataWithData:data];
-                                               __response=response;
-                                               __error=error;
-                                               dispatch_semaphore_signal(__urlProxySemaphore);
-                                            }];
-   __date=[NSDate date];
-   [dataTask resume];
-   dispatch_semaphore_wait(__urlProxySemaphore, DISPATCH_TIME_FOREVER);
-   //completionHandler of dataTask executed only once and before returning
-   return [RSStreamedResponse responseWithContentType:@"application/json" asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
-           {
-              if (__error) completionBlock(nil,__error);
-              if (__chunks)
-              {
-                 completionBlock([NSData data], nil);
-                 LOG_DEBUG(@"urlProxy: %lu chunk in %fs for:\r\n%@",__chunks,[[NSDate date] timeIntervalSinceDate:__date],[__response description]);
-              }
-              else
-              {
-                 NSData *pacsUri=[qidoString dataUsingEncoding:NSUTF8StringEncoding];
-                 NSData *httpdicomUri=[httpdicomString dataUsingEncoding:NSUTF8StringEncoding];
-                 NSUInteger httpdicomLength=[httpdicomUri length];
-                 NSRange dataLeft=NSMakeRange(0,[__data length]);
-                 NSRange occurrence=[__data rangeOfData:pacsUri options:0 range:dataLeft];
-                 while (occurrence.length)
-                 {
-                    [__data replaceBytesInRange:occurrence
-                                      withBytes:[httpdicomUri bytes]
-                                         length:httpdicomLength];
-                    dataLeft.location=occurrence.location+httpdicomLength;
-                    dataLeft.length=[__data length]-dataLeft.location;
-                    occurrence=[__data rangeOfData:pacsUri options:0 range:dataLeft];
-                 }
-                 completionBlock(__data, nil);
-                 __chunks++;
-              }
-           }];
-}
-
-
-id urlChunkedProxy(NSString *urlString,NSString *contentType)
-{
-   __block dispatch_semaphore_t __urlProxySemaphore = dispatch_semaphore_create(0);
-   __block NSData *__data;
-   __block NSURLResponse *__response;
-   __block NSError *__error;
-   __block NSDate *__date;
-   __block unsigned long __chunks=0;
-   
-   NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-   [request setValue:contentType forHTTPHeaderField:@"Accept"];//application/dicom+json not accepted !!!!!
-   [request setValue:@"chunked" forHTTPHeaderField:@"Transfer-Encoding"];
-   
-   NSURLSessionDataTask * const dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
-                                            {
-                                               __data=data;
-                                               __response=response;
-                                               __error=error;
-                                               dispatch_semaphore_signal(__urlProxySemaphore);
-                                            }];
-   __date=[NSDate date];
-   [dataTask resume];
-   dispatch_semaphore_wait(__urlProxySemaphore, DISPATCH_TIME_FOREVER);
-   //completionHandler of dataTask executed only once and before returning
-   
-   
-   return [RSStreamedResponse responseWithContentType:contentType asyncStreamBlock:^(RSBodyReaderCompletionBlock completionBlock)
-           {
-              if (__error) completionBlock(nil,__error);
-              if (__chunks)
-              {
-                 completionBlock([NSData data], nil);
-                 LOG_DEBUG(@"urlProxy: %lu chunk in %fs for:\r\n%@",__chunks,[[NSDate date] timeIntervalSinceDate:__date],[__response description]);
-              }
-              else completionBlock(__data, nil);
-              __chunks++;
-           }];
-}
-
-
 
 
 @implementation DRS
@@ -278,15 +178,7 @@ static NSArray      *_accessTypeFinisher=nil;
 
 int execUTF8Bash(NSDictionary *environment, NSString *writeString, NSMutableData *readData)
 {
-   /*NSArray *whereSeparated=[writeString componentsSeparatedByString:@"WHERE"];
-    
-   if  (whereSeparated.count==2)
-   {
-       NSString *sqlOnly=[whereSeparated [1] componentsSeparatedByString:@"\"|"][0];
-       NSRange firstBackSlashOffset=[sqlOnly rangeOfString:@"\\"];
-       LOG_VERBOSE(@"%@",[sqlOnly substringFromIndex:firstBackSlashOffset.location + 2]);
-   }
-   else*/ LOG_DEBUG(@"%@",writeString);
+   NSLog(@"%@",writeString);//debug
    
    return execTask(environment, @"/bin/bash",@[@"-s"], [writeString dataUsingEncoding:NSUTF8StringEncoding], readData);
 }
@@ -323,7 +215,7 @@ int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArg
    
    [task waitUntilExit];
    int terminationStatus = [task terminationStatus];
-   if (terminationStatus!=0) LOG_WARNING(@"ERROR task terminationStatus: %d",terminationStatus);
+   if (terminationStatus!=0) NSLog(@"ERROR task terminationStatus: %d",terminationStatus);//warning
    return terminationStatus;
 }
 
@@ -338,7 +230,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
    NSTask *task=[[NSTask alloc]init];
    [task setLaunchPath:launchPath];
    [task setArguments:launchArgs];
-   //LOG_INFO(@"%@",[task arguments]);
+   //NSLog(@"%@",[task arguments]);
    NSPipe *writePipe = [NSPipe pipe];
    NSFileHandle *writeHandle = [writePipe fileHandleForWriting];
    [task setStandardInput:writePipe];
@@ -363,7 +255,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
    
    [task waitUntilExit];
    int terminationStatus = [task terminationStatus];
-   if (terminationStatus!=0) LOG_INFO(@"ERROR task terminationStatus: %d",terminationStatus);
+   if (terminationStatus!=0) NSLog(@"ERROR task terminationStatus: %d",terminationStatus);//info
    return terminationStatus;
 }
 
@@ -517,7 +409,7 @@ static NSData *ctad=nil;
             }
             [oidsaeis setValue:oidaeis forKey:oid];
         }
-        LOG_DEBUG(@"\r\nknown pacs OID classified by corresponding custodian OID:\r\n%@",[oidsaeis description]);
+       NSLog(@"\r\nknown pacs OID classified by corresponding custodian OID:\r\n%@",[oidsaeis description]);//debug
         
         
         
@@ -546,7 +438,7 @@ static NSData *ctad=nil;
             [titlesaets setObject:titleaets forKey:title];
             [s appendString:@")"];
         }
-        LOG_DEBUG(@"\r\nknown pacs aet classified by corresponding custodian title:\r\n%@",[titlesaets description]);
+       NSLog(@"\r\nknown pacs aet classified by corresponding custodian title:\r\n%@",[titlesaets description]);//debug
        
        _oids=[NSDictionary dictionaryWithDictionary:oids];
        _titles=[NSDictionary dictionaryWithDictionary:titles];
@@ -662,9 +554,9 @@ static NSData *ctad=nil;
        _wan=[NSSet setWithSet:wan];
        _lan=[NSSet setWithSet:lan];
        _lanDeduplicated=[NSSet setWithSet:lanDeduplicated];
-       LOG_DEBUG(@"\r\nwan:\r\n%@",[_wan description]);
-       LOG_DEBUG(@"\r\nlan:\r\n%@",[_lan description]);
-       LOG_DEBUG(@"\r\nlanDeduplicated:\r\n%@",[_lanDeduplicated description]);
+       NSLog(@"\r\nwan:\r\n%@",[_wan description]);//debug
+       NSLog(@"\r\nlan:\r\n%@",[_lan description]);//debug
+       NSLog(@"\r\nlanDeduplicated:\r\n%@",[_lanDeduplicated description]);//debug
 
 #pragma mark _accessType, _accessTypeStarter, _accessTypeSeparator, _accessTypeFinisher
        _accessType=@[
@@ -718,7 +610,7 @@ static NSData *ctad=nil;
         
 #pragma mark / =wado-uri
         [self addWadoHandler];//(default handler)
-       LOG_DEBUG(@"added handler GET / (=wado-uri)");
+       NSLog(@"added handler GET / (=wado-uri)");//debug
 
 #pragma mark /echo
         [self addHandler:@"GET" path:@"/echo" processBlock:
@@ -728,52 +620,32 @@ static NSData *ctad=nil;
         }(request));}];
        //            return [RSDataResponse responseWithText:[NSString stringWithFormat:@"echo time:%@ to:%@", [DICMTypes DTStringFromDate:[NSDate date]], request.remoteAddressString]];
 
-        LOG_DEBUG(@"added handler GET /echo");
+       NSLog(@"added handler GET /echo");//debug
        
 #pragma mark /custodians /pacs /sqls
         [self addGETCustodiansHandler];//
         [self addGETPacsHandler];//
         [self addGETSqlsHandler];//
-        LOG_DEBUG(@"added handler GET /custodians and /pacs /sqls");
+       NSLog(@"added handler GET /custodians and /pacs /sqls");//debug
 
-#pragma mark /store (deprecated) -> storestow
-        //[self addPOSTstudiesHandler];
-        //LOG_DEBUG(@"added handler POST /stowstore");
-
-#pragma mark /qido (deprecated)
-       //[self addMWLHandler];
-       //LOG_DEBUG(@"added handler /mwlitem");
-
-#pragma mark /wado-rs (deprecated)
-       //[self addWadorsHandler];//
-       //LOG_DEBUG(@"added handler GET wadors");
-
-#pragma mark /mwlitem (deprecated) -> mirth
-        //[self addMwlitemHandler];
-        //LOG_DEBUG(@"added handler POST /mwlitem");
-
-#pragma mark /encapsulated (deprecated)
-//        [self GETencapsulated];
-//        [self POSTencapsulated];
-//        LOG_DEBUG(@"added handlers GETencapsulated and POSTencapsulated");
 
 #pragma mark /studyToken
         [self addPostAndGetStudyTokenHandler];
-        LOG_DEBUG(@"added handler POST+GET /studyToken");
+       NSLog(@"added handler POST+GET /studyToken");//debug
 
 #pragma mark /datatables
         [self addDatatablesStudiesHandler];
-        LOG_DEBUG(@"added handler GET /datatables/studies");
+       NSLog(@"added handler GET /datatables/studies");//debug
 
         [self addDatatablesSeriesHandler];
-        LOG_DEBUG(@"added handler GET /datatables/series");
+       NSLog(@"added handler GET /datatables/series");//debug
 
        [self addDatatablesPatientHandler];
-       LOG_DEBUG(@"added handler GET /datatables/patient");
+       NSLog(@"added handler GET /datatables/patient");//debug
 
 #pragma mark report
        [self addXMLReportHandler];
-       LOG_DEBUG(@"added handler GET ^/(OT|DOC)/(DSCD|SCD|CDA|PDF)$");
+       NSLog(@"added handler GET ^/(OT|DOC)/(DSCD|SCD|CDA|PDF)$");//debug
 
     }
       

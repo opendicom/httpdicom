@@ -1,6 +1,6 @@
 #import "RS.h"
 
-#import "ODLog.h"
+
 #import <netinet/in.h>
 
 
@@ -124,20 +124,20 @@
     
     if (bind(listeningSocket, address, length) == 0) {
       if (listen(listeningSocket, (int)maxPendingConnections) == 0) {
-        LOG_DEBUG(@"Did open %s listening socket %i", useIPv6 ? "IPv6" : "IPv4", listeningSocket);
+         NSLog(@"Did open %s listening socket %i", useIPv6 ? "IPv6" : "IPv4", listeningSocket);//debug
         return listeningSocket;
       } else {
         if (error) {
           *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithUTF8String:strerror(errno)]}];
         }
-        LOG_ERROR(@"Failed starting %s listening socket: %s (%i)", useIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
+         NSLog(@"Failed starting %s listening socket: %s (%i)", useIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
         close(listeningSocket);
       }
     } else {
       if (error) {
         *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithUTF8String:strerror(errno)]}];
       }
-      LOG_ERROR(@"Failed binding %s listening socket: %s (%i)", useIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
+       NSLog(@"Failed binding %s listening socket: %s (%i)", useIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
       close(listeningSocket);
     }
     
@@ -145,7 +145,7 @@
     if (error) {
       *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithUTF8String:strerror(errno)]}];
     }
-    LOG_ERROR(@"Failed creating %s listening socket: %s (%i)", useIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
+     NSLog(@"Failed creating %s listening socket: %s (%i)", useIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
   }
   return -1;
 }
@@ -177,7 +177,7 @@
          //JF20190916 RS calling RSConnection
           [[[RSConnection alloc] initWithLocalAddress:localAddress remoteAddress:remoteAddress socket:socket]self];  // Connection will automatically retain
       } else {
-        LOG_ERROR(@"Failed accepting %s socket: %s (%i)", isIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
+         NSLog(@"Failed accepting %s socket: %s (%i)", isIPv6 ? "IPv6" : "IPv4", strerror(errno), errno);
       }
     }
     
@@ -215,7 +215,7 @@
     dispatch_resume(_source4);
     dispatch_resume(_source6);
     [RSConnection setHandlers:self.handlers];
-    LOG_INFO(@"httpdicom started on port %i for %lu handlers", (int)port,(unsigned long)self.handlers.count );
+   NSLog(@"httpdicom started on port %i for %lu handlers", (int)port,(unsigned long)self.handlers.count );
     
     return YES;
 }

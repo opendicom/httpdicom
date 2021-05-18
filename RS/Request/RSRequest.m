@@ -1,6 +1,6 @@
 #import "RSRequest.h"
 #import "RSGZipDecoder.h"
-#import "ODLog.h"
+
 #import "RFC822.h"
 #import "NSString+PCS.h"
 
@@ -72,7 +72,7 @@ NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form) {
         if (unescapedKey && unescapedValue) {
             [parameters setObject:unescapedValue forKey:unescapedKey];
         } else {
-            LOG_WARNING(@"Failed parsing URL encoded form for key \"%@\" and value \"%@\"", key, value);
+           NSLog(@"Failed parsing URL encoded form for key \"%@\" and value \"%@\"", key, value);//warning
         }
         
         if ([scanner isAtEnd]) {
@@ -133,7 +133,7 @@ NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form) {
     if (lengthHeader) {
       NSInteger length = [lengthHeader integerValue];
       if (_chunked || (length < 0)) {
-        LOG_WARNING(@"Invalid 'Content-Length' header '%@' for '%@' request on \"%@\"", lengthHeader, _method, _url);
+         NSLog(@"Invalid 'Content-Length' header '%@' for '%@' request on \"%@\"", lengthHeader, _method, _url);//warning
         return nil;
       }
       _length = length;
@@ -147,7 +147,7 @@ NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form) {
       _length = NSUIntegerMax;
     } else {
       if (_type) {
-        LOG_WARNING(@"Ignoring 'Content-Type' header for '%@' request on \"%@\"", _method, _url);
+         NSLog(@"Ignoring 'Content-Type' header for '%@' request on \"%@\"", _method, _url);//error
         _type = nil;  // Content-Type without Content-Length or chunked-encoding doesn't make sense
       }
       _length = NSUIntegerMax;
@@ -183,7 +183,7 @@ NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form) {
         }
       }
       if ((_range.location == NSUIntegerMax) && (_range.length == 0)) {  // Ignore "Range" header if syntactically invalid
-        LOG_WARNING(@"Failed to parse 'Range' header \"%@\" for url: %@", rangeHeader, url);
+         NSLog(@"Failed to parse 'Range' header \"%@\" for url: %@", rangeHeader, url);//warning
       }
     }
     
@@ -333,7 +333,7 @@ NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form) {
             NSString* charset = [self.contentType valueForName:@"charset"];
             _text = [[NSString alloc] initWithData:self.data encoding:GCDWebServerStringEncodingFromCharset(charset)];
         } else {
-            LOG_WARNING(@"can not extract text if content type does not start with text/");
+           NSLog(@"can not extract text if content type does not start with text/");//warning
         }
     }
     return _text;
@@ -345,7 +345,7 @@ NSDictionary* GCDWebServerParseURLEncodedForm(NSString* form) {
         if ([mimeType isEqualToString:@"application/json"] || [mimeType isEqualToString:@"text/json"] || [mimeType isEqualToString:@"text/javascript"]) {
             _jsonObject = [NSJSONSerialization JSONObjectWithData:_data options:0 error:NULL];
         } else {
-            LOG_WARNING(@"Content-Type \"%@\" is not correct for json content", self.contentType);
+           NSLog(@"Content-Type \"%@\" is not correct for json content", self.contentType);//warning
         }
     }
     return _jsonObject;

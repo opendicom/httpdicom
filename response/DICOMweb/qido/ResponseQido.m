@@ -1,5 +1,5 @@
 #import "ResponseQido.h"
-#import "ODLog.h"
+
 #import "NSArray+PCS.h"
 
 @implementation ResponseQido
@@ -41,8 +41,8 @@
    //expected
    if (response.statusCode==200) return [NSArray arrayWithJsonData:responseData];   
    //unexpected
-   LOG_WARNING(@"%@\r\n%ld ResponseQido srtudiesFoundInPacs:accessionNumber:%@ ",pacs, response.statusCode,accessionNumber );
-   if (error) LOG_ERROR(@"%@",[error description]);
+   NSLog(@"%@\r\n%ld ResponseQido srtudiesFoundInPacs:accessionNumber:%@ ",pacs, response.statusCode,accessionNumber );//warning
+   if (error) NSLog(@"%@",[error description]);
 
    return nil;
 }
@@ -68,8 +68,8 @@
    //expected
    if (response.statusCode==200) return [NSArray arrayWithJsonData:responseData];
    //unexpected
-   LOG_WARNING(@"<-%ld (NO studiesFoundInPacs:studyUID:%@)", response.statusCode,studyUID );
-   if (error) LOG_ERROR(@"%@",[error description]);
+   NSLog(@"<-%ld (NO studiesFoundInPacs:studyUID:%@)", response.statusCode,studyUID );//warning
+   if (error) NSLog(@"%@",[error description]);//error
    
    return nil;
 }

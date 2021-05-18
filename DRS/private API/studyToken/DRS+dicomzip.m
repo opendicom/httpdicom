@@ -79,7 +79,7 @@
                         seriesData)
           !=0)
       {
-         LOG_ERROR(@"zip series db error");
+         NSLog(@"zip series db error");
          continue;
       }
       NSArray *seriesSqlPropertiesArray=[seriesData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
@@ -126,7 +126,7 @@
                              fileData)
                 !=0)
             {
-               LOG_ERROR(@"zip file db error");
+               NSLog(@"zip file db error");
                continue;
             }
             
@@ -155,7 +155,7 @@
 
 +(RSResponse*)dicomzipStreamForSeriesPaths:(NSArray*)array
 {
-   LOG_VERBOSE(@"%@",[array description]);
+   NSLog(@"%@",[array description]);//verbose
    NSFileManager *fileManager=[NSFileManager defaultManager];
 
    /**
@@ -191,13 +191,13 @@
            {
               __block NSString *filePath=[seriesPath stringByAppendingPathComponent:fileName];
               __block NSData *fileData=[NSData dataWithContentsOfFile:filePath];
-              if (!fileData) LOG_ERROR(@"could not get %@",filePath);
+              if (!fileData) NSLog(@"could not get %@",filePath);
               else
               {
                  unsigned long fileLength=(unsigned long)[fileData length];
                  NSString *dcmUUID=[[[NSUUID UUID]UUIDString]stringByAppendingPathExtension:@"dcm"];
                  NSData *dcmName=[dcmUUID dataUsingEncoding:NSUTF8StringEncoding];
-                 //LOG_INFO(@"dcm (%lu bytes):%@",dcmLength,dcmUUID);
+                 //NSLog(@"dcm (%lu bytes):%@",dcmLength,dcmUUID);
                  
                  [e appendBytes:&zipLocalFileHeader length:4];//0x04034B50
                  [e appendBytes:&zipVersion length:2];//0x000A

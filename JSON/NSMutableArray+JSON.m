@@ -1,5 +1,5 @@
 #import "NSMutableArray+JSON.h"
-#import "ODLog.h"
+
 
 /*
  NSJSONReadingMutableContainers
@@ -22,7 +22,7 @@
    NSMutableArray *array=[NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
    if (error)
    {
-      LOG_WARNING(@"json data not array:\r\n%@\r\n%@", [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding],[error description]);
+      NSLog(@"json data not array:\r\n%@\r\n%@", [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding],[error description]);//warning
       return nil;
    }
    return array;

@@ -1,5 +1,5 @@
 #import "NSMutableDictionary+PCS.h"
-#import "ODLog.h"
+
 
 @implementation NSMutableDictionary (PCS)
 
@@ -22,8 +22,8 @@
    NSMutableDictionary *dictionary=[NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
    if (error)
    {
-      LOG_WARNING(@"json data not dictionary:\r\n%@\r\n%@", [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding],[error description]);
-      return nil;
+      NSLog(@"json data not dictionary:\r\n%@\r\n%@", [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding],[error description]);
+      return nil;//warning
    }
    return dictionary;
 }

@@ -85,7 +85,7 @@
             break;
 
          default:
-            LOG_WARNING(@"studyToken accessionNumber issuer error '%@'",[d[@"issuerArray"] componentsJoinedByString:@"^"]);
+            NSLog(@"studyToken accessionNumber issuer error '%@'",[d[@"issuerArray"] componentsJoinedByString:@"^"]);//warning
             break;
       }
    }
@@ -106,7 +106,7 @@
                break;
 
             default:
-               LOG_WARNING(@"studyToken patientID issuer error '%@'",[d[@"issuerArray"] componentsJoinedByString:@"^"]);
+               NSLog(@"studyToken patientID issuer error '%@'",[d[@"issuerArray"] componentsJoinedByString:@"^"]);//warning
                break;
          }
       }
@@ -203,7 +203,7 @@
    
     [Eand appendString:d[@"Eaccesscontrol"]];
 
-   LOG_VERBOSE(@"%@",Eand);
+   NSLog(@"%@",Eand);//verbose
 
 #pragma mark are there more studies than cached?
 
@@ -239,7 +239,7 @@
         @{orgDict[@"sqlcredentials"]:orgDict[@"sqlpassword"]},
         bash,
         mutableData)
-        !=0) LOG_ERROR(@"%@",bash);
+        !=0) NSLog(@"%@",bash);
 
    if ([mutableData length])
    {

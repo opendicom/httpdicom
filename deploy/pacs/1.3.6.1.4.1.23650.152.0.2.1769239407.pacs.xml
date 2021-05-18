@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist
+    xmlns="http://www.opendicom.com/xsd/plist/pacs.xsd"
+    
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opendicom.com/xsd/plist/pacs.xsd pacs.xsd"
+    
+    version="1.0"
+    >
+    <array><!-- itsos -->
+        <dict>
+            <key>pacsoid</key>
+            <string id="pacsoid">1.3.6.1.4.1.23650.152.0.2.1769239407</string>
+            <key>pacsaet</key>
+            <string id="pacsaet">CDS</string>
+            <key>preferredstudyidentificator</key>
+            <string id="preferredstudyidentificator">StudyInstanceUID</string>
+            <key>timezoneoffsetfromutc</key>
+            <string id="timezoneoffsetfromutc">+0300</string>
+            <key>custodiantitle</key>
+            <string id="custodiantitle">CDS</string>
+            <key>custodianoid</key>
+            <string id="custodianoid">1.3.6.1.4.1.23650.152.0.2.676883</string>
+            <key>custodianglobaluri</key>
+            <string id="custodianglobaluri"></string>
+            <key>countrycode</key>
+            <string id="countrycode">cl</string>
+            <key>principallanguage</key>
+            <string id="principallanguage">es</string>
+            <key>firststudydate</key>
+            <string id="firststudydate"></string>
+            <key>laststudydate</key>
+            <string id="laststudydate"></string>
+
+            <key>select</key>
+            <string id="select">sql</string>
+            <key>get</key>
+            <string id="get">folderDcm4cheeArc</string>
+            
+            <key>sqlcredentials</key>
+            <string id="sqlcredentials">MYSQL_PWD</string>
+            <key>sqlpassword</key>
+            <string id="sqlpassword">pcs</string>
+            <key>sqlprolog</key>
+            <string id="sqlprolog">export MYSQL_PWD=pacs;/usr/local/mysql/bin/mysql --raw --skip-column-names -upacs -h 127.0.0.1 -b pacsdb -e </string>
+            <key>sqlstringencoding</key>
+            <string id="sqlstringencoding">5</string>
+            <key>sqlmap</key>
+            <string id="sqlmap">dal55mysql</string>
+            <key>needssqlaccesscontrol</key>
+            <false/>
+            <key>sopstringencoding</key>
+            <string id="sopstringencoding">4</string>
+            <key>filesystemmapping</key>
+            <dict>
+            </dict>
+
+            <key>DICMip</key>
+            <string id="DICMip">127.0.0.1</string>
+            <key>DICMport</key>
+            <string id="DICMport">11113</string>
+            
+            <key>cachepolicy</key>
+            <string id="cachepolicy">1</string>
+            <key>timeoutinterval</key>
+            <string id="timeoutinterval">60</string>
+            <key>wadouri</key>
+            <string id="wadouri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/wado</string>
+            <key>wadouriproxy</key>
+            <false/>
+            <key>wadouricornerstoneprefix</key>
+            <string id="wadouricornerstoneprefix"></string>
+            <key>wadouricornerstoneparameters</key>
+            <string id="wadouricornerstoneparameters"></string>
+            <key>wadouriweasisparameters</key>
+            <string id="wadouriweasisparameters">&amp;transferSyntax=*</string>
+            <key>wadouridicomzipparameters</key>
+            <string id="wadouridicomzipparameters">&amp;transferSyntax=*</string>
+            <key>wadors</key>
+            <string id="wadors">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
+            <key>wadorsproxy</key>
+            <false/>
+            <key>qido</key>
+            <string id="qido">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS/rs</string>
+            <key>qidoproxy</key>
+            <false/>
+            <key>stow</key>
+            <string id="stow"></string>
+            <key>stowproxy</key>
+            <false/>
+            
+            <key>dcm4cheelocaluri</key>
+            <string id="dcm4cheelocaluri">http://127.0.0.1:8080/dcm4chee-arc/aets/CDS</string>
+            <key>dcm4cheeDICMproxytitle</key>
+            <string id="dcm4cheeDICMproxytitle"></string>
+            
+            
+        </dict>
+    </array>
+</plist>
+

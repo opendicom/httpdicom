@@ -1,5 +1,5 @@
 #import "NSData+ZLIB.h"
-#import "ODLog.h"
+
 #import "zlib.h"
 
 
@@ -135,20 +135,20 @@ void generateCRC32Table(uint32_t *pTable, uint32_t poly)
          break;
          
       case Z_STREAM_ERROR:
-         LOG_WARNING(@"%s: deflateInit2() Invalid parameter passed in to function: %s", __func__, zlibStreamStruct.msg);
+         NSLog(@"%s: deflateInit2() Invalid parameter passed in to function: %s", __func__, zlibStreamStruct.msg);//warning
          return nil;
          
       case Z_MEM_ERROR:
-         LOG_WARNING(@"%s: deflateInit2() Insufficient memory: %s", __func__, zlibStreamStruct.msg);
-         return nil;
+         NSLog(@"%s: deflateInit2() Insufficient memory: %s", __func__, zlibStreamStruct.msg);
+         return nil;//warning
          
       case Z_VERSION_ERROR:
-         LOG_WARNING(@"%s: deflateInit2() The version of zlib.h and the version of the library linked do not match: %s", __func__, zlibStreamStruct.msg);
+         NSLog(@"%s: deflateInit2() The version of zlib.h and the version of the library linked do not match: %s", __func__, zlibStreamStruct.msg);//warning
          return nil;
          
       default:
-         LOG_WARNING(@"%s: deflateInit2() unknown error: %s", __func__, zlibStreamStruct.msg);
-         return nil;
+         NSLog(@"%s: deflateInit2() unknown error: %s", __func__, zlibStreamStruct.msg);
+         return nil;//warning
    }
 
    // destination buffer size must be at least 0.1% larger than avail_in plus 12 bytes.
@@ -187,31 +187,31 @@ void generateCRC32Table(uint32_t *pTable, uint32_t poly)
          return compressedData;
          
       case Z_ERRNO:
-         LOG_WARNING(@"%s: deflateInit2() Error occured while reading file: ", __func__);
+         NSLog(@"%s: deflateInit2() Error occured while reading file: ", __func__);//warning
          break;
          
       case Z_STREAM_ERROR:
-         LOG_WARNING(@"%s: deflateInit2() The stream state was inconsistent (e.g., next_in or next_out was NULL): ", __func__);
+         NSLog(@"%s: deflateInit2() The stream state was inconsistent (e.g., next_in or next_out was NULL): ", __func__);//warning
          break;
          
       case Z_DATA_ERROR:
-         LOG_WARNING(@"%s: deflateInit2() The stream state was inconsistent (e.g., next_in or next_out was NULL): ", __func__);
+         NSLog(@"%s: deflateInit2() The stream state was inconsistent (e.g., next_in or next_out was NULL): ", __func__);//warning
          break;
          
       case Z_MEM_ERROR:
-         LOG_WARNING(@"%s: deflateInit2() The stream state was inconsistent (e.g., next_in or next_out was NULL): ", __func__);
+         NSLog(@"%s: deflateInit2() The stream state was inconsistent (e.g., next_in or next_out was NULL): ", __func__);//warning
          break;
          
       case Z_BUF_ERROR:
-         LOG_WARNING(@"%s: deflateInit2() The stream state was inconsistent (e.g., next_in or next_out was NULL): ", __func__);
+         NSLog(@"%s: deflateInit2() The stream state was inconsistent (e.g., next_in or next_out was NULL): ", __func__);//warning
          break;
          
       case Z_VERSION_ERROR:
-         LOG_WARNING(@"%s: deflateInit2() The stream state was inconsistent (e.g., next_in or next_out was NULL): ", __func__);
+         NSLog(@"%s: deflateInit2() The stream state was inconsistent (e.g., next_in or next_out was NULL): ", __func__);//warning
          break;
          
       default:
-         LOG_WARNING(@"%s: deflateInit2() The stream state was inconsistent (e.g., next_in or next_out was NULL): ", __func__);
+         NSLog(@"%s: deflateInit2() The stream state was inconsistent (e.g., next_in or next_out was NULL): ", __func__);//warning
          break;
    }
    return nil;

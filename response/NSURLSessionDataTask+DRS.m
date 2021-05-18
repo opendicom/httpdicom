@@ -1,6 +1,6 @@
 #import "NSURLSessionDataTask+DRS.h"
 #import "NSArray+PCS.h"
-#import "ODLog.h"
+
 
 @implementation NSURLSessionDataTask (DRS)
 
@@ -47,8 +47,8 @@
 {
     if (!pid || ![pid length])
     {
-        LOG_WARNING(@"[NSURLSessionDataTask+DRS] no pid");
-        return false;
+       NSLog(@"[NSURLSessionDataTask+DRS] no pid");
+        return false;//warning
     }
     
     
@@ -80,8 +80,8 @@
         if (response.statusCode==200) return @[];//contents
         if (response.statusCode==204) return nil;//no content
         //unexpected
-        LOG_WARNING(@"[NSURLSessionDataTask+DRS] HEADpid %ld",response.statusCode);
-        if (error) LOG_ERROR(@"[NSURLSessionDataTask+DRS] HEADpid error:\r\n%@",[error description]);
+       NSLog(@"[NSURLSessionDataTask+DRS] HEADpid %ld",response.statusCode);//warning
+        if (error) NSLog(@"[NSURLSessionDataTask+DRS] HEADpid error:\r\n%@",[error description]);
         return nil;
     }
     else
@@ -91,8 +91,8 @@
         //expected
         if (response.statusCode==200) return [NSArray arrayWithJsonData:responseData];
         //unexpected
-        LOG_WARNING(@"[NSURLSessionDataTask+DRS] GETpid %ld",response.statusCode);
-        if (error) LOG_ERROR(@"[NSURLSessionDataTask+DRS] GETpid error:\r\n%@",[error description]);
+       NSLog(@"[NSURLSessionDataTask+DRS] GETpid %ld",response.statusCode);//warning
+        if (error) NSLog(@"[NSURLSessionDataTask+DRS] GETpid error:\r\n%@",[error description]);
     }
     return nil;
 }

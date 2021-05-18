@@ -2,7 +2,7 @@
 
 #import <netdb.h>
 #import "RFC822.h"
-#import "ODLog.h"
+
 #import "NSString+PCS.h"
 
 #define kHeadersReadCapacity (1 * 1024)
@@ -51,7 +51,7 @@ static NSArray *_handlers = nil;
 - (void)_startProcessingRequest {
     // https://tools.ietf.org/html/rfc2617
     
-    LOG_VERBOSE(@"Connection on socket %i processing request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);
+   NSLog(@"Connection on socket %i processing request \"%@ %@\" with %lu bytes body", _socket, _request.method, _request.path, (unsigned long)_bytesRead);//verbose
     @try {
           _handler.processBlock(
             _request,
@@ -59,7 +59,7 @@ static NSArray *_handlers = nil;
           );
     }
     @catch (NSException* exception) {
-        LOG_EXCEPTION(exception);
+       NSLog(@"%@",[exception debugDescription]);
     }
  }
 
@@ -74,7 +74,7 @@ static NSArray *_handlers = nil;
     }
     NSError* error = nil;
     if (hasBody && ![response performOpen:&error]) {
-      LOG_ERROR(@"Failed opening response body for socket %i: %@", _socket, error);
+       NSLog(@"Failed opening response body for socket %i: %@", _socket, error);
     } else {
       _response = response;
     }
@@ -145,20 +145,20 @@ static NSArray *_handlers = nil;
     [self _writeHeadersWithCompletionBlock:^(BOOL success) {
         ;  // Nothing more to do
     }];
-    LOG_DEBUG(@"Connection aborted with status code %i on socket %i", (int)statusCode, _socket);
+   NSLog(@"Connection aborted with status code %i on socket %i", (int)statusCode, _socket);//debug
 }
 
 - (void)dealloc {
     int result = close(_socket);
     if (result != 0) {
-        LOG_ERROR(@"Failed closing socket %i for connection: %s (%i)", _socket, strerror(errno), errno);
+       NSLog(@"Failed closing socket %i for connection: %s (%i)", _socket, strerror(errno), errno);
     } else {
-        LOG_DEBUG(@"Did close connection on socket %i", _socket);
+       NSLog(@"Did close connection on socket %i", _socket);//debug
     }
     if (_request) {
-        LOG_VERBOSE(@"[%@] %@ %i \"%@ %@\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, _request.method, _request.path, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
+       NSLog(@"[%@] %@ %i \"%@ %@\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, _request.method, _request.path, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);//verbose
     } else {
-        LOG_VERBOSE(@"[%@] %@ %i \"(invalid request)\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);
+       NSLog(@"[%@] %@ %i \"(invalid request)\" (%lu | %lu)", self.localAddressString, self.remoteAddressString, (int)_statusCode, (unsigned long)_bytesRead, (unsigned long)_bytesWritten);//verbose
     }
     
     if (_requestMessage) {
@@ -175,16 +175,16 @@ static NSArray *_handlers = nil;
 - (void)_readBodyWithLength:(NSUInteger)length initialData:(NSData*)initialData {
   NSError* error = nil;
   if (![_request performOpen:&error]) {
-    LOG_ERROR(@"Failed opening request body for socket %i: %@", _socket, error);
+     NSLog(@"Failed opening request body for socket %i: %@", _socket, error);
     [self abortRequest:_request withStatusCode:500];//InternalServerError
     return;
   }
   
   if (initialData.length) {
     if (![_request performWriteData:initialData error:&error]) {
-      LOG_ERROR(@"Failed writing request body on socket %i: %@", _socket, error);
+       NSLog(@"Failed writing request body on socket %i: %@", _socket, error);
       if (![_request performClose:&error]) {
-        LOG_ERROR(@"Failed closing request body for socket %i: %@", _socket, error);
+         NSLog(@"Failed closing request body for socket %i: %@", _socket, error);
       }
       [self abortRequest:_request withStatusCode:500];//InternalServerError
       return;
@@ -199,7 +199,7 @@ static NSArray *_handlers = nil;
       if ([self->_request performClose:&localError]) {
         [self _startProcessingRequest];
       } else {
-        LOG_ERROR(@"Failed closing request body for socket %i: %@", self->_socket, error);
+         NSLog(@"Failed closing request body for socket %i: %@", self->_socket, error);
         [self abortRequest:self->_request withStatusCode:500];//InternalServerError
       }
       
@@ -208,7 +208,7 @@ static NSArray *_handlers = nil;
     if ([_request performClose:&error]) {
       [self _startProcessingRequest];
     } else {
-      LOG_ERROR(@"Failed closing request body for socket %i: %@", _socket, error);
+       NSLog(@"Failed closing request body for socket %i: %@", _socket, error);
       [self abortRequest:_request withStatusCode:500];//InternalServerError
     }
   }
@@ -217,7 +217,7 @@ static NSArray *_handlers = nil;
 - (void)_readChunkedBodyWithInitialData:(NSData*)initialData {
   NSError* error = nil;
   if (![_request performOpen:&error]) {
-    LOG_ERROR(@"Failed opening request body for socket %i: %@", _socket, error);
+     NSLog(@"Failed opening request body for socket %i: %@", _socket, error);
     [self abortRequest:_request withStatusCode:500];//InternalServerError
     return;
   }
@@ -229,7 +229,7 @@ static NSArray *_handlers = nil;
     if ([self->_request performClose:&localError]) {
       [self _startProcessingRequest];
     } else {
-      LOG_ERROR(@"Failed closing request body for socket %i: %@", self->_socket, error);
+       NSLog(@"Failed closing request body for socket %i: %@", self->_socket, error);
       [self abortRequest:self->_request withStatusCode:500];//InternalServerError
     }
     
@@ -283,7 +283,7 @@ static NSArray *_handlers = nil;
                 if (unescapedKey && unescapedValue) {
                     [parameters setObject:unescapedValue forKey:unescapedKey];
                 } else {
-                    LOG_WARNING(@"Failed parsing URL encoded form for key \"%@\" and value \"%@\"", key, value);
+                   NSLog(@"Failed parsing URL encoded form for key \"%@\" and value \"%@\"", key, value);//warning
                 }
                 
                 if ([scanner isAtEnd]) {
@@ -320,7 +320,7 @@ static NSArray *_handlers = nil;
                     
                   }];
                 } else {
-                  LOG_ERROR(@"Unsupported 'Expect' / 'Content-Length' header combination on socket %i", self->_socket);
+                   NSLog(@"Unsupported 'Expect' / 'Content-Length' header combination on socket %i", self->_socket);
                     [self abortRequest:self->_request withStatusCode:417];//ExpectationFailed
                 }
               } else {
@@ -331,7 +331,7 @@ static NSArray *_handlers = nil;
                 }
               }
             } else {
-              LOG_ERROR(@"Unexpected 'Content-Length' header value on socket %i", self->_socket);
+               NSLog(@"Unexpected 'Content-Length' header value on socket %i", self->_socket);
                 [self abortRequest:self->_request withStatusCode:400];//BadRequest
             }
           } else {
@@ -368,8 +368,8 @@ static NSArray *_handlers = nil;
     _localAddress = localAddress;
     _remoteAddress = remoteAddress;
     _socket = socket;
-    LOG_DEBUG(@"Did open connection on socket %i", _socket);
-    [self _readRequestHeaders];
+     NSLog(@"Did open connection on socket %i", _socket);
+    [self _readRequestHeaders];//debug
   }
   return self;
 }
@@ -396,19 +396,19 @@ static NSArray *_handlers = nil;
                         [data appendBytes:chunkBytes length:chunkSize];
                         return true;
                     });
-                    LOG_DEBUG(@"Connection received %lu bytes on socket %i", (unsigned long)(data.length - originalLength), self->_socket);
-                    self->_bytesRead += (data.length - originalLength);
+                   NSLog(@"Connection received %lu bytes on socket %i", (unsigned long)(data.length - originalLength), self->_socket);
+                    self->_bytesRead += (data.length - originalLength);//debug
                     block(YES);
                 } else {
                     if (self->_bytesRead > 0) {
-                        LOG_ERROR(@"No more data available on socket %i", self->_socket);
+                       NSLog(@"No more data available on socket %i", self->_socket);//error
                     } else {
-                        LOG_WARNING(@"No data received from socket %i", self->_socket);
+                       NSLog(@"No data received from socket %i", self->_socket);//warning
                     }
                     block(NO);
                 }
             } else {
-                LOG_ERROR(@"Error while reading from socket %i: %s (%i)", self->_socket, strerror(error), error);
+               NSLog(@"Error while reading from socket %i: %s (%i)", self->_socket, strerror(error), error);
                 block(NO);
             }
         }
@@ -429,11 +429,11 @@ static NSArray *_handlers = nil;
                     if (CFHTTPMessageIsHeaderComplete(self->_requestMessage)) {
                         block([headersData subdataWithRange:NSMakeRange(length, headersData.length - length)]);
                     } else {
-                        LOG_ERROR(@"Failed parsing request headers from socket %i", self->_socket);
+                       NSLog(@"Failed parsing request headers from socket %i", self->_socket);
                         block(nil);
                     }
                 } else {
-                    LOG_ERROR(@"Failed appending request headers data from socket %i", self->_socket);
+                   NSLog(@"Failed appending request headers data from socket %i", self->_socket);
                     block(nil);
                 }
             }
@@ -459,11 +459,11 @@ static NSArray *_handlers = nil;
                         block(YES);
                     }
                 } else {
-                    LOG_ERROR(@"Failed writing request body on socket %i: %@", self->_socket, error);
+                   NSLog(@"Failed writing request body on socket %i: %@", self->_socket, error);
                     block(NO);
                 }
             } else {
-                LOG_ERROR(@"Unexpected extra content reading request body on socket %i", self->_socket);
+               NSLog(@"Unexpected extra content reading request body on socket %i", self->_socket);
                 block(NO);
             }
         } else {
@@ -502,12 +502,12 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
                     if ([_request performWriteData:[chunkData subdataWithRange:NSMakeRange(range.location + range.length, length)] error:&error]) {
                         [chunkData replaceBytesInRange:NSMakeRange(0, range.location + range.length + length + 2) withBytes:NULL length:0];
                     } else {
-                        LOG_ERROR(@"Failed writing request body on socket %i: %@", _socket, error);
+                       NSLog(@"Failed writing request body on socket %i: %@", _socket, error);
                         block(NO);
                         return;
                     }
                 } else {
-                    LOG_ERROR(@"Missing terminating CRLF sequence for chunk reading request body on socket %i", _socket);
+                   NSLog(@"Missing terminating CRLF sequence for chunk reading request body on socket %i", _socket);
                     block(NO);
                     return;
                 }
@@ -519,7 +519,7 @@ static inline NSUInteger _ScanHexNumber(const void* bytes, NSUInteger size) {
                 }
             }
         } else {
-            LOG_ERROR(@"Invalid chunk length reading request body on socket %i", _socket);
+           NSLog(@"Invalid chunk length reading request body on socket %i", _socket);
             block(NO);
             return;
         }
@@ -564,20 +564,20 @@ withCompletionBlock:(WriteDataCompletionBlock)block
          {
             //Returns zero on success, or non-zero if the timeout in nanoseconds (10^9) occurred.
             //Decrement the counting semaphore. If the resulting value is less than zero, this function waits for a signal to occur before returning.
-            LOG_DEBUG(@"%i:dispatch_write wait 100000 nanosec",self->_socket);
+            NSLog(@"%i:dispatch_write wait 100000 nanosec",self->_socket);//debug
             if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,10000000))!=0)
             {
-               LOG_VERBOSE(@"%i:dispatch_write wait 10 milisec",self->_socket);
+               NSLog(@"%i:dispatch_write wait 10 milisec",self->_socket);//verbose
                if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,100000000))!=0)
                {
-                     LOG_INFO(@"%i:dispatch_write wait 1 sec",self->_socket);
+                  NSLog(@"%i:dispatch_write wait 1 sec",self->_socket);//info
                      if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,1000000000))!=0)
                      {
-                        LOG_WARNING(@"%i:dispatch_write wait 1 sec",self->_socket);
+                        NSLog(@"%i:dispatch_write wait 1 sec",self->_socket);//warning
 
                         if (dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW,10000000000))!=0)
                         {
-                           LOG_ERROR(@"%i:dispatch_write wait 11 sec",self->_socket);
+                           NSLog(@"%i:dispatch_write wait 11 sec",self->_socket);
                         }
                      }
                }
@@ -586,16 +586,16 @@ withCompletionBlock:(WriteDataCompletionBlock)block
          }
          if (error==0)
          {
-            LOG_VERBOSE(@"%i: %lu",
+            NSLog(@"%i: %lu",
                       self->_socket,
                       (unsigned long)data.length
-                      );
+                      );//verbose
             self->_bytesWritten += data.length;
             block(YES);
          }
          else
          {
-            LOG_ERROR(@"%i: %s (%i)",
+            NSLog(@"%i: %s (%i)",
                       self->_socket,
                       strerror(error),
                       error
@@ -607,40 +607,6 @@ withCompletionBlock:(WriteDataCompletionBlock)block
 }
 
 
-/*
- - (void)_writeData:(NSData*)data withCompletionBlock:(WriteDataCompletionBlock)block {
-    
-     dispatch_data_t buffer =
-      dispatch_data_create(
-       data.bytes,
-       data.length,
-       dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-       ^{
-         [data self];  // Keeps ARC from releasing data too early
-       }
-      );
-    
-     dispatch_write(
-      _socket,
-      buffer,
-      dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-      ^(dispatch_data_t remainingData, int error)
-       {
-         @autoreleasepool {
-             if (error == 0) {
-                 LOG_DEBUG(@"Connection sent %lu bytes on socket %i", (unsigned long)data.length, _socket);
-                 _bytesWritten += data.length;
-                 block(YES);
-             } else {
-                 LOG_ERROR(@"Error while writing to socket %i: %s (%i)", _socket, strerror(error), error);
-                 block(NO);
-             }
-         }
-       }
-    );
- }
-
- */
 - (void)_writeHeadersWithCompletionBlock:(WriteHeadersCompletionBlock)block {
     CFDataRef data = CFHTTPMessageCopySerializedMessage(_responseMessage);
     [self _writeData:(__bridge NSData*)data withCompletionBlock:block];
@@ -657,7 +623,7 @@ withCompletionBlock:(WriteDataCompletionBlock)block
                     size_t hexLength = strlen(hexString);
                     NSData* chunk = [NSMutableData dataWithLength:(hexLength + 2 + data.length + 2)];
                     if (chunk == nil) {
-                        LOG_ERROR(@"Failed allocating memory for response body chunk for socket %i: %@", self->_socket, error);
+                       NSLog(@"Failed allocating memory for response body chunk for socket %i: %@", self->_socket, error);
                         block(NO);
                         return;
                     }
@@ -693,7 +659,7 @@ withCompletionBlock:(WriteDataCompletionBlock)block
                 }
             }
         } else {
-            LOG_ERROR(@"Failed reading response body for socket %i: %@", self->_socket, error);
+           NSLog(@"Failed reading response body for socket %i: %@", self->_socket, error);
             block(NO);
         }
         

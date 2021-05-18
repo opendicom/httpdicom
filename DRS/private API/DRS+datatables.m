@@ -52,7 +52,7 @@ const NSUInteger inputStringMinLength=5;
          {
              [names addObject:nameValue[0]];
              [values addObject:[NSString stringWithFormat:@"%@%lu",nameValue[1],(unsigned long)[nameValue[1] length]]];
-             LOG_WARNING(@"%@:%@",[names lastObject],[values lastObject]);
+            NSLog(@"%@:%@",[names lastObject],[values lastObject]);//warning
          }
          else
          {
@@ -60,14 +60,14 @@ const NSUInteger inputStringMinLength=5;
              [values addObject:nameValue[1]];
          }
      }
-     LOG_DEBUG(@"%@",datatablesQueryPart);
-     LOG_INFO(@"datatables %@-%@ [%@] %@ '%@'",
+     NSLog(@"%@",datatablesQueryPart);//debug
+     NSLog(@"datatables %@-%@ [%@] %@ '%@'",
               [names indexOfObject:@"date_start"]!=NSNotFound?values[[names indexOfObject:@"date_start"]]:@"",
               [names indexOfObject:@"date_end"]!=NSNotFound?values[[names indexOfObject:@"date_end"]]:@"",
               [names indexOfObject:@"AccessionNumber"]!=NSNotFound?values[[names indexOfObject:@"AccessionNumber"]]:@"",
               [names indexOfObject:@"PatientID"]!=NSNotFound?values[[names indexOfObject:@"PatientID"]]:@"",
               [names indexOfObject:@"PatientName"]!=NSNotFound?values[[names indexOfObject:@"PatientName"]]:@""
-              );
+              );//info
 
 #pragma mark +StudyDate?
      NSUInteger date_startIndex=[names indexOfObject:@"date_start"];
@@ -161,7 +161,7 @@ const NSUInteger inputStringMinLength=5;
           if (p) [iSet addObject:p[@"org"]];
           else
           {
-             LOG_WARNING(@"bad institution %@",i);
+             NSLog(@"bad institution %@",i);//warning
              return [RSDataResponse responseWithData:
                      [NSJSONSerialization
                       dataWithJSONObject:
@@ -187,7 +187,7 @@ const NSUInteger inputStringMinLength=5;
        NSString *aet=values[[names indexOfObject:@"aet"]];
        if (!custodiantitle || !aet)
        {
-          LOG_WARNING(@"bad custodiantitle '%@' and/or aet '%@'",custodiantitle,aet);
+          NSLog(@"bad custodiantitle '%@' and/or aet '%@'",custodiantitle,aet);//warning
           return [RSDataResponse responseWithData:
                   [NSJSONSerialization
                    dataWithJSONObject:
@@ -212,7 +212,7 @@ const NSUInteger inputStringMinLength=5;
        }
        else
        {
-          LOG_WARNING(@"bad custodiantitle %@.%@'",custodiantitle,aet);
+          NSLog(@"bad custodiantitle %@.%@'",custodiantitle,aet);//warning
           return [RSDataResponse responseWithData:
                   [NSJSONSerialization
                    dataWithJSONObject:
@@ -385,7 +385,7 @@ const NSUInteger inputStringMinLength=5;
        [names addObject:@"length"];
        [values addObject:@"1000"];
 
-       LOG_INFO(@"/datatables/patient? %@ %@",[names description],[values description]);
+       NSLog(@"/datatables/patient? %@ %@",[names description],[values description]);//info
        return [DRS
                 studyTokenSocket:request.socketNumber
                 requestURL:request.URL
@@ -509,7 +509,7 @@ const NSUInteger inputStringMinLength=5;
                                        sqlRecordThirteenUnits
                                        ],
                                       seriesData)
-                        !=0) LOG_ERROR(@"datatables/series  db error");
+                        !=0) NSLog(@"datatables/series  db error");
                     else
                     {
                         NSArray *seriesSqlPropertiesArray=[seriesData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding

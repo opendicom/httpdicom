@@ -159,7 +159,7 @@
                               seriesData)
                 !=0)
             {
-               LOG_ERROR(@"studyToken series db error");
+               NSLog(@"studyToken series db error");
                continue;
             }
             NSArray *seriesSqlPropertiesArray=[seriesData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
@@ -256,7 +256,7 @@
                                       instanceData)
                          !=0)
                      {
-                        LOG_ERROR(@"studyToken study db error");
+                        NSLog(@"studyToken study db error");
                         continue;
                      }
                      instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:nil dictionary:nil orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
@@ -281,7 +281,7 @@
                                       instanceData)
                          !=0)
                      {
-                        LOG_ERROR(@"studyToken study db error");
+                        NSLog(@"studyToken study db error");
                         continue;
                      }
                       instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:sqlDictionary[@"IpostprocessingTitleMain"] dictionary:nil orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
@@ -303,7 +303,7 @@
                                       instanceData)
                          !=0)
                      {
-                        LOG_ERROR(@"studyToken study db error");
+                        NSLog(@"studyToken study db error");
                         continue;
                      }
                       instanceSqlPropertiesArray=[instanceData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding stringUnitsPostProcessTitle:nil dictionary:nil orderedByUnitIndex:2 decreasing:NO];//NSUTF8StringEncoding
@@ -552,7 +552,7 @@ nil];
                            seriesData)
              !=0)
          {
-            LOG_ERROR(@"studyToken series db error");
+            NSLog(@"studyToken series db error");
             continue;
          }
          NSArray *seriesSqlPropertiesArray=[seriesData arrayOfRecordsOfStringUnitsEncoding:NSISOLatin1StringEncoding orderedByUnitIndex:3 decreasing:NO];//NSUTF8StringEncoding
@@ -645,7 +645,7 @@ As seen some casuistics can be resolved before any query to the instance table, 
                                    instanceData)
                       !=0)
                   {
-                     LOG_ERROR(@"studyToken study db error");
+                     NSLog(@"studyToken study db error");
                      continue;
                   }
                }
@@ -667,7 +667,7 @@ As seen some casuistics can be resolved before any query to the instance table, 
                                    instanceData)
                       !=0)
                   {
-                     LOG_ERROR(@"studyToken study db error");
+                     NSLog(@"studyToken study db error");
                      continue;
                   }
                }
@@ -686,7 +686,7 @@ As seen some casuistics can be resolved before any query to the instance table, 
                                    instanceData)
                       !=0)
                   {
-                     LOG_ERROR(@"studyToken study db error");
+                     NSLog(@"studyToken study db error");
                      continue;
                   }
                }

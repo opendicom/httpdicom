@@ -1,6 +1,6 @@
 #import <sys/stat.h>
 #import "RSFileResponse.h"
-#import "ODLog.h"
+
 
 
 #define kFileReadBufferSize (32 * 1024)
@@ -84,7 +84,7 @@ static inline NSDate* _NSDateFromTimeSpec(const struct timespec* t) {
     if (hasByteRange) {
       [self setStatusCode:206];//PartialContent];
       [self setValue:[NSString stringWithFormat:@"bytes %lu-%lu/%lu", (unsigned long)_offset, (unsigned long)(_offset + _size - 1), (unsigned long)fileSize] forAdditionalHeader:@"Content-Range"];
-      LOG_DEBUG(@"Using content bytes range [%lu-%lu] for file \"%@\"", (unsigned long)_offset, (unsigned long)(_offset + _size - 1), path);
+       NSLog(@"Using content bytes range [%lu-%lu] for file \"%@\"", (unsigned long)_offset, (unsigned long)(_offset + _size - 1), path);//debug
     }
     
     if (attachment) {
