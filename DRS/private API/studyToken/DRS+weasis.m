@@ -57,7 +57,7 @@
    NSRegularExpression *ModalityRegex = nil;
    NSRegularExpression *SOPClassRegex = nil;
    NSRegularExpression *SOPClassOffRegex = nil;
-   if (refinedRequest[@"hasSeriesFilter"])
+   if ([refinedRequest[@"hasSeriesFilter"]boolValue])
    {
       if (refinedRequest[@"SeriesInstanceUIDRegexString"]) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
       if (refinedRequest[@"SeriesNumberRegexString"]) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesNumberRegexString"] options:0 error:NULL];
@@ -356,7 +356,7 @@
      NSRegularExpression *ModalityRegex = nil;
      NSRegularExpression *SOPClassRegex = nil;
      NSRegularExpression *SOPClassOffRegex = nil;
-     if (refinedRequest[@"hasSeriesFilter"])
+     if ([refinedRequest[@"hasSeriesFilter"]boolValue])
      {
          if (refinedRequest[@"SeriesInstanceUIDRegexString"]) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
          if (refinedRequest[@"SeriesNumberRegexString"]) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:refinedRequest[@"SeriesNumberRegexString"] options:0 error:NULL];

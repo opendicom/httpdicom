@@ -48,7 +48,7 @@
     NSRegularExpression *ModalityRegex = nil;
     NSRegularExpression *SOPClassRegex = nil;
     NSRegularExpression *SOPClassOffRegex = nil;
-    if (d[@"hasSeriesFilter"])
+    if ([d[@"hasSeriesFilter"]boolValue])
     {
         if (d[@"SeriesInstanceUIDRegexString"]) SeriesInstanceUIDRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesInstanceUIDRegexString"] options:0 error:NULL];
         if (d[@"SeriesNumberRegexString"]) SeriesNumberRegex=[NSRegularExpression regularExpressionWithPattern:d[@"SeriesNumberRegexString"] options:0 error:NULL];
