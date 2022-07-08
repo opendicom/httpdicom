@@ -576,7 +576,113 @@ static NSData *ctad=nil;
        {
           NSMutableDictionary *p=[NSMutableDictionary dictionaryWithDictionary:pacsArray[pacsIndex]];
 
+//<<<<<<< Updated upstream
  
+//=======
+          
+#pragma mark · filesystems
+
+          //create filesystems dictionary for pacs. This dictionary shall be used when get in ["folderDcm4chee2","folderDcm4cheeArc"]
+          /*
+           [
+              {
+                 "dcmStorageID" : "",
+                 "dcmURI" : ""
+              }
+              ...
+           ]
+           */
+          NSError *error=nil;
+          NSMutableDictionary *filesystems=[NSMutableDictionary dictionary];
+          
+          NSMutableData *filesystemsJSONData=[NSMutableData data];
+          if ([p[@"get"]isEqualToString:@"folderDcm4chee2"])
+          {
+             //TODO agregar dictionary "filesystems" a d with string(pk) and dirpath
+             if (execUTF8Bash(@{p[@"sqlcredentials"]:p[@"sqlpassword"]},
+                              [NSString stringWithFormat:@"%@\"SELECT pk, dirpath FROM filesystem\" | awk -F\\t ' BEGIN{ print \"[{\"; ORS=\"},{\";OFS=\",\";}{print \"\\\"dcmStorageID\\\":\\\"\"$1\"\\\"\", \"\\\"dcmURI\\\":\\\"\"$2\"\\\"\"}' | tr -d '\012' | sed -e \"s/,{$/]/\"",p[@"sqlprolog"]],
+                              filesystemsJSONData)
+                 !=0)
+             {
+                LOG_ERROR(@"filesystems error  in %@",p[@"sqlmap"]);
+                //exit(0);
+             }
+          }
+          else if ([p[@"get"]isEqualToString:@"folderDcm4cheeArc"])
+          {
+              NSString *filesystemsURIString=
+                [p[@"dcm4cheelocaluri"]
+               stringByAppendingPathComponent:@"storage"];
+              //[NSString stringWithFormat:@"%@/storage",p[@"dcm4cheelocaluri"]];
+             filesystemsJSONData=[NSMutableData dataWithContentsOfURL:[NSURL URLWithString:filesystemsURIString] options:0 error:&error];
+             if (!filesystemsJSONData)
+             {
+                LOG_ERROR(@"filesystems error  in %@",p[@"sqlmap"]);
+                //exit(0);
+             }
+          }
+          else filesystemsJSONData=[NSMutableData dataWithData:[@"[]" dataUsingEncoding:NSUTF8StringEncoding]];//wado or other
+          
+          //convert JSONData in dictionary dcmStorageID:dcmURI
+           NSArray *arrayOfDicts=nil;
+           if (filesystemsJSONData && filesystemsJSONData.length) arrayOfDicts=[NSJSONSerialization JSONObjectWithData:filesystemsJSONData options:0 error:&error];
+          if (error)
+          {
+             LOG_ERROR(@"filesystems error  in %@",p[@"sqlmap"]);
+             //exit(0);
+          }
+ 
+          NSDictionary *filesystemmapping=p[@"filesystemmapping"];
+          for (NSDictionary *dict in arrayOfDicts)
+          {
+              NSString *mapping=filesystemmapping[dict[@"dcmURI"]];
+              if (!mapping)
+              {
+                  LOG_ERROR(@"add filesystem mapping to the configuration of pacs %@ / %@ for URI %@",
+                            p[@"custodianoid"],
+                            p[@"pacsaet"],
+                            dict[@"dcmURI"]
+                            );
+                  //exit(0);
+              }
+              
+              //check if mapping is accesible
+              NSMutableData *lsData=[NSMutableData data];
+              int lsResult=execUTF8Bash(@{}, [NSString stringWithFormat:@"ls %@",mapping], lsData);
+              LOG_INFO(@"%@ \"ls %@\": (%d) %@",p[@"pacsaet"],mapping,lsResult,[[NSString alloc]initWithData:lsData encoding:NSUTF8StringEncoding]);
+              
+              [filesystems setValue:mapping forKey:dict[@"dcmStorageID"]];
+              /*
+              if ([dict[@"dcmURI"]hasPrefix:@"file:"])
+              {
+                  //dcm4chee-arc
+                  //IMATEC: local. No need to map mount points
+                   
+                  [filesystems setValue:[dict[@"dcmURI"]substringFromIndex:5] forKey:dict[@"dcmStorageID"]];//[p[@"filepathprefix"] stringByAppendingPathComponent:[dict[@"dcmURI"]substringFromIndex:7]] forKey:dict[@"dcmStorageID"]];
+              }
+              else
+              {
+                  //dcm4chee2
+                  //
+                  // IMATEC: remote, pacs_server smb mounted.
+                  // archive                        /Volumes/Archive-1
+                  // /Volumes/Archive_1/Archive     /Volumes/Archive_1/archive
+
+                  // should be improved with mapping in pacs prefs
+                   
+                  if ([dict[@"dcmURI"] isEqualToString:@"archive"])
+                      [filesystems setValue:@"/Volumes/Archive-1" forKey:dict[@"dcmStorageID"]];
+                  else if ([dict[@"dcmURI"] isEqualToString:@"/Volumes/Archive_1/Archive"])
+                      [filesystems setValue:@"/Volumes/Archive_1/archive" forKey:dict[@"dcmStorageID"]];
+                  else
+                      [filesystems setValue:dict[@"dcmURI"] forKey:dict[@"dcmStorageID"]];//[p[@"filepathprefix"] stringByAppendingPathComponent:dict[@"dcmURI"]] forKey:dict[@"dcmStorageID"]];
+              }
+          */
+              
+          }
+          [p setObject:[NSDictionary dictionaryWithDictionary:filesystems] forKey:@"filesystems"];
+
+//>>>>>>> Stashed changes
 #pragma mark ·needssqlaccesscontrol
           if ([p[@"needssqlaccesscontrol"]boolValue])
           {
